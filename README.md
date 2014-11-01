@@ -5,12 +5,14 @@ The *migrator* is a framework agnostic migration tool for Node.JS. The tool itse
 In order to keep track of already executed tasks, *migrator* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple logging strategy presets, from which you can choose. Adding a custom is  super simple as well.
 
 ## Logging strategies
+
 ### JSON
 ### Sequelize
 ### Legacy Sequelize
 
 ## Migrations
 Migrations are basically files that describe ways of executing and undoing tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method. 
+
 ### Format
 A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
 
@@ -35,8 +37,28 @@ module.exports = {
 ```
 
 ## Usage
+
 ### Installation
+The *migrator*  is available on npm:
+
+```js
+npm install sequelize-migrator
+```
+
 ### API
+The basic usage of *migrator* is as simple as that:
+
+```js
+var Migrator = require('sequelize-migrator');
+var migrator = new Migrator({});
+
+migrator.up().then(function (migrations) {
+  // "migrations" will be an Array with the names of the 
+  // executed migrations.
+});
+```
+
+### Configuration
 
 ## License
 MIT
