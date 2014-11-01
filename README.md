@@ -7,13 +7,16 @@ In order to keep track of already executed tasks, *migrator* logs successfully e
 ## Logging strategies
 
 ### JSON
-Using the JSON logging strategy will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
+Using the `json` logging strategy will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
 
 ### Sequelize
-Using the Sequelize logging stategy will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
+Using the `sequelize` logging stategy will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
 
 ### Legacy Sequelize
-Using the Legacy Sequelize logging strategy will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this strategy is not recommended.
+Using the `legacy` logging strategy will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this strategy is not recommended.
+
+### Custom
+TBD. Pass an object...
 
 ## Migrations
 Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method. 
@@ -120,6 +123,34 @@ migrator.down({ to: '20141031080000-task' }).then(function (migrations) {
 ```
 
 ### Configuration
+
+It is possible to configure the *migrator* instance via passing an object to the constructor. The possible options are:
+
+```js
+{
+  // The logging strategy.
+  // Defaults to 'json'. 
+  // Possible values: 'json', 'sequelize', 'legacy', an object
+	strategy: 'json',
+	
+	// The options for the strategy.
+	// Defaults to {}.
+	// See the logging strategies for further details.
+	strategyOptions: { option1: 'value1' },
+	
+	// The name of the positive method in migrations.
+	// Defaults to 'up'.
+	upName: 'run',
+	
+	// The name of the negative method in migrations.
+	// Defaults to 'down'.
+	downName: 'revert',
+	
+	// The path to the migrations directory.
+	// Defaults to 'migrations' in the working directory.
+	migrationsPath: 'db/migrations/'
+}
+```
 
 ## License
 MIT
