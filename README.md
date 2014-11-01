@@ -52,9 +52,51 @@ The basic usage of *migrator* is as simple as that:
 var Migrator = require('sequelize-migrator');
 var migrator = new Migrator({});
 
+migrator.someMethod().then(function (result) {
+  // do something with the result
+});
+```
+
+#### Getting all pending migrations
+You can get a list of pending/not yet executed migrations like this:
+
+```js
+migrator.pending().then(function (migrations) {
+  // "migrations" will be an Array with the names of
+  // pending migrations.
+});
+```
+
+#### Executing pending migrations
+The `up` method can be used to execute all pending migrations. 
+
+```js
 migrator.up().then(function (migrations) {
   // "migrations" will be an Array with the names of the 
   // executed migrations.
+});
+```
+
+It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name.
+
+```js
+migrator.up({ to: '20141101203500-task' }).then(function (migrations) {});
+```
+
+#### Reverting executed migration
+The `down` method can be used to revert the last executed migration.
+
+```js
+migrator.down().then(function (migration) {
+  // "migration" will the name of the reverted migration.
+});
+```
+
+It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverse of multiple migrations at once.
+
+```js
+migrator.down({ to: '20141031080000-task' }).then(function (migrations) {
+  // "migrations" will be an Array with the names of all reverted migrations.
 });
 ```
 
