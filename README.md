@@ -57,6 +57,18 @@ migrator.someMethod().then(function (result) {
 });
 ```
 
+#### Executing migrations
+The `execute` method is a general purpose function that runs for every specified migrations the respective function.
+
+```js
+migrator.execute({
+  migrations: ['some-id', 'some-other-id'],
+  method: 'up'
+}).then(function (migrations) {
+  // "migrations" will be an Array of all executed/reverted migrations.
+});
+```
+
 #### Getting all pending migrations
 You can get a list of pending/not yet executed migrations like this:
 
