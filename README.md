@@ -7,16 +7,23 @@ In order to keep track of already executed tasks, *migrator* logs successfully e
 ## Logging strategies
 
 ### JSON
+Using the JSON logging strategy will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
+
 ### Sequelize
+Using the Sequelize logging stategy will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
+
 ### Legacy Sequelize
+Using the Legacy Sequelize logging strategy will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this strategy is not recommended.
 
 ## Migrations
-Migrations are basically files that describe ways of executing and undoing tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method. 
+Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method. 
 
 ### Format
 A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
 
 ```js
+'use strict';
+
 var Bluebird = require('bluebird');
 
 module.exports = {
