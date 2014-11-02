@@ -2,18 +2,18 @@
 The *migrator* is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
 
 ## Persistence 
-In order to keep track of already executed tasks, *migrator* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple logging strategy presets, from which you can choose. Adding a custom is  super simple as well.
+In order to keep track of already executed tasks, *migrator* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple storage presets available, from which you can choose. Adding a custom is  super simple as well.
 
-## Logging strategies
+## Storages
 
 ### JSON
-Using the `json` logging strategy will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
+Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
 
 ### Sequelize
-Using the `sequelize` logging stategy will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
+Using the `sequelize` storage will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
 
 ### Legacy Sequelize
-Using the `legacy` logging strategy will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this strategy is not recommended.
+Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
 
 ### Custom
 TBD. Pass an object...
@@ -128,15 +128,15 @@ It is possible to configure the *migrator* instance via passing an object to the
 
 ```js
 {
-  // The logging strategy.
+  // The storage.
   // Defaults to 'json'. 
   // Possible values: 'json', 'sequelize', 'legacy', an object
-	strategy: 'json',
+	storage: 'json',
 	
-	// The options for the strategy.
+	// The options for the storage.
 	// Defaults to {}.
-	// See the logging strategies for further details.
-	strategyOptions: { option1: 'value1' },
+	// Check the available storages for further details.
+	storageOptions: { option1: 'value1' },
 	
 	// The name of the positive method in migrations.
 	// Defaults to 'up'.
