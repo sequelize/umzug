@@ -1,7 +1,7 @@
 # Migrator
 The *migrator* is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
 
-## Persistence 
+## Persistence
 In order to keep track of already executed tasks, *migrator* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple storage presets available, from which you can choose. Adding a custom is  super simple as well.
 
 ## Storages
@@ -19,7 +19,7 @@ Using the `legacy` storage will create the obsolete `SequelizeMeta` table struct
 TBD. Pass an object...
 
 ## Migrations
-Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method. 
+Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method.
 
 ### Format
 A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
@@ -36,7 +36,7 @@ module.exports = {
       // Call resolve/reject at some point.
     });
   },
-  
+
   down: function () {
     return new Bluebird(function (resolve, reject) {
       // Describe how to revert the task.
@@ -90,11 +90,11 @@ migrator.pending().then(function (migrations) {
 ```
 
 #### Executing pending migrations
-The `up` method can be used to execute all pending migrations. 
+The `up` method can be used to execute all pending migrations.
 
 ```js
 migrator.up().then(function (migrations) {
-  // "migrations" will be an Array with the names of the 
+  // "migrations" will be an Array with the names of the
   // executed migrations.
 });
 ```
@@ -129,26 +129,30 @@ It is possible to configure the *migrator* instance via passing an object to the
 ```js
 {
   // The storage.
-  // Defaults to 'json'. 
+  // Defaults to 'json'.
   // Possible values: 'json', 'sequelize', 'legacy', an object
 	storage: 'json',
-	
+
 	// The options for the storage.
 	// Defaults to {}.
 	// Check the available storages for further details.
 	storageOptions: { option1: 'value1' },
-	
+
 	// The name of the positive method in migrations.
 	// Defaults to 'up'.
 	upName: 'run',
-	
+
 	// The name of the negative method in migrations.
 	// Defaults to 'down'.
 	downName: 'revert',
-	
+
 	// The path to the migrations directory.
 	// Defaults to 'migrations' in the working directory.
-	migrationsPath: 'db/migrations/'
+	migrationsPath: 'db/migrations/',
+
+  // The pattern that determines whether or not a file is a migration.
+  // Defaults to /^\d+[\s-]+\.js$/
+  migrationsPattern: /^\d{3}\.js$/
 }
 ```
 
