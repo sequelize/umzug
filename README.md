@@ -9,6 +9,16 @@ In order to keep track of already executed tasks, *migrator* logs successfully e
 ### JSON
 Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
 
+#### Options
+
+```js
+{
+  // The path to the json storage.
+  // Defaults to process.cwd() + '/migrations.json';
+  path: process.cwd() + '/db/sequelize-meta.json'
+}
+```
+
 ### Sequelize
 Using the `sequelize` storage will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
 
@@ -86,6 +96,15 @@ You can get a list of pending/not yet executed migrations like this:
 migrator.pending().then(function (migrations) {
   // "migrations" will be an Array with the names of
   // pending migrations.
+});
+```
+
+#### Getting all executed migrations
+You can get a list of already executed migrations like this:
+
+```js
+migrator.executed().then(function (migrations) {
+  // "migrations" will be an Array of already executed migrations.
 });
 ```
 
