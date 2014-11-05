@@ -29,7 +29,7 @@ gulp.task("test", function () {
     .pipe(mocha({
        reporter:    "spec",
        ignoreLeaks: true,
-       timeout:     10000,
+       timeout:     1000,
        grep:        args.grep
     }));
 });

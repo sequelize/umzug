@@ -9,7 +9,7 @@ var helper = module.exports = {
     var files = fs.readdirSync(__dirname + '/tmp');
 
     files.forEach(function (file) {
-      if (file.match(/\.js$/)) {
+      if (file.match(/\.(js|json)$/)) {
         fs.unlinkSync(__dirname + '/tmp/' + file);
       }
     });
@@ -17,6 +17,7 @@ var helper = module.exports = {
 
   generateDummyMigration: function (name) {
     name = name || ~~(Math.random() * 9999) + '-migration';
+
     fs.writeFileSync(
       __dirname + '/tmp/' + name + '.js',
       [

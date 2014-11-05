@@ -87,17 +87,40 @@ describe('Migrator', function () {
 
     it('runs the up method of the migration', function (done) {
       var migration = require('./tmp/123-migration.js');
-      var stub      = sinon.stub(migration, 'up', function () {
-        return Bluebird.resolve();
-      });
+      var upStub    = sinon.stub(migration, 'up', Bluebird.resolve);
+      var downStub  = sinon.stub(migration, 'down', Bluebird.resolve);
 
       this
         .migrator
         .execute({ migrations: ['123-migration'], method: 'up' })
         .then(function () {
-          expect(stub.callCount).to.equal(1);
+          expect(upStub.callCount).to.equal(1);
+          expect(downStub.callCount).to.equal(0);
         })
-        .then(done);
+        .finally(function () {
+          upStub.restore();
+          downStub.restore();
+          done();
+        });
+    });
+
+    it('runs the down method of the migration', function (done) {
+      var migration = require('./tmp/123-migration.js');
+      var upStub    = sinon.stub(migration, 'up', Bluebird.resolve);
+      var downStub  = sinon.stub(migration, 'down', Bluebird.resolve);
+
+      this
+        .migrator
+        .execute({ migrations: ['123-migration'], method: 'down' })
+        .then(function () {
+          expect(upStub.callCount).to.equal(0);
+          expect(downStub.callCount).to.equal(1);
+        })
+        .finally(function () {
+          upStub.restore();
+          downStub.restore();
+          done();
+        });
     });
   });
 });
