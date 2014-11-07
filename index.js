@@ -37,7 +37,22 @@ var Migrator = module.exports = redefine.Class({
         return _.extend(options, { migrations: migrations });
       })
       .then(function (options) {
-        return self.storage.execute(options);
+        return Bluebird.each(options.migrations, function (migration) {
+          return self
+            ._wasExecuted(migration)
+            .tap(function (executed) {
+              if (!executed || (options.method === 'down')) {
+                return (migration[options.method] || Bluebird.resolve).call(migration);
+              }
+            })
+            .then(function (executed) {
+              if (!executed && (options.method === 'up')) {
+                return self.storage.logMigration(migration);
+              } else if (options.method === 'down') {
+                return self.storage.unlogMigration(migration);
+              }
+            });
+        });
       });
   },
 
@@ -89,5 +104,13 @@ var Migrator = module.exports = redefine.Class({
           return null;
         }
       });
+  },
+
+  _wasExecuted: function (_migration) {
+    return this.executed().then(function (migrations) {
+      return migrations.filter(function (migration) {
+        return migration.file === _migration.file;
+      })[0];
+    });
   }
 });
