@@ -74,16 +74,36 @@ var Migrator = module.exports = redefine.Class({
 
         return all.filter(function (migration) {
           return executedFiles.indexOf(migration.file) === -1;
+        }).sort(function (a, b) {
+          if (a.file > b.file) {
+            return 1;
+          } else  if (a.file < b.file) {
+            return -1;
+          } else {
+            return 0;
+          }
         });
       });
   },
 
   up: function () {
-    return this.storage.up();
+    return this
+      .pending()
+      .bind(this)
+      .map(function (migration) { return migration.file; })
+      .then(function (migrationFiles) {
+        return this.execute({ migrations: migrationFiles, method: 'up' });
+      });
   },
 
   down: function () {
-    return this.storage.down();
+    return this.
+      executed()
+      .bind(this)
+      .map(function (migration) { return migration.file })
+      .then(function (migrationFiles) {
+        return this.execute({ migrations: [migrationFiles[0]], method: 'down' });
+      });
   },
 
   _initStorage: function () {
