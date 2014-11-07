@@ -15,7 +15,7 @@ var Migrator = module.exports = redefine.Class({
       upName:            'up',
       downName:          'down',
       migrationsPath:    path.resolve(process.cwd(), 'migrations'),
-      migrationsPattern: /^\d+[\s-]+\.js$/
+      migrationsPattern: /^\d+[\w-]+\.js$/
     }, options);
 
     this.storage = this._initStorage();
@@ -61,7 +61,21 @@ var Migrator = module.exports = redefine.Class({
   },
 
   pending: function () {
-    return this.storage.pending();
+    return this
+      ._findMigrations()
+      .bind(this)
+      .then(function (all) {
+        return Bluebird.join(all, this.storage.executed());
+      })
+      .spread(function (all, executed) {
+        var executedFiles = executed.map(function (migration) {
+          return migration.file;
+        });
+
+        return all.filter(function (migration) {
+          return executedFiles.indexOf(migration.file) === -1;
+        });
+      });
   },
 
   up: function () {
@@ -91,18 +105,28 @@ var Migrator = module.exports = redefine.Class({
     return new Storage(this.options);
   },
 
-  _findMigration: function (needle) {
-    var self = this;
-
+  _findMigrations: function () {
     return Bluebird
       .promisify(fs.readdir)(this.options.migrationsPath)
-      .filter(function (file) { return file.indexOf(needle) === 0; })
-      .then(function (files) {
-        if (files.length > 0) {
-          return new Migration(self.options.migrationsPath + files[0]);
-        } else {
-          return null;
-        }
+      .bind(this)
+      .filter(function (file) {
+        return this.options.migrationsPattern.test(file);
+      })
+      .map(function (file) {
+        return this.options.migrationsPath + file;
+      })
+      .map(function (path) {
+        return new Migration(path);
+      });
+  },
+
+  _findMigration: function (needle) {
+    return this
+      ._findMigrations()
+      .then(function (migrations) {
+        return migrations.filter(function (migration) {
+          return migration.file.indexOf(needle) === 0;
+        })[0];
       });
   },
 

@@ -170,7 +170,7 @@ It is possible to configure the *migrator* instance via passing an object to the
 	migrationsPath: 'db/migrations/',
 
   // The pattern that determines whether or not a file is a migration.
-  // Defaults to /^\d+[\s-]+\.js$/
+  // Defaults to /^\d+[\w-]+\.js$/
   migrationsPattern: /^\d{3}\.js$/
 }
 ```
