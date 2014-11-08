@@ -16,8 +16,6 @@ var helper = module.exports = {
   },
 
   generateDummyMigration: function (name) {
-    name = name || ~~(Math.random() * 9999) + '-migration';
-
     fs.writeFileSync(
       __dirname + '/tmp/' + name + '.js',
       [
@@ -38,14 +36,17 @@ var helper = module.exports = {
       names: []
     }, options || {});
 
-    var names = [];
-
     return new Bluebird(function (resolve) {
+      var names = options.names;
+      var num   = 0;
+
       helper.clearMigrations();
 
-      for (var i = 0; i < count; i++) {
-        names.push(helper.generateDummyMigration(options.names[i]));
-      }
+      _.times(count, function (i) {
+        num++;
+        names.push(options.names[i] || (num + '-migration'));
+        helper.generateDummyMigration(options.names[i]);
+      });
 
       resolve(names);
     });
