@@ -36,7 +36,7 @@ describe('Migrator', function () {
     afterEach(function () {
       this.migration.up.restore();
       this.migration.down.restore();
-    })
+    });
 
     it('runs the up method of the migration', function () {
       return this

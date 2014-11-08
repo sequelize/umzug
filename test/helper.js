@@ -29,6 +29,8 @@ var helper = module.exports = {
         '};'
       ].join('\n')
     );
+
+    return name;
   },
 
   prepareMigrations: function (count, options) {
@@ -36,14 +38,16 @@ var helper = module.exports = {
       names: []
     }, options || {});
 
+    var names = [];
+
     return new Bluebird(function (resolve) {
       helper.clearMigrations();
 
       for (var i = 0; i < count; i++) {
-        helper.generateDummyMigration(options.names[i]);
+        names.push(helper.generateDummyMigration(options.names[i]));
       }
 
-      resolve();
+      resolve(names);
     });
   }
 };
