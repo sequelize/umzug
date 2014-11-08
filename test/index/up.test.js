@@ -9,7 +9,7 @@ var Migrator  = require('../../index');
 var sinon     = require('sinon');
 
 describe('Migrator', function () {
-  describe('pending', function () {
+  describe('up', function () {
     beforeEach(function () {
       return helper
         .prepareMigrations(3)
@@ -27,7 +27,7 @@ describe('Migrator', function () {
 
     describe('when no migrations has been executed yet', function () {
       beforeEach(function () {
-        return this.migrator.pending().bind(this).then(function (migrations) {
+        return this.migrator.up().bind(this).then(function (migrations) {
           this.migrations = migrations;
         });
       });
@@ -53,7 +53,7 @@ describe('Migrator', function () {
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
-          return this.migrator.pending();
+          return this.migrator.up();
         }).then(function (migrations) {
           this.migrations = migrations;
         });
@@ -68,6 +68,12 @@ describe('Migrator', function () {
 
         this.migrationNames.slice(1).forEach(function (migrationName, i) {
           expect(self.migrations[i].file).to.equal(migrationName + '.js');
+        });
+      });
+
+      it('adds the two missing migrations to the storage', function () {
+        return this.migrator.executed().then(function (migrations) {
+          expect(migrations).to.have.length(3);
         });
       });
     });
