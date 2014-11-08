@@ -77,5 +77,35 @@ describe('Migrator', function () {
         });
       });
     });
+
+    describe('when passing the `to` option', function () {
+      beforeEach(function () {
+        return this.migrator.up({
+          to: this.migrationNames[1]
+        }).bind(this).then(function (migrations) {
+          this.migrations = migrations;
+        });
+      });
+
+      it('returns only 2 migrations', function () {
+        expect(this.migrations).to.have.length(2);
+      });
+
+      it('executed only the first 2 migrations', function () {
+        return this.migrator.executed().then(function (migrations) {
+          expect(migrations).to.have.length(2);
+        });
+      })
+
+      it('did not execute the third migration', function () {
+        return this.migrator.executed()
+          .bind(this).then(function (migrations) {
+            var migrationFiles = migrations.map(function (migration) {
+              return migration.file;
+            });
+            expect(migrationFiles).to.not.contain(this.migrationNames[2]);
+          });
+      })
+    });
   });
 });
