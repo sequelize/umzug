@@ -150,7 +150,7 @@ It is possible to configure the *migrator* instance via passing an object to the
   // The storage.
   // Defaults to 'json'.
   // Possible values: 'json', 'sequelize', 'legacy', an object
-	storage: 'json',
+	storage: 'sequelize',
 
 	// The options for the storage.
 	// Defaults to {}.
