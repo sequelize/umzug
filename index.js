@@ -40,6 +40,12 @@ var Migrator = module.exports = redefine.Class({
         return Bluebird.each(options.migrations, function (migration) {
           return self
             ._wasExecuted(migration)
+            .catch(function () {
+              return false;
+            })
+            .then(function (executed) {
+              return (typeof executed === 'undefined') ? true : executed;
+            })
             .tap(function (executed) {
               if (!executed || (options.method === 'down')) {
                 return (migration[options.method] || Bluebird.resolve).call(migration);
@@ -205,8 +211,21 @@ var Migrator = module.exports = redefine.Class({
     return this.executed().filter(function (migration) {
       return migration.testFileName(_migration.file);
     }).then(function(migrations) {
-      return !!migrations[0];
+      if (migrations[0]) {
+        return Bluebird.resolve();
+      } else {
+        return Bluebird.reject(new Error('Migration was not executed: ' + _migration.file));
+      }
     });
+  },
+
+  _wereExecuted: function (migrationNames) {
+    return Bluebird
+      .resolve(migrationNames)
+      .bind(this)
+      .map(function (migration) {
+        return this._wasExecuted(migration);
+      });
   },
 
   _isPending: function (_migration) {
