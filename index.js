@@ -47,9 +47,9 @@ var Migrator = module.exports = redefine.Class({
             })
             .then(function (executed) {
               if (!executed && (options.method === 'up')) {
-                return self.storage.logMigration(migration);
+                return self.storage.logMigration(migration.file);
               } else if (options.method === 'down') {
-                return self.storage.unlogMigration(migration);
+                return self.storage.unlogMigration(migration.file);
               }
             });
         });
