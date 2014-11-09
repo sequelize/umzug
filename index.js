@@ -117,13 +117,43 @@ var Migrator = module.exports = redefine.Class({
       });
   },
 
-  down: function () {
+  down: function (options) {
+    options = _.extend({
+      to: null
+    }, options || {});
+
     return this.
       executed()
       .bind(this)
+      .then(function(migrations) {
+        return migrations.reverse();
+      })
       .map(function (migration) { return migration.file })
+      .reduce(function (acc, migration) {
+        if (acc.add) {
+          acc.migrations.push(migration);
+
+          if (options.to && (migration.indexOf(options.to) === 0)) {
+            // Stop adding the migrations once the final migration
+            // has been added.
+            acc.add = false;
+          }
+        }
+
+        return acc;
+      }, { migrations: [], add: true })
+      .get('migrations')
       .then(function (migrationFiles) {
-        return this.execute({ migrations: [migrationFiles[0]], method: 'down' });
+        var migrations = migrationFiles;
+
+        if (!options.to && (migrationFiles.length > 0)) {
+          migrations = [migrationFiles[0]];
+        }
+
+        return this.execute({
+          migrations: migrations,
+          method:     'down'
+        });
       });
   },
 

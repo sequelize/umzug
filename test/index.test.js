@@ -37,35 +37,4 @@ describe('Migrator', function () {
       )
     });
   });
-
-  describe('pending', function () {
-    before(function (done) {
-      helper
-        .prepareMigrations(3)
-        .bind(this)
-        .then(function () {
-          var migrator = new Migrator({
-            migrationsPath: __dirname + '/tmp/'
-          });
-
-          return migrator.pending()
-        })
-        .then(function (migrations) { this.migrations = migrations })
-        .then(done);
-    });
-
-    it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
-    });
-
-    it('returns 3 items', function () {
-      expect(this.migrations).to.have.length(3);
-    });
-
-    it('returns migration instances', function () {
-      this.migrations.forEach(function (migration) {
-        expect(migration).to.be.a(Migration);
-      });
-    });
-  });
 });
