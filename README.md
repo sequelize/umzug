@@ -194,6 +194,19 @@ migrator.down({ to: '20141031080000-task' }).then(function (migrations) {
 });
 ```
 
+Reverting specific migrations while ignoring the right order, can be done like this:
+
+```js
+migrator.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+```
+
+There are also shorthand version of that:
+
+```js
+migrator.down('20141101203500-task'); // Runs just the passed migration
+migrator.down(['20141101203500-task', '20141101203501-task-2']);
+```
+
 ### Configuration
 
 It is possible to configure the *migrator* instance via passing an object to the constructor. The possible options are:

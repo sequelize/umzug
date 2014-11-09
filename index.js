@@ -129,31 +129,47 @@ var Migrator = module.exports = redefine.Class({
   },
 
   down: function (options) {
+    var getExecuted = function () {
+      return this.executed().bind(this).then(function(migrations) {
+        return migrations.reverse();
+      });
+    }.bind(this);
+
+    if (typeof options === 'undefined') {
+      return getExecuted().bind(this).then(function (migrations) {
+        return migrations[0] ? this.down(migrations[0].file) : Bluebird.resolve([]);
+      });
+    } else if (typeof options === 'string') {
+      return this.down([ options ]);
+    } else if (Array.isArray(options)) {
+      return Bluebird.resolve(options).bind(this)
+        .map(function (migration) {
+          return this._findMigration(migration)
+        })
+        .then(function (migrations) {
+          return this._wereExecuted(migrations);
+        })
+        .then(function () {
+          return this.down({ migrations: options });
+        });
+    }
+
     options = _.extend({
-      to: null
+      to:         null,
+      migrations: null
     }, options || {});
 
-    return this.
-      executed()
-      .bind(this)
-      .then(function(migrations) {
-        return migrations.reverse();
-      })
-      .then(function (migrations) {
-        return this._findMigrationsUntilMatch(options.to, migrations);
-      })
-      .then(function (migrationFiles) {
-        var migrations = migrationFiles;
-
-        if (!options.to && (migrationFiles.length > 0)) {
-          migrations = [migrationFiles[0]];
-        }
-
-        return this.execute({
-          migrations: migrations,
-          method:     'down'
+    if (options.migrations) {
+      return this.execute({ migrations: options.migrations, method: 'down' });
+    } else {
+      return getExecuted().bind(this)
+        .then(function (migrations) {
+          return this._findMigrationsUntilMatch(options.to, migrations);
+        })
+        .then(function (migrationFiles) {
+          return this.down({ migrations: migrationFiles });
         });
-      });
+    }
   },
 
   _initStorage: function () {
