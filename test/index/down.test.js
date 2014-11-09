@@ -125,5 +125,147 @@ describe('Migrator', function () {
         });
       });
     });
+
+    describe('when called with a string', function () {
+      beforeEach(function () {
+        return this.migrator.execute({
+          migrations: this.migrationNames,
+          method:     'up'
+        });
+      });
+
+      describe('that matches an executed migration', function () {
+        beforeEach(function () {
+          return this.migrator.down(this.migrationNames[1]).bind(this)
+            .then(function (migrations) { this.migrations = migrations; });
+        });
+
+        it('returns only 1 migrations', function () {
+          expect(this.migrations).to.have.length(1);
+        });
+
+        it('reverts only the second migrations', function () {
+          return this.migrator.executed().bind(this).then(function (migrations) {
+            expect(migrations).to.have.length(2);
+            expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
+            expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
+          });
+        })
+      });
+
+      describe('that does not match a migration', function () {
+        it('rejects the promise', function () {
+          return this.migrator.down('123-asdasd').then(function () {
+            return Bluebird.reject('We should not end up here...');
+          }, function (err) {
+            expect(err.message).to.equal('Unable to find migration: 123-asdasd');
+          });
+        });
+      });
+
+      describe('that does not match an executed migration', function () {
+        it('rejects the promise', function () {
+          return this.migrator
+            .execute({ migrations: this.migrationNames, method: 'down' })
+            .bind(this)
+            .then(function () {
+              return this.migrator.down(this.migrationNames[1]);
+            })
+            .then(function () {
+              return Bluebird.reject('We should not end up here...');
+            }, function (err) {
+              expect(err.message).to.equal('Migration was not executed: 2-migration.js');
+            });
+        })
+      })
+    });
+
+    describe('when called with an array', function () {
+      beforeEach(function () {
+        return this.migrator.execute({
+          migrations: this.migrationNames,
+          method:     'up'
+        });
+      });
+
+      describe('that matches an executed migration', function () {
+        beforeEach(function () {
+          return this.migrator.down([this.migrationNames[1]]).bind(this)
+            .then(function (migrations) { this.migrations = migrations; });
+        });
+
+        it('returns only 1 migrations', function () {
+          expect(this.migrations).to.have.length(1);
+        });
+
+        it('reverts only the second migrations', function () {
+          return this.migrator.executed().bind(this).then(function (migrations) {
+            expect(migrations).to.have.length(2);
+            expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
+            expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
+          });
+        })
+      });
+
+      describe('that matches multiple pending migration', function () {
+        beforeEach(function () {
+          return this.migrator.down(this.migrationNames.slice(1)).bind(this)
+            .then(function (migrations) { this.migrations = migrations; });
+        });
+
+        it('returns only 2 migrations', function () {
+          expect(this.migrations).to.have.length(2);
+        });
+
+        it('reverts only the second and the third migrations', function () {
+          return this.migrator.executed().bind(this).then(function (migrations) {
+            expect(migrations).to.have.length(1);
+            expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
+          });
+        })
+      });
+
+      describe('that does not match a migration', function () {
+        it('rejects the promise', function () {
+          return this.migrator.down(['123-asdasd']).then(function () {
+            return Bluebird.reject('We should not end up here...');
+          }, function (err) {
+            expect(err.message).to.equal('Unable to find migration: 123-asdasd');
+          });
+        });
+      });
+
+      describe('that does not match an executed migration', function () {
+        it('rejects the promise', function () {
+          return this.migrator
+            .execute({ migrations: this.migrationNames, method: 'down' })
+            .bind(this)
+            .then(function () {
+              return this.migrator.down([this.migrationNames[1]]);
+            })
+            .then(function () {
+              return Bluebird.reject('We should not end up here...');
+            }, function (err) {
+              expect(err.message).to.equal('Migration was not executed: 2-migration.js');
+            });
+        });
+      });
+
+      describe('that does partially not match an executed migration', function () {
+        it('rejects the promise', function () {
+          return this.migrator
+            .execute({ migrations: this.migrationNames.slice(0, 2), method: 'down' })
+            .bind(this)
+            .then(function () {
+              return this.migrator.down(this.migrationNames.slice(1));
+            })
+            .then(function () {
+              return Bluebird.reject('We should not end up here...');
+            }, function (err) {
+              expect(err.message).to.equal('Migration was not executed: 2-migration.js');
+            });
+        });
+      });
+    });
   });
 });

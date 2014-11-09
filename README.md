@@ -162,6 +162,21 @@ It is also possible to pass the name of a migration in order to just run the mig
 migrator.up({ to: '20141101203500-task' }).then(function (migrations) {});
 ```
 
+Running specific migrations while ignoring the right order, can be done like this:
+
+```js
+migrator.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+```
+
+There are also shorthand version of that:
+
+```js
+migrator.up('20141101203500-task'); // Runs just the passed migration
+migrator.up(['20141101203500-task', '20141101203501-task-2']);
+```
+
+Running
+
 #### Reverting executed migration
 The `down` method can be used to revert the last executed migration.
 
@@ -177,6 +192,19 @@ It is possible to pass the name of a migration until which the migrations should
 migrator.down({ to: '20141031080000-task' }).then(function (migrations) {
   // "migrations" will be an Array with the names of all reverted migrations.
 });
+```
+
+Reverting specific migrations while ignoring the right order, can be done like this:
+
+```js
+migrator.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+```
+
+There are also shorthand version of that:
+
+```js
+migrator.down('20141101203500-task'); // Runs just the passed migration
+migrator.down(['20141101203500-task', '20141101203501-task-2']);
 ```
 
 ### Configuration
