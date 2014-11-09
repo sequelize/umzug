@@ -89,34 +89,37 @@ var Migrator = module.exports = redefine.Class({
   },
 
   up: function (options) {
+    if (typeof options === 'string') {
+      return this.up([ options ]);
+    } else if (Array.isArray(options)) {
+      return Bluebird.resolve(options).bind(this)
+        .map(function (migration) {
+          return this._findMigration(migration)
+        })
+        .then(function (migrations) {
+          return this._arePending(migrations);
+        })
+        .then(function () {
+          return this.up({ migrations: options });
+        });
+    }
+
     options = _.extend({
-      to: null
+      to:         null,
+      migrations: null
     }, options || {});
 
-    return this
-      .pending()
-      .bind(this)
-      .map(function (migration) { return migration.file; })
-      .reduce(function (acc, migration) {
-        if (acc.add) {
-          acc.migrations.push(migration);
-
-          if (options.to && (migration.indexOf(options.to) === 0)) {
-            // Stop adding the migrations once the final migration
-            // has been added.
-            acc.add = false;
-          }
-        }
-
-        return acc;
-      }, { migrations: [], add: true })
-      .get('migrations')
-      .then(function (migrationFiles) {
-        return this.execute({
-          migrations: migrationFiles,
-          method: 'up'
+    if (options.migrations) {
+      return this.execute({ migrations: options.migrations, method: 'up' });
+    } else {
+      return this.pending().bind(this)
+        .then(function (migrations) {
+          return this._findMigrationsUntilMatch(options.to, migrations);
+        })
+        .then(function (migrationFiles) {
+          return this.up({ migrations: migrationFiles });
         });
-      });
+    }
   },
 
   down: function (options) {
@@ -130,21 +133,9 @@ var Migrator = module.exports = redefine.Class({
       .then(function(migrations) {
         return migrations.reverse();
       })
-      .map(function (migration) { return migration.file })
-      .reduce(function (acc, migration) {
-        if (acc.add) {
-          acc.migrations.push(migration);
-
-          if (options.to && (migration.indexOf(options.to) === 0)) {
-            // Stop adding the migrations once the final migration
-            // has been added.
-            acc.add = false;
-          }
-        }
-
-        return acc;
-      }, { migrations: [], add: true })
-      .get('migrations')
+      .then(function (migrations) {
+        return this._findMigrationsUntilMatch(options.to, migrations);
+      })
       .then(function (migrationFiles) {
         var migrations = migrationFiles;
 
@@ -198,16 +189,63 @@ var Migrator = module.exports = redefine.Class({
       ._findMigrations()
       .then(function (migrations) {
         return migrations.filter(function (migration) {
-          return migration.file.indexOf(needle) === 0;
+          return migration.testFileName(needle);
         })[0];
+      })
+      .then(function (migration) {
+        if (migration) {
+          return migration;
+        } else {
+          return Bluebird.reject(new Error('Unable to find migration: ' + needle));
+        }
       });
   },
 
   _wasExecuted: function (_migration) {
-    return this.executed().then(function (migrations) {
-      return migrations.filter(function (migration) {
-        return migration.file === _migration.file;
-      })[0];
+    return this.executed().filter(function (migration) {
+      return migration.testFileName(_migration.file);
+    }).then(function(migrations) {
+      return !!migrations[0];
     });
+  },
+
+  _isPending: function (_migration) {
+    return this.pending().filter(function (migration) {
+      return migration.testFileName(_migration.file);
+    }).then(function(migrations) {
+      if (migrations[0]) {
+        return Bluebird.resolve();
+      } else {
+        return Bluebird.reject(new Error('Migration is not pending: ' + _migration.file));
+      }
+    });
+  },
+
+  _arePending: function (migrationNames) {
+    return Bluebird
+      .resolve(migrationNames)
+      .bind(this)
+      .map(function (migration) {
+        return this._isPending(migration);
+      });
+  },
+
+  _findMigrationsUntilMatch: function (to, migrations) {
+    return Bluebird.resolve(migrations)
+      .map(function (migration) { return migration.file })
+      .reduce(function (acc, migration) {
+        if (acc.add) {
+          acc.migrations.push(migration);
+
+          if (to && (migration.indexOf(to) === 0)) {
+            // Stop adding the migrations once the final migration
+            // has been added.
+            acc.add = false;
+          }
+        }
+
+        return acc;
+      }, { migrations: [], add: true })
+      .get('migrations');
   }
 });
