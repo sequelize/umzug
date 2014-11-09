@@ -57,7 +57,9 @@ var Migrator = module.exports = redefine.Class({
   },
 
   executed: function () {
-    return this.storage.executed();
+    return this.storage.executed().bind(this).map(function (file) {
+      return new Migration(file);
+    });
   },
 
   pending: function () {
@@ -65,7 +67,7 @@ var Migrator = module.exports = redefine.Class({
       ._findMigrations()
       .bind(this)
       .then(function (all) {
-        return Bluebird.join(all, this.storage.executed());
+        return Bluebird.join(all, this.executed());
       })
       .spread(function (all, executed) {
         var executedFiles = executed.map(function (migration) {
