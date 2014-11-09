@@ -26,7 +26,45 @@ Using the `sequelize` storage will create a table in your database called `Seque
 Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
 
 ### Custom
-TBD. Pass an object...
+In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *migrator* will require it accordingly. The API that needs to be exposed looks like this:
+
+```js
+var Bluebird = require('bluebird');
+var redefine = require('redefine');
+
+module.exports = redefine.Class({
+  constructor: function (options) {
+    this.options = options;
+    this.options.storageOptions = _.extend({
+      option1: 'defaultValue1'
+    }, this.options.storageOptions)
+  },
+
+  logMigration: function (migrationName) {
+    return new Bluebird(function (resolve, reject) {
+      // This function logs a migration as executed.
+      // It will get called once a migration was
+      // executed successfully.
+    });
+  },
+
+  unlogMigration: function (migrationName) {
+    return new Bluebird(function (resolve, reject) {
+      // This function removes a previously logged migration.
+      // It will get called once a migration has been reverted.
+    });
+  },
+
+  executed: function () {
+    return new Bluebird(function (resolve, reject) {
+      // This function lists the names of the logged
+      // migrations. It will be used to calculate
+      // pending migrations. The result has to be an
+      // array with the names of the migration files.
+    });
+  }
+});
+```
 
 ## Migrations
 Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method.
