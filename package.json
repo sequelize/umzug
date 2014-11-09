@@ -1,0 +1,32 @@
+{
+  "name": "sequelize-migrator",
+  "version": "1.0.0",
+  "description": "migrations ==========",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^2.3.10",
+    "lodash": "^2.4.1",
+    "moment": "^2.8.3",
+    "redefine": "^0.2.0",
+    "resolve": "^1.0.0"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^2.0.1",
+    "sinon": "^1.11.1",
+    "yargs": "^1.3.2"
+  },
+  "scripts": {
+    "test": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sequelize/migrator.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sequelize/migrator/issues"
+  },
+  "homepage": "https://github.com/sequelize/migrator"
+}
