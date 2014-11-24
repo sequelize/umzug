@@ -142,29 +142,6 @@ describe('storages', function () {
 
     describe('logMigration', function () {
 
-      it("creates the table if it doesn't exist yet", function () {
-
-        var storage = new Storage({
-          storageOptions: {
-            sequelize: this.sequelize
-          }
-        });
-
-        return storage.options.storageOptions.model.describe()
-          .catch(function(error) {
-            expect(error).to.match(/No description found for "SequelizeMeta" table/);
-          })
-          .then(function() {
-            return storage.logMigration('asd.js');
-          })
-          .then(function() {
-            return storage.options.storageOptions.model.describe();
-          })
-          .then(function(description) {
-            expect(description).to.have.keys(['id', 'name']);
-          });
-      });
-
       it('writes the migration to the database', function () {
 
         var storage = new Storage({
@@ -205,29 +182,6 @@ describe('storages', function () {
     }); //end describe('logMigration', function() {
 
     describe('unlogMigration', function () {
-
-      it("creates the table if it doesn't exist yet", function () {
-
-        var storage = new Storage({
-          storageOptions: {
-            sequelize: this.sequelize
-          }
-        });
-
-        return storage.options.storageOptions.model.describe()
-          .catch(function(error) {
-            expect(error).to.match(/No description found for "SequelizeMeta" table/);
-          })
-          .then(function() {
-            return storage.unlogMigration('asd.js');
-          })
-          .then(function() {
-            return storage.options.storageOptions.model.describe();
-          })
-          .then(function(description) {
-            expect(description).to.have.keys(['id', 'name']);
-          });
-      });
 
       it('deletes the migration from the database', function () {
 
@@ -285,29 +239,6 @@ describe('storages', function () {
     });
 
     describe('executed', function () {
-
-      it("creates the table if it doesn't exist yet", function () {
-
-        var storage = new Storage({
-          storageOptions: {
-            sequelize: this.sequelize
-          }
-        });
-
-        return storage.options.storageOptions.model.describe()
-          .catch(function(error) {
-            expect(error).to.match(/No description found for "SequelizeMeta" table/);
-          })
-          .then(function() {
-            return storage.executed();
-          })
-          .then(function() {
-            return storage.options.storageOptions.model.describe();
-          })
-          .then(function(description) {
-            expect(description).to.have.keys(['id', 'name']);
-          });
-      });
 
       it('returns an empty array if no migrations were logged yet', function () {
 
