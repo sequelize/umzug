@@ -7,7 +7,7 @@ In order to keep track of already executed tasks, *migrator* logs successfully e
 ## Storages
 
 ### JSON
-Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
+Using the [`json` storage](lib/storages/json.js) will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
 
 #### Options
 
@@ -20,7 +20,7 @@ Using the `json` storage will create a JSON file which will contain an array wit
 ```
 
 ### Sequelize
-Using the `sequelize` storage will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize. Optionally you can specify the table name.
+Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name.
 
 ### Legacy Sequelize
 Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
