@@ -53,9 +53,9 @@ var Migrator = module.exports = redefine.Class({
             })
             .then(function (executed) {
               if (!executed && (options.method === 'up')) {
-                return self.storage.logMigration(migration.file);
+                return Bluebird.resolve(self.storage.logMigration(migration.file));
               } else if (options.method === 'down') {
-                return self.storage.unlogMigration(migration.file);
+                return Bluebird.resolve(self.storage.unlogMigration(migration.file));
               }
             });
         });
@@ -63,7 +63,7 @@ var Migrator = module.exports = redefine.Class({
   },
 
   executed: function () {
-    return this.storage.executed().bind(this).map(function (file) {
+    return Bluebird.resolve(this.storage.executed()).bind(this).map(function (file) {
       return new Migration(file);
     });
   },

@@ -234,5 +234,43 @@ describe('Migrator', function () {
         });
       });
     });
+
+    describe('when storage returns a thenable', function () {
+      beforeEach(function () {
+
+        //one migration has been executed already
+        return this.migrator.execute({
+          migrations: [ this.migrationNames[0] ],
+          method:     'up'
+        }).bind(this).then(function () {
+
+          //storage returns a thenable
+          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);
+          
+          return this.migrator.up();
+        }).then(function (migrations) {
+          this.migrations = migrations;
+        });
+      });
+
+      it('returns only 2 items', function () {
+        expect(this.migrations).to.have.length(2);
+      });
+
+      it('returns only the migrations that have not been run yet', function () {
+        var self = this;
+
+        this.migrationNames.slice(1).forEach(function (migrationName, i) {
+          expect(self.migrations[i].file).to.equal(migrationName + '.js');
+        });
+      });
+
+      it('adds the two missing migrations to the storage', function () {
+        return this.migrator.executed().then(function (migrations) {
+          expect(migrations).to.have.length(3);
+        });
+      });
+    });
+
   });
 });

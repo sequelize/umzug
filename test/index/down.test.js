@@ -267,5 +267,42 @@ describe('Migrator', function () {
         });
       });
     });
+
+    describe('when storage returns a thenable', function() {
+
+      beforeEach(function() {
+
+        //a migration has been executed already...
+        return this.migrator.execute({
+          migrations: [ this.migrationNames[0] ],
+          method:     'up'
+        }).bind(this).then(function () {
+          return this.migrator.executed();
+        }).then(function (migrations) {
+          expect(migrations).to.have.length(1);
+        }).then(function () {
+
+          //storage returns a thenable
+          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);
+          
+          return this.migrator.down();
+        }).then(function (migrations) {
+          this.migrations = migrations;
+        });
+
+      });
+
+      it('returns 1 item', function () {
+        expect(this.migrations).to.have.length(1);
+        expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
+      });
+
+      it('removes the reverted migrations from the storage', function () {
+        return this.migrator.executed().then(function (migrations) {
+          expect(migrations).to.have.length(0);
+        });
+      });
+
+    });
   });
 });

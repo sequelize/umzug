@@ -87,5 +87,32 @@ describe('Migrator', function () {
         expect(this.migrations[2].file).to.equal(this.migrationNames[2] + '.js');
       });
     });
+
+    describe('when storage returns a thenable', function() {
+
+      beforeEach(function() {
+  
+        //1 migration has been executed already
+        return this.migrator.execute({
+          migrations: [ this.migrationNames[0] ],
+          method:     'up'
+        }).bind(this).then(function () {
+          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);          
+          return this.migrator.executed();
+        }).then(function (migrations) {
+          this.migrations = migrations;
+        });
+      });
+
+      it('returns an array', function () {
+        expect(this.migrations).to.be.an(Array);
+      });
+
+      it('returns 1 items', function () {
+        expect(this.migrations).to.have.length(1);
+        expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
+      });
+    });
+
   });
 });
