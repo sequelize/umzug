@@ -5,10 +5,10 @@ var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
 var Migration = require('../../lib/migration');
-var Migrator  = require('../../index');
+var Umzug     = require('../../index');
 var sinon     = require('sinon');
 
-describe('Migrator', function () {
+describe('Umzug', function () {
   describe('executed', function () {
     beforeEach(function () {
       return helper
@@ -16,10 +16,10 @@ describe('Migrator', function () {
         .bind(this)
         .then(function (migrationNames) {
           this.migrationNames = migrationNames;
-          this.migrator       = new Migrator({
+          this.umzug          = new Umzug({
             migrationsPath: __dirname + '/../tmp/',
             storageOptions: {
-              path: __dirname + '/../tmp/migrations.json'
+              path: __dirname + '/../tmp/umzug.json'
             }
           });
         });
@@ -27,7 +27,7 @@ describe('Migrator', function () {
 
     describe('when no migrations has been executed yet', function () {
       beforeEach(function () {
-        return this.migrator.executed()
+        return this.umzug.executed()
           .bind(this).then(function (migrations) {
             this.migrations = migrations;
           });
@@ -44,11 +44,11 @@ describe('Migrator', function () {
 
     describe('when one migration has been executed yet', function () {
       beforeEach(function () {
-        return this.migrator.execute({
+        return this.umzug.execute({
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
-          return this.migrator.executed()
+          return this.umzug.executed()
         }).then(function (migrations) {
           this.migrations = migrations;
         });
@@ -66,11 +66,11 @@ describe('Migrator', function () {
 
     describe('when all migration has been executed yet', function () {
       beforeEach(function () {
-        return this.migrator.execute({
+        return this.umzug.execute({
           migrations: this.migrationNames,
           method:     'up'
         }).bind(this).then(function () {
-          return this.migrator.executed()
+          return this.umzug.executed()
         }).then(function (migrations) {
           this.migrations = migrations;
         });

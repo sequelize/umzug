@@ -1,20 +1,20 @@
-# Migrator
-The *migrator* is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
+# Umzug
+The *umzug* lib is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
 
 ## Persistence
-In order to keep track of already executed tasks, *migrator* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple storage presets available, from which you can choose. Adding a custom is  super simple as well.
+In order to keep track of already executed tasks, *umzug* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple storage presets available, from which you can choose. Adding a custom is  super simple as well.
 
 ## Storages
 
 ### JSON
-Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `migrator.json` in the working directory of the process.
+Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
 
 #### Options
 
 ```js
 {
   // The path to the json storage.
-  // Defaults to process.cwd() + '/migrations.json';
+  // Defaults to process.cwd() + '/umzug.json';
   path: process.cwd() + '/db/sequelize-meta.json'
 }
 ```
@@ -26,7 +26,7 @@ Using the `sequelize` storage will create a table in your database called `Seque
 Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
 
 ### Custom
-In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *migrator* will require it accordingly. The API that needs to be exposed looks like this:
+In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
 
 ```js
 var Bluebird = require('bluebird');
@@ -97,20 +97,20 @@ module.exports = {
 ## Usage
 
 ### Installation
-The *migrator*  is available on npm:
+The *umzug* lib is available on npm:
 
 ```js
-npm install sequelize-migrator
+npm install umzug
 ```
 
 ### API
-The basic usage of *migrator* is as simple as that:
+The basic usage of *umzug* is as simple as that:
 
 ```js
-var Migrator = require('sequelize-migrator');
-var migrator = new Migrator({});
+var Umzug = require('umzug');
+var umzug = new Umzug({});
 
-migrator.someMethod().then(function (result) {
+umzug.someMethod().then(function (result) {
   // do something with the result
 });
 ```
@@ -119,7 +119,7 @@ migrator.someMethod().then(function (result) {
 The `execute` method is a general purpose function that runs for every specified migrations the respective function.
 
 ```js
-migrator.execute({
+umzug.execute({
   migrations: ['some-id', 'some-other-id'],
   method: 'up'
 }).then(function (migrations) {
@@ -131,7 +131,7 @@ migrator.execute({
 You can get a list of pending/not yet executed migrations like this:
 
 ```js
-migrator.pending().then(function (migrations) {
+umzug.pending().then(function (migrations) {
   // "migrations" will be an Array with the names of
   // pending migrations.
 });
@@ -141,7 +141,7 @@ migrator.pending().then(function (migrations) {
 You can get a list of already executed migrations like this:
 
 ```js
-migrator.executed().then(function (migrations) {
+umzug.executed().then(function (migrations) {
   // "migrations" will be an Array of already executed migrations.
 });
 ```
@@ -150,7 +150,7 @@ migrator.executed().then(function (migrations) {
 The `up` method can be used to execute all pending migrations.
 
 ```js
-migrator.up().then(function (migrations) {
+umzug.up().then(function (migrations) {
   // "migrations" will be an Array with the names of the
   // executed migrations.
 });
@@ -159,20 +159,20 @@ migrator.up().then(function (migrations) {
 It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name.
 
 ```js
-migrator.up({ to: '20141101203500-task' }).then(function (migrations) {});
+umzug.up({ to: '20141101203500-task' }).then(function (migrations) {});
 ```
 
 Running specific migrations while ignoring the right order, can be done like this:
 
 ```js
-migrator.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
 ```
 
 There are also shorthand version of that:
 
 ```js
-migrator.up('20141101203500-task'); // Runs just the passed migration
-migrator.up(['20141101203500-task', '20141101203501-task-2']);
+umzug.up('20141101203500-task'); // Runs just the passed migration
+umzug.up(['20141101203500-task', '20141101203501-task-2']);
 ```
 
 Running
@@ -181,7 +181,7 @@ Running
 The `down` method can be used to revert the last executed migration.
 
 ```js
-migrator.down().then(function (migration) {
+umzug.down().then(function (migration) {
   // "migration" will the name of the reverted migration.
 });
 ```
@@ -189,7 +189,7 @@ migrator.down().then(function (migration) {
 It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverse of multiple migrations at once.
 
 ```js
-migrator.down({ to: '20141031080000-task' }).then(function (migrations) {
+umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
   // "migrations" will be an Array with the names of all reverted migrations.
 });
 ```
@@ -197,19 +197,19 @@ migrator.down({ to: '20141031080000-task' }).then(function (migrations) {
 Reverting specific migrations while ignoring the right order, can be done like this:
 
 ```js
-migrator.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
 ```
 
 There are also shorthand version of that:
 
 ```js
-migrator.down('20141101203500-task'); // Runs just the passed migration
-migrator.down(['20141101203500-task', '20141101203501-task-2']);
+umzug.down('20141101203500-task'); // Runs just the passed migration
+umzug.down(['20141101203500-task', '20141101203501-task-2']);
 ```
 
 ### Configuration
 
-It is possible to configure the *migrator* instance via passing an object to the constructor. The possible options are:
+It is possible to configure *umzug* instance via passing an object to the constructor. The possible options are:
 
 ```js
 {

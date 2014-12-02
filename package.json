@@ -1,7 +1,7 @@
 {
-  "name": "sequelize-migrator",
+  "name": "sequelize-umzug",
   "version": "1.0.0",
-  "description": "migrations ==========",
+  "description": "Framework agnostic migration tool for Node.JS",
   "main": "index.js",
   "dependencies": {
     "bluebird": "^2.3.10",
@@ -21,12 +21,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sequelize/migrator.git"
+    "url": "https://github.com/sequelize/umzug.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sequelize/migrator/issues"
+    "url": "https://github.com/sequelize/umzug/issues"
   },
-  "homepage": "https://github.com/sequelize/migrator"
+  "homepage": "https://github.com/sequelize/umzug"
 }
