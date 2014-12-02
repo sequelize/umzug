@@ -1,5 +1,5 @@
 {
-  "name": ":umzug",
+  "name": "umzug",
   "version": "1.0.0",
   "description": "Framework agnostic migration tool for Node.JS",
   "main": "index.js",
