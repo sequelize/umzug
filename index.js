@@ -7,7 +7,7 @@ var Migration = require('./lib/migration');
 var path      = require('path');
 var redefine  = require('redefine');
 
-var Migrator = module.exports = redefine.Class({
+var Umzug = module.exports = redefine.Class({
   constructor: function (options) {
     this.options = _.extend({
       storage:           'json',

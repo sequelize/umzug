@@ -18,14 +18,14 @@ describe('storages', function () {
       it('sets the default storage path', function () {
         var storage = new Storage();
         expect(storage.options.storageOptions.path).to.equal(
-          process.cwd() + '/migrations.json'
+          process.cwd() + '/umzug.json'
         );
       });
     });
 
     describe('logMigration', function () {
       beforeEach(function () {
-        this.path    = __dirname + '/../tmp/migrations.json';
+        this.path    = __dirname + '/../tmp/umzug.json';
         this.storage = new Storage({
           storageOptions: { path: this.path }
         });
@@ -52,7 +52,7 @@ describe('storages', function () {
 
     describe('unlogMigration', function () {
       beforeEach(function () {
-        this.path    = __dirname + '/../tmp/migrations.json';
+        this.path    = __dirname + '/../tmp/umzug.json';
         this.storage = new Storage({
           storageOptions: { path: this.path }
         });
@@ -87,7 +87,7 @@ describe('storages', function () {
 
     describe('executed', function () {
       beforeEach(function () {
-        this.path    = __dirname + '/../tmp/migrations.json';
+        this.path    = __dirname + '/../tmp/umzug.json';
         this.storage = new Storage({
           storageOptions: { path: this.path }
         });
