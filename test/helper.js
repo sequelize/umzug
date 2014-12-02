@@ -50,5 +50,29 @@ var helper = module.exports = {
 
       resolve(names);
     });
+  },
+
+  wrapStorageAsCustomThenable: function(storage) {
+
+    return {
+      logMigration: function(migration) {
+        return helper._convertPromiseToThenable(storage.logMigration(migration));
+      },
+      unlogMigration: function(migration) {
+        return helper._convertPromiseToThenable(storage.unlogMigration(migration));
+      },
+      executed: function() {
+        return helper._convertPromiseToThenable(storage.executed());
+      }
+    };
+  },
+
+  _convertPromiseToThenable: function(promise) {
+    return {
+      then: function(onFulfilled, onRejected) {
+        //note don't return anything!
+        promise.then(onFulfilled, onRejected);
+      }
+    };
   }
 };
