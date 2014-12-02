@@ -91,14 +91,14 @@ describe('Umzug', function () {
     describe('when storage returns a thenable', function() {
 
       beforeEach(function() {
-  
+
         //1 migration has been executed already
-        return this.migrator.execute({
+        return this.umzug.execute({
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
-          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);          
-          return this.migrator.executed();
+          this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
+          return this.umzug.executed();
         }).then(function (migrations) {
           this.migrations = migrations;
         });

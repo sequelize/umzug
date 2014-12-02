@@ -239,15 +239,15 @@ describe('Umzug', function () {
       beforeEach(function () {
 
         //one migration has been executed already
-        return this.migrator.execute({
+        return this.umzug.execute({
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
 
           //storage returns a thenable
-          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);
-          
-          return this.migrator.up();
+          this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
+
+          return this.umzug.up();
         }).then(function (migrations) {
           this.migrations = migrations;
         });
@@ -266,7 +266,7 @@ describe('Umzug', function () {
       });
 
       it('adds the two missing migrations to the storage', function () {
-        return this.migrator.executed().then(function (migrations) {
+        return this.umzug.executed().then(function (migrations) {
           expect(migrations).to.have.length(3);
         });
       });

@@ -273,19 +273,19 @@ describe('Umzug', function () {
       beforeEach(function() {
 
         //a migration has been executed already...
-        return this.migrator.execute({
+        return this.umzug.execute({
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
-          return this.migrator.executed();
+          return this.umzug.executed();
         }).then(function (migrations) {
           expect(migrations).to.have.length(1);
         }).then(function () {
 
           //storage returns a thenable
-          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);
-          
-          return this.migrator.down();
+          this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
+
+          return this.umzug.down();
         }).then(function (migrations) {
           this.migrations = migrations;
         });
@@ -298,7 +298,7 @@ describe('Umzug', function () {
       });
 
       it('removes the reverted migrations from the storage', function () {
-        return this.migrator.executed().then(function (migrations) {
+        return this.umzug.executed().then(function (migrations) {
           expect(migrations).to.have.length(0);
         });
       });

@@ -76,15 +76,15 @@ describe('Umzug', function () {
       beforeEach(function () {
 
         //a migration has been executed already
-        return this.migrator.execute({
+        return this.umzug.execute({
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
 
           //storage returns a thenable
-          this.migrator.storage = helper.wrapStorageAsCustomThenable(this.migrator.storage);
-          
-          return this.migrator.pending();
+          this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
+
+          return this.umzug.pending();
         }).then(function (migrations) {
           this.migrations = migrations;
         });
