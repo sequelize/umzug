@@ -5,11 +5,11 @@ var Bluebird = require('bluebird');
 var fs       = require('fs');
 
 var helper = module.exports = {
-  clearMigrations: function () {
+  clearTmp: function () {
     var files = fs.readdirSync(__dirname + '/tmp');
 
     files.forEach(function (file) {
-      if (file.match(/\.(js|json)$/)) {
+      if (file.match(/\.(js|json|sqlite)$/)) {
         fs.unlinkSync(__dirname + '/tmp/' + file);
       }
     });
@@ -40,7 +40,7 @@ var helper = module.exports = {
       var names = options.names;
       var num   = 0;
 
-      helper.clearMigrations();
+      helper.clearTmp();
 
       _.times(count, function (i) {
         num++;

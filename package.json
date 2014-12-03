@@ -15,7 +15,7 @@
     "gulp": "^3.8.10",
     "gulp-mocha": "^2.0.0",
     "mocha": "^2.0.1",
-    "sequelize": "^2.0.0-rc2",
+    "sequelize": "git://github.com/sequelize/sequelize.git#ce6b7878b625f3d139791c59d493f68a1c3e0319",
     "sinon": "^1.11.1",
     "sqlite3": "^3.0.2",
     "yargs": "^1.3.2"
