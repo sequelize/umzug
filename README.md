@@ -22,6 +22,33 @@ Using the [`json` storage](lib/storages/json.js) will create a JSON file which w
 ### Sequelize
 Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name.
 
+#### Options
+
+```js
+{
+  // The configured instance of Sequelize.
+  // Optional if `model` is passed.
+  sequelize: instance,
+  
+  // The to be used Sequelize model.
+  // Must have column name matching `columnName` option
+  // Optional of `sequelize` is passed.
+  model: model,
+  
+  // The name of the to be used model.
+  // Defaults to 'SequelizeMeta'
+  modelName: 'Schema',
+  
+  // The name of table to create if `model` option is not supplied
+  // Defaults to `modelName`
+  tableName: 'Schema',
+  
+  // The name of table column holding migration name.
+  // Defaults to 'name'.
+  columnName: 'migration'
+}
+```
+
 ### Legacy Sequelize
 Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
 
