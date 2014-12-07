@@ -210,7 +210,7 @@ var Umzug = module.exports = redefine.Class({
         return this.options.migrationsPath + file;
       })
       .map(function (path) {
-        return new Migration(path);
+        return new Migration(path, this.options);
       });
   },
 
