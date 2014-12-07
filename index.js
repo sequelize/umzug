@@ -14,6 +14,7 @@ var Umzug = module.exports = redefine.Class({
       storageOptions:    {},
       upName:            'up',
       downName:          'down',
+      migrationsParams:  [],
       migrationsPath:    path.resolve(process.cwd(), 'migrations'),
       migrationsPattern: /^\d+[\w-]+\.js$/
     }, options);
@@ -48,7 +49,14 @@ var Umzug = module.exports = redefine.Class({
             })
             .tap(function (executed) {
               if (!executed || (options.method === 'down')) {
-                return (migration[options.method] || Bluebird.resolve).call(migration);
+                var fun    = (migration[options.method] || Bluebird.resolve);
+                var params = self.options.migrationsParams;
+
+                if (typeof params === 'function') {
+                  params = params();
+                }
+
+                return fun.apply(migration, params);
               }
             })
             .then(function (executed) {

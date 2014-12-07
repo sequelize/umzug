@@ -73,5 +73,29 @@ describe('Umzug', function () {
         expect(storage).to.eql(['123-migration.js']);
       });
     });
+
+    it('calls the migration without params by default', function () {
+      return this.migrate('up').bind(this).then(function () {
+        expect(this.upStub.getCall(0).args).to.eql([]);
+      });
+    });
+
+    it('calls the migration with the specified params', function () {
+      this.umzug.options.migrationsParams = [1, 2, 3];
+
+      return this.migrate('up').bind(this).then(function () {
+        expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
+      });
+    });
+
+    it('calls the migration with the result of the passed function', function () {
+      this.umzug.options.migrationsParams = function () {
+        return [1, 2, 3];
+      };
+      
+      return this.migrate('up').bind(this).then(function () {
+        expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
+      });
+    });
   });
 });
