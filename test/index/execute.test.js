@@ -130,6 +130,33 @@ describe('Umzug', function () {
       }).then(function () {
         expect(+new Date() - start).to.be.greaterThan(200);
       });
-    })
-  })
+    });
+  });
+
+  describe('coffee-script support', function () {
+    beforeEach(function () {
+      helper.clearTmp();
+      require('fs').writeFileSync(__dirname + '/../tmp/123-coffee-migration.coffee', [
+        "'use strict'",
+        "",
+        "module.exports =",
+        "  up: () ->",
+        "  down: () ->"
+        ].join('\n')
+      );
+    });
+
+    it('runs the migration', function () {
+      var umzug = new Umzug({
+        migrationsPath:    __dirname + '/../tmp/',
+        storageOptions:    { path: __dirname + '/../tmp/umzug.json' },
+        migrationsPattern: /\.coffee$/
+      });
+
+      return umzug.execute({
+        migrations: ['123-coffee-migration'],
+        method:     'up'
+      });
+    });
+  });
 });
