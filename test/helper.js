@@ -53,7 +53,6 @@ var helper = module.exports = {
   },
 
   wrapStorageAsCustomThenable: function(storage) {
-
     return {
       logMigration: function(migration) {
         return helper._convertPromiseToThenable(storage.logMigration(migration));
