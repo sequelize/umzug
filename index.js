@@ -207,7 +207,7 @@ var Umzug = module.exports = redefine.Class({
         return this.options.migrationsPattern.test(file);
       })
       .map(function (file) {
-        return this.options.migrationsPath + file;
+        return path.resolve(this.options.migrationsPath, file);
       })
       .map(function (path) {
         return new Migration(path, this.options);
