@@ -241,39 +241,31 @@ It is possible to configure *umzug* instance via passing an object to the constr
 ```js
 {
   // The storage.
-  // Defaults to 'json'.
   // Possible values: 'json', 'sequelize', 'legacy', an object
-  storage: 'sequelize',
+  storage: 'json',
 
   // The options for the storage.
-  // Defaults to {}.
   // Check the available storages for further details.
-  storageOptions: { option1: 'value1' },
+  storageOptions: {},
 
   // The name of the positive method in migrations.
-  // Defaults to 'up'.
-  upName: 'run',
+  upName: 'up',
 
   // The name of the negative method in migrations.
-  // Defaults to 'down'.
-  downName: 'revert',
+  downName: 'down',
 
   // The params that gets passed to the migrations.
   // Might be an array or a synchronous function which returns an array.
-  // Defaults to [].
-  migrationsParams: [{ config1: 'value1' }],
+  migrationsParams: [],
 
   // The path to the migrations directory.
-  // Defaults to 'migrations' in the working directory.
-  migrationsPath: 'db/migrations/',
+  migrationsPath: 'migrations',
 
   // The pattern that determines whether or not a file is a migration.
-  // Defaults to /^\d+[\w-]+\.js$/
-  migrationsPattern: /^\d{3}\.js$/,
+  migrationsPattern: /^\d+[\w-]+\.js$/,
 
   // Transform "callback last" functions to a promise compatible version.
-  // Defaults to false.
-  promisifyMigrations: true
+  promisifyMigrations: false
 }
 ```
 
