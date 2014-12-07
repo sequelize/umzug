@@ -92,10 +92,44 @@ describe('Umzug', function () {
       this.umzug.options.migrationsParams = function () {
         return [1, 2, 3];
       };
-      
+
       return this.migrate('up').bind(this).then(function () {
         expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
       });
     });
   });
+
+  describe('promisifyMigrations', function () {
+    beforeEach(function () {
+      helper.clearTmp();
+      require('fs').writeFileSync(__dirname + '/../tmp/123-callback-last-migration.js', [
+        "'use strict';",
+        "",
+        "module.exports = {",
+        "  up: function (done) {",
+        "    setTimeout(done, 200);",
+        "  },",
+        "  down: function () {}",
+        "};"
+        ].join('\n')
+      );
+    });
+
+    it('can handle "callback last" migrations', function () {
+      var umzug = new Umzug({
+        migrationsPath:      __dirname + '/../tmp/',
+        storageOptions:      { path: __dirname + '/../tmp/umzug.json' },
+        promisifyMigrations: true
+      });
+
+      var start = +new Date();
+
+      return umzug.execute({
+        migrations: ['123-callback-last-migration'],
+        method:     'up'
+      }).then(function () {
+        expect(+new Date() - start).to.be.greaterThan(200);
+      });
+    })
+  })
 });
