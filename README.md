@@ -49,9 +49,6 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
 }
 ```
 
-### Legacy Sequelize
-Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
-
 ### Custom
 In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
 
@@ -241,7 +238,7 @@ It is possible to configure *umzug* instance via passing an object to the constr
 ```js
 {
   // The storage.
-  // Possible values: 'json', 'sequelize', 'legacy', an object
+  // Possible values: 'json', 'sequelize', an object
   storage: 'json',
 
   // The options for the storage.
