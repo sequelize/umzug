@@ -17,10 +17,8 @@ describe('Umzug', function () {
         .then(function (migrationNames) {
           this.migrationNames = migrationNames;
           this.umzug          = new Umzug({
-            migrationsPath: __dirname + '/../tmp/',
-            storageOptions: {
-              path: __dirname + '/../tmp/umzug.json'
-            }
+            migrations:     { path: __dirname + '/../tmp/' },
+            storageOptions: { path: __dirname + '/../tmp/umzug.json' }
           });
         });
     });

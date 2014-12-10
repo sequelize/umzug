@@ -10,15 +10,18 @@ var redefine  = require('redefine');
 var Umzug = module.exports = redefine.Class({
   constructor: function (options) {
     this.options = _.extend({
-      storage:           'json',
-      storageOptions:    {},
-      upName:            'up',
-      downName:          'down',
-      migrationsParams:  [],
-      migrationsPath:    path.resolve(process.cwd(), 'migrations'),
-      migrationsPattern: /^\d+[\w-]+\.js$/,
-      migrationsWrap:    function (fun) { return fun; }
+      storage:        'json',
+      storageOptions: {},
+      upName:         'up',
+      downName:       'down'
     }, options);
+
+    this.options.migrations = _.extend({
+      params:  [],
+      path:    path.resolve(process.cwd(), 'migrations'),
+      pattern: /^\d+[\w-]+\.js$/,
+      wrap:    function (fun) { return fun; }
+    }, this.options.migrations);
 
     this.storage = this._initStorage();
   },
@@ -51,7 +54,7 @@ var Umzug = module.exports = redefine.Class({
             .tap(function (executed) {
               if (!executed || (options.method === 'down')) {
                 var fun    = (migration[options.method] || Bluebird.resolve);
-                var params = self.options.migrationsParams;
+                var params = self.options.migrations.params;
 
                 if (typeof params === 'function') {
                   params = params();
@@ -202,13 +205,13 @@ var Umzug = module.exports = redefine.Class({
 
   _findMigrations: function () {
     return Bluebird
-      .promisify(fs.readdir)(this.options.migrationsPath)
+      .promisify(fs.readdir)(this.options.migrations.path)
       .bind(this)
       .filter(function (file) {
-        return this.options.migrationsPattern.test(file);
+        return this.options.migrations.pattern.test(file);
       })
       .map(function (file) {
-        return path.resolve(this.options.migrationsPath, file);
+        return path.resolve(this.options.migrations.path, file);
       })
       .map(function (path) {
         return new Migration(path, this.options);

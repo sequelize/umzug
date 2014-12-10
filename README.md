@@ -251,19 +251,21 @@ It is possible to configure *umzug* instance via passing an object to the constr
   // The name of the negative method in migrations.
   downName: 'down',
 
-  // The params that gets passed to the migrations.
-  // Might be an array or a synchronous function which returns an array.
-  migrationsParams: [],
+  migrations: {
+    // The params that gets passed to the migrations.
+    // Might be an array or a synchronous function which returns an array.
+    params: [],
 
-  // The path to the migrations directory.
-  migrationsPath: 'migrations',
+    // The path to the migrations directory.
+    path: 'migrations',
 
-  // The pattern that determines whether or not a file is a migration.
-  migrationsPattern: /^\d+[\w-]+\.js$/,
+    // The pattern that determines whether or not a file is a migration.
+    pattern: /^\d+[\w-]+\.js$/,
 
-  // A function that receives and returns the to be executed function.
-  // This can be used to modify the function.
-  migrationsWrap: function (fun) { return fun; }
+    // A function that receives and returns the to be executed function.
+    // This can be used to modify the function.
+    wrap: function (fun) { return fun; }
+  }
 }
 ```
 

@@ -19,10 +19,8 @@ describe('Umzug', function () {
           this.upStub    = sinon.stub(this.migration, 'up', Bluebird.resolve);
           this.downStub  = sinon.stub(this.migration, 'down', Bluebird.resolve);
           this.umzug     = new Umzug({
-            migrationsPath: __dirname + '/../tmp/',
-            storageOptions: {
-              path: __dirname + '/../tmp/umzug.json'
-            }
+            migrations:     { path: __dirname + '/../tmp/' },
+            storageOptions: { path: __dirname + '/../tmp/umzug.json' }
           });
           this.migrate = function (method) {
             return this.umzug.execute({
@@ -81,7 +79,7 @@ describe('Umzug', function () {
     });
 
     it('calls the migration with the specified params', function () {
-      this.umzug.options.migrationsParams = [1, 2, 3];
+      this.umzug.options.migrations.params = [1, 2, 3];
 
       return this.migrate('up').bind(this).then(function () {
         expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
@@ -89,7 +87,7 @@ describe('Umzug', function () {
     });
 
     it('calls the migration with the result of the passed function', function () {
-      this.umzug.options.migrationsParams = function () {
+      this.umzug.options.migrations.params = function () {
         return [1, 2, 3];
       };
 
@@ -99,7 +97,7 @@ describe('Umzug', function () {
     });
   });
 
-  describe('migrationsWrap', function () {
+  describe('migrations.wrap', function () {
     beforeEach(function () {
       helper.clearTmp();
       require('fs').writeFileSync(__dirname + '/../tmp/123-callback-last-migration.js', [
@@ -116,19 +114,20 @@ describe('Umzug', function () {
     });
 
     it('can be used to handle "callback last" migrations', function () {
-      var umzug = new Umzug({
-        migrationsPath: __dirname + '/../tmp/',
-        storageOptions: { path: __dirname + '/../tmp/umzug.json' },
-        migrationsWrap: function (fun) {
-          if (fun.length === 1) {
-            return Bluebird.promisify(fun);
-          } else {
-            return fun;
-          }
-        }
-      });
-
       var start = +new Date();
+      var umzug = new Umzug({
+        migrations: {
+          path: __dirname + '/../tmp/',
+          wrap: function (fun) {
+            if (fun.length === 1) {
+              return Bluebird.promisify(fun);
+            } else {
+              return fun;
+            }
+          }
+        },
+        storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+      });
 
       return umzug.execute({
         migrations: ['123-callback-last-migration'],
@@ -154,9 +153,13 @@ describe('Umzug', function () {
 
     it('runs the migration', function () {
       var umzug = new Umzug({
-        migrationsPath:    __dirname + '/../tmp/',
-        storageOptions:    { path: __dirname + '/../tmp/umzug.json' },
-        migrationsPattern: /\.coffee$/
+        migrations: {
+          path:    __dirname + '/../tmp/',
+          pattern: /\.coffee$/
+        },
+        storageOptions: {
+          path: __dirname + '/../tmp/umzug.json'
+        }
       });
 
       return umzug.execute({
