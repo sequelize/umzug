@@ -99,7 +99,7 @@ describe('Umzug', function () {
     });
   });
 
-  describe('promisifyMigrations', function () {
+  describe('migrationsWrap', function () {
     beforeEach(function () {
       helper.clearTmp();
       require('fs').writeFileSync(__dirname + '/../tmp/123-callback-last-migration.js', [
@@ -115,11 +115,17 @@ describe('Umzug', function () {
       );
     });
 
-    it('can handle "callback last" migrations', function () {
+    it('can be used to handle "callback last" migrations', function () {
       var umzug = new Umzug({
-        migrationsPath:      __dirname + '/../tmp/',
-        storageOptions:      { path: __dirname + '/../tmp/umzug.json' },
-        promisifyMigrations: true
+        migrationsPath: __dirname + '/../tmp/',
+        storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+        migrationsWrap: function (fun) {
+          if (fun.length === 1) {
+            return Bluebird.promisify(fun);
+          } else {
+            return fun;
+          }
+        }
       });
 
       var start = +new Date();

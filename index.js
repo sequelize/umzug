@@ -16,7 +16,8 @@ var Umzug = module.exports = redefine.Class({
       downName:          'down',
       migrationsParams:  [],
       migrationsPath:    path.resolve(process.cwd(), 'migrations'),
-      migrationsPattern: /^\d+[\w-]+\.js$/
+      migrationsPattern: /^\d+[\w-]+\.js$/,
+      migrationsWrap:    function (fun) { return fun; }
     }, options);
 
     this.storage = this._initStorage();

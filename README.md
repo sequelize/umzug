@@ -264,8 +264,9 @@ It is possible to configure *umzug* instance via passing an object to the constr
   // The pattern that determines whether or not a file is a migration.
   migrationsPattern: /^\d+[\w-]+\.js$/,
 
-  // Transform "callback last" functions to a promise compatible version.
-  promisifyMigrations: false
+  // A function that receives and returns the to be executed function.
+  // This can be used to modify the function.
+  migrationsWrap: function (fun) { return fun; }
 }
 ```
 
