@@ -29,28 +29,25 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
   // The configured instance of Sequelize.
   // Optional if `model` is passed.
   sequelize: instance,
-  
+
   // The to be used Sequelize model.
   // Must have column name matching `columnName` option
   // Optional of `sequelize` is passed.
   model: model,
-  
+
   // The name of the to be used model.
   // Defaults to 'SequelizeMeta'
   modelName: 'Schema',
-  
+
   // The name of table to create if `model` option is not supplied
   // Defaults to `modelName`
   tableName: 'Schema',
-  
+
   // The name of table column holding migration name.
   // Defaults to 'name'.
   columnName: 'migration'
 }
 ```
-
-### Legacy Sequelize
-Using the `legacy` storage will create the obsolete `SequelizeMeta` table structure which contains information about executed migration runs which contains a `from` and a `to` column. You will have to pass a configured instance of Sequelize. Please note, that using this storage is not recommended.
 
 ### Custom
 In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
@@ -241,30 +238,34 @@ It is possible to configure *umzug* instance via passing an object to the constr
 ```js
 {
   // The storage.
-  // Defaults to 'json'.
-  // Possible values: 'json', 'sequelize', 'legacy', an object
-  storage: 'sequelize',
-  
+  // Possible values: 'json', 'sequelize', an object
+  storage: 'json',
+
   // The options for the storage.
-  // Defaults to {}.
   // Check the available storages for further details.
-  storageOptions: { option1: 'value1' },
-  
+  storageOptions: {},
+
   // The name of the positive method in migrations.
-  // Defaults to 'up'.
-  upName: 'run',
-  
+  upName: 'up',
+
   // The name of the negative method in migrations.
-  // Defaults to 'down'.
-  downName: 'revert',
-  
-  // The path to the migrations directory.
-  // Defaults to 'migrations' in the working directory.
-  migrationsPath: 'db/migrations/',
-  
-  // The pattern that determines whether or not a file is a migration.
-  // Defaults to /^\d+[\w-]+\.js$/
-  migrationsPattern: /^\d{3}\.js$/
+  downName: 'down',
+
+  migrations: {
+    // The params that gets passed to the migrations.
+    // Might be an array or a synchronous function which returns an array.
+    params: [],
+
+    // The path to the migrations directory.
+    path: 'migrations',
+
+    // The pattern that determines whether or not a file is a migration.
+    pattern: /^\d+[\w-]+\.js$/,
+
+    // A function that receives and returns the to be executed function.
+    // This can be used to modify the function.
+    wrap: function (fun) { return fun; }
+  }
 }
 ```
 
