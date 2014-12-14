@@ -191,9 +191,7 @@ describe('storages', function () {
     describe('unlogMigration', function () {
       it("creates the table if it doesn't exist yet", function () {
         var storage = new Storage({
-          storageOptions: {
-            sequelize: this.sequelize
-          }
+          storageOptions: { sequelize: this.sequelize }
         });
 
         return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
@@ -213,9 +211,7 @@ describe('storages', function () {
 
       it('deletes the migration from the database', function () {
         var storage = new Storage({
-          storageOptions: {
-            sequelize: this.sequelize
-          }
+          storageOptions: { sequelize: this.sequelize }
         });
 
         return storage.logMigration('asd.js')
@@ -233,6 +229,19 @@ describe('storages', function () {
           })
           .then(function(migrations) {
             expect(migrations).to.be.empty();
+          });
+      });
+
+      it('deletes only the passed migration', function () {
+        var storage = new Storage({ storageOptions: { sequelize: this.sequelize } });
+
+        return storage.logMigration('migration1.js')
+          .then(function () { return storage.logMigration('migration2.js'); })
+          .then(function () { return storage.unlogMigration('migration2.js'); })
+          .then(function () { return storage._model().findAll(); })
+          .then(function (migrations) {
+            expect(migrations.length).to.be(1);
+            expect(migrations[0].name).to.equal('migration1.js');
           });
       });
 
