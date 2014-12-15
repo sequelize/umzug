@@ -188,7 +188,7 @@ var Umzug = module.exports = redefine.Class({
     var Storage;
 
     try {
-      Storage = require('./lib/storages/' + this.options.storage);
+      Storage = require(__dirname + '/lib/storages/' + this.options.storage);
     } catch (e) {
       // We have not been able to find the storage locally.
       // Let's try to require a module instead.
