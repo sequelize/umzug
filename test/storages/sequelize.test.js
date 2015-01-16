@@ -110,6 +110,27 @@ describe('storages', function () {
           });
       });
 
+      it('accepts a "columnLength" option', function () {
+        var storage = new Storage({
+          storageOptions: {
+            sequelize: this.sequelize,
+            columnLength: 190
+          }
+        });
+        return storage.options.storageOptions.model.sync()
+          .then(function (model) {
+            return model.describe();
+          })
+          .then(function(description) {
+            expect(description.name).to.eql({
+              type: 'VARCHAR(190)',
+              allowNull: false,
+              defaultValue: null,
+              primaryKey: true
+            });
+          });
+      });
+
       it('accepts a "model" option', function () {
         var Model = this.sequelize.define('CustomModel', {
           columnName: {
