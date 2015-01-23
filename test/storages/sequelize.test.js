@@ -110,11 +110,11 @@ describe('storages', function () {
           });
       });
 
-      it('accepts a "columnLength" option', function () {
+      it('accepts a "columnType" option', function () {
         var storage = new Storage({
           storageOptions: {
             sequelize: this.sequelize,
-            columnLength: 190
+            columnType: new Sequelize.STRING(190)
           }
         });
         return storage.options.storageOptions.model.sync()
