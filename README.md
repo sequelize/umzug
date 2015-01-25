@@ -45,7 +45,11 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
 
   // The name of table column holding migration name.
   // Defaults to 'name'.
-  columnName: 'migration'
+  columnName: 'migration',
+
+  // The type of the column holding migration name.
+  // Defaults to `Sequelize.STRING`
+  columnType: new Sequelize.STRING(100)
 }
 ```
 
