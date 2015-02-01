@@ -32,7 +32,7 @@ var helper = module.exports = {
   },
 
   prepareMigrations: function (count, options) {
-    options = _.extend({
+    options = _.assign({
       names: []
     }, options || {});
 
