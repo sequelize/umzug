@@ -9,14 +9,14 @@ var redefine  = require('redefine');
 
 var Umzug = module.exports = redefine.Class({
   constructor: function (options) {
-    this.options = _.extend({
+    this.options = _.assign({
       storage:        'json',
       storageOptions: {},
       upName:         'up',
       downName:       'down'
     }, options);
 
-    this.options.migrations = _.extend({
+    this.options.migrations = _.assign({
       params:  [],
       path:    path.resolve(process.cwd(), 'migrations'),
       pattern: /^\d+[\w-]+\.js$/,
@@ -29,7 +29,7 @@ var Umzug = module.exports = redefine.Class({
   execute: function (options) {
     var self = this;
 
-    options = _.extend({
+    options = _.assign({
       migrations: [],
       method:     'up'
     }, options || {});
@@ -39,7 +39,7 @@ var Umzug = module.exports = redefine.Class({
         return self._findMigration(migration);
       })
       .then(function (migrations) {
-        return _.extend(options, { migrations: migrations });
+        return _.assign(options, { migrations: migrations });
       })
       .then(function (options) {
         return Bluebird.each(options.migrations, function (migration) {
@@ -122,7 +122,7 @@ var Umzug = module.exports = redefine.Class({
         });
     }
 
-    options = _.extend({
+    options = _.assign({
       to:         null,
       migrations: null
     }, options || {});
@@ -166,7 +166,7 @@ var Umzug = module.exports = redefine.Class({
         });
     }
 
-    options = _.extend({
+    options = _.assign({
       to:         null,
       migrations: null
     }, options || {});

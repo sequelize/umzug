@@ -1,6 +1,5 @@
 'use strict';
 
-var _         = require('lodash');
 var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var fs        = require('fs');
