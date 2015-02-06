@@ -12,9 +12,14 @@ var Umzug = module.exports = redefine.Class({
     this.options = _.assign({
       storage:        'json',
       storageOptions: {},
+      logging:        false,
       upName:         'up',
       downName:       'down'
     }, options);
+
+    if (this.options.logging && !_.isFunction(this.options.logging)) {
+      throw new Error('The logging-option should be either a function or false');
+    }
 
     this.options.migrations = _.assign({
       params:  [],
@@ -63,9 +68,9 @@ var Umzug = module.exports = redefine.Class({
                 }
 
                 if (options.method === 'up') {
-                  console.log("== " + name + ": migrating =======");
+                  self.log("== " + name + ": migrating =======");
                 } else {
-                  console.log("== " + name + ": reverting =======");
+                  self.log("== " + name + ": reverting =======");
                 }
 
                 startTime = new Date();
@@ -83,9 +88,9 @@ var Umzug = module.exports = redefine.Class({
             .tap(function () {
               var duration = ((new Date() - startTime) / 1000).toFixed(3);
               if (options.method === 'up') {
-                console.log("== " + name + ": migrated (" + duration +  "s)\n");
+                self.log("== " + name + ": migrated (" + duration +  "s)\n");
               } else {
-                console.log("== " + name + ": reverted (" + duration +  "s)\n");
+                self.log("== " + name + ": reverted (" + duration +  "s)\n");
               }
             });
         });
@@ -199,6 +204,12 @@ var Umzug = module.exports = redefine.Class({
         .then(function (migrationFiles) {
           return this.down({ migrations: migrationFiles });
         });
+    }
+  },
+
+  log: function() {
+    if (this.options.logging) {
+      this.options.logging.apply(null, [].slice.call(arguments));
     }
   },
 
