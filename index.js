@@ -207,9 +207,9 @@ var Umzug = module.exports = redefine.Class({
     }
   },
 
-  log: function() {
+  log: function(message) {
     if (this.options.logging) {
-      this.options.logging.apply(null, [].slice.call(arguments));
+      this.options.logging(message);
     }
   },
 
