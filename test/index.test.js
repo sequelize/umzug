@@ -16,6 +16,7 @@ describe('Umzug', function () {
       expect(umzug).to.have.property('pending');
       expect(umzug).to.have.property('up');
       expect(umzug).to.have.property('down');
+      expect(umzug).to.have.property('log');
     });
 
     it('instantiates the default storage', function () {
@@ -34,6 +35,13 @@ describe('Umzug', function () {
       }).to.throwError(
         Error, /Unable to resolve the storage: omnom/
       )
+    });
+
+    it('accepts a logging function', function () {
+      var spy = sinon.spy();
+      var umzug = new Umzug({ logging: spy });
+      umzug.log();
+      expect(spy.called).to.be(true);
     });
   });
 });
