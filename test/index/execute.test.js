@@ -17,9 +17,11 @@ describe('Umzug', function () {
           this.migration = require('../tmp/123-migration.js');
           this.upStub    = sinon.stub(this.migration, 'up', Bluebird.resolve);
           this.downStub  = sinon.stub(this.migration, 'down', Bluebird.resolve);
+          this.logSpy    = sinon.spy();
           this.umzug     = new Umzug({
             migrations:     { path: __dirname + '/../tmp/' },
-            storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+            storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+            logging:        this.logSpy
           });
           this.migrate = function (method) {
             return this.umzug.execute({
@@ -41,6 +43,7 @@ describe('Umzug', function () {
         .then(function () {
           expect(this.upStub.callCount).to.equal(1);
           expect(this.downStub.callCount).to.equal(0);
+          expect(this.logSpy.callCount).to.equal(2);
         })
     });
 
@@ -50,6 +53,7 @@ describe('Umzug', function () {
         .then(function () {
           expect(this.upStub.callCount).to.equal(0);
           expect(this.downStub.callCount).to.equal(1);
+          expect(this.logSpy.callCount).to.equal(2);
         });
     });
 
