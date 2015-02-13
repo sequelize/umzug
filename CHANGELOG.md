@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Upcoming
+## 1.4.0 
 ### Added
 - Builds for all versions of sequelize
 
