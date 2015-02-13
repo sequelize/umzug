@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Upcoming
+### Added
+- Builds for all versions of sequelize
+
+### Changed
+- Project is now compatible with all versions of sequelize
+
 ## 1.3.1
 ### Changed
 - Update lodash to 3.0

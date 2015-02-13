@@ -54,12 +54,9 @@ describe('storages', function () {
           })
           .then(function(description) {
             expect(description).to.only.have.keys(['name']);
-            expect(description.name).to.eql({
-              type: 'VARCHAR(255)',
-              allowNull: false,
-              defaultValue: null,
-              primaryKey: true
-            });
+            expect(description.name.type).to.eql('VARCHAR(255)')
+            expect(description.name.defaultValue).to.eql(null);
+            expect(description.name.primaryKey).to.be.ok();
           });
       });
 
@@ -121,12 +118,9 @@ describe('storages', function () {
             return model.describe();
           })
           .then(function(description) {
-            expect(description.name).to.eql({
-              type: 'VARCHAR(190)',
-              allowNull: false,
-              defaultValue: null,
-              primaryKey: true
-            });
+            expect(description.name.type).to.eql('VARCHAR(190)');
+            expect(description.name.defaultValue).to.eql(null);
+            expect(description.name.primaryKey).to.eql(true);
           });
       });
 
