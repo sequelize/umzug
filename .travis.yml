@@ -9,3 +9,11 @@ language: node_js
 
 node_js:
   - "0.10"
+
+before_script:
+  - npm install sequelize@$(echo $SEQUELIZE)
+
+env:
+  - SEQUELIZE=1.7.10
+  - SEQUELIZE=2.0.0-rc8
+  - SEQUELIZE=2.0.0
