@@ -4,6 +4,7 @@ var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var fs        = require('fs');
 var helper    = require('../helper');
+var path      = require('path');
 var Storage   = require('../../lib/storages/json');
 
 describe('storages', function () {
@@ -17,7 +18,7 @@ describe('storages', function () {
       it('sets the default storage path', function () {
         var storage = new Storage();
         expect(storage.options.storageOptions.path).to.equal(
-          process.cwd() + '/umzug.json'
+          path.normalize(process.cwd() + '/umzug.json')
         );
       });
     });

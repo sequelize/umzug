@@ -12,9 +12,14 @@ var Umzug = module.exports = redefine.Class({
     this.options = _.assign({
       storage:        'json',
       storageOptions: {},
+      logging:        false,
       upName:         'up',
       downName:       'down'
     }, options);
+
+    if (this.options.logging && !_.isFunction(this.options.logging)) {
+      throw new Error('The logging-option should be either a function or false');
+    }
 
     this.options.migrations = _.assign({
       params:  [],
@@ -43,6 +48,8 @@ var Umzug = module.exports = redefine.Class({
       })
       .then(function (options) {
         return Bluebird.each(options.migrations, function (migration) {
+          var name = path.basename(migration.file, path.extname(migration.file));
+          var startTime;
           return self
             ._wasExecuted(migration)
             .catch(function () {
@@ -60,6 +67,14 @@ var Umzug = module.exports = redefine.Class({
                   params = params();
                 }
 
+                if (options.method === 'up') {
+                  self.log("== " + name + ": migrating =======");
+                } else {
+                  self.log("== " + name + ": reverting =======");
+                }
+
+                startTime = new Date();
+
                 return fun.apply(migration, params);
               }
             })
@@ -68,6 +83,14 @@ var Umzug = module.exports = redefine.Class({
                 return Bluebird.resolve(self.storage.logMigration(migration.file));
               } else if (options.method === 'down') {
                 return Bluebird.resolve(self.storage.unlogMigration(migration.file));
+              }
+            })
+            .tap(function () {
+              var duration = ((new Date() - startTime) / 1000).toFixed(3);
+              if (options.method === 'up') {
+                self.log("== " + name + ": migrated (" + duration +  "s)\n");
+              } else {
+                self.log("== " + name + ": reverted (" + duration +  "s)\n");
               }
             });
         });
@@ -181,6 +204,12 @@ var Umzug = module.exports = redefine.Class({
         .then(function (migrationFiles) {
           return this.down({ migrations: migrationFiles });
         });
+    }
+  },
+
+  log: function(message) {
+    if (this.options.logging) {
+      this.options.logging(message);
     }
   },
 

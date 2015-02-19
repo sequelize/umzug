@@ -249,6 +249,10 @@ It is possible to configure *umzug* instance via passing an object to the constr
   // Check the available storages for further details.
   storageOptions: {},
 
+  // The logging function.
+  // A function that gets executed everytime migrations start and have ended.
+  logging: false,
+
   // The name of the positive method in migrations.
   upName: 'up',
 
