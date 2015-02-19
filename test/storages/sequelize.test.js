@@ -5,6 +5,8 @@ var expect    = require('expect.js');
 var helper    = require('../helper');
 var Storage   = require('../../lib/storages/sequelize');
 var Sequelize = require('sequelize');
+var sinon     = require("sinon");
+var resolve   = require("resolve");
 
 describe('storages', function () {
   beforeEach(function() {
@@ -16,6 +18,12 @@ describe('storages', function () {
       storage: this.storagePath,
       logging: false
     });
+    
+    this.sandbox = sinon.sandbox.create();
+  });
+
+  afterEach(function () {
+    this.sandbox.restore();
   });
 
   describe('sequelize', function () {
@@ -141,6 +149,35 @@ describe('storages', function () {
         });
         expect(storage.options.storageOptions.model).to.equal(Model);
       });
+      
+      it('requires a "Sequelize" option if require("sequelize") fails', function () {
+        this.sandbox.stub(resolve, "sync", function () {
+          return "not_existing_module";
+        });
+        var sequelize = this.sequelize;
+        expect(function() {
+          new Storage({
+            storageOptions: {
+              sequelize: sequelize
+            }
+          });
+        }).to.throwException(/sequelize dependency not found, Sequelize option is required/);
+      });
+
+      it('accepts a "Sequelize" option', function () {
+        this.sandbox.stub(resolve, "sync", function () {
+          return "not_existing_module";
+        });
+        var sequelize = this.sequelize;
+        var storage = new Storage({
+          storageOptions: {
+            Sequelize: require("sequelize"),
+            sequelize: sequelize
+          }
+        });
+        expect(storage).to.exists;
+      });
+      
     }); //end describe('constructor', function() {
 
     describe('logMigration', function () {
