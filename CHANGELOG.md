@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.5.0
+### Added
+- ActiveRecord like logging
+
 ## 1.4.0 
 ### Added
 - Builds for all versions of sequelize
