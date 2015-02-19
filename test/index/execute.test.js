@@ -44,6 +44,8 @@ describe('Umzug', function () {
           expect(this.upStub.callCount).to.equal(1);
           expect(this.downStub.callCount).to.equal(0);
           expect(this.logSpy.callCount).to.equal(2);
+          expect(this.logSpy.getCall(0).args[0]).to.equal('== 123-migration: migrating =======');
+          expect(this.logSpy.getCall(1).args[0]).to.match(/== 123-migration: migrated \(0\.0\d\ds\)/);
         })
     });
 
@@ -54,6 +56,8 @@ describe('Umzug', function () {
           expect(this.upStub.callCount).to.equal(0);
           expect(this.downStub.callCount).to.equal(1);
           expect(this.logSpy.callCount).to.equal(2);
+          expect(this.logSpy.getCall(0).args[0]).to.equal('== 123-migration: reverting =======');
+          expect(this.logSpy.getCall(1).args[0]).to.match(/== 123-migration: reverted \(0\.0\d\ds\)/);
         });
     });
 
