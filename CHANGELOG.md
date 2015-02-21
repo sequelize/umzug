@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.6.0
+### Changed
+- Don't resolve the sequelize library anymore but use the instance's constructor
+
 ## 1.5.0
 ### Added
 - ActiveRecord like logging
