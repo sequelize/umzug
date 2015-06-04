@@ -5,7 +5,6 @@ var expect    = require('expect.js');
 var helper    = require('../helper');
 var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
-var sinon     = require('sinon');
 
 describe('Umzug', function () {
   describe('up', function () {
@@ -92,7 +91,7 @@ describe('Umzug', function () {
         return this.umzug.executed().then(function (migrations) {
           expect(migrations).to.have.length(2);
         });
-      })
+      });
 
       it('did not execute the third migration', function () {
         return this.umzug.executed()
@@ -102,7 +101,7 @@ describe('Umzug', function () {
             });
             expect(migrationFiles).to.not.contain(this.migrationNames[2]);
           });
-      })
+      });
     });
 
     describe('when called with a string', function () {
@@ -121,7 +120,7 @@ describe('Umzug', function () {
             expect(migrations).to.have.length(1);
             expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok();
           });
-        })
+        });
       });
 
       describe('that does not match a migration', function () {
@@ -147,8 +146,8 @@ describe('Umzug', function () {
             }, function (err) {
               expect(err.message).to.equal('Migration is not pending: 2-migration.js');
             });
-        })
-      })
+        });
+      });
     });
 
     describe('when called with an array', function () {
@@ -167,7 +166,7 @@ describe('Umzug', function () {
             expect(migrations).to.have.length(1);
             expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok();
           });
-        })
+        });
       });
 
       describe('that matches multiple pending migration', function () {
@@ -186,7 +185,7 @@ describe('Umzug', function () {
             expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok();
             expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
           });
-        })
+        });
       });
 
       describe('that does not match a migration', function () {

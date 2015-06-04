@@ -1,11 +1,8 @@
 'use strict';
 
-var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
-var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
-var sinon     = require('sinon');
 
 describe('Umzug', function () {
   describe('executed', function () {
@@ -45,7 +42,7 @@ describe('Umzug', function () {
           migrations: [ this.migrationNames[0] ],
           method:     'up'
         }).bind(this).then(function () {
-          return this.umzug.executed()
+          return this.umzug.executed();
         }).then(function (migrations) {
           this.migrations = migrations;
         });
@@ -67,7 +64,7 @@ describe('Umzug', function () {
           migrations: this.migrationNames,
           method:     'up'
         }).bind(this).then(function () {
-          return this.umzug.executed()
+          return this.umzug.executed();
         }).then(function (migrations) {
           this.migrations = migrations;
         });

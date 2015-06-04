@@ -1,6 +1,5 @@
 'use strict';
 
-var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
 var Storage   = require('../../lib/storages/sequelize');
@@ -54,7 +53,7 @@ describe('storages', function () {
           })
           .then(function(description) {
             expect(description).to.only.have.keys(['name']);
-            expect(description.name.type).to.eql('VARCHAR(255)')
+            expect(description.name.type).to.eql('VARCHAR(255)');
             expect(description.name.defaultValue).to.eql(null);
             expect(description.name.primaryKey).to.be.ok();
           });
@@ -144,7 +143,7 @@ describe('storages', function () {
     }); //end describe('constructor', function() {
 
     describe('logMigration', function () {
-      it("creates the table if it doesn't exist yet", function () {
+      it('creates the table if it doesn\'t exist yet', function () {
         var storage = new Storage({
           storageOptions: {
             sequelize: this.sequelize
@@ -203,7 +202,7 @@ describe('storages', function () {
     }); //end describe('logMigration', function() {
 
     describe('unlogMigration', function () {
-      it("creates the table if it doesn't exist yet", function () {
+      it('creates the table if it doesn\'t exist yet', function () {
         var storage = new Storage({
           storageOptions: { sequelize: this.sequelize }
         });
@@ -288,7 +287,7 @@ describe('storages', function () {
     });
 
     describe('executed', function () {
-      it("creates the table if it doesn't exist yet", function () {
+      it('creates the table if it doesn\'t exist yet', function () {
         var storage = new Storage({
           storageOptions: {
             sequelize: this.sequelize

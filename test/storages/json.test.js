@@ -41,7 +41,7 @@ describe('storages', function () {
 
       it('adds the passed value to the storage', function () {
         return this.storage.logMigration('asd.js').bind(this).then(function () {
-          return Bluebird.promisify(fs.readFile)(this.path)
+          return Bluebird.promisify(fs.readFile)(this.path);
         }).then(function (content) {
           return JSON.parse(content);
         }).then(function (data) {
