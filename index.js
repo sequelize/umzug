@@ -1,4 +1,4 @@
-'use static';
+'use strict';
 
 var _         = require('lodash');
 var Bluebird  = require('bluebird');

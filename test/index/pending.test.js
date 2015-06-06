@@ -1,11 +1,9 @@
 'use strict';
 
-var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
 var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
-var sinon     = require('sinon');
 
 describe('Umzug', function () {
   describe('pending', function () {

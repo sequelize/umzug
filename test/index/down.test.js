@@ -3,9 +3,7 @@
 var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
-var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
-var sinon     = require('sinon');
 
 describe('Umzug', function () {
   describe('down', function () {
@@ -147,7 +145,7 @@ describe('Umzug', function () {
             expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
             expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
           });
-        })
+        });
       });
 
       describe('that does not match a migration', function () {
@@ -173,8 +171,8 @@ describe('Umzug', function () {
             }, function (err) {
               expect(err.message).to.equal('Migration was not executed: 2-migration.js');
             });
-        })
-      })
+        });
+      });
     });
 
     describe('when called with an array', function () {
@@ -201,7 +199,7 @@ describe('Umzug', function () {
             expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
             expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
           });
-        })
+        });
       });
 
       describe('that matches multiple pending migration', function () {
@@ -219,7 +217,7 @@ describe('Umzug', function () {
             expect(migrations).to.have.length(1);
             expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
           });
-        })
+        });
       });
 
       describe('that does not match a migration', function () {

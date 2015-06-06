@@ -3,7 +3,6 @@
 var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
-var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
 var sinon     = require('sinon');
 
@@ -28,7 +27,7 @@ describe('Umzug', function () {
               migrations: ['123-migration'],
               method:     method
             });
-          }.bind(this)
+          }.bind(this);
         });
     });
 
@@ -46,7 +45,7 @@ describe('Umzug', function () {
           expect(this.logSpy.callCount).to.equal(2);
           expect(this.logSpy.getCall(0).args[0]).to.equal('== 123-migration: migrating =======');
           expect(this.logSpy.getCall(1).args[0]).to.match(/== 123-migration: migrated \(0\.0\d\ds\)/);
-        })
+        });
     });
 
     it('runs the down method of the migration', function () {
@@ -108,14 +107,14 @@ describe('Umzug', function () {
     beforeEach(function () {
       helper.clearTmp();
       require('fs').writeFileSync(__dirname + '/../tmp/123-callback-last-migration.js', [
-        "'use strict';",
-        "",
-        "module.exports = {",
-        "  up: function (done) {",
-        "    setTimeout(done, 200);",
-        "  },",
-        "  down: function () {}",
-        "};"
+        '\'use strict\';',
+        '',
+        'module.exports = {',
+        '  up: function (done) {',
+        '    setTimeout(done, 200);',
+        '  },',
+        '  down: function () {}',
+        '};'
         ].join('\n')
       );
     });
@@ -149,11 +148,11 @@ describe('Umzug', function () {
     beforeEach(function () {
       helper.clearTmp();
       require('fs').writeFileSync(__dirname + '/../tmp/123-coffee-migration.coffee', [
-        "'use strict'",
-        "",
-        "module.exports =",
-        "  up: () ->",
-        "  down: () ->"
+        '\'use strict\'',
+        '',
+        'module.exports =',
+        '  up: () ->',
+        '  down: () ->'
         ].join('\n')
       );
     });
