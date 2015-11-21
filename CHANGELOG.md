@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.7.0 - 2015-11-21
+### Added
+- Option to define the database schema 
+
+### Changed
+- Sort table entries when reading currently executed migrations
+
 ## 1.6.0
 ### Changed
 - Don't resolve the sequelize library anymore but use the instance's constructor
