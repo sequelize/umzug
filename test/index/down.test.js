@@ -118,6 +118,32 @@ describe('Umzug', function () {
             expect(migrations[0].file).to.equal(this.migrationNames[0] + '.js');
           });
         });
+
+        describe('that does not match a migration', function () {
+          it('rejects the promise', function () {
+            return this.umzug.down({ to: '123-asdasd' }).then(function () {
+              return Bluebird.reject('We should not end up here...');
+            }, function (err) {
+              expect(err.message).to.equal('Unable to find migration: 123-asdasd');
+            });
+          });
+        });
+
+        describe('that does not match an executed migration', function () {
+          it('rejects the promise', function () {
+            return this.umzug
+              .execute({ migrations: this.migrationNames, method: 'down' })
+              .bind(this)
+              .then(function () {
+                return this.umzug.down({ to: this.migrationNames[1] });
+              })
+              .then(function () {
+                return Bluebird.reject('We should not end up here...');
+              }, function (err) {
+                expect(err.message).to.equal('Migration was not executed: 2-migration.js');
+              });
+          });
+        });
       });
     });
 

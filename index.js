@@ -155,6 +155,25 @@ var Umzug = module.exports = redefine.Class({
     } else {
       return this.pending().bind(this)
         .then(function (migrations) {
+          var result = Bluebird.resolve().bind(this);
+
+          if (options.to) {
+            result = result
+              .then(function () {
+                // There must be a migration matching to options.to...
+                return this._findMigration(options.to);
+              })
+              .then(function (migration) {
+                // ... and it must be pending.
+                return this._isPending(migration);
+              });
+          }
+
+          return result.then(function () {
+            return Bluebird.resolve(migrations)
+          });
+        })
+        .then(function (migrations) {
           return this._findMigrationsUntilMatch(options.to, migrations);
         })
         .then(function (migrationFiles) {
@@ -198,6 +217,25 @@ var Umzug = module.exports = redefine.Class({
       return this.execute({ migrations: options.migrations, method: 'down' });
     } else {
       return getExecuted().bind(this)
+        .then(function (migrations) {
+          var result = Bluebird.resolve().bind(this);
+
+          if (options.to) {
+            result = result
+              .then(function () {
+                // There must be a migration matching to options.to...
+                return this._findMigration(options.to);
+              })
+              .then(function (migration) {
+                // ... and it must be executed.
+                return this._wasExecuted(migration);
+              });
+          }
+
+          return result.then(function () {
+            return Bluebird.resolve(migrations)
+          });
+        })
         .then(function (migrations) {
           return this._findMigrationsUntilMatch(options.to, migrations);
         })

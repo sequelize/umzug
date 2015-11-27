@@ -102,6 +102,32 @@ describe('Umzug', function () {
             expect(migrationFiles).to.not.contain(this.migrationNames[2]);
           });
       });
+
+      describe('that does not match a migration', function () {
+        it('rejects the promise', function () {
+          return this.umzug.up({ to: '123-asdasd' }).then(function () {
+            return Bluebird.reject('We should not end up here...');
+          }, function (err) {
+            expect(err.message).to.equal('Unable to find migration: 123-asdasd');
+          });
+        });
+      });
+
+      describe('that does not match a pending migration', function () {
+        it('rejects the promise', function () {
+          return this.umzug
+            .execute({ migrations: this.migrationNames, method: 'up' })
+            .bind(this)
+            .then(function () {
+              return this.umzug.up({ to: this.migrationNames[1] });
+            })
+            .then(function () {
+              return Bluebird.reject('We should not end up here...');
+            }, function (err) {
+              expect(err.message).to.equal('Migration is not pending: 2-migration.js');
+            });
+        });
+      });
     });
 
     describe('when called with a string', function () {
