@@ -10,7 +10,9 @@ describe('Umzug', function () {
   describe('execute', function () {
     beforeEach(function () {
       return helper
-        .prepareMigrations(1, { names: ['123-migration'] })
+        .prepare({
+          migrations: { count: 1, options: { names: ['123-migration'] } }
+        })
         .bind(this)
         .then(function () {
           this.migration = require('../tmp/123-migration.js');

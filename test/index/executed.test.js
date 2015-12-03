@@ -8,9 +8,11 @@ describe('Umzug', function () {
   describe('executed', function () {
     beforeEach(function () {
       return helper
-        .prepareMigrations(3)
+        .prepare({
+          migrations: { count: 3 }
+        })
         .bind(this)
-        .then(function (migrationNames) {
+        .spread(function (migrationNames) {
           this.migrationNames = migrationNames;
           this.umzug          = new Umzug({
             migrations:     { path: __dirname + '/../tmp/' },

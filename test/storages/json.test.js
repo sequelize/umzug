@@ -29,7 +29,9 @@ describe('storages', function () {
         this.storage = new Storage({
           storageOptions: { path: this.path }
         });
-        return helper.prepareMigrations(3);
+        return helper.prepare({
+          migrations: { count: 3 }
+        });
       });
 
       it('creates a new file if not exists yet', function () {
@@ -56,7 +58,9 @@ describe('storages', function () {
         this.storage = new Storage({
           storageOptions: { path: this.path }
         });
-        return helper.prepareMigrations(3);
+        return helper.prepare({
+          migrations: { count: 3 }
+        });
       });
 
       it('removes the passed value from the storage', function () {
@@ -91,7 +95,9 @@ describe('storages', function () {
         this.storage = new Storage({
           storageOptions: { path: this.path }
         });
-        return helper.prepareMigrations(3);
+        return helper.prepare({
+          migrations: { count: 3 }
+        });
       });
 
       it('returns an empty array if no migrations were logged yet', function () {

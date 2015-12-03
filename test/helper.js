@@ -40,8 +40,6 @@ var helper = module.exports = {
       var names = options.names;
       var num   = 0;
 
-      helper.clearTmp();
-
       _.times(count, function (i) {
         num++;
         names.push(options.names[i] || (num + '-migration'));
@@ -50,6 +48,23 @@ var helper = module.exports = {
 
       resolve(names);
     });
+  },
+
+  prepare: function (options) {
+    options = options || {};
+
+    options.migrations = _.assign({
+      count: 0
+    }, options.migrations || {});
+
+    helper.clearTmp();
+
+    return Bluebird.join(
+      helper.prepareMigrations(
+        options.migrations.count,
+        options.migrations.options
+      )
+    );
   },
 
   wrapStorageAsCustomThenable: function(storage) {
