@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.7.1 - 2015-12-03
+### Changed
+- Ensure existence of migration specified by `to` parameter
+
 ## v1.7.0 - 2015-11-21
 ### Added
 - Option to define the database schema 
