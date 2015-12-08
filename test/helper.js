@@ -15,12 +15,14 @@ var helper = module.exports = {
     });
 
     // empty tmp/squashes directory
-    var squashes = fs.readdirSync(__dirname + '/tmp/squashes');
-    squashes.forEach(function (file) {
-      if (file.match(/\.(js|json|sqlite)$/)) {
-        fs.unlinkSync(__dirname + '/tmp/squashes/' + file);
-      }
-    });
+    if (fs.existsSync(__dirname + '/tmp/squashes')) {
+      var squashes = fs.readdirSync(__dirname + '/tmp/squashes');
+      squashes.forEach(function (file) {
+        if (file.match(/\.(js|json|sqlite)$/)) {
+          fs.unlinkSync(__dirname + '/tmp/squashes/' + file);
+        }
+      });
+    }
 
     // forget all required files under tmp directory
     for (var path in require.cache) {
@@ -49,6 +51,10 @@ var helper = module.exports = {
   },
 
   generateDummySquash: function (name, migrations) {
+    if (!fs.existsSync(__dirname + '/tmp/squashes')) {
+      fs.mkdirSync(__dirname + '/tmp/squashes');
+    }
+
     fs.writeFileSync(
       __dirname + '/tmp/squashes/' + name + '.js',
       [
