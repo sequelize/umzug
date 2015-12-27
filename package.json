@@ -1,6 +1,6 @@
 {
   "name": "umzug",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Framework agnostic migration tool for Node.JS",
   "main": "index.js",
   "dependencies": {
