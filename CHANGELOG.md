@@ -1,13 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.7.2 - 2015-12-27
+### Fixed
+- Migrations on utf8mb4 databases
+
 ## v1.7.1 - 2015-12-03
 ### Changed
 - Ensure existence of migration specified by `to` parameter
 
 ## v1.7.0 - 2015-11-21
 ### Added
-- Option to define the database schema 
+- Option to define the database schema
 
 ### Changed
 - Sort table entries when reading currently executed migrations
@@ -20,7 +24,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - ActiveRecord like logging
 
-## 1.4.0 
+## 1.4.0
 ### Added
 - Builds for all versions of sequelize
 
