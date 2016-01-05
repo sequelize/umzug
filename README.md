@@ -53,6 +53,9 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
 }
 ```
 
+### None
+If want to run migrations without storing them anywhere, you can use the [`none` storage](lib/storages/none.js).
+
 ### Custom
 In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
 
