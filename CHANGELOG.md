@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.8.0 - 2016-01-05
+### Added
+- The `none` storage
+
 ## v1.7.2 - 2015-12-27
 ### Fixed
 - Migrations on utf8mb4 databases
