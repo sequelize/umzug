@@ -225,6 +225,12 @@ umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
 });
 ```
 
+To revert all migrations, you can pass 0 as the `to` parameter:
+
+```js
+umzug.down({ to: 0 });
+```
+
 Reverting specific migrations while ignoring the right order, can be done like this:
 
 ```js
