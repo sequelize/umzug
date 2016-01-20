@@ -1,18 +1,37 @@
 'use strict';
 
-var _        = require('lodash');
-var Bluebird = require('bluebird');
-var fs       = require('fs');
+var _         = require('lodash');
+var Bluebird  = require('bluebird');
+var fs        = require('fs');
 
 var helper = module.exports = {
   clearTmp: function () {
-    var files = fs.readdirSync(__dirname + '/tmp');
-
-    files.forEach(function (file) {
+    // empty tmp directory
+    var migrations = fs.readdirSync(__dirname + '/tmp');
+    migrations.forEach(function (file) {
       if (file.match(/\.(js|json|sqlite)$/)) {
         fs.unlinkSync(__dirname + '/tmp/' + file);
       }
     });
+
+    // empty tmp/squashes directory
+    if (fs.existsSync(__dirname + '/tmp/squashes')) {
+      var squashes = fs.readdirSync(__dirname + '/tmp/squashes');
+      squashes.forEach(function (file) {
+        if (file.match(/\.(js|json|sqlite)$/)) {
+          fs.unlinkSync(__dirname + '/tmp/squashes/' + file);
+        }
+      });
+    }
+
+    // forget all required files under tmp directory
+    for (var path in require.cache) {
+      if (require.cache.hasOwnProperty(path)) {
+        if (path.indexOf(__dirname + '/tmp/') === 0) {
+          delete require.cache[path];
+        }
+      }
+    }
   },
 
   generateDummyMigration: function (name) {
@@ -31,6 +50,27 @@ var helper = module.exports = {
     return name;
   },
 
+  generateDummySquash: function (name, migrations) {
+    if (!fs.existsSync(__dirname + '/tmp/squashes')) {
+      fs.mkdirSync(__dirname + '/tmp/squashes');
+    }
+
+    fs.writeFileSync(
+      __dirname + '/tmp/squashes/' + name + '.js',
+      [
+        '\'use strict\';',
+        '',
+        'module.exports = {',
+        '  migrations: ' + JSON.stringify(migrations) + ',',
+        '  up: function () {},',
+        '  down: function () {}',
+        '};'
+      ].join('\n')
+    );
+
+    return name;
+  },
+
   prepareMigrations: function (count, options) {
     options = _.assign({
       names: []
@@ -40,8 +80,6 @@ var helper = module.exports = {
       var names = options.names;
       var num   = 0;
 
-      helper.clearTmp();
-
       _.times(count, function (i) {
         num++;
         names.push(options.names[i] || (num + '-migration'));
@@ -50,6 +88,51 @@ var helper = module.exports = {
 
       resolve(names);
     });
+  },
+
+  prepareSquashes: function (count, options) {
+    options = _.assign({
+      names: []
+    }, options || {});
+
+    return new Bluebird(function (resolve) {
+      var names = options.names;
+      var num   = 0;
+
+      _.times(count, function (i) {
+        num++;
+        var name = options.names[i] || (num + '-squash');
+        names.push(name);
+        helper.generateDummySquash(options.names[i], options.migrations[i]);
+      });
+
+      resolve(names);
+    });
+  },
+
+  prepare: function (options) {
+    options = options || {};
+
+    options.migrations = _.assign({
+      count: 0
+    }, options.migrations || {});
+
+    options.squashes = _.assign({
+      count: 0
+    }, options.squashes|| {});
+
+    helper.clearTmp();
+
+    return Bluebird.join(
+      helper.prepareMigrations(
+        options.migrations.count,
+        options.migrations.options
+      ),
+      helper.prepareSquashes(
+        options.squashes.count,
+        options.squashes.options
+      )
+    );
   },
 
   wrapStorageAsCustomThenable: function(storage) {

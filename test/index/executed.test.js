@@ -8,12 +8,23 @@ describe('Umzug', function () {
   describe('executed', function () {
     beforeEach(function () {
       return helper
-        .prepareMigrations(3)
+        .prepare({
+          migrations: { count: 3 },
+          squashes:   { count: 3, options: {
+            migrations: [
+              [ '1-migration.js', '2-migration.js' ],
+              [ '2-migration.js', '3-migration.js' ],
+              [ '1-migration.js', '2-migration.js', '3-migration.js' ]
+            ]
+          }}
+        })
         .bind(this)
-        .then(function (migrationNames) {
+        .spread(function (migrationNames, squashNames) {
           this.migrationNames = migrationNames;
+          this.squashNames = squashNames;
           this.umzug          = new Umzug({
             migrations:     { path: __dirname + '/../tmp/' },
+            squashes:       { path: __dirname + '/../tmp/squashes/' },
             storageOptions: { path: __dirname + '/../tmp/umzug.json' }
           });
         });
@@ -31,7 +42,7 @@ describe('Umzug', function () {
         expect(this.migrations).to.be.an(Array);
       });
 
-      it('returns 0 items', function () {
+      it('returns 0 migrations', function () {
         expect(this.migrations).to.have.length(0);
       });
     });
@@ -52,7 +63,7 @@ describe('Umzug', function () {
         expect(this.migrations).to.be.an(Array);
       });
 
-      it('returns 1 items', function () {
+      it('returns 1 migration', function () {
         expect(this.migrations).to.have.length(1);
         expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
       });
@@ -74,7 +85,7 @@ describe('Umzug', function () {
         expect(this.migrations).to.be.an(Array);
       });
 
-      it('returns 3 items', function () {
+      it('returns 3 migrations', function () {
         expect(this.migrations).to.have.length(3);
         expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
         expect(this.migrations[1].file).to.equal(this.migrationNames[1] + '.js');
@@ -100,11 +111,10 @@ describe('Umzug', function () {
         expect(this.migrations).to.be.an(Array);
       });
 
-      it('returns 1 items', function () {
+      it('returns 1 migration', function () {
         expect(this.migrations).to.have.length(1);
         expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
       });
     });
-
   });
 });

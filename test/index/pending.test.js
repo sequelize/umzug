@@ -2,19 +2,29 @@
 
 var expect    = require('expect.js');
 var helper    = require('../helper');
-var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
 
 describe('Umzug', function () {
   describe('pending', function () {
     beforeEach(function () {
       return helper
-        .prepareMigrations(3)
+        .prepare({
+          migrations: { count: 3 },
+          squashes:   { count: 3, options: {
+            migrations: [
+              [ '1-migration.js', '2-migration.js' ],
+              [ '2-migration.js', '3-migration.js' ],
+              [ '1-migration.js', '2-migration.js', '3-migration.js' ]
+            ]
+          }}
+        })
         .bind(this)
-        .then(function (migrationNames) {
+        .spread(function (migrationNames, squashNames) {
           this.migrationNames = migrationNames;
+          this.squashNames = squashNames;
           this.umzug          = new Umzug({
             migrations:     { path: __dirname + '/../tmp/' },
+            squashes:       { path: __dirname + '/../tmp/squashes/' },
             storageOptions: { path: __dirname + '/../tmp/umzug.json' }
           });
         });
@@ -31,14 +41,11 @@ describe('Umzug', function () {
         expect(this.migrations).to.be.an(Array);
       });
 
-      it('returns 3 items', function () {
+      it('returns 3 migrations', function () {
         expect(this.migrations).to.have.length(3);
-      });
-
-      it('returns migration instances', function () {
-        this.migrations.forEach(function (migration) {
-          expect(migration).to.be.a(Migration);
-        });
+        expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
+        expect(this.migrations[1].file).to.equal(this.migrationNames[1] + '.js');
+        expect(this.migrations[2].file).to.equal(this.migrationNames[2] + '.js');
       });
     });
 
@@ -54,22 +61,20 @@ describe('Umzug', function () {
         });
       });
 
-      it('returns only 2 items', function () {
+      it('returns only 2 migrations', function () {
         expect(this.migrations).to.have.length(2);
+        expect(this.migrations[0].file).to.equal(this.migrationNames[1] + '.js');
+        expect(this.migrations[1].file).to.equal(this.migrationNames[2] + '.js');
       });
 
       it('returns only the migrations that have not been run yet', function () {
-        var self = this;
-
-        this.migrationNames.slice(1).forEach(function (migrationName, i) {
-          expect(self.migrations[i].file).to.equal(migrationName + '.js');
-        });
+        expect(this.migrations[0].file).to.equal(this.migrationNames[1] + '.js');
+        expect(this.migrations[1].file).to.equal(this.migrationNames[2] + '.js');
       });
     });
 
     describe('when storage returns a thenable', function () {
       beforeEach(function () {
-
         //a migration has been executed already
         return this.umzug.execute({
           migrations: [ this.migrationNames[0] ],
@@ -85,16 +90,15 @@ describe('Umzug', function () {
         });
       });
 
-      it('returns only 2 items', function () {
+      it('returns only 2 migrations', function () {
         expect(this.migrations).to.have.length(2);
+        expect(this.migrations[0].file).to.equal(this.migrationNames[1] + '.js');
+        expect(this.migrations[1].file).to.equal(this.migrationNames[2] + '.js');
       });
 
       it('returns only the migrations that have not been run yet', function () {
-        var self = this;
-
-        this.migrationNames.slice(1).forEach(function (migrationName, i) {
-          expect(self.migrations[i].file).to.equal(migrationName + '.js');
-        });
+        expect(this.migrations[0].file).to.equal(this.migrationNames[1] + '.js');
+        expect(this.migrations[1].file).to.equal(this.migrationNames[2] + '.js');
       });
     });
   });

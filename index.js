@@ -28,6 +28,13 @@ var Umzug = module.exports = redefine.Class({
       wrap:    function (fun) { return fun; }
     }, this.options.migrations);
 
+    this.options.squashes = _.assign({
+      params:  [],
+      path:    path.resolve(process.cwd(), 'migrations/squashes'),
+      pattern: /^[\w-]+\.js$/,
+      wrap:    function (fun) { return fun; }
+    }, this.options.squashes);
+
     this.storage = this._initStorage();
   },
 
@@ -44,11 +51,13 @@ var Umzug = module.exports = redefine.Class({
         return self._findMigration(migration);
       })
       .then(function (migrations) {
+        return self._applySquashes(migrations);
+      })
+      .then(function (migrations) {
         return _.assign(options, { migrations: migrations });
       })
       .then(function (options) {
         return Bluebird.each(options.migrations, function (migration) {
-          var name = path.basename(migration.file, path.extname(migration.file));
           var startTime;
           return self
             ._wasExecuted(migration)
@@ -68,9 +77,9 @@ var Umzug = module.exports = redefine.Class({
                 }
 
                 if (options.method === 'up') {
-                  self.log("== " + name + ": migrating =======");
+                  self.log("== " + migration.name + ": migrating =======");
                 } else {
-                  self.log("== " + name + ": reverting =======");
+                  self.log("== " + migration.name + ": reverting =======");
                 }
 
                 startTime = new Date();
@@ -79,18 +88,23 @@ var Umzug = module.exports = redefine.Class({
               }
             })
             .then(function (executed) {
-              if (!executed && (options.method === 'up')) {
-                return Bluebird.resolve(self.storage.logMigration(migration.file));
-              } else if (options.method === 'down') {
-                return Bluebird.resolve(self.storage.unlogMigration(migration.file));
-              }
+                return Bluebird
+                  .resolve(migration.migrations())
+                  .bind(this)
+                  .mapSeries(function (migrationName) {
+                    if (!executed && (options.method === 'up')) {
+                      return Bluebird.resolve(self.storage.logMigration(migrationName));
+                    } else if (options.method === 'down') {
+                      return Bluebird.resolve(self.storage.unlogMigration(migrationName));
+                    }
+                  });
             })
             .tap(function () {
               var duration = ((new Date() - startTime) / 1000).toFixed(3);
               if (options.method === 'up') {
-                self.log("== " + name + ": migrated (" + duration +  "s)\n");
+                self.log("== " + migration.name + ": migrated (" + duration +  "s)\n");
               } else {
-                self.log("== " + name + ": reverted (" + duration +  "s)\n");
+                self.log("== " + migration.name + ": reverted (" + duration +  "s)\n");
               }
             });
         });
@@ -302,14 +316,20 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
-  _wasExecuted: function (_migration) {
-    return this.executed().filter(function (migration) {
-      return migration.testFileName(_migration.file);
+  _wasExecuted: function (migration) {
+    var migrationNames = migration.migrations();
+
+    return this.executed().filter(function (_migration) {
+      return _migration.testFileName(migrationNames);
     }).then(function(migrations) {
       if (migrations[0]) {
         return Bluebird.resolve();
       } else {
-        return Bluebird.reject(new Error('Migration was not executed: ' + _migration.file));
+        var error = migrationNames.length > 1 ?
+          new Error('Squashed migration was not executed: ' + migration.file) :
+          new Error('Migration was not executed: ' + migration.file);
+
+        return Bluebird.reject(error);
       }
     });
   },
@@ -323,14 +343,20 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
-  _isPending: function (_migration) {
-    return this.pending().filter(function (migration) {
-      return migration.testFileName(_migration.file);
+  _isPending: function (migration) {
+    var migrationNames = migration.migrations();
+
+    return this.pending().filter(function (_migration) {
+      return _migration.testFileName(migrationNames);
     }).then(function(migrations) {
       if (migrations[0]) {
         return Bluebird.resolve();
       } else {
-        return Bluebird.reject(new Error('Migration is not pending: ' + _migration.file));
+        var error = migrationNames.length > 1 ?
+          new Error('Squashed migration is not pending: ' + migration.file) :
+          new Error('Migration is not pending: ' + migration.file);
+
+        return Bluebird.reject(error);
       }
     });
   },
@@ -361,5 +387,122 @@ var Umzug = module.exports = redefine.Class({
         return acc;
       }, { migrations: [], add: true })
       .get('migrations');
+  },
+
+  /**
+   * Try to apply all squashes and reduce length of migrations list.
+   *
+   * This function is using First Fit Decreasing algorithm. It is not perfect
+   * nor fast.
+   *
+   * TODO: Please improve this with a better algorithm.
+   *
+   * @param {Migration[]} migrations
+   * @returns {Promise.<Migration[]>}
+   * @private
+   */
+  _applySquashes: function (migrations) {
+    return this._loadSquashes()
+      .then(function (squashes) {
+        return _.sortBy(squashes, function (squash) {
+          return -squash.migrations().length;
+        });
+      })
+      .reduce(function (acc, squash) {
+        return this._applySquash(acc, squash);
+      }, migrations);
+  },
+
+  /**
+   * Squash can be applied if and only if all the squashed migrations are in
+   * migrations as a continuous queue. Internal order of squashed migrations
+   * does not matter. Thus, there are three groups in migrations: 1 migrations
+   * before the squash, 2 squashed migrations in any order, and 3 migrations
+   * after the squash. The aim is to find group 2 and replace it by the squash.
+   * Thus, the result is migrations before the squash, the squash, and
+   * migrations after the squash.
+   *
+   * If the squash cannot be applied, the result is migrations without any
+   * changes.
+   *
+   * @param {Migration[]} migrations
+   * @param {Migration} squash
+   * @returns {Promise.<Migration[]>}
+   * @private
+   */
+  _applySquash: function (migrations, squash) {
+    var originalSquashed = squash.migrations();
+
+    return Bluebird.resolve(migrations).bind(this)
+      .reduce(function (acc, migration) {
+        var isSquash = migration.migrations().length > 1;
+
+        if (acc.alreadyApplied) {
+          // Squash is already applied. This migration belongs to group 3
+          // migrations after the squash.
+          acc.afterSquash.push(migration);
+        } else if (isSquash || !migration.testFileName(acc.squashed)) {
+          // This migration is an another squash or it is not in the list of
+          // squashed migrations we are looking for. In both cases, all the
+          // previous migrations (including current one) belongs to the group 1
+          // migrations before the squash.
+          acc.squashed = originalSquashed;
+          acc.beforeSquash = acc.beforeSquash.concat(acc.withinSquash);
+          acc.beforeSquash.push(migration);
+          acc.withinSquash = [];
+        } else {
+          // This migration is one of the squashed migrations. It belongs to
+          // group 2 squashed migrations if and only if all rest of the squashed
+          // migrations are right after the current migration.
+          acc.withinSquash.push(migration);
+          acc.squashed = _.filter(acc.squashed, function (name) {
+            return !migration.testFileName(name);
+          });
+
+          if (acc.squashed.length === 0) {
+            // All squashed migrations are found. Replace them with the squash.
+            acc.withinSquash = [ squash ];
+            acc.alreadyApplied = true;
+          }
+        }
+
+        return acc;
+      }, {
+        squashed: originalSquashed,
+        beforeSquash: [],
+        withinSquash: [],
+        afterSquash: [],
+        alreadyApplied: false
+      })
+      .then(function (acc) {
+        // Join all the three groups.
+        return Bluebird.resolve(
+          _.flatten([acc.beforeSquash, acc.withinSquash, acc.afterSquash])
+        );
+      });
+  },
+
+  /**
+   * Load squashes and return them.
+   *
+   * @returns {Promise.<Migration[]>}
+   * @private
+   */
+  _loadSquashes: function () {
+    return Bluebird
+      .promisify(fs.readdir)(this.options.squashes.path)
+      .bind(this)
+      .catch(function () {
+        return [];
+      })
+      .filter(function (file) {
+        return this.options.squashes.pattern.test(file);
+      })
+      .map(function (file) {
+        return path.resolve(this.options.squashes.path, file);
+      })
+      .map(function (path) {
+        return new Migration(path, this.options);
+      });
   }
 });
