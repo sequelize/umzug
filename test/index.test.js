@@ -30,7 +30,7 @@ describe('Umzug', function () {
       expect(function () {
         new Umzug({ storage: 'nomnom' });
       }).to.throwError(
-        Error, /Unable to resolve the storage: omnom/
+        'Unable to resolve the storage: nomnom, Error: Cannot find module \'nomnom\''
       );
     });
 
