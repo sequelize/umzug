@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.9.0 - 2016-02-09
+### Changed
+- Set charset for SequelizeMeta table to  `utf8`
+
 ## v1.8.1 - 2016-02-09
 ### Added
 - Print details in error cases
