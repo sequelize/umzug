@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.8.1 - 2016-02-09
+### Added
+- Print details in error cases
+
+### Changed
+- The `options` input object is not modified anymore
+- Updated lodash to 4.3.0
+
 ## v1.8.0 - 2016-01-05
 ### Added
 - The `none` storage
