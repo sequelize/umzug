@@ -44,7 +44,7 @@ var Umzug = module.exports = redefine.Class({
         return self._findMigration(migration);
       })
       .then(function (migrations) {
-        return _.assign(options, { migrations: migrations });
+        return _.assign({}, options, { migrations: migrations });
       })
       .then(function (options) {
         return Bluebird.each(options.migrations, function (migration) {
