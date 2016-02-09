@@ -264,7 +264,7 @@ var Umzug = module.exports = redefine.Class({
     try {
       Storage = Storage || require(this.options.storage);
     } catch (e) {
-      throw new Error('Unable to resolve the storage: ' + this.options.storage);
+      throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
     }
 
     return new Storage(this.options);
