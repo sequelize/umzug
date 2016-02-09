@@ -251,7 +251,7 @@ It is possible to configure *umzug* instance via passing an object to the constr
 ```js
 {
   // The storage.
-  // Possible values: 'json', 'sequelize', an object
+  // Possible values: 'json', 'sequelize', an argument for `require()`, including absolute paths
   storage: 'json',
 
   // The options for the storage.
