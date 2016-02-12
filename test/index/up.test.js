@@ -6,7 +6,6 @@ var helper    = require('../helper');
 var Migration = require('../../lib/migration');
 var Umzug     = require('../../index');
 
-describe('Umzug', function () {
   describe('up', function () {
     beforeEach(function () {
       return helper
@@ -295,4 +294,3 @@ describe('Umzug', function () {
     });
 
   });
-});

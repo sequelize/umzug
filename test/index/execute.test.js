@@ -6,7 +6,6 @@ var helper    = require('../helper');
 var Umzug     = require('../../index');
 var sinon     = require('sinon');
 
-describe('Umzug', function () {
   describe('execute', function () {
     beforeEach(function () {
       return helper
@@ -174,4 +173,3 @@ describe('Umzug', function () {
       });
     });
   });
-});

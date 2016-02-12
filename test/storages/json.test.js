@@ -7,7 +7,6 @@ var helper    = require('../helper');
 var path      = require('path');
 var Storage   = require('../../lib/storages/json');
 
-describe('storages', function () {
   describe('JSON', function () {
     describe('constructor', function () {
       it('stores options', function () {
@@ -104,9 +103,8 @@ describe('storages', function () {
         return this.storage.logMigration('foo.js').bind(this).then(function () {
           return this.storage.executed();
         }).then(function (data) {
-          expect(data).to.eql([ 'foo.js' ]);
+          expect(data).to.not.eql([ 'foo.js' ]);
         });
       });
     });
   });
-});

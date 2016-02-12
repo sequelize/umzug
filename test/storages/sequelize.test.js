@@ -5,19 +5,18 @@ var helper    = require('../helper');
 var Storage   = require('../../lib/storages/sequelize');
 var Sequelize = require('sequelize');
 
-describe('storages', function () {
-  beforeEach(function() {
-    helper.clearTmp();
-
-    this.storagePath = __dirname + '/../tmp/storage.sqlite';
-    this.sequelize   = new Sequelize('database', 'username', 'password', {
-      dialect: 'sqlite',
-      storage: this.storagePath,
-      logging: false
-    });
-  });
-
   describe('sequelize', function () {
+    beforeEach(function() {
+      helper.clearTmp();
+
+      this.storagePath = __dirname + '/../tmp/storage.sqlite';
+      this.sequelize   = new Sequelize('database', 'username', 'password', {
+        dialect: 'sqlite',
+        storage: this.storagePath,
+        logging: false
+      });
+    });
+
     describe('constructor', function () {
       it('requires a "sequelize" or "model" storage option', function() {
         expect(function() {
@@ -356,4 +355,3 @@ describe('storages', function () {
       });
     }); //end describe('executed', function() {
   }); //end describe('sequelize', function() {
-}); //end describe('storages', function() {

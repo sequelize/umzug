@@ -1,10 +1,9 @@
 'use strict';
 
 var expect    = require('expect.js');
-var Umzug     = require('../index');
+var Umzug     = require('../../index');
 var sinon     = require('sinon');
 
-describe('Umzug', function () {
   describe('constructor', function () {
     it('exposes some methods', function () {
       var umzug = new Umzug();
@@ -41,4 +40,3 @@ describe('Umzug', function () {
       expect(spy.called).to.be(true);
     });
   });
-});

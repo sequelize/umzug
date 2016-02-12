@@ -5,7 +5,6 @@ var expect    = require('expect.js');
 var helper    = require('../helper');
 var Umzug     = require('../../index');
 
-describe('Umzug', function () {
   describe('down', function () {
     beforeEach(function () {
       return helper
@@ -326,4 +325,3 @@ describe('Umzug', function () {
 
     });
   });
-});
