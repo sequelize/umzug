@@ -103,7 +103,7 @@ describe('JSON', function () {
       return this.storage.logMigration('foo.js').bind(this).then(function () {
         return this.storage.executed();
       }).then(function (data) {
-        expect(data).to.not.eql([ 'foo.js' ]);
+        expect(data).to.eql([ 'foo.js' ]);
       });
     });
   });
