@@ -142,7 +142,9 @@ var Umzug = module.exports = redefine.Class({
 
     if (typeof options === 'undefined') {
       return getExecuted().bind(this).then(function (migrations) {
-        return migrations[0] ? this.down(migrations[0].file) : Bluebird.resolve([]);
+        return migrations[0]
+          ? this.down(migrations[0].file)
+          : Bluebird.resolve([]);
       });
     } else {
       return this._run(false, options, getExecuted.bind(this));
