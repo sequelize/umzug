@@ -130,7 +130,7 @@ var Umzug = module.exports = redefine.Class({
   },
 
   up: function (options) {
-    return this._run(true, options, this.pending.bind(this));
+    return this._run('up', options, this.pending.bind(this));
   },
 
   down: function (options) {
@@ -147,25 +147,25 @@ var Umzug = module.exports = redefine.Class({
           : Bluebird.resolve([]);
       });
     } else {
-      return this._run(false, options, getExecuted.bind(this));
+      return this._run('down', options, getExecuted.bind(this));
     }
   },
 
-  _run: function(up, options, rest) {
+  _run: function(method, options, rest) {
     if (typeof options === 'string') {
-      return this._run(up, [ options ]);
+      return this._run(method, [ options ]);
     } else if (Array.isArray(options)) {
       return Bluebird.resolve(options).bind(this)
         .map(function (migration) {
           return this._findMigration(migration)
         })
         .then(function (migrations) {
-          return up ?
+          return method === 'up' ?
             this._arePending(migrations) :
             this._wereExecuted(migrations);
         })
         .then(function () {
-          return this._run(up, { migrations: options });
+          return this._run(method, { migrations: options });
         });
     }
 
@@ -177,7 +177,7 @@ var Umzug = module.exports = redefine.Class({
     if (options.migrations) {
       return this.execute({
         migrations: options.migrations,
-        method: up ? 'up' : 'down'
+        method: method
       });
     } else {
       return rest().bind(this)
@@ -192,7 +192,7 @@ var Umzug = module.exports = redefine.Class({
               })
               .then(function (migration) {
                 // ... and it must be pending/executed.
-                return up ?
+                return method === 'up' ?
                   this._isPending(migration) :
                   this._wasExecuted(migration);
               });
@@ -206,7 +206,7 @@ var Umzug = module.exports = redefine.Class({
           return this._findMigrationsUntilMatch(options.to, migrations);
         })
         .then(function (migrationFiles) {
-          return this._run(up, { migrations: migrationFiles });
+          return this._run(method, { migrations: migrationFiles });
         });
     }
   },
