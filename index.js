@@ -130,56 +130,7 @@ var Umzug = module.exports = redefine.Class({
   },
 
   up: function (options) {
-    if (typeof options === 'string') {
-      return this.up([ options ]);
-    } else if (Array.isArray(options)) {
-      return Bluebird.resolve(options).bind(this)
-        .map(function (migration) {
-          return this._findMigration(migration)
-        })
-        .then(function (migrations) {
-          return this._arePending(migrations);
-        })
-        .then(function () {
-          return this.up({ migrations: options });
-        });
-    }
-
-    options = _.assign({
-      to:         null,
-      migrations: null
-    }, options || {});
-
-    if (options.migrations) {
-      return this.execute({ migrations: options.migrations, method: 'up' });
-    } else {
-      return this.pending().bind(this)
-        .then(function (migrations) {
-          var result = Bluebird.resolve().bind(this);
-
-          if (options.to) {
-            result = result
-              .then(function () {
-                // There must be a migration matching to options.to...
-                return this._findMigration(options.to);
-              })
-              .then(function (migration) {
-                // ... and it must be pending.
-                return this._isPending(migration);
-              });
-          }
-
-          return result.then(function () {
-            return Bluebird.resolve(migrations)
-          });
-        })
-        .then(function (migrations) {
-          return this._findMigrationsUntilMatch(options.to, migrations);
-        })
-        .then(function (migrationFiles) {
-          return this.up({ migrations: migrationFiles });
-        });
-    }
+    return this._run('up', options, this.pending.bind(this));
   },
 
   down: function (options) {
@@ -191,20 +142,30 @@ var Umzug = module.exports = redefine.Class({
 
     if (typeof options === 'undefined') {
       return getExecuted().bind(this).then(function (migrations) {
-        return migrations[0] ? this.down(migrations[0].file) : Bluebird.resolve([]);
+        return migrations[0]
+          ? this.down(migrations[0].file)
+          : Bluebird.resolve([]);
       });
-    } else if (typeof options === 'string') {
-      return this.down([ options ]);
+    } else {
+      return this._run('down', options, getExecuted.bind(this));
+    }
+  },
+
+  _run: function(method, options, rest) {
+    if (typeof options === 'string') {
+      return this._run(method, [ options ]);
     } else if (Array.isArray(options)) {
       return Bluebird.resolve(options).bind(this)
         .map(function (migration) {
           return this._findMigration(migration)
         })
         .then(function (migrations) {
-          return this._wereExecuted(migrations);
+          return method === 'up' ?
+            this._arePending(migrations) :
+            this._wereExecuted(migrations);
         })
         .then(function () {
-          return this.down({ migrations: options });
+          return this._run(method, { migrations: options });
         });
     }
 
@@ -214,9 +175,12 @@ var Umzug = module.exports = redefine.Class({
     }, options || {});
 
     if (options.migrations) {
-      return this.execute({ migrations: options.migrations, method: 'down' });
+      return this.execute({
+        migrations: options.migrations,
+        method: method
+      });
     } else {
-      return getExecuted().bind(this)
+      return rest().bind(this)
         .then(function (migrations) {
           var result = Bluebird.resolve().bind(this);
 
@@ -227,8 +191,10 @@ var Umzug = module.exports = redefine.Class({
                 return this._findMigration(options.to);
               })
               .then(function (migration) {
-                // ... and it must be executed.
-                return this._wasExecuted(migration);
+                // ... and it must be pending/executed.
+                return method === 'up' ?
+                  this._isPending(migration) :
+                  this._wasExecuted(migration);
               });
           }
 
@@ -240,7 +206,7 @@ var Umzug = module.exports = redefine.Class({
           return this._findMigrationsUntilMatch(options.to, migrations);
         })
         .then(function (migrationFiles) {
-          return this.down({ migrations: migrationFiles });
+          return this._run(method, { migrations: migrationFiles });
         });
     }
   },
