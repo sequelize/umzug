@@ -25,7 +25,7 @@ gulp.task('lint', function () {
 
 gulp.task('test', function () {
   gulp
-    .src(path.resolve(__dirname, 'test', '**', '*.test.js'), { read: false })
+    .src(path.resolve(__dirname, 'test', '**', '*.js'), { read: false })
     .pipe(mocha({
        reporter:    'spec',
        ignoreLeaks: true,
