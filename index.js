@@ -140,7 +140,7 @@ var Umzug = module.exports = redefine.Class({
       });
     }.bind(this);
 
-    if (typeof options === 'undefined') {
+    if (typeof options === 'undefined' || _.isEqual(options, {})) {
       return getExecuted().bind(this).then(function (migrations) {
         return migrations[0]
           ? this.down(migrations[0].file)
