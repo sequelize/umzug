@@ -96,6 +96,27 @@ describe('down', function () {
       });
     });
 
+    describe('when empty options is specified', function () {
+      beforeEach(function () {
+        return this.umzug.down({}).bind(this).then(function (migrations) {
+          this.migrations = migrations;
+        });
+      });
+
+      it('returns 1 item', function () {
+        expect(this.migrations).to.have.length(1);
+        expect(this.migrations[0].file).to.equal(this.migrationNames[2] + '.js');
+      });
+
+      it('removes the reverted migrations from the storage', function () {
+        return this.umzug.executed().bind(this).then(function (migrations) {
+          expect(migrations).to.have.length(2);
+          expect(migrations[0].file).to.equal(this.migrationNames[0] + '.js');
+          expect(migrations[1].file).to.equal(this.migrationNames[1] + '.js');
+        });
+      });
+    });
+
     describe('when `to` option is passed', function () {
       beforeEach(function () {
         return this.umzug.down({
