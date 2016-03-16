@@ -140,7 +140,11 @@ var Umzug = module.exports = redefine.Class({
       });
     }.bind(this);
 
-    if (typeof options === 'undefined' || _.isEqual(options, {})) {
+    var optionsIsEmptyObject = typeof options !== 'string'
+      && !Array.isArray(options)
+      && _.isEqual(_.pick(options, ['migrations', 'to']), {});
+
+    if (typeof options === 'undefined' || optionsIsEmptyObject) {
       return getExecuted().bind(this).then(function (migrations) {
         return migrations[0]
           ? this.down(migrations[0].file)
