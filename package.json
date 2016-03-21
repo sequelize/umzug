@@ -17,6 +17,7 @@
     "gulp-jshint": "^2.0.0",
     "gulp-jshint-instafail": "^1.0.0",
     "gulp-mocha": "^2.0.0",
+    "jshint": "^2.9.1",
     "jshint-stylish": "^2.0.0",
     "mocha": "^2.0.1",
     "sequelize": "^3.13.0",
