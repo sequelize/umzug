@@ -173,3 +173,56 @@ describe('coffee-script support', function () {
     });
   });
 });
+
+describe('upName / downName', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+    require('fs').writeFileSync(__dirname + '/../tmp/123-custom-up-down-names-migration.js', [
+          '\'use strict\';',
+          '',
+          'module.exports = {',
+          '  myUp: function () {},',
+          '  myDown: function () {}',
+          '};'
+        ].join('\n')
+    );
+    this.migration = require('../tmp/123-custom-up-down-names-migration.js');
+    this.upStub    = sinon.stub(this.migration, 'myUp', Bluebird.resolve);
+    this.downStub  = sinon.stub(this.migration, 'myDown', Bluebird.resolve);
+    this.umzug     = new Umzug({
+      migrations:     { path: __dirname + '/../tmp/' },
+      storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+      upName: 'myUp',
+      downName: 'myDown'
+    });
+    this.migrate = function (method) {
+      return this.umzug.execute({
+        migrations: ['123-custom-up-down-names-migration'],
+        method:     method
+      });
+    }.bind(this);
+  });
+
+  afterEach(function () {
+    this.migration.myUp.restore();
+    this.migration.myDown.restore();
+  });
+
+  it('runs the custom up method of the migration', function () {
+    return this
+      .migrate('up').bind(this)
+      .then(function ()  {
+        expect(this.upStub.callCount).to.equal(1);
+        expect(this.downStub.callCount).to.equal(0);
+      });
+  });
+
+  it('runs the custom down method of the migration', function () {
+    return this
+      .migrate('down').bind(this)
+      .then(function ()  {
+        expect(this.downStub.callCount).to.equal(1);
+        expect(this.upStub.callCount).to.equal(0);
+      });
+  });
+});
