@@ -73,6 +73,25 @@ describe('up', function () {
     });
   });
 
+
+  describe('when passing the `from` option', function () {
+    describe('UP method', function () {
+      beforeEach(function () {
+        return this.umzug.up({
+          from: this.migrationNames[1],
+        }).bind(this).then(function (migrations) {
+          this.migrations = migrations;
+        });
+      });      
+      it('should return 1 migration', function () {
+        expect(this.migrations).to.have.length(1);
+      });
+      it('should be the last migration', function() {
+        expect(this.migrations[0].file).to.equal('3-migration.js');
+      });
+    });
+  });
+
   describe('when passing the `to` option', function () {
     beforeEach(function () {
       return this.umzug.up({
