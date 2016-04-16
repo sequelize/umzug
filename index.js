@@ -251,10 +251,7 @@ var Umzug = module.exports = redefine.Class({
               return false;
             }
           });
-      })
-      .then(function(migrations) {
-        return migrations;
-      })      
+      });
   },
 
   log: function(message) {
