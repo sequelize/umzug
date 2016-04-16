@@ -193,6 +193,20 @@ It is also possible to pass the name of a migration in order to just run the mig
 umzug.up({ to: '20141101203500-task' }).then(function (migrations) {});
 ```
 
+You also have the ability to choose to run migrations *from* a specific migration, excluding it:
+
+```js
+umzug.up({ from: '20141101203500-task' }).then(function (migrations) {});
+```
+
+In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly usefull if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
+
+You can combine `from` and `to` options to select a specific subset:
+
+```js
+umzug.up({ from: '20141101203500-task', to: '20151201103412-items' }).then(function (migrations) {});
+```
+
 Running specific migrations while ignoring the right order, can be done like this:
 
 ```js

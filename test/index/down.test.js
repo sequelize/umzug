@@ -117,6 +117,22 @@ describe('down', function () {
       });
     });
 
+    describe('when `from` option is passed', function () {
+      beforeEach(function () {
+        return this.umzug.down({
+          from: this.migrationNames[1],
+        }).bind(this).then(function (migrations) {
+          this.migrations = migrations;
+        });
+      });      
+      it('should return 1 migration', function () {
+        expect(this.migrations).to.have.length(1);
+      });
+      it('should be the last migration', function() {
+        expect(this.migrations[0].file).to.equal('3-migration.js');
+      });
+    });
+
     describe('when `to` option is passed', function () {
       beforeEach(function () {
         return this.umzug.down({

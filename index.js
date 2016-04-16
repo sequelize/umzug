@@ -157,7 +157,7 @@ var Umzug = module.exports = redefine.Class({
     } else if (Array.isArray(options)) {
       return Bluebird.resolve(options).bind(this)
         .map(function (migration) {
-          return this._findMigration(migration)
+          return this._findMigration(migration);
         })
         .then(function (migrations) {
           return method === 'up' ?
@@ -171,6 +171,7 @@ var Umzug = module.exports = redefine.Class({
 
     options = _.assign({
       to:         null,
+      from:       null,
       migrations: null
     }, options || {});
 
@@ -202,6 +203,13 @@ var Umzug = module.exports = redefine.Class({
             return Bluebird.resolve(migrations)
           });
         })
+        .then(function(migrations) {
+          if (options.from) {
+            return this._findMigrationsFromMatch(options.from, method);
+          } else {
+            return migrations;
+          }
+        })
         .then(function (migrations) {
           return this._findMigrationsUntilMatch(options.to, migrations);
         })
@@ -209,6 +217,41 @@ var Umzug = module.exports = redefine.Class({
           return this._run(method, { migrations: migrationFiles });
         });
     }
+  },
+
+  _findMigrationsFromMatch: function (from, method) {
+    // We'll fetch all migrations and work our way from start to finish
+    return this._findMigrations()
+      .bind(this)
+      .then(function(migrations) {
+
+        var found = false;
+        return migrations.filter(function(migration) {
+          if (migration.testFileName(from)) {
+            found = true;
+            return false;
+          }
+          return found;
+        });
+      })
+      .filter(function(fromMigration) {
+        // now check if they need to be run based on status and method
+        return this._wasExecuted(fromMigration)
+          .then(function() {
+            if (method === 'up') {
+              return false;
+            } else {
+              return true;
+            }
+          })
+          .catch(function() {
+            if (method === 'up') {
+              return true;
+            } else {
+              return false;
+            }
+          });
+      });
   },
 
   log: function(message) {
