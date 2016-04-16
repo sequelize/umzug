@@ -234,9 +234,6 @@ var Umzug = module.exports = redefine.Class({
           return found;
         });
       })
-      .then(function(migrations) {
-        return migrations;
-      })
       .filter(function(fromMigration) {
         // now check if they need to be run based on status and method
         return this._wasExecuted(fromMigration)
