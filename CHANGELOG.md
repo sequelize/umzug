@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.10.0 - 2016-04-17
+### Added
+- Option `from` to `up` and `down` methods #72
+
+### Fixed
+- Configurable `up` and `down` methods #70
+
 ## v1.9.1 - 2016-03-14
 ### Fixed
 - Call of `down` with empty object
