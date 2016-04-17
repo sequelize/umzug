@@ -53,7 +53,10 @@ describe('sequelize', function () {
         .then(function(description) {
           expect(description).to.only.have.keys(['name']);
           expect(description.name.type).to.eql('VARCHAR(255)');
-          expect(description.name.defaultValue).to.eql(null);
+          // expect(description.name.defaultValue).to.be.oneOf([null, undefined])
+          if (description.name.defaultValue !== undefined) {
+            expect(description.name.defaultValue).to.eql(null);
+          }
           expect(description.name.primaryKey).to.be.ok();
         });
     });
@@ -117,7 +120,10 @@ describe('sequelize', function () {
         })
         .then(function(description) {
           expect(description.name.type).to.eql('VARCHAR(190)');
-          expect(description.name.defaultValue).to.eql(null);
+          // expect(description.name.defaultValue).to.be.oneOf([null, undefined])
+          if (description.name.defaultValue !== undefined) {
+            expect(description.name.defaultValue).to.eql(null);
+          }
           expect(description.name.primaryKey).to.eql(true);
         });
     });
