@@ -9,6 +9,12 @@ language: node_js
 
 node_js:
   - "0.10"
+  - "0.12"
+  - "iojs-v1"
+  - "iojs-v2"
+  - "iojs-v3"
+  - "4"
+  - "5"
 
 before_script:
   - npm install sequelize@$(echo $SEQUELIZE)
