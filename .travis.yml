@@ -14,6 +14,6 @@ before_script:
   - npm install sequelize@$(echo $SEQUELIZE)
 
 env:
-  - SEQUELIZE=1.7.10
-  - SEQUELIZE=2.0.0-rc8
-  - SEQUELIZE=2.0.0
+  - SEQUELIZE=^1.0.0
+  - SEQUELIZE=^2.0.0
+  - SEQUELIZE=^3.0.0
