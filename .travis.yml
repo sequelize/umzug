@@ -20,6 +20,15 @@ before_script:
   - npm install sequelize@$(echo $SEQUELIZE)
 
 env:
-  - SEQUELIZE=^1.0.0
-  - SEQUELIZE=^2.0.0
-  - SEQUELIZE=^3.0.0
+  - SEQUELIZE=^1.0.0 CXX=g++-4.8
+  - SEQUELIZE=^2.0.0 CXX=g++-4.8
+  - SEQUELIZE=^3.0.0 CXX=g++-4.8
+
+sudo: false
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
