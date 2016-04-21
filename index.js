@@ -7,7 +7,37 @@ var Migration = require('./lib/migration');
 var path      = require('path');
 var redefine  = require('redefine');
 
-var Umzug = module.exports = redefine.Class({
+/**
+ * @class Umzug
+ */
+var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
+  /**
+   * Constructs Umzug instance.
+   *
+   * @param {Object} [options]
+   * @param {String} [options.storage='json'] - The storage. Possible values:
+   * 'json', 'sequelize', an argument for `require()`, including absolute paths.
+   * @param {function|false} [options.logging=false] - The logging function.
+   * A function that gets executed every time migrations start and have ended.
+   * @param {String} [options.upName='up'] - The name of the positive method
+   * in migrations.
+   * @param {String} [options.downName='down'] - The name of the negative method
+   * in migrations.
+   * @param {Object} [options.storageOptions] - The options for the storage.
+   * Check the available storages for further details.
+   * @param {Object} [options.migrations] -
+   * @param {Array} [options.migrations.params] - The params that gets passed to
+   * the migrations. Might be an array or a synchronous function which returns
+   * an array.
+   * @param {String} [options.migrations.path] - The path to the migrations
+   * directory.
+   * @param {RegExp} [options.migrations.pattern] - The pattern that determines
+   * whether or not a file is a migration.
+   * @param {Migration~wrap} [options.migrations.wrap] - A function that
+   * receives and returns the to be executed function. This can be used to
+   * modify the function.
+   * @constructs Umzug
+   */
   constructor: function (options) {
     this.options = _.assign({
       storage:        'json',
@@ -31,6 +61,14 @@ var Umzug = module.exports = redefine.Class({
     this.storage = this._initStorage();
   },
 
+  /**
+   * Executes given migrations with a given method.
+   *
+   * @param {Object}   [options]
+   * @param {String[]} [options.migrations=[]]
+   * @param {String}   [options.method='up']
+   * @returns {Promise}
+   */
   execute: function (options) {
     var self = this;
 
@@ -97,12 +135,22 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
+  /**
+   * Lists executed migrations.
+   *
+   * @returns {Promise.<Migration>}
+   */
   executed: function () {
     return Bluebird.resolve(this.storage.executed()).bind(this).map(function (file) {
       return new Migration(file);
     });
   },
 
+  /**
+   * Lists pending migrations.
+   *
+   * @returns {Promise.<Migration[]>}
+   */
   pending: function () {
     return this
       ._findMigrations()
@@ -117,22 +165,44 @@ var Umzug = module.exports = redefine.Class({
 
         return all.filter(function (migration) {
           return executedFiles.indexOf(migration.file) === -1;
-        }).sort(function (a, b) {
-          if (a.file > b.file) {
-            return 1;
-          } else  if (a.file < b.file) {
-            return -1;
-          } else {
-            return 0;
-          }
         });
       });
   },
 
+  /**
+   * Execute migrations up.
+   *
+   * If options is a migration name (String), it will be executed.
+   * If options is a list of migration names (String[]), them will be executed.
+   * If options is Object:
+   * - { from: 'migration-1', to: 'migration-n' } - execute migrations in range.
+   * - { migrations: [] } - execute migrations in array.
+   *
+   * @param {String|String[]|Object} options
+   * @param {String}     [options.from] - The first migration to execute (exc).
+   * @param {String}     [options.to] - The last migration to execute (inc).
+   * @param {String[]}   [options.migrations] - List of migrations to execute.
+   * @returns {Promise}
+   */
   up: function (options) {
     return this._run('up', options, this.pending.bind(this));
   },
 
+  /**
+   * Execute migrations down.
+   *
+   * If options is a migration name (String), it will be executed.
+   * If options is a list of migration names (String[]), them will be executed.
+   * If options is Object:
+   * - { from: 'migration-n', to: 'migration-1' } - execute migrations in range.
+   * - { migrations: [] } - execute migrations in array.
+   *
+   * @param {String|String[]|Object} options
+   * @param {String}     [options.from] - The first migration to execute (exc).
+   * @param {String}     [options.to] - The last migration to execute (inc).
+   * @param {String[]}   [options.migrations] - List of migrations to execute.
+   * @returns {Promise}
+   */
   down: function (options) {
     var getExecuted = function () {
       return this.executed().bind(this).then(function(migrations) {
@@ -151,6 +221,31 @@ var Umzug = module.exports = redefine.Class({
     }
   },
 
+  /**
+   * Callback function to get migrations in right order.
+   *
+   * @callback Umzug~rest
+   * @return {Promise.<Migration[]>}
+   */
+
+  /**
+   * Execute migrations either down or up.
+   *
+   * If options is a migration name (String), it will be executed.
+   * If options is a list of migration names (String[]), them will be executed.
+   * If options is Object:
+   * - { from: 'migration-1', to: 'migration-n' } - execute migrations in range.
+   * - { migrations: [] } - execute migrations in array.
+   *
+   * @param {String} method - Method to run. Either 'up' or 'down'.
+   * @param {String|String[]|Object} options
+   * @param {String}     [options.from] - The first migration to execute (exc).
+   * @param {String}     [options.to] - The last migration to execute (inc).
+   * @param {String[]}   [options.migrations] - List of migrations to execute.
+   * @param {Umzug~rest} [rest] - Function to get migrations in right order.
+   * @returns {Promise}
+   * @private
+   */
   _run: function(method, options, rest) {
     if (typeof options === 'string') {
       return this._run(method, [ options ]);
@@ -219,12 +314,22 @@ var Umzug = module.exports = redefine.Class({
     }
   },
 
+  /**
+   * Lists pending/executed migrations depending on method from a given
+   * migration excluding it.
+   *
+   * @param {String} from - Migration name to be searched.
+   * @param {String} method - Either 'up' or 'down'. If method is 'up', only
+   * pending migrations will be accepted. Otherwise only executed migrations
+   * will be accepted.
+   * @returns {Promise.<Migration[]>}
+   * @private
+   */
   _findMigrationsFromMatch: function (from, method) {
     // We'll fetch all migrations and work our way from start to finish
     return this._findMigrations()
       .bind(this)
       .then(function(migrations) {
-
         var found = false;
         return migrations.filter(function(migration) {
           if (migration.testFileName(from)) {
@@ -254,12 +359,23 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
+  /**
+   * Pass message to logger if logging is enabled.
+   *
+   * @param {*} message - Message to be logged.
+   */
   log: function(message) {
     if (this.options.logging) {
       this.options.logging(message);
     }
   },
 
+  /**
+   * Try to require and initialize storage.
+   *
+   * @returns {*|SequelizeStorage|JSONStorage|NoneStorage}
+   * @private
+   */
   _initStorage: function () {
     var Storage;
 
@@ -279,6 +395,12 @@ var Umzug = module.exports = redefine.Class({
     return new Storage(this.options);
   },
 
+  /**
+   * Loads all migrations.
+   *
+   * @returns {Promise.<Migration[]>}
+   * @private
+   */
   _findMigrations: function () {
     return Bluebird
       .promisify(fs.readdir)(this.options.migrations.path)
@@ -294,6 +416,13 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
+  /**
+   * Gets a migration with a given name.
+   *
+   * @param {String} needle - Name of the migration.
+   * @returns {Promise.<Migration>}
+   * @private
+   */
   _findMigration: function (needle) {
     return this
       ._findMigrations()
@@ -311,6 +440,14 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
+  /**
+   * Checks if migration is executed. It will success if and only if there is
+   * an executed migration with a given name.
+   *
+   * @param {String} _migration - Name of migration to be checked.
+   * @returns {Promise}
+   * @private
+   */
   _wasExecuted: function (_migration) {
     return this.executed().filter(function (migration) {
       return migration.testFileName(_migration.file);
@@ -323,6 +460,14 @@ var Umzug = module.exports = redefine.Class({
     });
   },
 
+  /**
+   * Checks if a list of migrations are all executed. It will success if and
+   * only if there is an executed migration for each given name.
+   *
+   * @param {String[]} migrationNames - List of migration names to be checked.
+   * @returns {Promise}
+   * @private
+   */
   _wereExecuted: function (migrationNames) {
     return Bluebird
       .resolve(migrationNames)
@@ -332,6 +477,14 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
+  /**
+   * Checks if migration is pending. It will success if and only if there is
+   * a pending migration with a given name.
+   *
+   * @param {String} _migration - Name of migration to be checked.
+   * @returns {Promise}
+   * @private
+   */
   _isPending: function (_migration) {
     return this.pending().filter(function (migration) {
       return migration.testFileName(_migration.file);
@@ -344,6 +497,14 @@ var Umzug = module.exports = redefine.Class({
     });
   },
 
+  /**
+   * Checks if a list of migrations are all pending. It will success if and only
+   * if there is a pending migration for each given name.
+   *
+   * @param {String[]} migrationNames - List of migration names to be checked.
+   * @returns {Promise}
+   * @private
+   */
   _arePending: function (migrationNames) {
     return Bluebird
       .resolve(migrationNames)
@@ -353,6 +514,14 @@ var Umzug = module.exports = redefine.Class({
       });
   },
 
+  /**
+   * Skip migrations in a given migration list after `to` migration.
+   *
+   * @param {String} to - The last one migration to be accepted.
+   * @param {Migration[]} migrations - Migration list to be filtered.
+   * @returns {Promise.<String>} - List of migrations before `to`.
+   * @private
+   */
   _findMigrationsUntilMatch: function (to, migrations) {
     return Bluebird.resolve(migrations)
       .map(function (migration) { return migration.file })
