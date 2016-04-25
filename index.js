@@ -396,7 +396,7 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
   },
 
   /**
-   * Loads all migrations.
+   * Loads all migrations in ascending order.
    *
    * @returns {Promise.<Migration[]>}
    * @private
@@ -413,6 +413,17 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       })
       .map(function (path) {
         return new Migration(path, this.options);
+      })
+      .then(function (migrations) {
+        return migrations.sort(function (a, b) {
+          if (a.file > b.file) {
+            return 1;
+          } else if (a.file < b.file) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
       });
   },
 
