@@ -53,6 +53,16 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
 }
 ```
 
+#### Events
+
+Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place
+to implement application-specific logic that must run around each migration:
+
+* *migrating* - A migration is about to be executed.
+* *migrated* - A migration has successfully been executed.
+* *reverting* - A migration is about to be reverted.
+* *reverted* - A migration has successfully been reverted.
+
 ### None
 If want to run migrations without storing them anywhere, you can use the [`none` storage](lib/storages/none.js).
 

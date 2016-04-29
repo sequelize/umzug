@@ -6,8 +6,11 @@ var fs        = require('fs');
 var Migration = require('./lib/migration');
 var path      = require('path');
 var redefine  = require('redefine');
+var EventEmitter = require('events');
 
 var Umzug = module.exports = redefine.Class({
+  extend: EventEmitter.EventEmitter,
+
   constructor: function (options) {
     this.options = _.assign({
       storage:        'json',
@@ -29,6 +32,8 @@ var Umzug = module.exports = redefine.Class({
     }, this.options.migrations);
 
     this.storage = this._initStorage();
+
+    EventEmitter.EventEmitter.call(this);
   },
 
   execute: function (options) {
@@ -69,8 +74,10 @@ var Umzug = module.exports = redefine.Class({
 
                 if (options.method === 'up') {
                   self.log("== " + name + ": migrating =======");
+                  self.emit('migrating', name, migration);
                 } else {
                   self.log("== " + name + ": reverting =======");
+                  self.emit('reverting', name, migration);
                 }
 
                 startTime = new Date();
@@ -89,8 +96,10 @@ var Umzug = module.exports = redefine.Class({
               var duration = ((new Date() - startTime) / 1000).toFixed(3);
               if (options.method === 'up') {
                 self.log("== " + name + ": migrated (" + duration +  "s)\n");
+                self.emit('migrated', name, migration);
               } else {
                 self.log("== " + name + ": reverted (" + duration +  "s)\n");
+                self.emit('reverted', name, migration);
               }
             });
         });
