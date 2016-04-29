@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.11.0 - 2016-04-29
+### Added
+- Events `migrating`, `migrated`, `reverting`, and `reverted` #76
+- Official support to all major Sequelize versions #73
+- Official support to Node.js v0.12, io.js v1-v3, and Node.js v4-v5 #73
+
+### Fixed
+- Compatibility issues with Sequelize >= 3.15.1 #67
+
 ## v1.10.0 - 2016-04-17
 ### Added
 - Option `from` to `up` and `down` methods #72
