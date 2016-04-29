@@ -1,16 +1,20 @@
 'use strict';
 
-var _         = require('lodash');
-var Bluebird  = require('bluebird');
-var fs        = require('fs');
-var Migration = require('./lib/migration');
-var path      = require('path');
-var redefine  = require('redefine');
+var _            = require('lodash');
+var Bluebird     = require('bluebird');
+var fs           = require('fs');
+var Migration    = require('./lib/migration');
+var path         = require('path');
+var redefine     = require('redefine');
+var EventEmitter = require('events').EventEmitter;
 
 /**
  * @class Umzug
+ * @extends EventEmitter
  */
 var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
+  extend: EventEmitter,
+
   /**
    * Constructs Umzug instance.
    *
@@ -59,6 +63,8 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
     }, this.options.migrations);
 
     this.storage = this._initStorage();
+
+    EventEmitter.call(this);
   },
 
   /**
@@ -107,8 +113,10 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
 
                 if (options.method === 'up') {
                   self.log("== " + name + ": migrating =======");
+                  self.emit('migrating', name, migration);
                 } else {
                   self.log("== " + name + ": reverting =======");
+                  self.emit('reverting', name, migration);
                 }
 
                 startTime = new Date();
@@ -127,8 +135,10 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
               var duration = ((new Date() - startTime) / 1000).toFixed(3);
               if (options.method === 'up') {
                 self.log("== " + name + ": migrated (" + duration +  "s)\n");
+                self.emit('migrated', name, migration);
               } else {
                 self.log("== " + name + ": reverted (" + duration +  "s)\n");
+                self.emit('reverted', name, migration);
               }
             });
         });

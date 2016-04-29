@@ -20,7 +20,7 @@ Using the [`json` storage](lib/storages/json.js) will create a JSON file which w
 ```
 
 ### Sequelize
-Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name.
+Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
 
 #### Options
 
@@ -52,6 +52,16 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
   columnType: new Sequelize.STRING(100)
 }
 ```
+
+#### Events
+
+Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place
+to implement application-specific logic that must run around each migration:
+
+* *migrating* - A migration is about to be executed.
+* *migrated* - A migration has successfully been executed.
+* *reverting* - A migration is about to be reverted.
+* *reverted* - A migration has successfully been reverted.
 
 ### None
 If want to run migrations without storing them anywhere, you can use the [`none` storage](lib/storages/none.js).
