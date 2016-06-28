@@ -182,6 +182,40 @@ describe('coffee-script support', function () {
   });
 });
 
+describe('ES6 module support', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+    require('fs').writeFileSync(__dirname + '/../tmp/123-ES6-module-migration.js', [
+      '\'use strict\'',
+      '',
+      'module.exports = {',
+      ' default: {',
+      '    up: function () {},',
+      '    down: function () {}',
+      '  }',
+      '}'
+      ].join('\n')
+    );
+  });
+
+  it('runs the migration', function () {
+    var umzug = new Umzug({
+      migrations: {
+        path:    __dirname + '/../tmp/',
+        pattern: /\.js/
+      },
+      storageOptions: {
+        path: __dirname + '/../tmp/umzug.json'
+      }
+    });
+
+    return umzug.execute({
+      migrations: ['123-ES6-module-migration'],
+      method:     'up'
+    });
+  });
+});
+
 describe('upName / downName', function () {
   beforeEach(function () {
     helper.clearTmp();
