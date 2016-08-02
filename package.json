@@ -4,8 +4,8 @@
   "description": "Framework agnostic migration tool for Node.JS",
   "main": "index.js",
   "dependencies": {
-    "bluebird": "^3.0.1",
-    "lodash": "^4.3.0",
+    "bluebird": "^3.4.1",
+    "lodash": "^4.13.0",
     "moment": "^2.8.3",
     "redefine": "^0.2.0",
     "resolve": "^1.0.0"
@@ -16,7 +16,7 @@
     "gulp": "^3.8.10",
     "gulp-jshint": "^2.0.0",
     "gulp-jshint-instafail": "^1.0.0",
-    "gulp-mocha": "^2.0.0",
+    "gulp-mocha": "^3.0.0",
     "jshint": "^2.9.1",
     "jshint-stylish": "^2.0.0",
     "mocha": "^2.0.1",
