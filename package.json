@@ -23,7 +23,7 @@
     "sequelize": "^3.13.0",
     "sinon": "^1.11.1",
     "sqlite3": "^3.0.2",
-    "yargs": "^4.1.0"
+    "yargs": "^5.0.0"
   },
   "scripts": {
     "test": "gulp"
