@@ -107,6 +107,22 @@ describe('sequelize', function () {
         });
     });
 
+    it('accepts a "timestamps" option', function () {
+      var storage = new Storage({
+        storageOptions: {
+          sequelize: this.sequelize,
+          timestamps: true
+        }
+      });
+      return storage.options.storageOptions.model.sync()
+        .then(function (model) {
+          return model.describe();
+        })
+        .then(function(description) {
+          expect(description).to.only.have.keys(['name','createdAt','updatedAt']);
+        });
+    });
+
     it('accepts a "columnType" option', function () {
       var storage = new Storage({
         storageOptions: {
@@ -204,6 +220,25 @@ describe('sequelize', function () {
           expect(migrations[0].customColumnName).to.be('asd.js');
         });
     });
+
+    it('writes the migration to the database with timestamps', function () {
+      var storage = new Storage({
+        storageOptions: {
+          sequelize: this.sequelize,
+          timestamps: true
+        }
+      });
+
+      return storage.logMigration('asd.js')
+        .then(function() {
+          return storage.options.storageOptions.model.findAll();
+        })
+        .then(function(migrations) {
+          expect(migrations.length).to.be(1);
+          expect(migrations[0].name).to.be('asd.js');
+          expect(new Date() - migrations[0].createdAt).to.be.lessThan(100);
+        });
+    });
   }); //end describe('logMigration', function() {
 
   describe('unlogMigration', function () {
@@ -289,6 +324,32 @@ describe('sequelize', function () {
         });
     });
 
+    it('deletes the migration from the database with timestamps', function () {
+      var storage = new Storage({
+        storageOptions: {
+          sequelize: this.sequelize,
+          timestamps: true
+        }
+      });
+
+      return storage.logMigration('asd.js')
+        .then(function() {
+          return storage.options.storageOptions.model.findAll();
+        })
+        .then(function(migrations) {
+          expect(migrations.length).to.be(1);
+        })
+        .then(function() {
+          return storage.unlogMigration('asd.js');
+        })
+        .then(function() {
+          return storage.options.storageOptions.model.findAll();
+        })
+        .then(function(migrations) {
+          expect(migrations).to.be.empty();
+        });
+    });
+
   });
 
   describe('executed', function () {
@@ -348,6 +409,23 @@ describe('sequelize', function () {
         storageOptions: {
           sequelize: this.sequelize,
           columnName: 'customColumnName'
+        }
+      });
+
+      return storage.logMigration('asd.js')
+        .then(function() {
+          return storage.executed();
+        })
+        .then(function(migrations) {
+          expect(migrations).to.be.eql(['asd.js']);
+        });
+    });
+
+    it('returns executed migrations with timestamps', function () {
+      var storage = new Storage({
+        storageOptions: {
+          sequelize: this.sequelize,
+          timestamps: true
         }
       });
 
