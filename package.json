@@ -14,7 +14,7 @@
     "coffee-script": "^1.8.0",
     "expect.js": "^0.3.1",
     "gulp": "^3.8.10",
-    "gulp-jshint": "^2.0.0",
+    "gulp-jshint": "^2.0.3",
     "gulp-jshint-instafail": "^1.0.0",
     "gulp-mocha": "^3.0.0",
     "jshint": "^2.9.1",
