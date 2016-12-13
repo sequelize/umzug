@@ -43,10 +43,10 @@ describe('constructor', function () {
 
   it('can accept multiple directories for migrations', function() {
     let umzug;
-    return helper.prepareMigrations(1, { names: ['1111-migration', 'tmp2/234-migration'] })
+    return helper.prepareMigrations(2, { names: ['1111-migration', '../tmp2/234-migration'] })
     .then(() => {
       umzug = new Umzug({
-          migrations:     { path: [__dirname + '/../tmp/', __dirname + '/../tmp/tmp2/'] },
+          migrations:     { path: [__dirname + '/../tmp/', __dirname + '/../tmp2/'] },
           storageOptions: { path: __dirname + '/../tmp/umzug.json' },
           logging:        this.logSpy
         });
