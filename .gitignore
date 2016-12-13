@@ -28,3 +28,6 @@ node_modules
 .lock-wscript
 
 test/tmp
+
+# User's IDE data
+.vscode

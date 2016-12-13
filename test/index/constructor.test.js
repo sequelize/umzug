@@ -3,6 +3,7 @@
 var expect    = require('expect.js');
 var Umzug     = require('../../index');
 var sinon     = require('sinon');
+var helper    = require('../helper');
 
 describe('constructor', function () {
   it('exposes some methods', function () {
@@ -39,4 +40,20 @@ describe('constructor', function () {
     umzug.log();
     expect(spy.called).to.be(true);
   });
+
+  it('can accept multiple directories for migrations', function() {
+    let umzug;
+    return helper.prepareMigrations(1, { names: ['1111-migration', 'tmp2/234-migration'] })
+    .then(() => {
+      umzug = new Umzug({
+          migrations:     { path: [__dirname + '/../tmp/', __dirname + '/../tmp/tmp2/'] },
+          storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+          logging:        this.logSpy
+        });
+      return umzug._findMigrations()
+    }).then((migrationsFound) => {
+      expect(migrationsFound.length).to.be(2)
+    })
+  })
+
 });
