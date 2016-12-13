@@ -413,10 +413,12 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    */
   _findMigrations: function () {
     let readDirP = Bluebird.promisify(fs.readdir);
-    return Bluebird.resolve(_.flatten([this.options.migrations.path])).reduce((p, c, i, a) => {
-        return readDirP(c).then((arr) => {
-          arr = arr.map(v => [c, v])
-          return p.concat(arr)
+    return Bluebird.resolve(
+        _.flatten([this.options.migrations.path]) // ensures always an []
+      ).reduce((fileAccumulator, currentPath) => {
+        return readDirP(currentPath).then((files) => {
+          let pathFiles = files.map(file => [currentPath, file]) 
+          return fileAccumulator.concat(pathFiles)
         })
       }, [])
       .bind(this)
