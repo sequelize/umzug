@@ -55,12 +55,23 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       throw new Error('The logging-option should be either a function or false');
     }
 
+    let defaultPattern = /^\d+[\w-]+\.js$/
+
     this.options.migrations = _.assign({
       params:  [],
       path:    path.resolve(process.cwd(), 'migrations'),
-      pattern: /^\d+[\w-]+\.js$/,
+      pattern: defaultPattern,
       wrap:    function (fun) { return fun; }
     }, this.options.migrations);
+
+    // this ensures that the default pattern is used when pattern is undefined, but multiple paths are defined
+    let patternArr =  _.flatten([this.options.migrations.pattern])
+    let pathArr =     _.flatten([this.options.migrations.path]) 
+    if(patternArr.length <  pathArr.length) {
+      this.options.migrations.pattern = patternArr.concat(
+        _().range(pathArr.length-patternArr.length).fill(defaultPattern).value()
+      )
+    }
 
     this.storage = this._initStorage();
 
@@ -413,8 +424,10 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    */
   _findMigrations: function () {
     let readDirP = Bluebird.promisify(fs.readdir);
+    let paths = _.flatten([this.options.migrations.path])
+    let patterns = _.flatten([this.options.migrations.pattern])
     return Bluebird.resolve(
-        _.flatten([this.options.migrations.path]) // ensures always an []
+        paths // ensures always an []
       ).reduce((fileAccumulator, currentPath) => {
         return readDirP(currentPath).then((files) => {
           let pathFiles = files.map(file => [currentPath, file]) 
@@ -423,7 +436,8 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       }, [])
       .bind(this)
       .filter(function (pathFile) {
-        return this.options.migrations.pattern.test(pathFile[1]);
+        patterns[paths.indexOf(pathFile[0])] // choose the pattern that relates to the source of this file
+        .test(pathFile[1]); // regex test
       })
       .map(function (pathFile) {
         return path.resolve(pathFile[0], pathFile[1]);
