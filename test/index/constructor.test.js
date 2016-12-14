@@ -58,7 +58,7 @@ describe('constructor', function () {
 
   it('can accept multiple directories and patterns for migrations', function() {
       let umzug;
-      return helper.prepareMigrations(4, { names: [
+      return helper.prepareMigrations(5, { names: [
         '1111-foo-migration',
         '1111-bar-migration', 
         '../tmp2/234-foo-migration',
@@ -69,7 +69,7 @@ describe('constructor', function () {
         umzug = new Umzug({
             migrations:     { 
               path: [__dirname + '/../tmp/', __dirname + '/../tmp2/'],
-              pattern: [/.*/, /-foo-|-zar-/] 
+              pattern: [/^.*\.js$/, /-foo-|-zar-/] 
             },
             storageOptions: { path: __dirname + '/../tmp/umzug.json' },
             logging:        this.logSpy
@@ -77,6 +77,31 @@ describe('constructor', function () {
         return umzug._findMigrations()
       }).then((migrationsFound) => {
         expect(migrationsFound.length).to.be(4)
+      })
+    })
+
+    it('can use defaults for multiple directories and patterns for migrations', function() {
+      let umzug;
+      return helper.prepareMigrations(6, { names: [
+        '1111-foo-migration',
+        '1211-bar-migration', 
+        '1311-to-foo-migration', 
+        '../tmp2/234-foo-migration',
+        '../tmp2/2345-bar-migration',
+        '../tmp2/23456-zar-migration'
+        ] })
+      .then(() => {
+        umzug = new Umzug({
+            migrations:     { 
+              path: [__dirname + '/../tmp/', __dirname + '/../tmp2/'],
+              pattern: [/-foo-/] 
+            },
+            storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+            logging:        this.logSpy
+          });
+        return umzug._findMigrations()
+      }).then((migrationsFound) => {
+        expect(migrationsFound.length).to.be(5)
       })
     })
 
