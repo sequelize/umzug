@@ -56,4 +56,28 @@ describe('constructor', function () {
     })
   })
 
+  it('can accept multiple directories and patterns for migrations', function() {
+      let umzug;
+      return helper.prepareMigrations(4, { names: [
+        '1111-foo-migration',
+        '1111-bar-migration', 
+        '../tmp2/234-foo-migration',
+        '../tmp2/2345-bar-migration',
+        '../tmp2/23456-zar-migration'
+        ] })
+      .then(() => {
+        umzug = new Umzug({
+            migrations:     { 
+              path: [__dirname + '/../tmp/', __dirname + '/../tmp2/'],
+              pattern: [/.*/, /-foo-|-zar-/] 
+            },
+            storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+            logging:        this.logSpy
+          });
+        return umzug._findMigrations()
+      }).then((migrationsFound) => {
+        expect(migrationsFound.length).to.be(4)
+      })
+    })
+
 });
