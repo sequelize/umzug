@@ -436,7 +436,7 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       }, [])
       .bind(this)
       .filter(function (pathFile) {
-        patterns[paths.indexOf(pathFile[0])] // choose the pattern that relates to the source of this file
+        return patterns[paths.indexOf(pathFile[0])] // choose the pattern that relates to the source of this file
         .test(pathFile[1]); // regex test
       })
       .map(function (pathFile) {
