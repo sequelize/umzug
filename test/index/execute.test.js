@@ -108,6 +108,26 @@ describe('execute', function () {
       expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
     });
   });
+
+  describe('when the migration does not contain a migration method', function () {
+    beforeEach(function () {
+      this.oldup = this.migration.up;
+      delete this.migration.up;
+    });
+
+    it('rejects the promise', function () {
+      return this.migrate('up').bind(this).then(function () {
+        return Bluebird.reject('We should not end up here...');
+      }, function (err) {
+        expect(err).to.equal('Could not find migration method: up');
+      });
+    });
+
+    afterEach(function () {
+      this.migration.up = this.oldup;
+      delete this.oldup;
+    });
+  });
 });
 
 describe('migrations.wrap', function () {

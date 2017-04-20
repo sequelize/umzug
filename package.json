@@ -6,7 +6,7 @@
   "dependencies": {
     "bluebird": "^3.4.1",
     "lodash": "^4.17.0",
-    "moment": "^2.8.3",
+    "moment": "^2.16.0",
     "redefine": "^0.2.0",
     "resolve": "^1.0.0"
   },
@@ -21,9 +21,9 @@
     "jshint-stylish": "^2.0.0",
     "mocha": "^3.0.1",
     "sequelize": "^3.13.0",
-    "sinon": "^1.11.1",
+    "sinon": "^2.1.0",
     "sqlite3": "^3.0.2",
-    "yargs": "^5.0.0"
+    "yargs": "^7.1.0"
   },
   "scripts": {
     "test": "gulp"

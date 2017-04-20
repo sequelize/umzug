@@ -32,7 +32,7 @@ Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table i
 
   // The to be used Sequelize model.
   // Must have column name matching `columnName` option
-  // Optional of `sequelize` is passed.
+  // Optional if `sequelize` is passed.
   model: model,
 
   // The name of the to be used model.
