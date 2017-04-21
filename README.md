@@ -135,6 +135,10 @@ module.exports = {
 };
 ```
 
+## Examples
+
+- [sequelize-migration-hello](https://github.com/abelnation/sequelize-migration-hello)
+
 ## Usage
 
 ### Installation
