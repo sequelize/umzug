@@ -229,6 +229,8 @@ describe('sequelize', function () {
         }
       });
 
+      var startTime = new Date();
+
       return storage.logMigration('asd.js')
         .then(function() {
           return storage.options.storageOptions.model.findAll();
@@ -236,7 +238,7 @@ describe('sequelize', function () {
         .then(function(migrations) {
           expect(migrations.length).to.be(1);
           expect(migrations[0].name).to.be('asd.js');
-          expect(new Date() - migrations[0].createdAt).to.be.lessThan(100);
+          expect(migrations[0].createdAt).to.be.within(startTime, new Date());
         });
     });
   }); //end describe('logMigration', function() {
