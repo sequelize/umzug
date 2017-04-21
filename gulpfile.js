@@ -9,7 +9,7 @@ var args   = require('yargs').argv;
 gulp.task('default', ['lint','test'], function () {});
 
 gulp.task('lint', function () {
-  gulp
+  return gulp
     .src([
       path.resolve(__dirname, 'gulpfile.js'),
       path.resolve(__dirname, 'bin', 'sequelize'),
@@ -24,7 +24,7 @@ gulp.task('lint', function () {
 });
 
 gulp.task('test', function () {
-  gulp
+  return gulp
     .src(path.resolve(__dirname, 'test', '**', 'index.js'), { read: false })
     .pipe(mocha({
        reporter:    'spec',
