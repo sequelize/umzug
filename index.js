@@ -416,6 +416,9 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       .promisify(fs.readdir)(this.options.migrations.path)
       .bind(this)
       .filter(function (file) {
+        if(!this.options.migrations.pattern.test(file)) {
+          throw new Error('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
+        }
         return this.options.migrations.pattern.test(file);
       })
       .map(function (file) {
