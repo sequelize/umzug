@@ -229,7 +229,13 @@ describe('sequelize', function () {
         }
       });
 
-      var startTime = new Date();
+      // Sequelize | startTime | createdAt | endTime
+      // <= v2     | .123      | .000      | .456
+      // >= v3     | .123      | .345      | .456
+      // Sequelize <= v2 doesn't store milliseconds in timestamps so comparing
+      // it to startTime with milliseconds fails. That's why we ignore
+      // milliseconds in startTime too.
+      var startTime = new Date(Math.floor(Date.now() / 1000) * 1000);
 
       return storage.logMigration('asd.js')
         .then(function() {
