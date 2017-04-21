@@ -17,7 +17,7 @@ env:
 
 before_script:
   - yarn add sequelize@$(echo $SEQUELIZE)
-  - npm run build
+  - yarn run build
 
 script:
-  - npm test
+  - yarn test
