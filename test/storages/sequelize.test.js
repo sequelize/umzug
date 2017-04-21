@@ -229,6 +229,14 @@ describe('sequelize', function () {
         }
       });
 
+      // Sequelize | startTime | createdAt | endTime
+      // <= v2     | .123      | .000      | .456
+      // >= v3     | .123      | .345      | .456
+      // Sequelize <= v2 doesn't store milliseconds in timestamps so comparing
+      // it to startTime with milliseconds fails. That's why we ignore
+      // milliseconds in startTime too.
+      var startTime = new Date(Math.floor(Date.now() / 1000) * 1000);
+
       return storage.logMigration('asd.js')
         .then(function() {
           return storage.options.storageOptions.model.findAll();
@@ -236,7 +244,7 @@ describe('sequelize', function () {
         .then(function(migrations) {
           expect(migrations.length).to.be(1);
           expect(migrations[0].name).to.be('asd.js');
-          expect(new Date() - migrations[0].createdAt).to.be.lessThan(100);
+          expect(migrations[0].createdAt).to.be.within(startTime, new Date());
         });
     });
   }); //end describe('logMigration', function() {

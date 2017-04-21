@@ -2,7 +2,7 @@
   "name": "umzug",
   "version": "1.12.0",
   "description": "Framework agnostic migration tool for Node.JS",
-  "main": "index.js",
+  "main": "lib/index.js",
   "dependencies": {
     "bluebird": "^3.4.1",
     "lodash": "^4.17.0",
@@ -11,6 +11,8 @@
     "resolve": "^1.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.4.0",
     "coffee-script": "^1.8.0",
     "expect.js": "^0.3.1",
     "gulp": "^3.8.10",
@@ -26,6 +28,7 @@
     "yargs": "^7.1.0"
   },
   "scripts": {
+    "build": "babel src -d lib",
     "test": "gulp"
   },
   "repository": {

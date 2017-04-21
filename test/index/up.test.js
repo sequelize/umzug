@@ -4,7 +4,7 @@ var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
 var Migration = require('../../lib/migration');
-var Umzug     = require('../../index');
+var Umzug     = require('../../lib/index');
 
 describe('up', function () {
   beforeEach(function () {
@@ -82,7 +82,7 @@ describe('up', function () {
         }).bind(this).then(function (migrations) {
           this.migrations = migrations;
         });
-      });      
+      });
       it('should return 1 migration', function () {
         expect(this.migrations).to.have.length(1);
       });

@@ -3,7 +3,7 @@
 var expect    = require('expect.js');
 var helper    = require('../helper');
 var Migration = require('../../lib/migration');
-var Umzug     = require('../../index');
+var Umzug     = require('../../lib/index');
 
 describe('pending', function () {
   beforeEach(function () {
