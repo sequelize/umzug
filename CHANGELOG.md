@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## v1.12.0 - 2017-04-21
+### Added
+- Option `timestamps` to Sequelize storage [#99](https://github.com/sequelize/umzug/pull/99)
+
+### Fixed
+- Reject migration if umzug can't find the migration method [#115](https://github.com/sequelize/umzug/pull/115)
+
 ## v1.11.0 - 2016-04-29
 ### Added
 - Events `migrating`, `migrated`, `reverting`, and `reverted` #76
