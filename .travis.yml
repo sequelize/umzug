@@ -8,18 +8,16 @@ node_js:
   - '6'
   - '7'
 
+cache: yarn
+
 env:
   - SEQUELIZE=^1.0.0
   - SEQUELIZE=^2.0.0
   - SEQUELIZE=^3.0.0
 
 before_script:
-  - npm install sequelize@$(echo $SEQUELIZE)
+  - yarn add sequelize@$(echo $SEQUELIZE)
   - npm run build
 
 script:
-  - "npm test"
-
-notifications:
-  irc:
-    - "chat.freenode.net#sequelizejs"
+  - npm test
