@@ -3,7 +3,7 @@
 var Bluebird  = require('bluebird');
 var expect    = require('expect.js');
 var helper    = require('../helper');
-var Umzug     = require('../../index');
+var Umzug     = require('../../lib/index');
 var sinon     = require('sinon');
 
 describe('execute', function () {

@@ -1,7 +1,7 @@
 'use strict';
 
 var expect    = require('expect.js');
-var Umzug     = require('../../index');
+var Umzug     = require('../../lib/index');
 var sinon     = require('sinon');
 
 describe('constructor', function () {

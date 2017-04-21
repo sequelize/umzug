@@ -3,7 +3,7 @@
 var _            = require('lodash');
 var Bluebird     = require('bluebird');
 var fs           = require('fs');
-var Migration    = require('./lib/migration');
+var Migration    = require('./migration');
 var path         = require('path');
 var redefine     = require('redefine');
 var EventEmitter = require('events').EventEmitter;
@@ -12,7 +12,7 @@ var EventEmitter = require('events').EventEmitter;
  * @class Umzug
  * @extends EventEmitter
  */
-var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
+module.exports = redefine.Class(/** @lends Umzug.prototype */ {
   extend: EventEmitter,
 
   /**
@@ -112,10 +112,10 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
                 }
 
                 if (options.method === 'up') {
-                  self.log("== " + name + ": migrating =======");
+                  self.log('== ' + name + ': migrating =======');
                   self.emit('migrating', name, migration);
                 } else {
-                  self.log("== " + name + ": reverting =======");
+                  self.log('== ' + name + ': reverting =======');
                   self.emit('reverting', name, migration);
                 }
 
@@ -134,10 +134,10 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
             .tap(function () {
               var duration = ((new Date() - startTime) / 1000).toFixed(3);
               if (options.method === 'up') {
-                self.log("== " + name + ": migrated (" + duration +  "s)\n");
+                self.log('== ' + name + ': migrated (' + duration +  's)\n');
                 self.emit('migrated', name, migration);
               } else {
-                self.log("== " + name + ": reverted (" + duration +  "s)\n");
+                self.log('== ' + name + ': reverted (' + duration +  's)\n');
                 self.emit('reverted', name, migration);
               }
             });
@@ -305,7 +305,7 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
           }
 
           return result.then(function () {
-            return Bluebird.resolve(migrations)
+            return Bluebird.resolve(migrations);
           });
         })
         .then(function(migrations) {
@@ -390,7 +390,7 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
     var Storage;
 
     try {
-      Storage = require(__dirname + '/lib/storages/' + this.options.storage);
+      Storage = require(__dirname + '/storages/' + this.options.storage);
     } catch (e) {
       // We have not been able to find the storage locally.
       // Let's try to require a module instead.
@@ -545,7 +545,7 @@ var Umzug = module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    */
   _findMigrationsUntilMatch: function (to, migrations) {
     return Bluebird.resolve(migrations)
-      .map(function (migration) { return migration.file })
+      .map(function (migration) { return migration.file; })
       .reduce(function (acc, migration) {
         if (acc.add) {
           acc.migrations.push(migration);

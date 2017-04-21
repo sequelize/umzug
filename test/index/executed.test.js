@@ -2,7 +2,7 @@
 
 var expect    = require('expect.js');
 var helper    = require('../helper');
-var Umzug     = require('../../index');
+var Umzug     = require('../../lib/index');
 
 describe('executed', function () {
   beforeEach(function () {

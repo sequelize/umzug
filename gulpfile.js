@@ -13,8 +13,8 @@ gulp.task('lint', function () {
     .src([
       path.resolve(__dirname, 'gulpfile.js'),
       path.resolve(__dirname, 'bin', 'sequelize'),
-      path.resolve(__dirname, 'lib', '**', '*.js'),
-      '!' + path.resolve(__dirname, 'lib', 'assets', '**', '*.js'),
+      path.resolve(__dirname, 'src', '**', '*.js'),
+      '!' + path.resolve(__dirname, 'src', 'assets', '**', '*.js'),
       path.resolve(__dirname, 'test', '**', '*.js'),
       '!' + path.resolve(__dirname, 'test', 'support', 'tmp', '**', '*')
     ])
