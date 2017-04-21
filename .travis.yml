@@ -16,7 +16,7 @@ env:
   - SEQUELIZE=^3.0.0
 
 before_script:
-  - npm install sequelize@$(echo $SEQUELIZE)
+  - yarn add sequelize@$(echo $SEQUELIZE)
 
 script:
   - npm test
