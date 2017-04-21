@@ -15,6 +15,7 @@ env:
 
 before_script:
   - npm install sequelize@$(echo $SEQUELIZE)
+  - npm run build
 
 script:
   - "npm test"
