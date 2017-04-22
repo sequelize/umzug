@@ -416,7 +416,11 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       .promisify(fs.readdir)(this.options.migrations.path)
       .bind(this)
       .filter(function (file) {
-        return this.options.migrations.pattern.test(file);
+        if(!this.options.migrations.pattern.test(file)) {
+          this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
+          return false;
+        }
+        return true;
       })
       .map(function (file) {
         return path.resolve(this.options.migrations.path, file);
