@@ -1,8 +1,6 @@
-'use strict';
-
-var expect    = require('expect.js');
-var helper    = require('../helper');
-var Umzug     = require('../../lib/index');
+import expect from 'expect.js';
+import helper from '../helper';
+import Umzug from '../../lib/index';
 
 describe('executed', function () {
   beforeEach(function () {

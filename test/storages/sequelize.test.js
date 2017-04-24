@@ -1,9 +1,7 @@
-'use strict';
-
-var expect    = require('expect.js');
-var helper    = require('../helper');
-var Storage   = require('../../lib/storages/sequelize');
-var Sequelize = require('sequelize');
+import expect from 'expect.js';
+import helper from '../helper';
+import Storage from '../../lib/storages/sequelize';
+import Sequelize from 'sequelize';
 
 describe('sequelize', function () {
   beforeEach(function() {

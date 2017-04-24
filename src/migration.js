@@ -1,8 +1,6 @@
-'use strict';
-
-var _path    = require('path');
-var Bluebird = require('bluebird');
-var helper   = require('./helper');
+import _path from 'path';
+import Bluebird from 'bluebird';
+import helper from './helper';
 
 /**
  * @class Migration

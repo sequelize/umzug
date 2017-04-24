@@ -1,11 +1,9 @@
-'use strict';
-
-var Bluebird  = require('bluebird');
-var expect    = require('expect.js');
-var fs        = require('fs');
-var helper    = require('../helper');
-var path      = require('path');
-var Storage   = require('../../lib/storages/json');
+import Bluebird from 'bluebird';
+import expect from 'expect.js';
+import fs from 'fs';
+import helper from '../helper';
+import path from 'path';
+import Storage from '../../lib/storages/json';
 
 describe('JSON', function () {
   beforeEach(function() {

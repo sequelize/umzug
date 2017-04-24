@@ -1,8 +1,6 @@
-'use strict';
-
-var expect    = require('expect.js');
-var helper    = require('../helper');
-var Storage   = require('../../lib/storages/none');
+import expect from 'expect.js';
+import helper from '../helper';
+import Storage from '../../lib/storages/none';
 
 describe('none', function () {
   beforeEach(function() {

@@ -1,6 +1,4 @@
-'use strict';
-
-var _         = require('lodash');
+import _ from 'lodash';
 
 /**
  * @class SequelizeStorage

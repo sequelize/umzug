@@ -1,10 +1,8 @@
-'use strict';
-
-var Bluebird  = require('bluebird');
-var expect    = require('expect.js');
-var helper    = require('../helper');
-var Migration = require('../../lib/migration');
-var Umzug     = require('../../lib/index');
+import Bluebird from 'bluebird';
+import expect from 'expect.js';
+import helper from '../helper';
+import Migration from '../../lib/migration';
+import Umzug from '../../lib/index';
 
 describe('up', function () {
   beforeEach(function () {

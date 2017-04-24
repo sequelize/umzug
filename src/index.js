@@ -1,11 +1,9 @@
-'use strict';
-
-var _            = require('lodash');
-var Bluebird     = require('bluebird');
-var fs           = require('fs');
-var Migration    = require('./migration');
-var path         = require('path');
-var EventEmitter = require('events').EventEmitter;
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+import fs from 'fs';
+import Migration from './migration';
+import path from 'path';
+import { EventEmitter } from 'events';
 
 /**
  * @class Umzug

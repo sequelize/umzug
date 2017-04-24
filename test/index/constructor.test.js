@@ -1,9 +1,7 @@
-'use strict';
-
-var expect    = require('expect.js');
-var Umzug     = require('../../lib/index');
-var sinon     = require('sinon');
-var helper    = require('../helper');
+import expect from 'expect.js';
+import Umzug from '../../lib/index';
+import sinon from 'sinon';
+import helper from '../helper';
 
 describe('constructor', function () {
   beforeEach(function() {

@@ -1,9 +1,7 @@
-'use strict';
-
-var _         = require('lodash');
-var Bluebird  = require('bluebird');
-var fs        = require('fs');
-var path      = require('path');
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * @class JSONStorage
