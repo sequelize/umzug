@@ -14,8 +14,8 @@ describe('execute', function () {
       .bind(this)
       .then(function () {
         this.migration = require('../tmp/123-migration.js');
-        this.upStub    = sinon.stub(this.migration, 'up', Bluebird.resolve);
-        this.downStub  = sinon.stub(this.migration, 'down', Bluebird.resolve);
+        this.upStub    = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
+        this.downStub  = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
         this.logSpy    = sinon.spy();
         this.umzug     = new Umzug({
           migrations:     { path: __dirname + '/../tmp/' },
@@ -218,8 +218,8 @@ describe('upName / downName', function () {
         ].join('\n')
     );
     this.migration = require('../tmp/123-custom-up-down-names-migration.js');
-    this.upStub    = sinon.stub(this.migration, 'myUp', Bluebird.resolve);
-    this.downStub  = sinon.stub(this.migration, 'myDown', Bluebird.resolve);
+    this.upStub    = sinon.stub(this.migration, 'myUp').callsFake(Bluebird.resolve);
+    this.downStub  = sinon.stub(this.migration, 'myDown').callsFake(Bluebird.resolve);
     this.umzug     = new Umzug({
       migrations:     { path: __dirname + '/../tmp/' },
       storageOptions: { path: __dirname + '/../tmp/umzug.json' },
