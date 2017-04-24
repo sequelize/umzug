@@ -1989,7 +1989,7 @@ moment-timezone@^0.5.4:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@^2.13.0, moment@^2.16.0:
+"moment@>= 2.9.0", moment@^2.13.0:
   version "2.18.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
 
