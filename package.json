@@ -29,7 +29,7 @@
   },
   "scripts": {
     "build": "babel src -d lib",
-    "test": "gulp"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",

@@ -9,7 +9,7 @@ var helper = module.exports = {
     var files = fs.readdirSync(__dirname + '/tmp');
 
     files.forEach(function (file) {
-      if (file.match(/\.(js|json|sqlite)$/)) {
+      if (file.match(/\.(js|json|sqlite|coffee)$/)) {
         fs.unlinkSync(__dirname + '/tmp/' + file);
       }
     });

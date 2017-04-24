@@ -8,6 +8,10 @@ var path      = require('path');
 var Storage   = require('../../lib/storages/json');
 
 describe('JSON', function () {
+  beforeEach(function() {
+    helper.clearTmp();
+  });
+
   describe('constructor', function () {
     it('stores options', function () {
       var storage = new Storage();
