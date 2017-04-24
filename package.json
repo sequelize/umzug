@@ -2,6 +2,12 @@
   "name": "umzug",
   "version": "1.12.0",
   "description": "Framework agnostic migration tool for Node.JS",
+  "keywords": [
+    "migrate",
+    "migration",
+    "migrations",
+    "sequelize"
+  ],
   "main": "lib/index.js",
   "dependencies": {
     "bluebird": "^3.4.1",
@@ -29,16 +35,25 @@
   },
   "scripts": {
     "build": "babel src -d lib",
-    "test": "gulp test"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/sequelize/umzug.git"
   },
-  "author": "",
+  "author": "Sascha Depold <sascha@depold.com>",
+  "contributors": [
+    {
+      "name": "Jukka Hyytiälä",
+      "email": "hyytiala.jukka@gmail.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/sequelize/umzug/issues"
   },
-  "homepage": "https://github.com/sequelize/umzug"
+  "homepage": "https://github.com/sequelize/umzug",
+  "engines": {
+    "node": ">=4.0.0"
+  }
 }
