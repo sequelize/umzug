@@ -1,19 +1,18 @@
 'use strict';
 
 var Bluebird  = require('bluebird');
-var redefine  = require('redefine');
 
 /**
  * @class NoneStorage
  */
-module.exports = redefine.Class(/** @lends NoneStorage.prototype */ {
+module.exports = class NoneStorage {
   /**
    * Constructs none storage.
    *
    * @param {Object} [options]
    * @constructs NoneStorage
    */
-  constructor: function (options) {},
+  constructor(options) {}
 
   /**
    * Does nothing.
@@ -21,9 +20,9 @@ module.exports = redefine.Class(/** @lends NoneStorage.prototype */ {
    * @param {String} migrationName - Name of migration to be logged.
    * @returns {Promise}
    */
-  logMigration: function (migrationName) {
+  logMigration(migrationName) {
     return Bluebird.resolve();
-  },
+  }
 
   /**
    * Does nothing.
@@ -31,16 +30,16 @@ module.exports = redefine.Class(/** @lends NoneStorage.prototype */ {
    * @param {String} migrationName - Name of migration to unlog.
    * @returns {Promise}
    */
-  unlogMigration: function (migrationName) {
+  unlogMigration(migrationName) {
     return Bluebird.resolve();
-  },
+  }
 
   /**
    * Does nothing.
    *
    * @returns {Promise.<String[]>}
    */
-  executed: function () {
+  executed() {
     return Bluebird.resolve([]);
   }
-});
+}

@@ -4,12 +4,11 @@ var _         = require('lodash');
 var Bluebird  = require('bluebird');
 var fs        = require('fs');
 var path      = require('path');
-var redefine  = require('redefine');
 
 /**
  * @class JSONStorage
  */
-module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
+module.exports = class JSONStorage {
   /**
    * Constructs JSON file storage.
    *
@@ -20,13 +19,13 @@ module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
    * cwd.
    * @constructs JSONStorage
    */
-  constructor: function (options) {
+  constructor(options) {
     this.options = options || {};
 
     this.options.storageOptions = _.assign({
       path: path.resolve(process.cwd(), 'umzug.json')
     }, this.options.storageOptions || {});
-  },
+  }
 
   /**
    * Logs migration to be considered as executed.
@@ -34,7 +33,7 @@ module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
    * @param {String} migrationName - Name of the migration to be logged.
    * @returns {Promise}
    */
-  logMigration: function (migrationName) {
+  logMigration(migrationName) {
     var filePath  = this.options.storageOptions.path;
     var readfile  = Bluebird.promisify(fs.readFile);
     var writefile = Bluebird.promisify(fs.writeFile);
@@ -46,7 +45,7 @@ module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
         content.push(migrationName);
         return writefile(filePath, JSON.stringify(content, null, '  '));
       });
-  },
+  }
 
   /**
    * Unlogs migration to be considered as pending.
@@ -54,7 +53,7 @@ module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
    * @param {String} migrationName - Name of the migration to be unlogged.
    * @returns {Promise}
    */
-  unlogMigration: function (migrationName) {
+  unlogMigration(migrationName) {
     var filePath  = this.options.storageOptions.path;
     var readfile  = Bluebird.promisify(fs.readFile);
     var writefile = Bluebird.promisify(fs.writeFile);
@@ -66,14 +65,14 @@ module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
         content = _.without(content, migrationName);
         return writefile(filePath, JSON.stringify(content, null, '  '));
       });
-  },
+  }
 
   /**
    * Gets list of executed migrations.
    *
    * @returns {Promise.<String[]>}
    */
-  executed: function () {
+  executed() {
     var filePath = this.options.storageOptions.path;
     var readfile = Bluebird.promisify(fs.readFile);
 
@@ -83,4 +82,4 @@ module.exports = redefine.Class(/** @lends JSONStorage.prototype */ {
         return JSON.parse(content);
       });
   }
-});
+}
