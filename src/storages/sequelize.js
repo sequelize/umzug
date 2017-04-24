@@ -1,12 +1,11 @@
 'use strict';
 
 var _         = require('lodash');
-var redefine  = require('redefine');
 
 /**
  * @class SequelizeStorage
  */
-module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
+module.exports = class SequelizeStorage {
   /**
    * Constructs Sequelize based storage.
    *
@@ -45,7 +44,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
    *
    * @constructs SequelizeStorage
    */
-  constructor: function (options) {
+  constructor(options) {
     this.options = options || {};
     this.options.storageOptions = _.assign({
       // note 'sequelize' or 'model' is required
@@ -92,7 +91,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
         );
       }
     }
-  },
+  }
 
   /**
    * Logs migration to be considered as executed.
@@ -100,7 +99,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
    * @param {String} migrationName - Name of the migration to be logged.
    * @returns {Promise}
    */
-  logMigration: function (migrationName) {
+  logMigration(migrationName) {
     var self = this;
 
     return this._model()
@@ -110,7 +109,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
         migration[self.options.storageOptions.columnName] = migrationName;
         return Model.create(migration);
       });
-  },
+  }
 
   /**
    * Unlogs migration to be considered as pending.
@@ -118,7 +117,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
    * @param {String} migrationName - Name of the migration to be unlogged.
    * @returns {Promise}
    */
-  unlogMigration: function (migrationName) {
+  unlogMigration(migrationName) {
     var self             = this;
     var sequelize        = this.options.storageOptions.sequelize;
     var sequelizeVersion = !!sequelize.modelManager ? 2 : 1;
@@ -136,14 +135,14 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
 
         return Model.destroy(where);
       });
-  },
+  }
 
   /**
    * Gets list of executed migrations.
    *
    * @returns {Promise.<String[]>}
    */
-  executed: function () {
+  executed() {
     var self = this;
 
     return this._model()
@@ -156,7 +155,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
           return migration[self.options.storageOptions.columnName];
         });
       });
-  },
+  }
 
   /**
    * Gets Sequelize model used as a storage.
@@ -164,7 +163,7 @@ module.exports = redefine.Class(/** @lends SequelizeStorage.prototype*/ {
    * @returns {Sequelize.Model}
    * @private
    */
-  _model: function () {
+  _model() {
     return this.options.storageOptions.model;
   }
-});
+}

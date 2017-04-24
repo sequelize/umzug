@@ -3,12 +3,11 @@
 var _path    = require('path');
 var Bluebird = require('bluebird');
 var helper   = require('./helper');
-var redefine = require('redefine');
 
 /**
  * @class Migration
  */
-module.exports = redefine.Class(/** @lends Migration.prototype */{
+module.exports = class Migration {
   /**
    * Wrapper function for migration methods.
    *
@@ -31,11 +30,11 @@ module.exports = redefine.Class(/** @lends Migration.prototype */{
    * migration methods.
    * @constructs Migration
    */
-  constructor: function(path, options) {
+  constructor(path, options) {
     this.path    = _path.resolve(path);
     this.file    = _path.basename(this.path);
     this.options = options;
-  },
+  }
 
   /**
    * Tries to require migration module. CoffeeScript support requires
@@ -43,7 +42,7 @@ module.exports = redefine.Class(/** @lends Migration.prototype */{
    *
    * @returns {Object} Required migration module
    */
-  migration: function () {
+  migration() {
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
       helper.resolve('coffee-script/register') ||
@@ -58,34 +57,34 @@ module.exports = redefine.Class(/** @lends Migration.prototype */{
     }
 
     return require(this.path);
-  },
+  }
 
   /**
    * Executes method `up` of migration.
    *
    * @returns {*|Promise}
    */
-  up: function () {
+  up() {
     return this._exec(this.options.upName, [].slice.apply(arguments));
-  },
+  }
 
   /**
    * Executes method `down` of migration.
    *
    * @returns {*|Promise}
    */
-  down: function () {
+  down() {
     return this._exec(this.options.downName, [].slice.apply(arguments));
-  },
+  }
 
   /**
    * Check if migration file name is starting with needle.
    * @param {String} needle - The beginning of the file name.
    * @returns {boolean}
    */
-  testFileName: function (needle) {
+  testFileName(needle) {
     return this.file.indexOf(needle) === 0;
-  },
+  }
 
   /**
    * Executes a given method of migration with given arguments.
@@ -95,7 +94,7 @@ module.exports = redefine.Class(/** @lends Migration.prototype */{
    * @returns {*|Promise}
    * @private
    */
-  _exec: function (method, args) {
+  _exec(method, args) {
     var migration  = this.migration();
     var fun        = migration[method];
     if (!fun) return Bluebird.reject('Could not find migration method: ' + method);
@@ -103,4 +102,4 @@ module.exports = redefine.Class(/** @lends Migration.prototype */{
 
     return wrappedFun.apply(migration, args);
   }
-});
+}

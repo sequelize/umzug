@@ -5,16 +5,13 @@ var Bluebird     = require('bluebird');
 var fs           = require('fs');
 var Migration    = require('./migration');
 var path         = require('path');
-var redefine     = require('redefine');
 var EventEmitter = require('events').EventEmitter;
 
 /**
  * @class Umzug
  * @extends EventEmitter
  */
-module.exports = redefine.Class(/** @lends Umzug.prototype */ {
-  extend: EventEmitter,
-
+module.exports = class Umzug extends EventEmitter {
   /**
    * Constructs Umzug instance.
    *
@@ -42,7 +39,8 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * modify the function.
    * @constructs Umzug
    */
-  constructor: function (options) {
+  constructor(options) {
+    super();
     this.options = _.assign({
       storage:        'json',
       storageOptions: {},
@@ -63,9 +61,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
     }, this.options.migrations);
 
     this.storage = this._initStorage();
-
-    EventEmitter.call(this);
-  },
+  }
 
   /**
    * Executes given migrations with a given method.
@@ -75,7 +71,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @param {String}   [options.method='up']
    * @returns {Promise}
    */
-  execute: function (options) {
+  execute(options) {
     var self = this;
 
     options = _.assign({
@@ -143,25 +139,25 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
             });
         });
       });
-  },
+  }
 
   /**
    * Lists executed migrations.
    *
    * @returns {Promise.<Migration>}
    */
-  executed: function () {
+  executed() {
     return Bluebird.resolve(this.storage.executed()).bind(this).map(function (file) {
       return new Migration(file);
     });
-  },
+  }
 
   /**
    * Lists pending migrations.
    *
    * @returns {Promise.<Migration[]>}
    */
-  pending: function () {
+  pending() {
     return this
       ._findMigrations()
       .bind(this)
@@ -177,7 +173,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
           return executedFiles.indexOf(migration.file) === -1;
         });
       });
-  },
+  }
 
   /**
    * Execute migrations up.
@@ -194,9 +190,9 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @param {String[]}   [options.migrations] - List of migrations to execute.
    * @returns {Promise}
    */
-  up: function (options) {
+  up(options) {
     return this._run('up', options, this.pending.bind(this));
-  },
+  }
 
   /**
    * Execute migrations down.
@@ -213,7 +209,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @param {String[]}   [options.migrations] - List of migrations to execute.
    * @returns {Promise}
    */
-  down: function (options) {
+  down(options) {
     var getExecuted = function () {
       return this.executed().bind(this).then(function(migrations) {
         return migrations.reverse();
@@ -229,7 +225,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
     } else {
       return this._run('down', options, getExecuted.bind(this));
     }
-  },
+  }
 
   /**
    * Callback function to get migrations in right order.
@@ -256,7 +252,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise}
    * @private
    */
-  _run: function(method, options, rest) {
+  _run(method, options, rest) {
     if (typeof options === 'string') {
       return this._run(method, [ options ]);
     } else if (Array.isArray(options)) {
@@ -322,7 +318,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
           return this._run(method, { migrations: migrationFiles });
         });
     }
-  },
+  }
 
   /**
    * Lists pending/executed migrations depending on method from a given
@@ -335,7 +331,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise.<Migration[]>}
    * @private
    */
-  _findMigrationsFromMatch: function (from, method) {
+  _findMigrationsFromMatch(from, method) {
     // We'll fetch all migrations and work our way from start to finish
     return this._findMigrations()
       .bind(this)
@@ -367,18 +363,18 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
             }
           });
       });
-  },
+  }
 
   /**
    * Pass message to logger if logging is enabled.
    *
    * @param {*} message - Message to be logged.
    */
-  log: function(message) {
+  log(message) {
     if (this.options.logging) {
       this.options.logging(message);
     }
-  },
+  }
 
   /**
    * Try to require and initialize storage.
@@ -386,7 +382,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {*|SequelizeStorage|JSONStorage|NoneStorage}
    * @private
    */
-  _initStorage: function () {
+  _initStorage() {
     var Storage;
 
     try {
@@ -403,7 +399,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
     }
 
     return new Storage(this.options);
-  },
+  }
 
   /**
    * Loads all migrations in ascending order.
@@ -411,7 +407,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise.<Migration[]>}
    * @private
    */
-  _findMigrations: function () {
+  _findMigrations() {
     return Bluebird
       .promisify(fs.readdir)(this.options.migrations.path)
       .bind(this)
@@ -439,7 +435,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
           }
         });
       });
-  },
+  }
 
   /**
    * Gets a migration with a given name.
@@ -448,7 +444,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise.<Migration>}
    * @private
    */
-  _findMigration: function (needle) {
+  _findMigration(needle) {
     return this
       ._findMigrations()
       .then(function (migrations) {
@@ -463,7 +459,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
           return Bluebird.reject(new Error('Unable to find migration: ' + needle));
         }
       });
-  },
+  }
 
   /**
    * Checks if migration is executed. It will success if and only if there is
@@ -473,7 +469,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise}
    * @private
    */
-  _wasExecuted: function (_migration) {
+  _wasExecuted(_migration) {
     return this.executed().filter(function (migration) {
       return migration.testFileName(_migration.file);
     }).then(function(migrations) {
@@ -483,7 +479,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
         return Bluebird.reject(new Error('Migration was not executed: ' + _migration.file));
       }
     });
-  },
+  }
 
   /**
    * Checks if a list of migrations are all executed. It will success if and
@@ -493,14 +489,14 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise}
    * @private
    */
-  _wereExecuted: function (migrationNames) {
+  _wereExecuted(migrationNames) {
     return Bluebird
       .resolve(migrationNames)
       .bind(this)
       .map(function (migration) {
         return this._wasExecuted(migration);
       });
-  },
+  }
 
   /**
    * Checks if migration is pending. It will success if and only if there is
@@ -510,7 +506,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise}
    * @private
    */
-  _isPending: function (_migration) {
+  _isPending(_migration) {
     return this.pending().filter(function (migration) {
       return migration.testFileName(_migration.file);
     }).then(function(migrations) {
@@ -520,7 +516,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
         return Bluebird.reject(new Error('Migration is not pending: ' + _migration.file));
       }
     });
-  },
+  }
 
   /**
    * Checks if a list of migrations are all pending. It will success if and only
@@ -530,14 +526,14 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise}
    * @private
    */
-  _arePending: function (migrationNames) {
+  _arePending(migrationNames) {
     return Bluebird
       .resolve(migrationNames)
       .bind(this)
       .map(function (migration) {
         return this._isPending(migration);
       });
-  },
+  }
 
   /**
    * Skip migrations in a given migration list after `to` migration.
@@ -547,7 +543,7 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
    * @returns {Promise.<String>} - List of migrations before `to`.
    * @private
    */
-  _findMigrationsUntilMatch: function (to, migrations) {
+  _findMigrationsUntilMatch(to, migrations) {
     return Bluebird.resolve(migrations)
       .map(function (migration) { return migration.file; })
       .reduce(function (acc, migration) {
@@ -565,4 +561,4 @@ module.exports = redefine.Class(/** @lends Umzug.prototype */ {
       }, { migrations: [], add: true })
       .get('migrations');
   }
-});
+}
