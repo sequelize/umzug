@@ -7,6 +7,7 @@ var Umzug     = require('../../lib/index');
 
 describe('pending', function () {
   beforeEach(function () {
+    helper.clearTmp();
     return helper
       .prepareMigrations(3)
       .bind(this)

@@ -5,6 +5,10 @@ var helper    = require('../helper');
 var Storage   = require('../../lib/storages/none');
 
 describe('none', function () {
+  beforeEach(function() {
+    helper.clearTmp();
+  });
+
   describe('constructor', function () {
     it('stores no options', function () {
       var storage = new Storage();

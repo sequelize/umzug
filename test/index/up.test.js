@@ -8,6 +8,7 @@ var Umzug     = require('../../lib/index');
 
 describe('up', function () {
   beforeEach(function () {
+    helper.clearTmp();
     return helper
       .prepareMigrations(3)
       .bind(this)

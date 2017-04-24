@@ -3,8 +3,13 @@
 var expect    = require('expect.js');
 var Umzug     = require('../../lib/index');
 var sinon     = require('sinon');
+var helper    = require('../helper');
 
 describe('constructor', function () {
+  beforeEach(function() {
+    helper.clearTmp();
+  });
+
   it('exposes some methods', function () {
     var umzug = new Umzug();
 

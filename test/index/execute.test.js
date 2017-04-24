@@ -8,6 +8,7 @@ var sinon     = require('sinon');
 
 describe('execute', function () {
   beforeEach(function () {
+    helper.clearTmp();
     return helper
       .prepareMigrations(1, { names: ['123-migration'] })
       .bind(this)
