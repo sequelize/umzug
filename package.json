@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.4.0",
     "babel-register": "^6.24.1",
     "coffee-script": "^1.8.0",

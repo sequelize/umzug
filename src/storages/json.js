@@ -17,12 +17,13 @@ module.exports = class JSONStorage {
    * cwd.
    * @constructs JSONStorage
    */
-  constructor(options) {
-    this.options = options || {};
+  constructor(options = {}) {
+    this.options = options;
 
-    this.options.storageOptions = _.assign({
-      path: path.resolve(process.cwd(), 'umzug.json')
-    }, this.options.storageOptions || {});
+    this.options.storageOptions = {
+      path: path.resolve(process.cwd(), 'umzug.json'),
+      ...this.options.storageOptions || {},
+    };
   }
 
   /**
