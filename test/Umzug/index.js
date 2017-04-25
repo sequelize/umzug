@@ -1,5 +1,3 @@
-'use strict';
-
 describe('Umzug', function () {
   require('./constructor.test');
   require('./down.test');

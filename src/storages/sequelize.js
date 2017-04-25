@@ -1,6 +1,4 @@
-'use strict';
-
-var _         = require('lodash');
+import _ from 'lodash';
 
 /**
  * @class SequelizeStorage
@@ -44,15 +42,16 @@ module.exports = class SequelizeStorage {
    *
    * @constructs SequelizeStorage
    */
-  constructor(options) {
-    this.options = options || {};
-    this.options.storageOptions = _.assign({
+  constructor(options = {}) {
+    this.options = options;
+    this.options.storageOptions = {
       // note 'sequelize' or 'model' is required
       modelName: 'SequelizeMeta',
       // note 'tableName' (optional) also supported
       columnName: 'name',
-      timestamps: false
-    }, this.options.storageOptions || {});
+      timestamps: false,
+      ...this.options.storageOptions || {},
+    };
 
     if (!this.options.storageOptions.model && !this.options.storageOptions.sequelize) {
       throw new Error('One of "sequelize" or "model" storage option is required');

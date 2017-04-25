@@ -1,8 +1,6 @@
-'use strict';
-
-var _        = require('lodash');
-var Bluebird = require('bluebird');
-var fs       = require('fs');
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+import fs from 'fs';
 
 var helper = module.exports = {
   clearTmp: function () {

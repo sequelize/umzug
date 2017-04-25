@@ -12,12 +12,13 @@
   "dependencies": {
     "bluebird": "^3.4.1",
     "lodash": "^4.17.0",
-    "moment": "^2.16.0",
     "resolve": "^1.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.4.0",
+    "babel-register": "^6.24.1",
     "coffee-script": "^1.8.0",
     "expect.js": "^0.3.1",
     "gulp": "^3.8.10",
@@ -26,7 +27,7 @@
     "gulp-mocha": "^4.3.0",
     "jshint": "^2.9.1",
     "jshint-stylish": "^2.0.0",
-    "mocha": "^3.0.1",
+    "mocha": "^3.3.0",
     "sequelize": "^3.30.4",
     "sinon": "^2.1.0",
     "sqlite3": "^3.1.5",
@@ -34,7 +35,7 @@
   },
   "scripts": {
     "build": "babel src -d lib",
-    "test": "gulp test"
+    "test": "mocha --compilers js:babel-register test"
   },
   "repository": {
     "type": "git",

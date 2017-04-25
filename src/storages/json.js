@@ -1,9 +1,7 @@
-'use strict';
-
-var _         = require('lodash');
-var Bluebird  = require('bluebird');
-var fs        = require('fs');
-var path      = require('path');
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * @class JSONStorage
@@ -19,12 +17,13 @@ module.exports = class JSONStorage {
    * cwd.
    * @constructs JSONStorage
    */
-  constructor(options) {
-    this.options = options || {};
+  constructor(options = {}) {
+    this.options = options;
 
-    this.options.storageOptions = _.assign({
-      path: path.resolve(process.cwd(), 'umzug.json')
-    }, this.options.storageOptions || {});
+    this.options.storageOptions = {
+      path: path.resolve(process.cwd(), 'umzug.json'),
+      ...this.options.storageOptions || {},
+    };
   }
 
   /**

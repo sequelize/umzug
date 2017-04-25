@@ -1,11 +1,9 @@
-'use strict';
-
-var _            = require('lodash');
-var Bluebird     = require('bluebird');
-var fs           = require('fs');
-var Migration    = require('./migration');
-var path         = require('path');
-var EventEmitter = require('events').EventEmitter;
+import _ from 'lodash';
+import Bluebird from 'bluebird';
+import fs from 'fs';
+import Migration from './migration';
+import path from 'path';
+import { EventEmitter } from 'events';
 
 /**
  * @class Umzug
@@ -39,26 +37,28 @@ module.exports = class Umzug extends EventEmitter {
    * modify the function.
    * @constructs Umzug
    */
-  constructor(options) {
+  constructor(options = {}) {
     super();
-    this.options = _.assign({
-      storage:        'json',
+    this.options = {
+      storage: 'json',
       storageOptions: {},
-      logging:        false,
-      upName:         'up',
-      downName:       'down'
-    }, options);
+      logging: false,
+      upName: 'up',
+      downName: 'down',
+      ...options,
+    };
 
     if (this.options.logging && !_.isFunction(this.options.logging)) {
       throw new Error('The logging-option should be either a function or false');
     }
 
-    this.options.migrations = _.assign({
-      params:  [],
-      path:    path.resolve(process.cwd(), 'migrations'),
+    this.options.migrations = {
+      params: [],
+      path: path.resolve(process.cwd(), 'migrations'),
       pattern: /^\d+[\w-]+\.js$/,
-      wrap:    function (fun) { return fun; }
-    }, this.options.migrations);
+      wrap: fun => fun,
+      ...this.options.migrations,
+    };
 
     this.storage = this._initStorage();
   }
@@ -71,20 +71,24 @@ module.exports = class Umzug extends EventEmitter {
    * @param {String}   [options.method='up']
    * @returns {Promise}
    */
-  execute(options) {
+  execute(options = {}) {
     var self = this;
 
-    options = _.assign({
+    options = {
       migrations: [],
-      method:     'up'
-    }, options || {});
+      method: 'up',
+      ...options,
+    };
 
     return Bluebird
       .map(options.migrations, function (migration) {
         return self._findMigration(migration);
       })
       .then(function (migrations) {
-        return _.assign({}, options, { migrations: migrations });
+        return {
+          ...options,
+          migrations,
+        };
       })
       .then(function (options) {
         return Bluebird.each(options.migrations, function (migration) {
@@ -270,11 +274,12 @@ module.exports = class Umzug extends EventEmitter {
         });
     }
 
-    options = _.assign({
-      to:         null,
-      from:       null,
-      migrations: null
-    }, options || {});
+    options = {
+      to: null,
+      from: null,
+      migrations: null,
+      ...options || {},
+    };
 
     if (options.migrations) {
       return this.execute({

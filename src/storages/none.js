@@ -1,6 +1,4 @@
-'use strict';
-
-var Bluebird  = require('bluebird');
+import Bluebird from 'bluebird';
 
 /**
  * @class NoneStorage

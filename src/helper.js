@@ -1,6 +1,4 @@
-'use strict';
-
-var resolve = require('resolve').sync;
+import { sync as resolve } from 'resolve';
 
 module.exports = {
   /**
