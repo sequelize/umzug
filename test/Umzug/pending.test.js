@@ -1,7 +1,7 @@
 import expect from 'expect.js';
 import helper from '../helper';
-import Migration from '../../lib/migration';
-import Umzug from '../../lib/index';
+import Migration from '../../src/migration';
+import Umzug from '../../src/index';
 
 describe('pending', function () {
   beforeEach(function () {

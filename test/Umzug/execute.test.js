@@ -1,7 +1,7 @@
 import Bluebird from 'bluebird';
 import expect from 'expect.js';
 import helper from '../helper';
-import Umzug from '../../lib/index';
+import Umzug from '../../src/index';
 import sinon from 'sinon';
 
 describe('execute', function () {

@@ -3,7 +3,7 @@ import expect from 'expect.js';
 import fs from 'fs';
 import helper from '../helper';
 import path from 'path';
-import Storage from '../../lib/storages/json';
+import Storage from '../../src/storages/json';
 
 describe('JSON', function () {
   beforeEach(function() {

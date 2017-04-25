@@ -1,5 +1,5 @@
 import expect from 'expect.js';
-import Umzug from '../../lib/index';
+import Umzug from '../../src/index';
 import sinon from 'sinon';
 import helper from '../helper';
 

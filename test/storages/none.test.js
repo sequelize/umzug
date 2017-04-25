@@ -1,6 +1,6 @@
 import expect from 'expect.js';
 import helper from '../helper';
-import Storage from '../../lib/storages/none';
+import Storage from '../../src/storages/none';
 
 describe('none', function () {
   beforeEach(function() {

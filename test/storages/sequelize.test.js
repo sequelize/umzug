@@ -1,6 +1,6 @@
 import expect from 'expect.js';
 import helper from '../helper';
-import Storage from '../../lib/storages/sequelize';
+import Storage from '../../src/storages/sequelize';
 import Sequelize from 'sequelize';
 
 describe('sequelize', function () {

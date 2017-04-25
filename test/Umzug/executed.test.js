@@ -1,6 +1,6 @@
 import expect from 'expect.js';
 import helper from '../helper';
-import Umzug from '../../lib/index';
+import Umzug from '../../src/index';
 
 describe('executed', function () {
   beforeEach(function () {
