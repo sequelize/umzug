@@ -203,6 +203,58 @@ describe('coffee-script support', function () {
   });
 });
 
+describe('ES6 module support', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+  });
+
+  it('executes exported method', function () {
+    require('fs').writeFileSync(__dirname + '/../tmp/123-es6-named-migration.js', `
+      export async function up() {}
+      export async function down() {}
+    `);
+
+    var umzug = new Umzug({
+      migrations: {
+        path:    __dirname + '/../tmp/',
+        pattern: /\.js$/
+      },
+      storageOptions: {
+        path: __dirname + '/../tmp/umzug.json'
+      }
+    });
+
+    return umzug.execute({
+      migrations: ['123-es6-named-migration'],
+      method:     'up'
+    });
+  });
+
+  it('executes default exported method', function () {
+    require('fs').writeFileSync(__dirname + '/../tmp/123-es6-default-migration.js', `
+      export default {
+        async up() {},
+        async down() {}
+      }
+    `);
+
+    var umzug = new Umzug({
+      migrations: {
+        path:    __dirname + '/../tmp/',
+        pattern: /\.js$/
+      },
+      storageOptions: {
+        path: __dirname + '/../tmp/umzug.json'
+      }
+    });
+
+    return umzug.execute({
+      migrations: ['123-es6-default-migration'],
+      method:     'up'
+    });
+  });
+});
+
 describe('upName / downName', function () {
   beforeEach(function () {
     helper.clearTmp();
