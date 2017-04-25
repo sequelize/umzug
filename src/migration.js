@@ -38,9 +38,9 @@ module.exports = class Migration {
    * Tries to require migration module. CoffeeScript support requires
    * 'coffee-script' to be installed.
    *
-   * @returns {Object} Required migration module
+   * @returns {Promise.<Object>} Required migration module
    */
-  migration() {
+  async migration() {
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
       helper.resolve('coffee-script/register') ||
@@ -54,24 +54,24 @@ module.exports = class Migration {
       })();
     }
 
-    return require(this.path);
+    return import(this.path);
   }
 
   /**
    * Executes method `up` of migration.
    *
-   * @returns {*|Promise}
+   * @returns {Promise}
    */
-  up() {
+  async up() {
     return this._exec(this.options.upName, [].slice.apply(arguments));
   }
 
   /**
    * Executes method `down` of migration.
    *
-   * @returns {*|Promise}
+   * @returns {Promise}
    */
-  down() {
+  async down() {
     return this._exec(this.options.downName, [].slice.apply(arguments));
   }
 
@@ -89,14 +89,17 @@ module.exports = class Migration {
    *
    * @param {String} method - Name of the method to be called.
    * @param {*} args - Arguments to be used when called the method.
-   * @returns {*|Promise}
+   * @returns {Promise}
    * @private
    */
-  _exec(method, args) {
-    var migration  = this.migration();
-    var fun        = migration[method];
+  async _exec(method, args) {
+    const migration = await this.migration();
+    let fun = migration[method];
+    if (migration.default) {
+      fun = migration.default[method] || migration[method];
+    }
     if (!fun) return Bluebird.reject('Could not find migration method: ' + method);
-    var wrappedFun = this.options.migrations.wrap(fun);
+    const wrappedFun = this.options.migrations.wrap(fun);
 
     return wrappedFun.apply(migration, args);
   }
