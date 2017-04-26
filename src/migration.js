@@ -40,7 +40,7 @@ module.exports = class Migration {
    *
    * @returns {Promise.<Object>} Required migration module
    */
-  async migration() {
+  migration() {
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
       helper.resolve('coffee-script/register') ||
@@ -62,7 +62,7 @@ module.exports = class Migration {
    *
    * @returns {Promise}
    */
-  async up() {
+  up() {
     return this._exec(this.options.upName, [].slice.apply(arguments));
   }
 
@@ -71,7 +71,7 @@ module.exports = class Migration {
    *
    * @returns {Promise}
    */
-  async down() {
+  down() {
     return this._exec(this.options.downName, [].slice.apply(arguments));
   }
 
@@ -98,9 +98,10 @@ module.exports = class Migration {
     if (migration.default) {
       fun = migration.default[method] || migration[method];
     }
-    if (!fun) return Bluebird.reject('Could not find migration method: ' + method);
+    // TODO throw new Error(...)
+    if (!fun) throw 'Could not find migration method: ' + method;
     const wrappedFun = this.options.migrations.wrap(fun);
 
-    return wrappedFun.apply(migration, args);
+    return await wrappedFun.apply(migration, args);
   }
 }
