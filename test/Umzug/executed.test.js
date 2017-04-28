@@ -1,4 +1,4 @@
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
 
@@ -26,7 +26,7 @@ describe('executed', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 0 items', function () {
@@ -47,7 +47,7 @@ describe('executed', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 1 items', function () {
@@ -69,7 +69,7 @@ describe('executed', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 3 items', function () {
@@ -95,7 +95,7 @@ describe('executed', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 1 items', function () {

@@ -1,4 +1,4 @@
-import expect from 'expect.js';
+import { expect } from 'chai';
 import Umzug from '../../src/index';
 import sinon from 'sinon';
 import helper from '../helper';
@@ -31,7 +31,7 @@ describe('constructor', function () {
   it('throws an error if the specified storage is neither a package nor a file', function () {
     expect(function () {
       new Umzug({ storage: 'nomnom' });
-    }).to.throwError(
+    }).to.throw(
       'Unable to resolve the storage: nomnom, Error: Cannot find module \'nomnom\''
     );
   });
@@ -40,6 +40,6 @@ describe('constructor', function () {
     var spy = sinon.spy();
     var umzug = new Umzug({ logging: spy });
     umzug.log();
-    expect(spy.called).to.be(true);
+    expect(spy.called).to.be.true;
   });
 });
