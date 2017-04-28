@@ -29,7 +29,7 @@ describe('constructor', function () {
   });
 
   it('throws an error if the specified storage is neither a package nor a file', function () {
-    expect(function () {
+    expect(() => {
       new Umzug({ storage: 'nomnom' });
     }).to.throw(
       'Unable to resolve the storage: nomnom, Error: Cannot find module \'nomnom\''

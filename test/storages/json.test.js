@@ -42,9 +42,9 @@ describe('JSON', function () {
     it('adds the passed value to the storage', function () {
       return this.storage.logMigration('asd.js').then(() => {
         return helper.promisify(fs.readFile)(this.path);
-      }).then(function (content) {
+      }).then((content) => {
         return JSON.parse(content);
-      }).then(function (data) {
+      }).then((data) => {
         expect(data).to.eql(['asd.js']);
       });
     });
@@ -63,7 +63,7 @@ describe('JSON', function () {
       var read = () => {
         return helper
           .promisify(fs.readFile)(this.path)
-          .then(function (content) {
+          .then((content) => {
             return JSON.parse(content);
           });
       };
@@ -72,14 +72,14 @@ describe('JSON', function () {
         return this.storage.logMigration('bar.js');
       })
       .then(read)
-      .then(function (data) {
+      .then((data) => {
         expect(data).to.eql([ 'foo.js', 'bar.js' ]);
       })
       .then(() => {
         return this.storage.unlogMigration('foo.js');
       })
       .then(read)
-      .then(function (data) {
+      .then((data) => {
         expect(data).to.eql([ 'bar.js' ]);
       });
     });
@@ -95,7 +95,7 @@ describe('JSON', function () {
     });
 
     it('returns an empty array if no migrations were logged yet', function () {
-      return this.storage.executed().then(function (data) {
+      return this.storage.executed().then((data) => {
         expect(data).to.eql([]);
       });
     });
@@ -103,7 +103,7 @@ describe('JSON', function () {
     it('returns executed migrations', function () {
       return this.storage.logMigration('foo.js').then(() => {
         return this.storage.executed();
-      }).then(function (data) {
+      }).then((data) => {
         expect(data).to.eql([ 'foo.js' ]);
       });
     });

@@ -3,17 +3,17 @@ import Bluebird from 'bluebird';
 import fs from 'fs';
 
 var helper = module.exports = {
-  clearTmp: function () {
+  clearTmp() {
     var files = fs.readdirSync(__dirname + '/tmp');
 
-    files.forEach(function (file) {
+    files.forEach((file) => {
       if (file.match(/\.(js|json|sqlite|coffee)$/)) {
         fs.unlinkSync(__dirname + '/tmp/' + file);
       }
     });
   },
 
-  generateDummyMigration: function (name) {
+  generateDummyMigration(name) {
     fs.writeFileSync(
       __dirname + '/tmp/' + name + '.js',
       [
@@ -29,19 +29,19 @@ var helper = module.exports = {
     return name;
   },
 
-  prepareMigrations: function (count, options) {
+  prepareMigrations(count, options) {
     options = {
       names: [],
       ...options || {},
     };
 
-    return new Promise(function (resolve) {
+    return new Promise((resolve) => {
       var names = options.names;
       var num   = 0;
 
       helper.clearTmp();
 
-      _.times(count, function (i) {
+      _.times(count, (i) => {
         num++;
         names.push(options.names[i] || (num + '-migration'));
         helper.generateDummyMigration(options.names[i]);
@@ -51,23 +51,23 @@ var helper = module.exports = {
     });
   },
 
-  wrapStorageAsCustomThenable: function(storage) {
+  wrapStorageAsCustomThenable(storage) {
     return {
-      logMigration: function(migration) {
+      logMigration(migration) {
         return helper._convertPromiseToThenable(storage.logMigration(migration));
       },
-      unlogMigration: function(migration) {
+      unlogMigration(migration) {
         return helper._convertPromiseToThenable(storage.unlogMigration(migration));
       },
-      executed: function() {
+      executed() {
         return helper._convertPromiseToThenable(storage.executed());
       }
     };
   },
 
-  _convertPromiseToThenable: function(promise) {
+  _convertPromiseToThenable(promise) {
     return {
-      then: function(onFulfilled, onRejected) {
+      then(onFulfilled, onRejected) {
         //note don't return anything!
         promise.then(onFulfilled, onRejected);
       }

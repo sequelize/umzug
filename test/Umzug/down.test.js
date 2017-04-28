@@ -39,7 +39,7 @@ describe('down', function () {
         method:     'up'
       }).then(() => {
         return this.umzug.executed();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         expect(migrations).to.have.length(1);
       }).then(() => {
         return this.umzug.down();
@@ -54,7 +54,7 @@ describe('down', function () {
     });
 
     it('removes the reverted migrations from the storage', function () {
-      return this.umzug.executed().then(function (migrations) {
+      return this.umzug.executed().then((migrations) => {
         expect(migrations).to.have.length(0);
       });
     });
@@ -67,7 +67,7 @@ describe('down', function () {
         method:     'up'
       }).then(() => {
         return this.umzug.executed();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         expect(migrations).to.have.length(3);
       });
     });
@@ -154,9 +154,9 @@ describe('down', function () {
 
       describe('that does not match a migration', function () {
         it('rejects the promise', function () {
-          return this.umzug.down({ to: '123-asdasd' }).then(function () {
+          return this.umzug.down({ to: '123-asdasd' }).then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Unable to find migration: 123-asdasd');
           });
         });
@@ -169,9 +169,9 @@ describe('down', function () {
             .then(() => {
               return this.umzug.down({ to: this.migrationNames[1] });
             })
-            .then(function () {
+            .then(() => {
               return Promise.reject('We should not end up here...');
-            }, function (err) {
+            }, (err) => {
               expect(err.message).to.equal('Migration was not executed: 2-migration.js');
             });
         });
@@ -208,9 +208,9 @@ describe('down', function () {
 
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
-        return this.umzug.down('123-asdasd').then(function () {
+        return this.umzug.down('123-asdasd').then(() => {
           return Promise.reject('We should not end up here...');
-        }, function (err) {
+        }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
       });
@@ -223,9 +223,9 @@ describe('down', function () {
           .then(() => {
             return this.umzug.down(this.migrationNames[1]);
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration was not executed: 2-migration.js');
           });
       });
@@ -279,9 +279,9 @@ describe('down', function () {
 
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
-        return this.umzug.down(['123-asdasd']).then(function () {
+        return this.umzug.down(['123-asdasd']).then(() => {
           return Promise.reject('We should not end up here...');
-        }, function (err) {
+        }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
       });
@@ -294,9 +294,9 @@ describe('down', function () {
           .then(() => {
             return this.umzug.down([this.migrationNames[1]]);
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration was not executed: 2-migration.js');
           });
       });
@@ -309,9 +309,9 @@ describe('down', function () {
           .then(() => {
             return this.umzug.down(this.migrationNames.slice(1));
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration was not executed: 2-migration.js');
           });
       });
@@ -328,7 +328,7 @@ describe('down', function () {
         method:     'up'
       }).then(() => {
         return this.umzug.executed();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         expect(migrations).to.have.length(1);
       }).then(() => {
 
@@ -348,7 +348,7 @@ describe('down', function () {
     });
 
     it('removes the reverted migrations from the storage', function () {
-      return this.umzug.executed().then(function (migrations) {
+      return this.umzug.executed().then((migrations) => {
         expect(migrations).to.have.length(0);
       });
     });

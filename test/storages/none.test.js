@@ -21,7 +21,7 @@ describe('none', function () {
     });
 
     it('returns an empty array', function () {
-      return this.storage.executed().then(function (data) {
+      return this.storage.executed().then((data) => {
         expect(data).to.eql([]);
       });
     });
@@ -29,7 +29,7 @@ describe('none', function () {
     it('returns an empty array even if migrations were executed', function () {
       return this.storage.logMigration('foo.js').then(() => {
         return this.storage.executed();
-      }).then(function (data) {
+      }).then((data) => {
         expect(data).to.eql([]);
       });
     });
