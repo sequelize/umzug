@@ -25,7 +25,7 @@ describe('execute', function () {
             method:     method
           });
         };
-        ['migrating', 'migrated', 'reverting', 'reverted'].forEach(function(event) {
+        ['migrating', 'migrated', 'reverting', 'reverted'].forEach((event) => {
           var spy = this[event + 'EventSpy'] = sinon.spy();
           this.umzug.on(event, spy);
         }, this);
@@ -100,7 +100,7 @@ describe('execute', function () {
   });
 
   it('calls the migration with the result of the passed function', function () {
-    this.umzug.options.migrations.params = function () {
+    this.umzug.options.migrations.params = () => {
       return [1, 2, 3];
     };
 
@@ -118,7 +118,7 @@ describe('execute', function () {
     it('rejects the promise', function () {
       return this.migrate('up').then(() => {
         return Promise.reject('We should not end up here...');
-      }, function (err) {
+      }, (err) => {
         expect(err).to.equal('Could not find migration method: up');
       });
     });
@@ -151,7 +151,7 @@ describe('migrations.wrap', function () {
     var umzug = new Umzug({
       migrations: {
         path: __dirname + '/../tmp/',
-        wrap: function (fun) {
+        wrap: (fun) => {
           if (fun.length === 1) {
             return helper.promisify(fun);
           } else {
@@ -165,7 +165,7 @@ describe('migrations.wrap', function () {
     return umzug.execute({
       migrations: ['123-callback-last-migration'],
       method:     'up'
-    }).then(function () {
+    }).then(() => {
       expect(+new Date() - start).to.be.greaterThan(200);
     });
   });

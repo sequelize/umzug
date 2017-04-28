@@ -33,7 +33,7 @@ describe('up', function () {
     });
 
     it('returns migration instances', function () {
-      this.migrations.forEach(function (migration) {
+      this.migrations.forEach((migration) => {
         expect(migration).to.be.an.instanceof(Migration);
       });
     });
@@ -58,13 +58,13 @@ describe('up', function () {
     it('returns only the migrations that have not been run yet', function () {
       var self = this;
 
-      this.migrationNames.slice(1).forEach(function (migrationName, i) {
+      this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
       });
     });
 
     it('adds the two missing migrations to the storage', function () {
-      return this.umzug.executed().then(function (migrations) {
+      return this.umzug.executed().then((migrations) => {
         expect(migrations).to.have.length(3);
       });
     });
@@ -103,7 +103,7 @@ describe('up', function () {
     });
 
     it('executed only the first 2 migrations', function () {
-      return this.umzug.executed().then(function (migrations) {
+      return this.umzug.executed().then((migrations) => {
         expect(migrations).to.have.length(2);
       });
     });
@@ -111,7 +111,7 @@ describe('up', function () {
     it('did not execute the third migration', function () {
       return this.umzug.executed()
         .then((migrations) => {
-          var migrationFiles = migrations.map(function (migration) {
+          var migrationFiles = migrations.map((migration) => {
             return migration.file;
           });
           expect(migrationFiles).to.not.contain(this.migrationNames[2]);
@@ -120,9 +120,9 @@ describe('up', function () {
 
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
-        return this.umzug.up({ to: '123-asdasd' }).then(function () {
+        return this.umzug.up({ to: '123-asdasd' }).then(() => {
           return Promise.reject('We should not end up here...');
-        }, function (err) {
+        }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
       });
@@ -135,9 +135,9 @@ describe('up', function () {
           .then(() => {
             return this.umzug.up({ to: this.migrationNames[1] });
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
       });
@@ -165,9 +165,9 @@ describe('up', function () {
 
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
-        return this.umzug.up('123-asdasd').then(function () {
+        return this.umzug.up('123-asdasd').then(() => {
           return Promise.reject('We should not end up here...');
-        }, function (err) {
+        }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
       });
@@ -180,9 +180,9 @@ describe('up', function () {
           .then(() => {
             return this.umzug.up(this.migrationNames[1]);
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
       });
@@ -229,9 +229,9 @@ describe('up', function () {
 
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
-        return this.umzug.up(['123-asdasd']).then(function () {
+        return this.umzug.up(['123-asdasd']).then(() => {
           return Promise.reject('We should not end up here...');
-        }, function (err) {
+        }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
       });
@@ -244,9 +244,9 @@ describe('up', function () {
           .then(() => {
             return this.umzug.up([this.migrationNames[1]]);
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
       });
@@ -259,9 +259,9 @@ describe('up', function () {
           .then(() => {
             return this.umzug.up(this.migrationNames.slice(1));
           })
-          .then(function () {
+          .then(() => {
             return Promise.reject('We should not end up here...');
-          }, function (err) {
+          }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
       });
@@ -293,13 +293,13 @@ describe('up', function () {
     it('returns only the migrations that have not been run yet', function () {
       var self = this;
 
-      this.migrationNames.slice(1).forEach(function (migrationName, i) {
+      this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
       });
     });
 
     it('adds the two missing migrations to the storage', function () {
-      return this.umzug.executed().then(function (migrations) {
+      return this.umzug.executed().then((migrations) => {
         expect(migrations).to.have.length(3);
       });
     });

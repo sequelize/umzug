@@ -33,7 +33,7 @@ describe('pending', function () {
     });
 
     it('returns migration instances', function () {
-      this.migrations.forEach(function (migration) {
+      this.migrations.forEach((migration) => {
         expect(migration).to.be.an.instanceof(Migration);
       });
     });
@@ -58,7 +58,7 @@ describe('pending', function () {
     it('returns only the migrations that have not been run yet', function () {
       var self = this;
 
-      this.migrationNames.slice(1).forEach(function (migrationName, i) {
+      this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
       });
     });
@@ -89,7 +89,7 @@ describe('pending', function () {
     it('returns only the migrations that have not been run yet', function () {
       var self = this;
 
-      this.migrationNames.slice(1).forEach(function (migrationName, i) {
+      this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
       });
     });
