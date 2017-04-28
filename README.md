@@ -67,7 +67,24 @@ to implement application-specific logic that must run around each migration:
 If want to run migrations without storing them anywhere, you can use the [`none` storage](lib/storages/none.js).
 
 ### Custom
-In order to use a custom storage, you can create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
+In order to use custom storage, you have two options:
+
+#### Way 1: Pass instance to constructor
+
+You can pass your storage instance to Umzug constructor.
+```js
+class CustomStorage {
+  constructor(...) {...}
+  logMigration(...) {...}
+  unlogMigration(...) {...}
+  executed(...) {...}
+}
+let umzug = new Umzug({ storage: new CustomStorage(...) })
+```
+
+#### Way 2: Require external module from npmjs.com
+
+Create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
 
 ```js
 var Bluebird = require('bluebird');

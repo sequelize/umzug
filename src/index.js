@@ -388,6 +388,10 @@ module.exports = class Umzug extends EventEmitter {
    * @private
    */
   _initStorage() {
+    if (typeof this.options.storage !== 'string') {
+      return this.options.storage;
+    }
+
     var Storage;
 
     try {
