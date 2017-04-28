@@ -27,7 +27,7 @@ describe('none', function () {
     });
 
     it('returns an empty array even if migrations were executed', function () {
-      return this.storage.logMigration('foo.js').bind(this).then(function () {
+      return this.storage.logMigration('foo.js').then(() => {
         return this.storage.executed();
       }).then(function (data) {
         expect(data).to.eql([]);

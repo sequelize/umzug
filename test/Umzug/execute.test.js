@@ -9,8 +9,7 @@ describe('execute', function () {
     helper.clearTmp();
     return helper
       .prepareMigrations(1, { names: ['123-migration'] })
-      .bind(this)
-      .then(function () {
+      .then(() => {
         this.migration = require('../tmp/123-migration.js');
         this.upStub    = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
         this.downStub  = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
@@ -20,12 +19,12 @@ describe('execute', function () {
           storageOptions: { path: __dirname + '/../tmp/umzug.json' },
           logging:        this.logSpy
         });
-        this.migrate = function (method) {
+        this.migrate = (method) => {
           return this.umzug.execute({
             migrations: ['123-migration'],
             method:     method
           });
-        }.bind(this);
+        };
         ['migrating', 'migrated', 'reverting', 'reverted'].forEach(function(event) {
           var spy = this[event + 'EventSpy'] = sinon.spy();
           this.umzug.on(event, spy);
@@ -40,8 +39,8 @@ describe('execute', function () {
 
   it('runs the up method of the migration', function () {
     return this
-      .migrate('up').bind(this)
-      .then(function () {
+      .migrate('up')
+      .then(() => {
         expect(this.upStub.callCount).to.equal(1);
         expect(this.downStub.callCount).to.equal(0);
         expect(this.logSpy.callCount).to.equal(3);
@@ -55,8 +54,8 @@ describe('execute', function () {
 
   it('runs the down method of the migration', function () {
     return this
-      .migrate('down').bind(this)
-      .then(function () {
+      .migrate('down')
+      .then(() => {
         expect(this.upStub.callCount).to.equal(0);
         expect(this.downStub.callCount).to.equal(1);
         expect(this.logSpy.callCount).to.equal(3);
@@ -69,25 +68,25 @@ describe('execute', function () {
   });
 
   it('does not execute a migration twice', function () {
-    return this.migrate('up').bind(this).then(function () {
+    return this.migrate('up').then(() => {
       return this.migrate('up');
-    }).then(function () {
+    }).then(() => {
       expect(this.upStub.callCount).to.equal(1);
       expect(this.downStub.callCount).to.equal(0);
     });
   });
 
   it('does not add an executed entry to the storage.json', function () {
-    return this.migrate('up').bind(this).then(function () {
+    return this.migrate('up').then(() => {
       return this.migrate('up');
-    }).then(function () {
+    }).then(() => {
       var storage = require(this.umzug.options.storageOptions.path);
       expect(storage).to.eql(['123-migration.js']);
     });
   });
 
   it('calls the migration without params by default', function () {
-    return this.migrate('up').bind(this).then(function () {
+    return this.migrate('up').then(() => {
       expect(this.upStub.getCall(0).args).to.eql([]);
     });
   });
@@ -95,7 +94,7 @@ describe('execute', function () {
   it('calls the migration with the specified params', function () {
     this.umzug.options.migrations.params = [1, 2, 3];
 
-    return this.migrate('up').bind(this).then(function () {
+    return this.migrate('up').then(() => {
       expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
     });
   });
@@ -105,7 +104,7 @@ describe('execute', function () {
       return [1, 2, 3];
     };
 
-    return this.migrate('up').bind(this).then(function () {
+    return this.migrate('up').then(() => {
       expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
     });
   });
@@ -117,8 +116,8 @@ describe('execute', function () {
     });
 
     it('rejects the promise', function () {
-      return this.migrate('up').bind(this).then(function () {
-        return Bluebird.reject('We should not end up here...');
+      return this.migrate('up').then(() => {
+        return Promise.reject('We should not end up here...');
       }, function (err) {
         expect(err).to.equal('Could not find migration method: up');
       });
@@ -154,7 +153,7 @@ describe('migrations.wrap', function () {
         path: __dirname + '/../tmp/',
         wrap: function (fun) {
           if (fun.length === 1) {
-            return Bluebird.promisify(fun);
+            return helper.promisify(fun);
           } else {
             return fun;
           }
@@ -276,12 +275,12 @@ describe('upName / downName', function () {
       upName: 'myUp',
       downName: 'myDown'
     });
-    this.migrate = function (method) {
+    this.migrate = (method) => {
       return this.umzug.execute({
         migrations: ['123-custom-up-down-names-migration'],
         method:     method
       });
-    }.bind(this);
+    };
   });
 
   afterEach(function () {
@@ -291,8 +290,8 @@ describe('upName / downName', function () {
 
   it('runs the custom up method of the migration', function () {
     return this
-      .migrate('up').bind(this)
-      .then(function ()  {
+      .migrate('up')
+      .then(() => {
         expect(this.upStub.callCount).to.equal(1);
         expect(this.downStub.callCount).to.equal(0);
       });
@@ -300,8 +299,8 @@ describe('upName / downName', function () {
 
   it('runs the custom down method of the migration', function () {
     return this
-      .migrate('down').bind(this)
-      .then(function ()  {
+      .migrate('down')
+      .then(() => {
         expect(this.downStub.callCount).to.equal(1);
         expect(this.upStub.callCount).to.equal(0);
       });

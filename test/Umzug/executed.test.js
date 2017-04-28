@@ -7,8 +7,7 @@ describe('executed', function () {
     helper.clearTmp();
     return helper
       .prepareMigrations(3)
-      .bind(this)
-      .then(function (migrationNames) {
+      .then((migrationNames) => {
         this.migrationNames = migrationNames;
         this.umzug          = new Umzug({
           migrations:     { path: __dirname + '/../tmp/' },
@@ -20,7 +19,7 @@ describe('executed', function () {
   describe('when no migrations has been executed yet', function () {
     beforeEach(function () {
       return this.umzug.executed()
-        .bind(this).then(function (migrations) {
+        .then((migrations) => {
           this.migrations = migrations;
         });
     });
@@ -39,9 +38,9 @@ describe('executed', function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
         method:     'up'
-      }).bind(this).then(function () {
+      }).then(() => {
         return this.umzug.executed();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -61,9 +60,9 @@ describe('executed', function () {
       return this.umzug.execute({
         migrations: this.migrationNames,
         method:     'up'
-      }).bind(this).then(function () {
+      }).then(() => {
         return this.umzug.executed();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -86,10 +85,10 @@ describe('executed', function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
         method:     'up'
-      }).bind(this).then(function () {
+      }).then(() => {
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
         return this.umzug.executed();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         this.migrations = migrations;
       });
     });
