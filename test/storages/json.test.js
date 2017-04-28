@@ -1,4 +1,3 @@
-import Bluebird from 'bluebird';
 import { expect } from 'chai';
 import fs from 'fs';
 import helper from '../helper';
@@ -35,14 +34,14 @@ describe('JSON', function () {
 
     it('creates a new file if not exists yet', function () {
       expect(fs.existsSync(this.path)).to.not.be.ok;
-      return this.storage.logMigration('asd.js').bind(this).then(function () {
+      return this.storage.logMigration('asd.js').then(() => {
         expect(fs.existsSync(this.path)).to.be.ok;
       });
     });
 
     it('adds the passed value to the storage', function () {
-      return this.storage.logMigration('asd.js').bind(this).then(function () {
-        return Bluebird.promisify(fs.readFile)(this.path);
+      return this.storage.logMigration('asd.js').then(() => {
+        return helper.promisify(fs.readFile)(this.path);
       }).then(function (content) {
         return JSON.parse(content);
       }).then(function (data) {
@@ -61,22 +60,22 @@ describe('JSON', function () {
     });
 
     it('removes the passed value from the storage', function () {
-      var read = function () {
-        return Bluebird
+      var read = () => {
+        return helper
           .promisify(fs.readFile)(this.path)
           .then(function (content) {
             return JSON.parse(content);
           });
-      }.bind(this);
+      };
 
-      return this.storage.logMigration('foo.js').bind(this).then(function () {
+      return this.storage.logMigration('foo.js').then(() => {
         return this.storage.logMigration('bar.js');
       })
       .then(read)
       .then(function (data) {
         expect(data).to.eql([ 'foo.js', 'bar.js' ]);
       })
-      .then(function () {
+      .then(() => {
         return this.storage.unlogMigration('foo.js');
       })
       .then(read)
@@ -102,7 +101,7 @@ describe('JSON', function () {
     });
 
     it('returns executed migrations', function () {
-      return this.storage.logMigration('foo.js').bind(this).then(function () {
+      return this.storage.logMigration('foo.js').then(() => {
         return this.storage.executed();
       }).then(function (data) {
         expect(data).to.eql([ 'foo.js' ]);

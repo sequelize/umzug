@@ -1,4 +1,3 @@
-import Bluebird from 'bluebird';
 import { expect } from 'chai';
 import helper from '../helper';
 import Migration from '../../src/migration';
@@ -9,8 +8,7 @@ describe('up', function () {
     helper.clearTmp();
     return helper
       .prepareMigrations(3)
-      .bind(this)
-      .then(function (migrationNames) {
+      .then((migrationNames) => {
         this.migrationNames = migrationNames;
         this.umzug          = new Umzug({
           migrations:     { path: __dirname + '/../tmp/' },
@@ -21,7 +19,7 @@ describe('up', function () {
 
   describe('when no migrations has been executed yet', function () {
     beforeEach(function () {
-      return this.umzug.up().bind(this).then(function (migrations) {
+      return this.umzug.up().then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -46,9 +44,9 @@ describe('up', function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
         method:     'up'
-      }).bind(this).then(function () {
+      }).then(() => {
         return this.umzug.up();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -78,7 +76,7 @@ describe('up', function () {
       beforeEach(function () {
         return this.umzug.up({
           from: this.migrationNames[1],
-        }).bind(this).then(function (migrations) {
+        }).then((migrations) => {
           this.migrations = migrations;
         });
       });
@@ -95,7 +93,7 @@ describe('up', function () {
     beforeEach(function () {
       return this.umzug.up({
         to: this.migrationNames[1]
-      }).bind(this).then(function (migrations) {
+      }).then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -112,7 +110,7 @@ describe('up', function () {
 
     it('did not execute the third migration', function () {
       return this.umzug.executed()
-        .bind(this).then(function (migrations) {
+        .then((migrations) => {
           var migrationFiles = migrations.map(function (migration) {
             return migration.file;
           });
@@ -123,7 +121,7 @@ describe('up', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.up({ to: '123-asdasd' }).then(function () {
-          return Bluebird.reject('We should not end up here...');
+          return Promise.reject('We should not end up here...');
         }, function (err) {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -134,12 +132,11 @@ describe('up', function () {
       it('rejects the promise', function () {
         return this.umzug
           .execute({ migrations: this.migrationNames, method: 'up' })
-          .bind(this)
-          .then(function () {
+          .then(() => {
             return this.umzug.up({ to: this.migrationNames[1] });
           })
           .then(function () {
-            return Bluebird.reject('We should not end up here...');
+            return Promise.reject('We should not end up here...');
           }, function (err) {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -150,8 +147,8 @@ describe('up', function () {
   describe('when called with a string', function () {
     describe('that matches a pending migration', function () {
       beforeEach(function () {
-        return this.umzug.up(this.migrationNames[1]).bind(this)
-          .then(function (migrations) { this.migrations = migrations; });
+        return this.umzug.up(this.migrationNames[1])
+          .then((migrations) => { this.migrations = migrations; });
       });
 
       it('returns only 1 migrations', function () {
@@ -159,7 +156,7 @@ describe('up', function () {
       });
 
       it('executed only the second migrations', function () {
-        return this.umzug.executed().bind(this).then(function (migrations) {
+        return this.umzug.executed().then((migrations) => {
           expect(migrations).to.have.length(1);
           expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok;
         });
@@ -169,7 +166,7 @@ describe('up', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.up('123-asdasd').then(function () {
-          return Bluebird.reject('We should not end up here...');
+          return Promise.reject('We should not end up here...');
         }, function (err) {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -180,12 +177,11 @@ describe('up', function () {
       it('rejects the promise', function () {
         return this.umzug
           .execute({ migrations: this.migrationNames, method: 'up' })
-          .bind(this)
-          .then(function () {
+          .then(() => {
             return this.umzug.up(this.migrationNames[1]);
           })
           .then(function () {
-            return Bluebird.reject('We should not end up here...');
+            return Promise.reject('We should not end up here...');
           }, function (err) {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -196,8 +192,8 @@ describe('up', function () {
   describe('when called with an array', function () {
     describe('that matches a pending migration', function () {
       beforeEach(function () {
-        return this.umzug.up([this.migrationNames[1]]).bind(this)
-          .then(function (migrations) { this.migrations = migrations; });
+        return this.umzug.up([this.migrationNames[1]])
+          .then((migrations) => { this.migrations = migrations; });
       });
 
       it('returns only 1 migrations', function () {
@@ -205,7 +201,7 @@ describe('up', function () {
       });
 
       it('executed only the second migrations', function () {
-        return this.umzug.executed().bind(this).then(function (migrations) {
+        return this.umzug.executed().then((migrations) => {
           expect(migrations).to.have.length(1);
           expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok;
         });
@@ -214,8 +210,8 @@ describe('up', function () {
 
     describe('that matches multiple pending migration', function () {
       beforeEach(function () {
-        return this.umzug.up(this.migrationNames.slice(1)).bind(this)
-          .then(function (migrations) { this.migrations = migrations; });
+        return this.umzug.up(this.migrationNames.slice(1))
+          .then((migrations) => { this.migrations = migrations; });
       });
 
       it('returns only 2 migrations', function () {
@@ -223,7 +219,7 @@ describe('up', function () {
       });
 
       it('executed only the second and the third migrations', function () {
-        return this.umzug.executed().bind(this).then(function (migrations) {
+        return this.umzug.executed().then((migrations) => {
           expect(migrations).to.have.length(2);
           expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok;
           expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok;
@@ -234,7 +230,7 @@ describe('up', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.up(['123-asdasd']).then(function () {
-          return Bluebird.reject('We should not end up here...');
+          return Promise.reject('We should not end up here...');
         }, function (err) {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -245,12 +241,11 @@ describe('up', function () {
       it('rejects the promise', function () {
         return this.umzug
           .execute({ migrations: this.migrationNames, method: 'up' })
-          .bind(this)
-          .then(function () {
+          .then(() => {
             return this.umzug.up([this.migrationNames[1]]);
           })
           .then(function () {
-            return Bluebird.reject('We should not end up here...');
+            return Promise.reject('We should not end up here...');
           }, function (err) {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -261,12 +256,11 @@ describe('up', function () {
       it('rejects the promise', function () {
         return this.umzug
           .execute({ migrations: this.migrationNames.slice(0, 2), method: 'up' })
-          .bind(this)
-          .then(function () {
+          .then(() => {
             return this.umzug.up(this.migrationNames.slice(1));
           })
           .then(function () {
-            return Bluebird.reject('We should not end up here...');
+            return Promise.reject('We should not end up here...');
           }, function (err) {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -281,13 +275,13 @@ describe('up', function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
         method:     'up'
-      }).bind(this).then(function () {
+      }).then(() => {
 
         //storage returns a thenable
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
 
         return this.umzug.up();
-      }).then(function (migrations) {
+      }).then((migrations) => {
         this.migrations = migrations;
       });
     });

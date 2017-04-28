@@ -30,11 +30,12 @@ var helper = module.exports = {
   },
 
   prepareMigrations: function (count, options) {
-    options = _.assign({
-      names: []
-    }, options || {});
+    options = {
+      names: [],
+      ...options || {},
+    };
 
-    return new Bluebird(function (resolve) {
+    return new Promise(function (resolve) {
       var names = options.names;
       var num   = 0;
 
@@ -71,5 +72,19 @@ var helper = module.exports = {
         promise.then(onFulfilled, onRejected);
       }
     };
+  },
+
+  promisify(fn) {
+    return (...args) => {
+      return new Promise((resolve, reject) => {
+        fn(...args, (err, data) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        })
+      })
+    }
   }
 };
