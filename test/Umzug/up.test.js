@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Migration from '../../src/migration';
 import Umzug from '../../src/index';
@@ -27,7 +27,7 @@ describe('up', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 3 items', function () {
@@ -36,7 +36,7 @@ describe('up', function () {
 
     it('returns migration instances', function () {
       this.migrations.forEach(function (migration) {
-        expect(migration).to.be.a(Migration);
+        expect(migration).to.be.an.instanceof(Migration);
       });
     });
   });
@@ -161,7 +161,7 @@ describe('up', function () {
       it('executed only the second migrations', function () {
         return this.umzug.executed().bind(this).then(function (migrations) {
           expect(migrations).to.have.length(1);
-          expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok();
+          expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok;
         });
       });
     });
@@ -207,7 +207,7 @@ describe('up', function () {
       it('executed only the second migrations', function () {
         return this.umzug.executed().bind(this).then(function (migrations) {
           expect(migrations).to.have.length(1);
-          expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok();
+          expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok;
         });
       });
     });
@@ -225,8 +225,8 @@ describe('up', function () {
       it('executed only the second and the third migrations', function () {
         return this.umzug.executed().bind(this).then(function (migrations) {
           expect(migrations).to.have.length(2);
-          expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok();
-          expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
+          expect(migrations[0].testFileName(this.migrationNames[1])).to.be.ok;
+          expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok;
         });
       });
     });

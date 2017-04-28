@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import expect from 'expect.js';
+import { expect } from 'chai';
 import fs from 'fs';
 import helper from '../helper';
 import path from 'path';
@@ -34,9 +34,9 @@ describe('JSON', function () {
     });
 
     it('creates a new file if not exists yet', function () {
-      expect(fs.existsSync(this.path)).to.not.be.ok();
+      expect(fs.existsSync(this.path)).to.not.be.ok;
       return this.storage.logMigration('asd.js').bind(this).then(function () {
-        expect(fs.existsSync(this.path)).to.be.ok();
+        expect(fs.existsSync(this.path)).to.be.ok;
       });
     });
 

@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
 import sinon from 'sinon';

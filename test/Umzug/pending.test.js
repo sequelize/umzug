@@ -1,4 +1,4 @@
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Migration from '../../src/migration';
 import Umzug from '../../src/index';
@@ -26,7 +26,7 @@ describe('pending', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 3 items', function () {
@@ -35,7 +35,7 @@ describe('pending', function () {
 
     it('returns migration instances', function () {
       this.migrations.forEach(function (migration) {
-        expect(migration).to.be.a(Migration);
+        expect(migration).to.be.an.instanceof(Migration);
       });
     });
   });

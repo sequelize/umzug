@@ -1,4 +1,4 @@
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Storage from '../../src/storages/sequelize';
 import Sequelize from 'sequelize';
@@ -19,7 +19,7 @@ describe('sequelize', function () {
     it('requires a "sequelize" or "model" storage option', function() {
       expect(function() {
         new Storage();
-      }).to.throwException('One of "sequelize" or "model" storage option is required');
+      }).to.throw('One of "sequelize" or "model" storage option is required');
     });
 
     it('stores options', function () {
@@ -49,13 +49,13 @@ describe('sequelize', function () {
           return model.describe();
         })
         .then(function(description) {
-          expect(description).to.only.have.keys(['name']);
+          expect(description).to.have.all.keys(['name']);
           expect(description.name.type).to.eql('VARCHAR(255)');
           // expect(description.name.defaultValue).to.be.oneOf([null, undefined])
           if (description.name.defaultValue !== undefined) {
             expect(description.name.defaultValue).to.eql(null);
           }
-          expect(description.name.primaryKey).to.be.ok();
+          expect(description.name.primaryKey).to.be.ok;
         });
     });
 
@@ -101,7 +101,7 @@ describe('sequelize', function () {
           return model.describe();
         })
         .then(function(description) {
-          expect(description).to.only.have.keys(['customColumn']);
+          expect(description).to.have.all.keys(['customColumn']);
         });
     });
 
@@ -117,7 +117,7 @@ describe('sequelize', function () {
           return model.describe();
         })
         .then(function(description) {
-          expect(description).to.only.have.keys(['name','createdAt','updatedAt']);
+          expect(description).to.have.all.keys(['name','createdAt','updatedAt']);
         });
     });
 
@@ -171,7 +171,7 @@ describe('sequelize', function () {
 
       return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
         .then(function(allTables) {
-          expect(allTables).to.be.empty();
+          expect(allTables).to.be.empty;
         })
         .then(function() {
           return storage.logMigration('asd.js');
@@ -196,8 +196,8 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations.length).to.be(1);
-          expect(migrations[0].name).to.be('asd.js');
+          expect(migrations.length).to.be.eql(1);
+          expect(migrations[0].name).to.be.eql('asd.js');
         });
     });
 
@@ -214,8 +214,8 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations.length).to.be(1);
-          expect(migrations[0].customColumnName).to.be('asd.js');
+          expect(migrations.length).to.be.eql(1);
+          expect(migrations[0].customColumnName).to.be.eql('asd.js');
         });
     });
 
@@ -240,8 +240,8 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations.length).to.be(1);
-          expect(migrations[0].name).to.be('asd.js');
+          expect(migrations.length).to.be.eql(1);
+          expect(migrations[0].name).to.be.eql('asd.js');
           expect(migrations[0].createdAt).to.be.within(startTime, new Date());
         });
     });
@@ -255,7 +255,7 @@ describe('sequelize', function () {
 
       return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
         .then(function(allTables) {
-          expect(allTables).to.be.empty();
+          expect(allTables).to.be.empty;
         })
         .then(function() {
           return storage.unlogMigration('asd.js');
@@ -278,7 +278,7 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations.length).to.be(1);
+          expect(migrations.length).to.be.eql(1);
         })
         .then(function() {
           return storage.unlogMigration('asd.js');
@@ -287,7 +287,7 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations).to.be.empty();
+          expect(migrations).to.be.empty;
         });
     });
 
@@ -299,7 +299,7 @@ describe('sequelize', function () {
         .then(function () { return storage.unlogMigration('migration2.js'); })
         .then(function () { return storage._model().findAll(); })
         .then(function (migrations) {
-          expect(migrations.length).to.be(1);
+          expect(migrations.length).to.be.eql(1);
           expect(migrations[0].name).to.equal('migration1.js');
         });
     });
@@ -317,7 +317,7 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations.length).to.be(1);
+          expect(migrations.length).to.be.eql(1);
         })
         .then(function() {
           return storage.unlogMigration('asd.js');
@@ -326,7 +326,7 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations).to.be.empty();
+          expect(migrations).to.be.empty;
         });
     });
 
@@ -343,7 +343,7 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations.length).to.be(1);
+          expect(migrations.length).to.be.eql(1);
         })
         .then(function() {
           return storage.unlogMigration('asd.js');
@@ -352,7 +352,7 @@ describe('sequelize', function () {
           return storage.options.storageOptions.model.findAll();
         })
         .then(function(migrations) {
-          expect(migrations).to.be.empty();
+          expect(migrations).to.be.empty;
         });
     });
 
@@ -368,7 +368,7 @@ describe('sequelize', function () {
 
       return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
         .then(function(allTables) {
-          expect(allTables).to.be.empty();
+          expect(allTables).to.be.empty;
         })
         .then(function() {
           return storage.executed();
@@ -390,7 +390,7 @@ describe('sequelize', function () {
 
       return storage.executed()
         .then(function (migrations) {
-          expect(migrations).to.be.empty();
+          expect(migrations).to.be.empty;
         });
     });
 

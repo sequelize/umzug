@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
 
@@ -26,7 +26,7 @@ describe('down', function () {
     });
 
     it('returns an array', function () {
-      expect(this.migrations).to.be.an(Array);
+      expect(this.migrations).to.be.an('array');
     });
 
     it('returns 0 items', function () {
@@ -203,8 +203,8 @@ describe('down', function () {
       it('reverts only the second migrations', function () {
         return this.umzug.executed().bind(this).then(function (migrations) {
           expect(migrations).to.have.length(2);
-          expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
-          expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
+          expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok;
+          expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok;
         });
       });
     });
@@ -257,8 +257,8 @@ describe('down', function () {
       it('reverts only the second migrations', function () {
         return this.umzug.executed().bind(this).then(function (migrations) {
           expect(migrations).to.have.length(2);
-          expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
-          expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok();
+          expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok;
+          expect(migrations[1].testFileName(this.migrationNames[2])).to.be.ok;
         });
       });
     });
@@ -276,7 +276,7 @@ describe('down', function () {
       it('reverts only the second and the third migrations', function () {
         return this.umzug.executed().bind(this).then(function (migrations) {
           expect(migrations).to.have.length(1);
-          expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok();
+          expect(migrations[0].testFileName(this.migrationNames[0])).to.be.ok;
         });
       });
     });

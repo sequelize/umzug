@@ -1,4 +1,4 @@
-import expect from 'expect.js';
+import { expect } from 'chai';
 import helper from '../helper';
 import Storage from '../../src/storages/none';
 
