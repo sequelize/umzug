@@ -28,6 +28,19 @@ describe('constructor', function () {
     expect(umzug).to.have.property('storage');
   });
 
+  it('uses passed storage object', function () {
+    class CustomStorage {
+      logMigration() {}
+      unlogMigration() {}
+      executed() {}
+    }
+
+    const storage = new CustomStorage();
+    let umzug = new Umzug({ storage })
+    expect(umzug).to.have.property('storage');
+    expect(umzug.storage).to.be(storage);
+  })
+
   it('throws an error if the specified storage is neither a package nor a file', function () {
     expect(function () {
       new Umzug({ storage: 'nomnom' });
