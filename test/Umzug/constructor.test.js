@@ -38,7 +38,7 @@ describe('constructor', function () {
     const storage = new CustomStorage();
     let umzug = new Umzug({ storage })
     expect(umzug).to.have.property('storage');
-    expect(umzug.storage).to.be(storage);
+    expect(umzug.storage).to.eql(storage);
   })
 
   it('throws an error if the specified storage is neither a package nor a file', function () {
