@@ -407,7 +407,18 @@ module.exports = class Umzug extends EventEmitter {
       throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
     }
 
-    return new Storage(this.options);
+    let storage = new Storage(this.options.storageOptions);
+    if (_.has(storage, 'options.storageOptions')) {
+      console.warn(
+        'Deprecated: Umzug Storage constructor has changed!',
+        'old syntax: new Storage({ storageOptions: { ... } })',
+        'new syntax: new Storage({ ... })',
+        'where ... represents the same storageOptions passed to Umzug constructor.'
+      );
+      storage = new Storage(this.options);
+    }
+
+    return storage;
   }
 
   /**

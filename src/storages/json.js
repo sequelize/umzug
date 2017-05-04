@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Bluebird from 'bluebird';
 import fs from 'fs';
-import path from 'path';
+import _path from 'path';
 
 /**
  * @class JSONStorage
@@ -11,19 +11,11 @@ module.exports = class JSONStorage {
    * Constructs JSON file storage.
    *
    * @param {Object} [options]
-   * @param {Object} [options.storageOptions]
-   * @param {String} [options.storageOptions.path='./umzug.json'] - Path to JSON
-   * file where the log is stored. Defaults './umzug.json' relative to process'
-   * cwd.
-   * @constructs JSONStorage
+   * @param {String} [options.path='./umzug.json'] - Path to JSON file where
+   * the log is stored. Defaults './umzug.json' relative to process' cwd.
    */
-  constructor(options = {}) {
-    this.options = options;
-
-    this.options.storageOptions = {
-      path: path.resolve(process.cwd(), 'umzug.json'),
-      ...this.options.storageOptions || {},
-    };
+  constructor({ path = _path.resolve(process.cwd(), 'umzug.json') } = {}) {
+    this.path = path;
   }
 
   /**
@@ -33,7 +25,7 @@ module.exports = class JSONStorage {
    * @returns {Promise}
    */
   logMigration(migrationName) {
-    var filePath  = this.options.storageOptions.path;
+    var filePath  = this.path;
     var readfile  = Bluebird.promisify(fs.readFile);
     var writefile = Bluebird.promisify(fs.writeFile);
 
@@ -53,7 +45,7 @@ module.exports = class JSONStorage {
    * @returns {Promise}
    */
   unlogMigration(migrationName) {
-    var filePath  = this.options.storageOptions.path;
+    var filePath  = this.path;
     var readfile  = Bluebird.promisify(fs.readFile);
     var writefile = Bluebird.promisify(fs.writeFile);
 
@@ -72,7 +64,7 @@ module.exports = class JSONStorage {
    * @returns {Promise.<String[]>}
    */
   executed() {
-    var filePath = this.options.storageOptions.path;
+    var filePath = this.path;
     var readfile = Bluebird.promisify(fs.readFile);
 
     return readfile(filePath)

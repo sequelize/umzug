@@ -42,54 +42,57 @@ module.exports = class SequelizeStorage {
    *
    * @constructs SequelizeStorage
    */
-  constructor(options = {}) {
-    this.options = options;
-    this.options.storageOptions = {
-      // note 'sequelize' or 'model' is required
-      modelName: 'SequelizeMeta',
-      // note 'tableName' (optional) also supported
-      columnName: 'name',
-      timestamps: false,
-      ...this.options.storageOptions || {},
-    };
-
-    if (!this.options.storageOptions.model && !this.options.storageOptions.sequelize) {
+  constructor({
+    sequelize,
+    model,
+    modelName = 'SequelizeMeta',
+    tableName,
+    schema,
+    columnName = 'name',
+    columnType,
+    timestamps = false
+  } = {}) {
+    if (!model && !sequelize) {
       throw new Error('One of "sequelize" or "model" storage option is required');
     }
 
-    // initialize model
-    if (!this.options.storageOptions.model) {
-      var sequelize = this.options.storageOptions.sequelize;
-      var modelName = this.options.storageOptions.modelName;
-      var Sequelize = sequelize.constructor;
-      var columnType = this.options.storageOptions.columnType || Sequelize.STRING;
+    this.sequelize = sequelize || model.sequelize;
 
-      if (sequelize.isDefined(modelName)) {
-        this.options.storageOptions.model = sequelize.model(modelName);
-      } else {
-        var attributes = {};
+    const Sequelize = this.sequelize.constructor;
 
-        attributes[this.options.storageOptions.columnName] = {
-          type: columnType,
+    this.columnType = columnType || Sequelize.STRING;
+    this.columnName = columnName;
+    this.timestamps = timestamps;
+    this.modelName = modelName;
+    this.tableName = tableName;
+    this.schema = schema;
+    this.model = model || this.getModel();
+  }
+
+  getModel() {
+    if (this.sequelize.isDefined(this.modelName)) {
+      return this.sequelize.model(this.modelName);
+    }
+
+    return this.sequelize.define(
+      this.modelName,
+      {
+        [this.columnName]: {
+          type: this.columnType,
           allowNull: false,
           unique: true,
           primaryKey: true,
           autoIncrement: false
-        };
-
-        this.options.storageOptions.model = sequelize.define(
-          modelName,
-          attributes,
-          {
-            tableName:  this.options.storageOptions.tableName,
-            schema: this.options.storageOptions.schema,
-            timestamps: this.options.storageOptions.timestamps,
-            charset: 'utf8',
-            collate: 'utf8_unicode_ci'
-          }
-        );
+        },
+      },
+      {
+        tableName:  this.tableName,
+        schema: this.schema,
+        timestamps: this.timestamps,
+        charset: 'utf8',
+        collate: 'utf8_unicode_ci'
       }
-    }
+    );
   }
 
   /**
@@ -105,7 +108,7 @@ module.exports = class SequelizeStorage {
       .sync()
       .then(function(Model) {
         var migration = {};
-        migration[self.options.storageOptions.columnName] = migrationName;
+        migration[self.columnName] = migrationName;
         return Model.create(migration);
       });
   }
@@ -118,14 +121,14 @@ module.exports = class SequelizeStorage {
    */
   unlogMigration(migrationName) {
     var self             = this;
-    var sequelize        = this.options.storageOptions.sequelize;
+    var sequelize        = this.sequelize;
     var sequelizeVersion = !!sequelize.modelManager ? 2 : 1;
 
     return this._model()
       .sync()
       .then(function(Model) {
         var where = {};
-        where[self.options.storageOptions.columnName] = migrationName;
+        where[self.columnName] = migrationName;
 
         if (sequelizeVersion > 1) {
           // This is an ugly hack to find out which function signature we have to use.
@@ -147,11 +150,11 @@ module.exports = class SequelizeStorage {
     return this._model()
       .sync()
       .then(function(Model) {
-        return Model.findAll({ order: [ [ self.options.storageOptions.columnName, 'ASC' ] ] });
+        return Model.findAll({ order: [ [ self.columnName, 'ASC' ] ] });
       })
       .then(function(migrations) {
         return migrations.map(function(migration) {
-          return migration[self.options.storageOptions.columnName];
+          return migration[self.columnName];
         });
       });
   }
@@ -163,6 +166,6 @@ module.exports = class SequelizeStorage {
    * @private
    */
   _model() {
-    return this.options.storageOptions.model;
+    return this.model;
   }
 }
