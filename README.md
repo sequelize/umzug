@@ -91,11 +91,8 @@ var Bluebird = require('bluebird');
 var redefine = require('redefine');
 
 module.exports = redefine.Class({
-  constructor: function (options) {
-    this.options = options;
-    this.options.storageOptions = _.extend({
-      option1: 'defaultValue1'
-    }, this.options.storageOptions)
+  constructor: function ({ option1: 'defaultValue1' } = {}) {
+    this.option1 = option1;
   },
 
   logMigration: function (migrationName) {

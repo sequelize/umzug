@@ -21,26 +21,21 @@ module.exports = class SequelizeStorage {
    * If the table does not exist it will be created automatically.
    *
    * @param {Object} [options]
-   * @param {Object} [options.storageOptions]
-   * @param {Object} [options.storageOptions.sequelize] - configured instance of
-   * Sequelize.
-   * @param {Object} [options.storageOptions.model] - Sequelize model - must
-   * have column name matching "columnName" option.
-   * @param {String} [options.storageOptions.modelName='SequelizeMeta'] - name
-   * of model to create if "model" option is not supplied.
-   * @param {String} [options.storageOptions.tableName=modelName] - name of
-   * table to create if "model" option is not supplied.
-   * @param {String} [options.storageOptions.schema=schema] - name of the schema
-   * to create the table under, defaults to undefined.
-   * @param {String} [options.storageOptions.columnName='name'] - name of table
-   * column holding migration name.
-   * @param {String} [options.storageOptions.columnType=Sequelize.STRING] - type
-   * of the column. For utf8mb4 charsets under InnoDB, you may need to set
-   * this <= 190.
-   * @param {Boolean} [options.storageOptions.timestamps=false] - option to add
-   * timestamps to model table
-   *
-   * @constructs SequelizeStorage
+   * @param {Object} [options.]
+   * @param {Object} [options.sequelize] - configured instance of Sequelize.
+   * @param {Object} [options.model] - Sequelize model - must have column name
+   * matching "columnName" option.
+   * @param {String} [options.modelName='SequelizeMeta'] - name of the model
+   * to create if "model" option is not supplied.
+   * @param {String} [options.tableName=modelName] - name of the table to create
+   * if "model" option is not supplied.
+   * @param {String} [options.schema=schema] - name of the schema to create
+   * the table under, defaults to undefined.
+   * @param {String} [options.columnName='name'] - name of the table column
+   * holding migration name.
+   * @param {String} [options.columnType=Sequelize.STRING] - type of the column.
+   * For utf8mb4 charsets under InnoDB, you may need to set this <= 190.
+   * @param {Boolean} [options.timestamps=false] - option to add timestamps to the model table
    */
   constructor({
     sequelize,
