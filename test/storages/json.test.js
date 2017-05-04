@@ -12,12 +12,12 @@ describe('JSON', function () {
   describe('constructor', function () {
     it('stores options', function () {
       var storage = new Storage();
-      expect(storage).to.have.property('options');
+      expect(storage).to.have.property('path');
     });
 
     it('sets the default storage path', function () {
       var storage = new Storage();
-      expect(storage.options.storageOptions.path).to.equal(
+      expect(storage.path).to.equal(
         path.normalize(process.cwd() + '/umzug.json')
       );
     });
@@ -26,9 +26,7 @@ describe('JSON', function () {
   describe('logMigration', function () {
     beforeEach(function () {
       this.path    = __dirname + '/../tmp/umzug.json';
-      this.storage = new Storage({
-        storageOptions: { path: this.path }
-      });
+      this.storage = new Storage({ path: this.path });
       return helper.prepareMigrations(3);
     });
 
@@ -53,9 +51,7 @@ describe('JSON', function () {
   describe('unlogMigration', function () {
     beforeEach(function () {
       this.path    = __dirname + '/../tmp/umzug.json';
-      this.storage = new Storage({
-        storageOptions: { path: this.path }
-      });
+      this.storage = new Storage({ path: this.path });
       return helper.prepareMigrations(3);
     });
 
@@ -88,9 +84,7 @@ describe('JSON', function () {
   describe('executed', function () {
     beforeEach(function () {
       this.path    = __dirname + '/../tmp/umzug.json';
-      this.storage = new Storage({
-        storageOptions: { path: this.path }
-      });
+      this.storage = new Storage({ path: this.path });
       return helper.prepareMigrations(3);
     });
 

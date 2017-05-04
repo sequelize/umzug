@@ -5,14 +5,6 @@ import Bluebird from 'bluebird';
  */
 module.exports = class NoneStorage {
   /**
-   * Constructs none storage.
-   *
-   * @param {Object} [options]
-   * @constructs NoneStorage
-   */
-  constructor(options) {}
-
-  /**
    * Does nothing.
    *
    * @param {String} migrationName - Name of migration to be logged.

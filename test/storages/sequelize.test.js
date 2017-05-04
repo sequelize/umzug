@@ -22,29 +22,22 @@ describe('sequelize', function () {
       }).to.throw('One of "sequelize" or "model" storage option is required');
     });
 
-    it('stores options', function () {
-      var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
-      });
-      expect(storage).to.have.property('options');
-      expect(storage.options).to.have.property('storageOptions');
+    it('stores needed options', function () {
+      var storage = new Storage({ sequelize: this.sequelize });
+      expect(storage).to.have.property('sequelize')
+      expect(storage).to.have.property('model');
+      expect(storage).to.have.property('columnName')
     });
 
     it('accepts a "sequelize" option and creates a model', function () {
-      var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
-      });
-      expect(storage.options.storageOptions.model).to.equal(
+      var storage = new Storage({ sequelize: this.sequelize });
+      expect(storage.model).to.equal(
         this.sequelize.model('SequelizeMeta')
       );
-      expect(storage.options.storageOptions.model.getTableName()).to.equal(
+      expect(storage.model.getTableName()).to.equal(
         'SequelizeMeta'
       );
-      return storage.options.storageOptions.model.sync()
+      return storage.model.sync()
         .then((model) => {
           return model.describe();
         })
@@ -61,42 +54,36 @@ describe('sequelize', function () {
 
     it('accepts a "modelName" option', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          modelName: 'CustomModel'
-        }
+        sequelize: this.sequelize,
+        modelName: 'CustomModel'
       });
-      expect(storage.options.storageOptions.model).to.equal(
+      expect(storage.model).to.equal(
         this.sequelize.model('CustomModel')
       );
-      expect(storage.options.storageOptions.model.getTableName()).to.equal(
+      expect(storage.model.getTableName()).to.equal(
         'CustomModels'
       );
     });
 
     it('accepts a "tableName" option', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          tableName: 'CustomTable'
-        }
+        sequelize: this.sequelize,
+        tableName: 'CustomTable'
       });
-      expect(storage.options.storageOptions.model).to.equal(
+      expect(storage.model).to.equal(
         this.sequelize.model('SequelizeMeta')
       );
-      expect(storage.options.storageOptions.model.getTableName()).to.equal(
+      expect(storage.model.getTableName()).to.equal(
         'CustomTable'
       );
     });
 
     it('accepts a "columnName" option', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          columnName: 'customColumn'
-        }
+        sequelize: this.sequelize,
+        columnName: 'customColumn'
       });
-      return storage.options.storageOptions.model.sync()
+      return storage.model.sync()
         .then((model) => {
           return model.describe();
         })
@@ -107,12 +94,10 @@ describe('sequelize', function () {
 
     it('accepts a "timestamps" option', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          timestamps: true
-        }
+        sequelize: this.sequelize,
+        timestamps: true
       });
-      return storage.options.storageOptions.model.sync()
+      return storage.model.sync()
         .then((model) => {
           return model.describe();
         })
@@ -123,12 +108,10 @@ describe('sequelize', function () {
 
     it('accepts a "columnType" option', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          columnType: new Sequelize.STRING(190)
-        }
+        sequelize: this.sequelize,
+        columnType: new Sequelize.STRING(190)
       });
-      return storage.options.storageOptions.model.sync()
+      return storage.model.sync()
         .then((model) => {
           return model.describe();
         })
@@ -153,23 +136,19 @@ describe('sequelize', function () {
       });
 
       var storage = new Storage({
-        storageOptions: {
-          model: Model
-        }
+        model: Model
       });
-      expect(storage.options.storageOptions.model).to.equal(Model);
+      expect(storage.model).to.equal(Model);
     });
   });
 
   describe('logMigration', function () {
     it('creates the table if it doesn\'t exist yet', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
+        sequelize: this.sequelize
       });
 
-      return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
+      return storage.model.sequelize.getQueryInterface().showAllTables()
         .then((allTables) => {
           expect(allTables).to.be.empty;
         })
@@ -177,7 +156,7 @@ describe('sequelize', function () {
           return storage.logMigration('asd.js');
         })
         .then(() => {
-          return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables();
+          return storage.model.sequelize.getQueryInterface().showAllTables();
         })
         .then((allTables) => {
           expect(allTables).to.eql(['SequelizeMeta']);
@@ -186,14 +165,12 @@ describe('sequelize', function () {
 
     it('writes the migration to the database', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
+        sequelize: this.sequelize
       });
 
       return storage.logMigration('asd.js')
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
@@ -203,15 +180,13 @@ describe('sequelize', function () {
 
     it('writes the migration to the database with a custom column name', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          columnName: 'customColumnName'
-        }
+        sequelize: this.sequelize,
+        columnName: 'customColumnName'
       });
 
       return storage.logMigration('asd.js')
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
@@ -221,10 +196,8 @@ describe('sequelize', function () {
 
     it('writes the migration to the database with timestamps', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          timestamps: true
-        }
+        sequelize: this.sequelize,
+        timestamps: true
       });
 
       // Sequelize | startTime | createdAt | endTime
@@ -237,7 +210,7 @@ describe('sequelize', function () {
 
       return storage.logMigration('asd.js')
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
@@ -249,11 +222,9 @@ describe('sequelize', function () {
 
   describe('unlogMigration', function () {
     it('creates the table if it doesn\'t exist yet', function () {
-      var storage = new Storage({
-        storageOptions: { sequelize: this.sequelize }
-      });
+      var storage = new Storage({ sequelize: this.sequelize });
 
-      return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
+      return storage.model.sequelize.getQueryInterface().showAllTables()
         .then((allTables) => {
           expect(allTables).to.be.empty;
         })
@@ -261,7 +232,7 @@ describe('sequelize', function () {
           return storage.unlogMigration('asd.js');
         })
         .then(() => {
-          return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables();
+          return storage.model.sequelize.getQueryInterface().showAllTables();
         })
         .then((allTables) => {
           expect(allTables).to.eql(['SequelizeMeta']);
@@ -269,13 +240,11 @@ describe('sequelize', function () {
     });
 
     it('deletes the migration from the database', function () {
-      var storage = new Storage({
-        storageOptions: { sequelize: this.sequelize }
-      });
+      var storage = new Storage({ sequelize: this.sequelize });
 
       return storage.logMigration('asd.js')
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
@@ -284,7 +253,7 @@ describe('sequelize', function () {
           return storage.unlogMigration('asd.js');
         })
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations).to.be.empty;
@@ -292,7 +261,7 @@ describe('sequelize', function () {
     });
 
     it('deletes only the passed migration', function () {
-      var storage = new Storage({ storageOptions: { sequelize: this.sequelize } });
+      var storage = new Storage({ sequelize: this.sequelize });
 
       return storage.logMigration('migration1.js')
         .then(() => { return storage.logMigration('migration2.js'); })
@@ -306,15 +275,13 @@ describe('sequelize', function () {
 
     it('deletes the migration from the database with a custom column name', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          columnName: 'customColumnName'
-        }
+        sequelize: this.sequelize,
+        columnName: 'customColumnName'
       });
 
       return storage.logMigration('asd.js')
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
@@ -323,7 +290,7 @@ describe('sequelize', function () {
           return storage.unlogMigration('asd.js');
         })
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations).to.be.empty;
@@ -332,15 +299,13 @@ describe('sequelize', function () {
 
     it('deletes the migration from the database with timestamps', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          timestamps: true
-        }
+        sequelize: this.sequelize,
+        timestamps: true
       });
 
       return storage.logMigration('asd.js')
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
@@ -349,7 +314,7 @@ describe('sequelize', function () {
           return storage.unlogMigration('asd.js');
         })
         .then(() => {
-          return storage.options.storageOptions.model.findAll();
+          return storage.model.findAll();
         })
         .then((migrations) => {
           expect(migrations).to.be.empty;
@@ -361,12 +326,10 @@ describe('sequelize', function () {
   describe('executed', function () {
     it('creates the table if it doesn\'t exist yet', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
+        sequelize: this.sequelize
       });
 
-      return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables()
+      return storage.model.sequelize.getQueryInterface().showAllTables()
         .then((allTables) => {
           expect(allTables).to.be.empty;
         })
@@ -374,7 +337,7 @@ describe('sequelize', function () {
           return storage.executed();
         })
         .then(() => {
-          return storage.options.storageOptions.model.sequelize.getQueryInterface().showAllTables();
+          return storage.model.sequelize.getQueryInterface().showAllTables();
         })
         .then((allTables) => {
           expect(allTables).to.eql(['SequelizeMeta']);
@@ -383,9 +346,7 @@ describe('sequelize', function () {
 
     it('returns an empty array if no migrations were logged yet', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
+        sequelize: this.sequelize
       });
 
       return storage.executed()
@@ -396,9 +357,7 @@ describe('sequelize', function () {
 
     it('returns executed migrations', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize
-        }
+        sequelize: this.sequelize
       });
 
       return storage.logMigration('asd.js')
@@ -412,10 +371,8 @@ describe('sequelize', function () {
 
     it('returns executed migrations with a custom column name', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          columnName: 'customColumnName'
-        }
+        sequelize: this.sequelize,
+        columnName: 'customColumnName'
       });
 
       return storage.logMigration('asd.js')
@@ -429,10 +386,8 @@ describe('sequelize', function () {
 
     it('returns executed migrations with timestamps', function () {
       var storage = new Storage({
-        storageOptions: {
-          sequelize: this.sequelize,
-          timestamps: true
-        }
+        sequelize: this.sequelize,
+        timestamps: true
       });
 
       return storage.logMigration('asd.js')
