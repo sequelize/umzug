@@ -413,7 +413,8 @@ module.exports = class Umzug extends EventEmitter {
         'Deprecated: Umzug Storage constructor has changed!',
         'old syntax: new Storage({ storageOptions: { ... } })',
         'new syntax: new Storage({ ... })',
-        'where ... represents the same storageOptions passed to Umzug constructor.'
+        'where ... represents the same storageOptions passed to Umzug constructor.',
+        'For more information: https://github.com/sequelize/umzug/pull/137'
       );
       storage = new Storage(this.options);
     }
