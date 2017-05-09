@@ -3,7 +3,23 @@ All notable changes to this project will be documented in this file.
 
 ## Future
 ### Added
-- Warn about ignored files in migrations directory [#108](https://github.com/sequelize/umzug/pull/108)
+- Warn about ignored files in migrations directory
+  [#108](https://github.com/sequelize/umzug/pull/108)
+- Support ES6 default export in migrations
+  [#132](https://github.com/sequelize/umzug/pull/132)
+- Support custom storage instances
+  [#133](https://github.com/sequelize/umzug/pull/133)
+
+### Changed
+- Use ES6 classes instead of redefine classes
+  [#130](https://github.com/sequelize/umzug/pull/130)
+- Pass only storage options to Storage constructor
+  [#137](https://github.com/sequelize/umzug/pull/137)
+  (Old format is still supported but **deprecated**.)
+
+### Breaking changes
+- Migration.migration(), Migration.up(), and Migration.down() returns Promise
+  instead of Bluebird [#132](https://github.com/sequelize/umzug/pull/132)
 
 ## v1.12.0 - 2017-04-21
 ### Added
