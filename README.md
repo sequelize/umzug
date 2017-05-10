@@ -6,8 +6,8 @@ In order to keep track of already executed tasks, *umzug* logs successfully exec
 
 ## Storages
 
-### JSON
-Using the [`json` storage](lib/storages/json.js) will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
+### JSONStorage
+Using the [JSONStorage](src/storages/JSONStorage.js) will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
 
 #### Options
 
@@ -19,8 +19,8 @@ Using the [`json` storage](lib/storages/json.js) will create a JSON file which w
 }
 ```
 
-### Sequelize
-Using the [`sequelize` storage](lib/storages/sequelize.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
+### SequelizeStorage
+Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
 
 #### Options
 
@@ -63,8 +63,8 @@ to implement application-specific logic that must run around each migration:
 * *reverting* - A migration is about to be reverted.
 * *reverted* - A migration has successfully been reverted.
 
-### None
-If want to run migrations without storing them anywhere, you can use the [`none` storage](lib/storages/none.js).
+### Storage
+If want to run migrations without storing them anywhere, you can use the [Storage](src/storages/Storage.js).
 
 ### Custom
 In order to use custom storage, you have two options:
