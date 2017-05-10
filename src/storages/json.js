@@ -2,11 +2,12 @@ import _ from 'lodash';
 import Bluebird from 'bluebird';
 import fs from 'fs';
 import _path from 'path';
+import Storage from './none';
 
 /**
  * @class JSONStorage
  */
-module.exports = class JSONStorage {
+module.exports = class JSONStorage extends Storage {
   /**
    * Constructs JSON file storage.
    *
@@ -15,6 +16,7 @@ module.exports = class JSONStorage {
    * the log is stored. Defaults './umzug.json' relative to process' cwd.
    */
   constructor({ path = _path.resolve(process.cwd(), 'umzug.json') } = {}) {
+    super();
     this.path = path;
   }
 

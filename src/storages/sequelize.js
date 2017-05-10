@@ -1,9 +1,10 @@
 import _ from 'lodash';
+import Storage from './none';
 
 /**
  * @class SequelizeStorage
  */
-module.exports = class SequelizeStorage {
+module.exports = class SequelizeStorage extends Storage {
   /**
    * Constructs Sequelize based storage.
    *
@@ -47,6 +48,7 @@ module.exports = class SequelizeStorage {
     columnType,
     timestamps = false
   } = {}) {
+    super();
     if (!model && !sequelize) {
       throw new Error('One of "sequelize" or "model" storage option is required');
     }
