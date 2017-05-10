@@ -21,6 +21,10 @@ All notable changes to this project will be documented in this file.
 - Migration.migration(), Migration.up(), and Migration.down() returns Promise
   instead of Bluebird [#132](https://github.com/sequelize/umzug/pull/132)
 
+### Deprecations
+- Pass only storage options to Storage constructor
+  [#137](https://github.com/sequelize/umzug/pull/137)
+
 ## v1.12.0 - 2017-04-21
 ### Added
 - Option `timestamps` to Sequelize storage [#99](https://github.com/sequelize/umzug/pull/99)
