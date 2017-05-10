@@ -1,7 +1,9 @@
 import _ from 'lodash';
 import fs from 'fs';
-import _path from 'path';
 import { promisify } from '../helper';
+
+const readfile = promisify(fs.readFile);
+const writefile = promisify(fs.writeFile);
 
 /**
  * @class JSONStorage
@@ -14,7 +16,7 @@ module.exports = class JSONStorage {
    * @param {String} [options.path='./umzug.json'] - Path to JSON file where
    * the log is stored. Defaults './umzug.json' relative to process' cwd.
    */
-  constructor({ path = _path.resolve(process.cwd(), 'umzug.json') } = {}) {
+  constructor({ path = `${process.cwd()}/umzug.json` } = {}) {
     this.path = path;
   }
 
@@ -24,18 +26,11 @@ module.exports = class JSONStorage {
    * @param {String} migrationName - Name of the migration to be logged.
    * @returns {Promise}
    */
-  logMigration(migrationName) {
-    var filePath  = this.path;
-    var readfile  = promisify(fs.readFile);
-    var writefile = promisify(fs.writeFile);
-
-    return readfile(filePath)
-      .catch(function () { return '[]'; })
-      .then(function (content) { return JSON.parse(content); })
-      .then(function (content) {
-        content.push(migrationName);
-        return writefile(filePath, JSON.stringify(content, null, '  '));
-      });
+  async logMigration(migrationName) {
+    const executed = await this.executed();
+    const content = [...executed, migrationName];
+    const result = JSON.stringify(content, null, '  ');
+    await writefile(this.path, result);
   }
 
   /**
@@ -44,18 +39,11 @@ module.exports = class JSONStorage {
    * @param {String} migrationName - Name of the migration to be unlogged.
    * @returns {Promise}
    */
-  unlogMigration(migrationName) {
-    var filePath  = this.path;
-    var readfile  = promisify(fs.readFile);
-    var writefile = promisify(fs.writeFile);
-
-    return readfile(filePath)
-      .catch(function () { return '[]'; })
-      .then(function (content) { return JSON.parse(content); })
-      .then(function (content) {
-        content = _.without(content, migrationName);
-        return writefile(filePath, JSON.stringify(content, null, '  '));
-      });
+  async unlogMigration(migrationName) {
+    const executed = await this.executed();
+    const content = _.without(executed, migrationName);
+    const result = JSON.stringify(content, null, '  ');
+    await writefile(this.path, result);
   }
 
   /**
@@ -63,14 +51,8 @@ module.exports = class JSONStorage {
    *
    * @returns {Promise.<String[]>}
    */
-  executed() {
-    var filePath = this.path;
-    var readfile = promisify(fs.readFile);
-
-    return readfile(filePath)
-      .catch(function () { return '[]'; })
-      .then(function (content) {
-        return JSON.parse(content);
-      });
+  async executed() {
+    const content = await readfile(this.path).catch(() => '[]');
+    return JSON.parse(content);
   }
 }

@@ -266,7 +266,7 @@ describe('sequelize', function () {
       return storage.logMigration('migration1.js')
         .then(() => { return storage.logMigration('migration2.js'); })
         .then(() => { return storage.unlogMigration('migration2.js'); })
-        .then(() => { return storage._model().findAll(); })
+        .then(() => { return storage.model.findAll(); })
         .then((migrations) => {
           expect(migrations.length).to.be.eql(1);
           expect(migrations[0].name).to.equal('migration1.js');
