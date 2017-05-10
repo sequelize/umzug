@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import fs from 'fs';
 import helper from '../helper';
 import path from 'path';
-import Storage from '../../src/storages/json';
+import Storage from '../../src/storages/JSONStorage';
 
 describe('JSON', function () {
   beforeEach(function() {
