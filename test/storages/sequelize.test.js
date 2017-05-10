@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import helper from '../helper';
-import Storage from '../../src/storages/sequelize';
+import Storage from '../../src/storages/SequelizeStorage';
 import Sequelize from 'sequelize';
 
 describe('sequelize', function () {
