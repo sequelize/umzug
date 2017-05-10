@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Future
+## v2.0.0 - 2017-05-10
 ### Added
 - Warn about ignored files in migrations directory
   [#108](https://github.com/sequelize/umzug/pull/108)
