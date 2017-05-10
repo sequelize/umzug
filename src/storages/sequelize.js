@@ -130,7 +130,7 @@ module.exports = class SequelizeStorage {
    */
   async executed() {
     await this.model.sync();
-    const migrations = this.model.findAll({ order: [[this.columnName, 'ASC']] });
+    const migrations = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
     return migrations.map((migration) => migration[this.columnName]);
   }
 }
