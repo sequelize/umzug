@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import Bluebird from 'bluebird';
 import fs from 'fs';
 import _path from 'path';
+import { promisify } from '../helper';
 
 /**
  * @class JSONStorage
@@ -26,8 +26,8 @@ module.exports = class JSONStorage {
    */
   logMigration(migrationName) {
     var filePath  = this.path;
-    var readfile  = Bluebird.promisify(fs.readFile);
-    var writefile = Bluebird.promisify(fs.writeFile);
+    var readfile  = promisify(fs.readFile);
+    var writefile = promisify(fs.writeFile);
 
     return readfile(filePath)
       .catch(function () { return '[]'; })
@@ -46,8 +46,8 @@ module.exports = class JSONStorage {
    */
   unlogMigration(migrationName) {
     var filePath  = this.path;
-    var readfile  = Bluebird.promisify(fs.readFile);
-    var writefile = Bluebird.promisify(fs.writeFile);
+    var readfile  = promisify(fs.readFile);
+    var writefile = promisify(fs.writeFile);
 
     return readfile(filePath)
       .catch(function () { return '[]'; })
@@ -65,7 +65,7 @@ module.exports = class JSONStorage {
    */
   executed() {
     var filePath = this.path;
-    var readfile = Bluebird.promisify(fs.readFile);
+    var readfile = promisify(fs.readFile);
 
     return readfile(filePath)
       .catch(function () { return '[]'; })

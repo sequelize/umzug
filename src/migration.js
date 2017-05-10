@@ -1,6 +1,6 @@
 import _path from 'path';
 import Bluebird from 'bluebird';
-import helper from './helper';
+import { resolve } from './helper';
 
 /**
  * @class Migration
@@ -43,10 +43,10 @@ module.exports = class Migration {
   migration() {
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
-      helper.resolve('coffee-script/register') ||
+      resolve('coffee-script/register') ||
 
       // Prior to 1.7.x compiler registration
-      helper.resolve('coffee-script') ||
+      resolve('coffee-script') ||
       /* jshint expr: true */
       (function () {
         console.error('You have to add "coffee-script" to your package.json.');
