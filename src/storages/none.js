@@ -3,7 +3,7 @@ import Bluebird from 'bluebird';
 /**
  * @class NoneStorage
  */
-module.exports = class NoneStorage {
+module.exports = class Storage {
   /**
    * Does nothing.
    *
