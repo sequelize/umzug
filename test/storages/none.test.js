@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import helper from '../helper';
-import Storage from '../../src/storages/none';
+import Storage from '../../src/storages/Storage';
 
 describe('none', function () {
   beforeEach(function() {

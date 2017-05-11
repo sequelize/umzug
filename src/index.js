@@ -5,6 +5,10 @@ import Migration from './migration';
 import path from 'path';
 import { EventEmitter } from 'events';
 
+import Storage from './storages/Storage';
+import JSONStorage from './storages/JSONStorage';
+import SequelizeStorage from './storages/SequelizeStorage';
+
 /**
  * @class Umzug
  * @extends EventEmitter
@@ -384,7 +388,7 @@ module.exports = class Umzug extends EventEmitter {
   /**
    * Try to require and initialize storage.
    *
-   * @returns {*|SequelizeStorage|JSONStorage|NoneStorage}
+   * @returns {*|SequelizeStorage|JSONStorage|Storage}
    * @private
    */
   _initStorage() {
@@ -392,22 +396,14 @@ module.exports = class Umzug extends EventEmitter {
       return this.options.storage;
     }
 
-    var Storage;
-
+    let StorageClass;
     try {
-      Storage = require(__dirname + '/storages/' + this.options.storage);
-    } catch (e) {
-      // We have not been able to find the storage locally.
-      // Let's try to require a module instead.
-    }
-
-    try {
-      Storage = Storage || require(this.options.storage);
+      StorageClass = this._getStorageClass();
     } catch (e) {
       throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
     }
 
-    let storage = new Storage(this.options.storageOptions);
+    let storage = new StorageClass(this.options.storageOptions);
     if (_.has(storage, 'options.storageOptions')) {
       console.warn(
         'Deprecated: Umzug Storage constructor has changed!',
@@ -416,10 +412,19 @@ module.exports = class Umzug extends EventEmitter {
         'where ... represents the same storageOptions passed to Umzug constructor.',
         'For more information: https://github.com/sequelize/umzug/pull/137'
       );
-      storage = new Storage(this.options);
+      storage = new StorageClass(this.options);
     }
 
     return storage;
+  }
+
+  _getStorageClass() {
+    switch (this.options.storage) {
+      case 'none': return Storage;
+      case 'json': return JSONStorage;
+      case 'sequelize': return SequelizeStorage;
+      default: return require(this.options.storage);
+    }
   }
 
   /**

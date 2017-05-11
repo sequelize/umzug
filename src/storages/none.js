@@ -1,33 +1,9 @@
-/**
- * @class NoneStorage
- */
-module.exports = class NoneStorage {
-  /**
-   * Does nothing.
-   *
-   * @param {String} migrationName - Name of migration to be logged.
-   * @returns {Promise}
-   */
-  logMigration(migrationName) {
-    return Promise.resolve();
-  }
+import Storage from './Storage';
 
-  /**
-   * Does nothing.
-   *
-   * @param {String} migrationName - Name of migration to unlog.
-   * @returns {Promise}
-   */
-  unlogMigration(migrationName) {
-    return Promise.resolve();
-  }
+module.exports = Storage;
 
-  /**
-   * Does nothing.
-   *
-   * @returns {Promise.<String[]>}
-   */
-  executed() {
-    return Promise.resolve([]);
-  }
-}
+console.warn(
+  'Deprecated: Storage\'s (former none storage) filename has changed!',
+  'Use \'umzug/lib/storages/Storage\' instead of \'umzug/lib/storages/none\'',
+  'For more information: https://github.com/sequelize/umzug/pull/139',
+);
