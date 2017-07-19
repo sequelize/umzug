@@ -1,6 +1,8 @@
 # Umzug [![Build Status](https://travis-ci.org/sequelize/umzug.svg?branch=master)](https://travis-ci.org/sequelize/umzug)
 The *umzug* lib is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
 
+**[!!! Maintainer needed !!!](https://github.com/sequelize/umzug/issues/145)**
+
 ## Persistence
 In order to keep track of already executed tasks, *umzug* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple storage presets available, from which you can choose. Adding a custom is  super simple as well.
 
