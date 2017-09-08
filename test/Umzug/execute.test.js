@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
 import sinon from 'sinon';
+import {join} from 'path';
 
 describe('execute', function () {
   beforeEach(function () {
@@ -11,22 +12,22 @@ describe('execute', function () {
       .prepareMigrations(1, { names: ['123-migration'] })
       .then(() => {
         this.migration = require('../tmp/123-migration.js');
-        this.upStub    = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
-        this.downStub  = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
-        this.logSpy    = sinon.spy();
-        this.umzug     = new Umzug({
-          migrations:     { path: __dirname + '/../tmp/' },
-          storageOptions: { path: __dirname + '/../tmp/umzug.json' },
-          logging:        this.logSpy
+        this.upStub = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
+        this.downStub = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
+        this.logSpy = sinon.spy();
+        this.umzug = new Umzug({
+          migrations: { path: join(__dirname, '/../tmp/') },
+          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+          logging: this.logSpy,
         });
         this.migrate = (method) => {
           return this.umzug.execute({
             migrations: ['123-migration'],
-            method:     method
+            method: method,
           });
         };
         ['migrating', 'migrated', 'reverting', 'reverted'].forEach((event) => {
-          var spy = this[event + 'EventSpy'] = sinon.spy();
+          let spy = this[event + 'EventSpy'] = sinon.spy();
           this.umzug.on(event, spy);
         }, this);
       });
@@ -80,7 +81,7 @@ describe('execute', function () {
     return this.migrate('up').then(() => {
       return this.migrate('up');
     }).then(() => {
-      var storage = require(this.umzug.options.storageOptions.path);
+      let storage = require(this.umzug.options.storageOptions.path);
       expect(storage).to.eql(['123-migration.js']);
     });
   });
@@ -117,7 +118,7 @@ describe('execute', function () {
 
     it('rejects the promise', function () {
       return this.migrate('up').then(() => {
-        return Promise.reject('We should not end up here...');
+        return Promise.reject(new Error('We should not end up here...'));
       }, (err) => {
         expect(err).to.equal('Could not find migration method: up');
       });
@@ -133,7 +134,7 @@ describe('execute', function () {
 describe('migrations.wrap', function () {
   beforeEach(function () {
     helper.clearTmp();
-    require('fs').writeFileSync(__dirname + '/../tmp/123-callback-last-migration.js', [
+    require('fs').writeFileSync(join(__dirname, '/../tmp/123-callback-last-migration.js'), [
       '\'use strict\';',
       '',
       'module.exports = {',
@@ -141,30 +142,30 @@ describe('migrations.wrap', function () {
       '    setTimeout(done, 200);',
       '  },',
       '  down: function () {}',
-      '};'
-      ].join('\n')
+      '};',
+    ].join('\n')
     );
   });
 
   it('can be used to handle "callback last" migrations', function () {
-    var start = +new Date();
-    var umzug = new Umzug({
+    let start = +new Date();
+    let umzug = new Umzug({
       migrations: {
-        path: __dirname + '/../tmp/',
+        path: join(__dirname, '/../tmp/'),
         wrap: (fun) => {
           if (fun.length === 1) {
             return helper.promisify(fun);
           } else {
             return fun;
           }
-        }
+        },
       },
-      storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+      storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
     });
 
     return umzug.execute({
       migrations: ['123-callback-last-migration'],
-      method:     'up'
+      method: 'up',
     }).then(() => {
       expect(+new Date() - start).to.be.greaterThan(200);
     });
@@ -174,30 +175,30 @@ describe('migrations.wrap', function () {
 describe('coffee-script support', function () {
   beforeEach(function () {
     helper.clearTmp();
-    require('fs').writeFileSync(__dirname + '/../tmp/123-coffee-migration.coffee', [
+    require('fs').writeFileSync(join(__dirname, '/../tmp/123-coffee-migration.coffee'), [
       '\'use strict\'',
       '',
       'module.exports =',
       '  up: () ->',
-      '  down: () ->'
-      ].join('\n')
+      '  down: () ->',
+    ].join('\n')
     );
   });
 
   it('runs the migration', function () {
-    var umzug = new Umzug({
+    let umzug = new Umzug({
       migrations: {
-        path:    __dirname + '/../tmp/',
-        pattern: /\.coffee$/
+        path: join(__dirname, '/../tmp/'),
+        pattern: /\.coffee$/,
       },
       storageOptions: {
-        path: __dirname + '/../tmp/umzug.json'
-      }
+        path: join(__dirname, '/../tmp/umzug.json'),
+      },
     });
 
     return umzug.execute({
       migrations: ['123-coffee-migration'],
-      method:     'up'
+      method: 'up',
     });
   });
 });
@@ -208,48 +209,48 @@ describe('ES6 module support', function () {
   });
 
   it('executes exported method', function () {
-    require('fs').writeFileSync(__dirname + '/../tmp/123-es6-named-migration.js', `
+    require('fs').writeFileSync(join(__dirname, '/../tmp/123-es6-named-migration.js'), `
       export async function up() {}
       export async function down() {}
     `);
 
-    var umzug = new Umzug({
+    let umzug = new Umzug({
       migrations: {
-        path:    __dirname + '/../tmp/',
-        pattern: /\.js$/
+        path: join(__dirname, '/../tmp/'),
+        pattern: /\.js$/,
       },
       storageOptions: {
-        path: __dirname + '/../tmp/umzug.json'
-      }
+        path: join(__dirname, '/../tmp/umzug.json'),
+      },
     });
 
     return umzug.execute({
       migrations: ['123-es6-named-migration'],
-      method:     'up'
+      method: 'up',
     });
   });
 
   it('executes default exported method', function () {
-    require('fs').writeFileSync(__dirname + '/../tmp/123-es6-default-migration.js', `
+    require('fs').writeFileSync(join(__dirname, '/../tmp/123-es6-default-migration.js'), `
       export default {
         async up() {},
         async down() {}
       }
     `);
 
-    var umzug = new Umzug({
+    let umzug = new Umzug({
       migrations: {
-        path:    __dirname + '/../tmp/',
-        pattern: /\.js$/
+        path: join(__dirname, '/../tmp/'),
+        pattern: /\.js$/,
       },
       storageOptions: {
-        path: __dirname + '/../tmp/umzug.json'
-      }
+        path: join(__dirname, '/../tmp/umzug.json'),
+      },
     });
 
     return umzug.execute({
       migrations: ['123-es6-default-migration'],
-      method:     'up'
+      method: 'up',
     });
   });
 });
@@ -257,28 +258,28 @@ describe('ES6 module support', function () {
 describe('upName / downName', function () {
   beforeEach(function () {
     helper.clearTmp();
-    require('fs').writeFileSync(__dirname + '/../tmp/123-custom-up-down-names-migration.js', [
-          '\'use strict\';',
-          '',
-          'module.exports = {',
-          '  myUp: function () {},',
-          '  myDown: function () {}',
-          '};'
-        ].join('\n')
+    require('fs').writeFileSync(join(__dirname, '/../tmp/123-custom-up-down-names-migration.js'), [
+      '\'use strict\';',
+      '',
+      'module.exports = {',
+      '  myUp: function () {},',
+      '  myDown: function () {}',
+      '};',
+    ].join('\n')
     );
     this.migration = require('../tmp/123-custom-up-down-names-migration.js');
-    this.upStub    = sinon.stub(this.migration, 'myUp').callsFake(Bluebird.resolve);
-    this.downStub  = sinon.stub(this.migration, 'myDown').callsFake(Bluebird.resolve);
-    this.umzug     = new Umzug({
-      migrations:     { path: __dirname + '/../tmp/' },
-      storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+    this.upStub = sinon.stub(this.migration, 'myUp').callsFake(Bluebird.resolve);
+    this.downStub = sinon.stub(this.migration, 'myDown').callsFake(Bluebird.resolve);
+    this.umzug = new Umzug({
+      migrations: { path: join(__dirname, '/../tmp/') },
+      storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
       upName: 'myUp',
-      downName: 'myDown'
+      downName: 'myDown',
     });
     this.migrate = (method) => {
       return this.umzug.execute({
         migrations: ['123-custom-up-down-names-migration'],
-        method:     method
+        method: method,
       });
     };
   });

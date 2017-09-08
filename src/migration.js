@@ -54,7 +54,7 @@ module.exports = class Migration {
       })();
     }
 
-    return import(this.path);
+    return require(this.path);
   }
 
   /**

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Storage from './Storage';
 
 /**
@@ -38,7 +37,7 @@ export default class SequelizeStorage extends Storage {
    * For utf8mb4 charsets under InnoDB, you may need to set this <= 190.
    * @param {Boolean} [options.timestamps=false] - option to add timestamps to the model table
    */
-  constructor({
+  constructor ({
     sequelize,
     model,
     modelName = 'SequelizeMeta',
@@ -46,7 +45,7 @@ export default class SequelizeStorage extends Storage {
     schema,
     columnName = 'name',
     columnType,
-    timestamps = false
+    timestamps = false,
   } = {}) {
     super();
     if (!model && !sequelize) {
@@ -66,7 +65,7 @@ export default class SequelizeStorage extends Storage {
     this.model = model || this.getModel();
   }
 
-  getModel() {
+  getModel () {
     if (this.sequelize.isDefined(this.modelName)) {
       return this.sequelize.model(this.modelName);
     }
@@ -79,15 +78,15 @@ export default class SequelizeStorage extends Storage {
           allowNull: false,
           unique: true,
           primaryKey: true,
-          autoIncrement: false
+          autoIncrement: false,
         },
       },
       {
-        tableName:  this.tableName,
+        tableName: this.tableName,
         schema: this.schema,
         timestamps: this.timestamps,
         charset: 'utf8',
-        collate: 'utf8_unicode_ci'
+        collate: 'utf8_unicode_ci',
       }
     );
   }
@@ -98,13 +97,13 @@ export default class SequelizeStorage extends Storage {
    * @param {String} migrationName - Name of the migration to be logged.
    * @returns {Promise}
    */
-  logMigration(migrationName) {
-    var self = this;
+  logMigration (migrationName) {
+    let self = this;
 
     return this._model()
       .sync()
-      .then(function(Model) {
-        var migration = {};
+      .then(function (Model) {
+        let migration = {};
         migration[self.columnName] = migrationName;
         return Model.create(migration);
       });
@@ -116,15 +115,15 @@ export default class SequelizeStorage extends Storage {
    * @param {String} migrationName - Name of the migration to be unlogged.
    * @returns {Promise}
    */
-  unlogMigration(migrationName) {
-    var self             = this;
-    var sequelize        = this.sequelize;
-    var sequelizeVersion = !!sequelize.modelManager ? 2 : 1;
+  unlogMigration (migrationName) {
+    let self = this;
+    let sequelize = this.sequelize;
+    let sequelizeVersion = sequelize.modelManager ? 2 : 1;
 
     return this._model()
       .sync()
-      .then(function(Model) {
-        var where = {};
+      .then(function (Model) {
+        let where = {};
         where[self.columnName] = migrationName;
 
         if (sequelizeVersion > 1) {
@@ -141,16 +140,16 @@ export default class SequelizeStorage extends Storage {
    *
    * @returns {Promise.<String[]>}
    */
-  executed() {
-    var self = this;
+  executed () {
+    let self = this;
 
     return this._model()
       .sync()
-      .then(function(Model) {
+      .then(function (Model) {
         return Model.findAll({ order: [ [ self.columnName, 'ASC' ] ] });
       })
-      .then(function(migrations) {
-        return migrations.map(function(migration) {
+      .then(function (migrations) {
+        return migrations.map(function (migration) {
           return migration[self.columnName];
         });
       });
@@ -162,7 +161,7 @@ export default class SequelizeStorage extends Storage {
    * @returns {Sequelize.Model}
    * @private
    */
-  _model() {
+  _model () {
     return this.model;
   }
 }

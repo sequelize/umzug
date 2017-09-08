@@ -4,12 +4,12 @@ import sinon from 'sinon';
 import helper from '../helper';
 
 describe('constructor', function () {
-  beforeEach(function() {
+  beforeEach(function () {
     helper.clearTmp();
   });
 
   it('exposes some methods', function () {
-    var umzug = new Umzug();
+    let umzug = new Umzug();
 
     expect(umzug).to.have.property('execute');
     expect(umzug).to.have.property('pending');
@@ -19,27 +19,27 @@ describe('constructor', function () {
   });
 
   it('instantiates the default storage', function () {
-    var umzug = new Umzug();
+    let umzug = new Umzug();
     expect(umzug).to.have.property('storage');
   });
 
   it('loads the specified storage module', function () {
-    var umzug = new Umzug({ storage: 'moment' });
+    let umzug = new Umzug({ storage: 'moment' });
     expect(umzug).to.have.property('storage');
   });
 
   it('uses passed storage object', function () {
     class CustomStorage {
-      logMigration() {}
-      unlogMigration() {}
-      executed() {}
+      logMigration () {}
+      unlogMigration () {}
+      executed () {}
     }
 
     const storage = new CustomStorage();
-    let umzug = new Umzug({ storage })
+    let umzug = new Umzug({ storage });
     expect(umzug).to.have.property('storage');
     expect(umzug.storage).to.eql(storage);
-  })
+  });
 
   it('throws an error if the specified storage is neither a package nor a file', function () {
     expect(() => {
@@ -50,8 +50,8 @@ describe('constructor', function () {
   });
 
   it('accepts a logging function', function () {
-    var spy = sinon.spy();
-    var umzug = new Umzug({ logging: spy });
+    let spy = sinon.spy();
+    let umzug = new Umzug({ logging: spy });
     umzug.log();
     expect(spy.called).to.be.true;
   });

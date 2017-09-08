@@ -9,9 +9,9 @@ describe('down', function () {
       .prepareMigrations(3)
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
-        this.umzug          = new Umzug({
-          migrations:     { path: __dirname + '/../tmp/' },
-          storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+        this.umzug = new Umzug({
+          migrations: { path: __dirname + '/../tmp/' },
+          storageOptions: { path: __dirname + '/../tmp/umzug.json' },
         });
       });
   });
@@ -36,7 +36,7 @@ describe('down', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.executed();
       }).then((migrations) => {
@@ -64,7 +64,7 @@ describe('down', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: this.migrationNames,
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.executed();
       }).then((migrations) => {
@@ -125,7 +125,7 @@ describe('down', function () {
       it('should return 1 migration', function () {
         expect(this.migrations).to.have.length(1);
       });
-      it('should be the last migration', function() {
+      it('should be the last migration', function () {
         expect(this.migrations[0].file).to.equal('3-migration.js');
       });
     });
@@ -133,7 +133,7 @@ describe('down', function () {
     describe('when `to` option is passed', function () {
       beforeEach(function () {
         return this.umzug.down({
-          to: this.migrationNames[1]
+          to: this.migrationNames[1],
         }).then((migrations) => {
           this.migrations = migrations;
         });
@@ -183,7 +183,7 @@ describe('down', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: this.migrationNames,
-        method:     'up'
+        method: 'up',
       });
     });
 
@@ -236,7 +236,7 @@ describe('down', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: this.migrationNames,
-        method:     'up'
+        method: 'up',
       });
     });
 
@@ -318,28 +318,24 @@ describe('down', function () {
     });
   });
 
-  describe('when storage returns a thenable', function() {
-
-    beforeEach(function() {
-
-      //a migration has been executed already...
+  describe('when storage returns a thenable', function () {
+    beforeEach(function () {
+      // a migration has been executed already...
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.executed();
       }).then((migrations) => {
         expect(migrations).to.have.length(1);
       }).then(() => {
-
-        //storage returns a thenable
+        // storage returns a thenable
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
 
         return this.umzug.down();
       }).then((migrations) => {
         this.migrations = migrations;
       });
-
     });
 
     it('returns 1 item', function () {

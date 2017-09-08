@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import helper from '../helper';
 import Migration from '../../src/migration';
-import Umzug from '../../src/index';
+import Umzug from '../../src';
+import {join} from 'path';
 
 describe('up', function () {
   beforeEach(function () {
@@ -10,9 +11,9 @@ describe('up', function () {
       .prepareMigrations(3)
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
-        this.umzug          = new Umzug({
-          migrations:     { path: __dirname + '/../tmp/' },
-          storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+        this.umzug = new Umzug({
+          migrations: {path: join(__dirname, '/../tmp/')},
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
         });
       });
   });
@@ -43,7 +44,7 @@ describe('up', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.up();
       }).then((migrations) => {
@@ -56,7 +57,7 @@ describe('up', function () {
     });
 
     it('returns only the migrations that have not been run yet', function () {
-      var self = this;
+      let self = this;
 
       this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
@@ -70,7 +71,6 @@ describe('up', function () {
     });
   });
 
-
   describe('when passing the `from` option', function () {
     describe('UP method', function () {
       beforeEach(function () {
@@ -83,7 +83,7 @@ describe('up', function () {
       it('should return 1 migration', function () {
         expect(this.migrations).to.have.length(1);
       });
-      it('should be the last migration', function() {
+      it('should be the last migration', function () {
         expect(this.migrations[0].file).to.equal('3-migration.js');
       });
     });
@@ -92,7 +92,7 @@ describe('up', function () {
   describe('when passing the `to` option', function () {
     beforeEach(function () {
       return this.umzug.up({
-        to: this.migrationNames[1]
+        to: this.migrationNames[1],
       }).then((migrations) => {
         this.migrations = migrations;
       });
@@ -111,7 +111,7 @@ describe('up', function () {
     it('did not execute the third migration', function () {
       return this.umzug.executed()
         .then((migrations) => {
-          var migrationFiles = migrations.map((migration) => {
+          let migrationFiles = migrations.map((migration) => {
             return migration.file;
           });
           expect(migrationFiles).to.not.contain(this.migrationNames[2]);
@@ -121,7 +121,7 @@ describe('up', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.up({ to: '123-asdasd' }).then(() => {
-          return Promise.reject('We should not end up here...');
+          return Promise.reject(new Error('We should not end up here...'));
         }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -136,7 +136,7 @@ describe('up', function () {
             return this.umzug.up({ to: this.migrationNames[1] });
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -166,7 +166,7 @@ describe('up', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.up('123-asdasd').then(() => {
-          return Promise.reject('We should not end up here...');
+          return Promise.reject(new Error('We should not end up here...'));
         }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -181,7 +181,7 @@ describe('up', function () {
             return this.umzug.up(this.migrationNames[1]);
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -230,7 +230,7 @@ describe('up', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.up(['123-asdasd']).then(() => {
-          return Promise.reject('We should not end up here...');
+          return Promise.reject(new Error('We should not end up here...'));
         }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -245,7 +245,7 @@ describe('up', function () {
             return this.umzug.up([this.migrationNames[1]]);
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -260,7 +260,7 @@ describe('up', function () {
             return this.umzug.up(this.migrationNames.slice(1));
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration is not pending: 2-migration.js');
           });
@@ -270,14 +270,12 @@ describe('up', function () {
 
   describe('when storage returns a thenable', function () {
     beforeEach(function () {
-
-      //one migration has been executed already
+      // one migration has been executed already
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
-
-        //storage returns a thenable
+        // storage returns a thenable
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
 
         return this.umzug.up();
@@ -291,7 +289,7 @@ describe('up', function () {
     });
 
     it('returns only the migrations that have not been run yet', function () {
-      var self = this;
+      let self = this;
 
       this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
