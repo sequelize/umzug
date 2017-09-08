@@ -9,7 +9,7 @@ import Storage from './storages/Storage';
 import JSONStorage from './storages/JSONStorage';
 import MongoDBStorage from './storages/MongoDBStorage';
 import SequelizeStorage from './storages/SequelizeStorage';
-debugger;
+
 /**
  * @class Umzug
  * @extends EventEmitter
@@ -44,7 +44,7 @@ export default class Umzug extends EventEmitter {
    */
   constructor (options = {}) {
     super();
-    debugger;
+
     this.options = {
       storage: 'json',
       storageOptions: {},

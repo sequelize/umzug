@@ -12,13 +12,6 @@
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "bluebird": "^3.4.1",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-mocha": "^4.11.0",
-    "eslint-plugin-node": "^5.1.1",
-    "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "gulp-eslint": "^4.0.0",
     "lodash": "^4.17.0",
     "resolve": "^1.0.0"
   },
@@ -31,13 +24,16 @@
     "babel-preset-env": "^1.4.0",
     "babel-register": "^6.24.1",
     "chai": "^3.5.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-mocha": "^4.11.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "gulp-eslint": "^4.0.0",
     "coffee-script": "^1.8.0",
     "gulp": "^3.8.10",
-    "gulp-jshint": "^2.0.3",
-    "gulp-jshint-instafail": "^1.0.0",
     "gulp-mocha": "^4.3.0",
-    "jshint": "^2.9.1",
-    "jshint-stylish": "^2.0.0",
     "mocha": "^3.3.0",
     "sequelize": "^3.30.4",
     "sinon": "^2.1.0",
@@ -47,8 +43,7 @@
   },
   "scripts": {
     "build": "babel src -d lib",
-    "test": "mocha --bail --compilers js:babel-register test",
-    "test:debug": "mocha --debug-brk --inspect --compilers js:babel-register test"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",

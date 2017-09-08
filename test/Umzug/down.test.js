@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
+import {join} from 'path';
 
 describe('down', function () {
   beforeEach(function () {
@@ -10,8 +11,8 @@ describe('down', function () {
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
         this.umzug = new Umzug({
-          migrations: { path: __dirname + '/../tmp/' },
-          storageOptions: { path: __dirname + '/../tmp/umzug.json' },
+          migrations: { path: join(__dirname, '/../tmp/') },
+          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
         });
       });
   });
@@ -155,7 +156,7 @@ describe('down', function () {
       describe('that does not match a migration', function () {
         it('rejects the promise', function () {
           return this.umzug.down({ to: '123-asdasd' }).then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Unable to find migration: 123-asdasd');
           });
@@ -170,7 +171,7 @@ describe('down', function () {
               return this.umzug.down({ to: this.migrationNames[1] });
             })
             .then(() => {
-              return Promise.reject('We should not end up here...');
+              return Promise.reject(new Error('We should not end up here...'));
             }, (err) => {
               expect(err.message).to.equal('Migration was not executed: 2-migration.js');
             });
@@ -209,7 +210,7 @@ describe('down', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.down('123-asdasd').then(() => {
-          return Promise.reject('We should not end up here...');
+          return Promise.reject(new Error('We should not end up here...'));
         }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -224,7 +225,7 @@ describe('down', function () {
             return this.umzug.down(this.migrationNames[1]);
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration was not executed: 2-migration.js');
           });
@@ -280,7 +281,7 @@ describe('down', function () {
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
         return this.umzug.down(['123-asdasd']).then(() => {
-          return Promise.reject('We should not end up here...');
+          return Promise.reject(new Error('We should not end up here...'));
         }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
         });
@@ -295,7 +296,7 @@ describe('down', function () {
             return this.umzug.down([this.migrationNames[1]]);
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration was not executed: 2-migration.js');
           });
@@ -310,7 +311,7 @@ describe('down', function () {
             return this.umzug.down(this.migrationNames.slice(1));
           })
           .then(() => {
-            return Promise.reject('We should not end up here...');
+            return Promise.reject(new Error('We should not end up here...'));
           }, (err) => {
             expect(err.message).to.equal('Migration was not executed: 2-migration.js');
           });

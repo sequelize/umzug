@@ -120,7 +120,8 @@ describe('execute', function () {
       return this.migrate('up').then(() => {
         return Promise.reject(new Error('We should not end up here...'));
       }, (err) => {
-        expect(err).to.equal('Could not find migration method: up');
+        expect(err).to.be.an('error');
+        expect(err.message).to.equal('Could not find migration method: up');
       });
     });
 

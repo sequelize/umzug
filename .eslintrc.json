@@ -7,20 +7,7 @@
     "process": true
   },
   "rules": {
-    "indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1
-      }
-    ],
     "no-var": "error",
-    "no-unused-vars": [
-      "error",
-      {
-        "args": "none"
-      }
-    ],
     "comma-dangle": [
       "error",
       "always-multiline"
@@ -32,6 +19,10 @@
     "semi": [
       "error",
       "always"
+    ],
+    "strict": [
+      "error",
+      "never"
     ]
   }
 }
