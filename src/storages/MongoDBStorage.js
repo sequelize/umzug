@@ -7,13 +7,15 @@ import Storage from './Storage';
  */
 export default class MongoDBStorage extends Storage {
     /**
-     * Constructs MongoDB file storage.
+     * Constructs MongoDB collection storage.
      *
      * @param {Object} [options]
-     * @param {String} [options.path='./umzug.json'] - Path to JSON file where
-     * the log is stored. Defaults './umzug.json' relative to process' cwd.
+     * Required either connection and collectionName OR collection
+     * @param {String} [options.connection] - a connection to target database established with MongoDB Driver
+     * @param {String} [options.collectionName] - name of migration collection in MongoDB
+     * @param {String} [options.collection] - reference to a MongoDB Driver collection
      */
-    constructor({connection, collection, collectionName}) {
+    constructor({connection, collectionName, collection}) {
         super();
         this.connection = connection;
         this.collection = collection;
