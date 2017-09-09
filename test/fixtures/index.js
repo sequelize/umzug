@@ -10,7 +10,8 @@ import Umzug from '../../src/index';
 
 describe('custom resolver', () => {
     beforeEach(function () {
-        this.storagePath = __dirname + '/../tmp/storage.sqllite';
+        helper.clearTmp();
+        this.storagePath = __dirname + '/../tmp/storage.sqlite';
         this.sequelize = new Sequelize('database', 'username', 'password', {
             dialect: 'sqlite',
             storage: this.storagePath,
@@ -41,7 +42,6 @@ describe('custom resolver', () => {
 
         this.verifyTables = async () => {
             const tables = await this.sequelize.query(`select * from sqlite_master where type='table'`);
-            await this.sequelize.close();
 
             expect(tables.sort()).to.deep.equal(['SequelizeMeta', 'thing', 'user']);
         }
