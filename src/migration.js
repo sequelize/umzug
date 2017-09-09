@@ -26,6 +26,10 @@ module.exports = class Migration {
    * @param {Object} options.migrations
    * @param {Migration~wrap} options.migrations.wrap - Wrapper function for
    * migration methods.
+   * @param {Migration~customResolver} [options.migrations.customResolver] - A
+   * function that specifies how to get a migration object from a path. This
+   * should return an object of the form { up: Function, down: Function }.
+   * Without this defined, a regular javascript import will be performed.
    * @constructs Migration
    */
   constructor(path, options) {
@@ -37,10 +41,15 @@ module.exports = class Migration {
   /**
    * Tries to require migration module. CoffeeScript support requires
    * 'coffee-script' to be installed.
+   * To require other file types, like TypeScript or raw sql files, a
+   * custom resolver can be used.
    *
    * @returns {Promise.<Object>} Required migration module
    */
   migration() {
+    if (typeof this.options.migrations.customResolver === 'function') {
+        return this.options.migrations.customResolver(this.path);
+    }
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
       helper.resolve('coffee-script/register') ||
