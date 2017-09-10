@@ -5,8 +5,7 @@ import Sequelize from 'sequelize';
 import typescript from 'typescript';
 import coffeescript from 'coffee-script';
 import helper from '../helper';
-import Migration from '../../src/migration';
-import Umzug from '../../src/index';
+import Umzug from '../../src';
 
 describe('custom resolver', () => {
     beforeEach(function () {
@@ -20,7 +19,7 @@ describe('custom resolver', () => {
 
         this.umzug = () => {
             if (!this.path || !this.pattern) {
-                throw new Error('patch and pattern must be defined');
+                throw new Error('path and pattern must be defined');
             }
             return new Umzug({
                 migrations: {
