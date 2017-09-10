@@ -30,9 +30,10 @@
     "eslint-plugin-node": "^5.1.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "gulp-eslint": "^4.0.0",
     "coffee-script": "^1.8.0",
     "gulp": "^3.8.10",
+    "gulp-babel": "^7.0.0",
+    "gulp-eslint": "^4.0.0",
     "gulp-mocha": "^4.3.0",
     "mocha": "^3.3.0",
     "sequelize": "^3.30.4",
@@ -42,8 +43,8 @@
     "yargs": "^8.0.1"
   },
   "scripts": {
-    "build": "babel src -d lib",
-    "test": "gulp"
+    "build": "gulp build",
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",

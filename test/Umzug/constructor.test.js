@@ -24,7 +24,7 @@ describe('constructor', function () {
   });
 
   it('loads the specified storage module', function () {
-    let umzug = new Umzug({ storage: 'moment' });
+    let umzug = new Umzug({ storage: 'lodash' });
     expect(umzug).to.have.property('storage');
   });
 

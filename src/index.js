@@ -14,7 +14,7 @@ import SequelizeStorage from './storages/SequelizeStorage';
  * @class Umzug
  * @extends EventEmitter
  */
-export default class Umzug extends EventEmitter {
+module.exports = class Umzug extends EventEmitter {
   /**
    * Constructs Umzug instance.
    *
