@@ -3,13 +3,13 @@ import helper from '../helper';
 import Storage from '../../src/storages/Storage';
 
 describe('none', function () {
-  beforeEach(function() {
+  beforeEach(function () {
     helper.clearTmp();
   });
 
   describe('constructor', function () {
     it('stores no options', function () {
-      var storage = new Storage();
+      let storage = new Storage();
       expect(storage).to.not.have.property('options');
     });
   });

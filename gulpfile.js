@@ -1,35 +1,50 @@
-'use strict';
+const gulp = require('gulp');
+const eslint = require('gulp-eslint');
+const mocha = require('gulp-mocha');
+const path = require('path');
+const babel = require('gulp-babel');
+const args = require('yargs').argv;
 
-var gulp   = require('gulp');
-var jshint = require('gulp-jshint');
-var mocha  = require('gulp-mocha');
-var path   = require('path');
-var args   = require('yargs').argv;
+gulp.task('default', ['test']);
 
-gulp.task('default', ['lint','test'], function () {});
-
-gulp.task('lint', function () {
-  return gulp
-    .src([
-      path.resolve(__dirname, 'gulpfile.js'),
-      path.resolve(__dirname, 'bin', 'sequelize'),
-      path.resolve(__dirname, 'src', '**', '*.js'),
-      '!' + path.resolve(__dirname, 'src', 'assets', '**', '*.js'),
-      path.resolve(__dirname, 'test', '**', '*.js'),
-      '!' + path.resolve(__dirname, 'test', 'support', 'tmp', '**', '*')
-    ])
-    .pipe(jshint())
-    .pipe(jshint.reporter(require('jshint-stylish')))
-    .pipe(jshint.reporter(require('gulp-jshint-instafail')));
+gulp.task('lint', () => {
+  return gulp.src(['**/*.js', '!lib/**', '!node_modules/**'])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
-gulp.task('test', function () {
+gulp.task('test', ['lint', 'test:unit', 'test:integration']);
+
+gulp.task('test:unit', function () {
   return gulp
-    .src(path.resolve(__dirname, 'test', '**', 'index.js'), { read: false })
+    .src(path.resolve(__dirname, 'test', 'index.js'), {read: false})
     .pipe(mocha({
-       reporter:    'spec',
-       ignoreLeaks: true,
-       timeout:     1000,
-       grep:        args.grep
+      reporter: 'spec',
+      ignoreLeaks: true,
+      timeout: 1000,
+      require: 'babel-register',
+      grep: args.grep,
+    }));
+});
+
+gulp.task('build', function () {
+  return gulp.src('src/**')
+    .pipe(babel())
+    .pipe(gulp.dest('lib'));
+});
+
+/**
+ * integration tests run under the condition of a typical npm dependency,
+ * so without any runtime transpiler, precompiled instead
+ */
+gulp.task('test:integration', ['build'], function () {
+  return gulp
+    .src(path.resolve(__dirname, 'test/integration', 'index.js'), {read: false})
+    .pipe(mocha({
+      reporter: 'spec',
+      ignoreLeaks: true,
+      timeout: 1000,
+      grep: args.grep,
     }));
 });

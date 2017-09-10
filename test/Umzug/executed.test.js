@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
+import {join} from 'path';
 
 describe('executed', function () {
   beforeEach(function () {
@@ -9,9 +10,9 @@ describe('executed', function () {
       .prepareMigrations(3)
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
-        this.umzug          = new Umzug({
-          migrations:     { path: __dirname + '/../tmp/' },
-          storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+        this.umzug = new Umzug({
+          migrations: { path: join(__dirname, '/../tmp/') },
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
         });
       });
   });
@@ -37,7 +38,7 @@ describe('executed', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.executed();
       }).then((migrations) => {
@@ -59,7 +60,7 @@ describe('executed', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: this.migrationNames,
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.executed();
       }).then((migrations) => {
@@ -79,12 +80,12 @@ describe('executed', function () {
     });
   });
 
-  describe('when storage returns a thenable', function() {
-    beforeEach(function() {
+  describe('when storage returns a thenable', function () {
+    beforeEach(function () {
       // migration has been executed already
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
         return this.umzug.executed();

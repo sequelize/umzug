@@ -42,8 +42,9 @@ module.exports = class Umzug extends EventEmitter {
    * modify the function.
    * @constructs Umzug
    */
-  constructor(options = {}) {
+  constructor (options = {}) {
     super();
+
     this.options = {
       storage: 'json',
       storageOptions: {},
@@ -76,8 +77,8 @@ module.exports = class Umzug extends EventEmitter {
    * @param {String}   [options.method='up']
    * @returns {Promise}
    */
-  execute(options = {}) {
-    var self = this;
+  execute (options = {}) {
+    let self = this;
 
     options = {
       migrations: [],
@@ -97,8 +98,8 @@ module.exports = class Umzug extends EventEmitter {
       })
       .then(function (options) {
         return Bluebird.each(options.migrations, function (migration) {
-          var name = path.basename(migration.file, path.extname(migration.file));
-          var startTime;
+          let name = path.basename(migration.file, path.extname(migration.file));
+          let startTime;
           return self
             ._wasExecuted(migration)
             .catch(function () {
@@ -109,8 +110,8 @@ module.exports = class Umzug extends EventEmitter {
             })
             .tap(function (executed) {
               if (!executed || (options.method === 'down')) {
-                var fun    = (migration[options.method] || Bluebird.resolve);
-                var params = self.options.migrations.params;
+                let fun = (migration[options.method] || Bluebird.resolve);
+                let params = self.options.migrations.params;
 
                 if (typeof params === 'function') {
                   params = params();
@@ -137,12 +138,12 @@ module.exports = class Umzug extends EventEmitter {
               }
             })
             .tap(function () {
-              var duration = ((new Date() - startTime) / 1000).toFixed(3);
+              let duration = ((new Date() - startTime) / 1000).toFixed(3);
               if (options.method === 'up') {
-                self.log('== ' + name + ': migrated (' + duration +  's)\n');
+                self.log('== ' + name + ': migrated (' + duration + 's)\n');
                 self.emit('migrated', name, migration);
               } else {
-                self.log('== ' + name + ': reverted (' + duration +  's)\n');
+                self.log('== ' + name + ': reverted (' + duration + 's)\n');
                 self.emit('reverted', name, migration);
               }
             });
@@ -155,7 +156,7 @@ module.exports = class Umzug extends EventEmitter {
    *
    * @returns {Promise.<Migration>}
    */
-  executed() {
+  executed () {
     return Bluebird.resolve(this.storage.executed()).bind(this).map(function (file) {
       return new Migration(file);
     });
@@ -166,7 +167,7 @@ module.exports = class Umzug extends EventEmitter {
    *
    * @returns {Promise.<Migration[]>}
    */
-  pending() {
+  pending () {
     return this
       ._findMigrations()
       .bind(this)
@@ -174,7 +175,7 @@ module.exports = class Umzug extends EventEmitter {
         return Bluebird.join(all, this.executed());
       })
       .spread(function (all, executed) {
-        var executedFiles = executed.map(function (migration) {
+        let executedFiles = executed.map(function (migration) {
           return migration.file;
         });
 
@@ -199,7 +200,7 @@ module.exports = class Umzug extends EventEmitter {
    * @param {String[]}   [options.migrations] - List of migrations to execute.
    * @returns {Promise}
    */
-  up(options) {
+  up (options) {
     return this._run('up', options, this.pending.bind(this));
   }
 
@@ -218,9 +219,9 @@ module.exports = class Umzug extends EventEmitter {
    * @param {String[]}   [options.migrations] - List of migrations to execute.
    * @returns {Promise}
    */
-  down(options) {
-    var getExecuted = function () {
-      return this.executed().bind(this).then(function(migrations) {
+  down (options) {
+    let getExecuted = function () {
+      return this.executed().bind(this).then(function (migrations) {
         return migrations.reverse();
       });
     }.bind(this);
@@ -261,7 +262,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise}
    * @private
    */
-  _run(method, options, rest) {
+  _run (method, options, rest) {
     if (typeof options === 'string') {
       return this._run(method, [ options ]);
     } else if (Array.isArray(options)) {
@@ -270,9 +271,9 @@ module.exports = class Umzug extends EventEmitter {
           return this._findMigration(migration);
         })
         .then(function (migrations) {
-          return method === 'up' ?
-            this._arePending(migrations) :
-            this._wereExecuted(migrations);
+          return method === 'up'
+            ? this._arePending(migrations)
+            : this._wereExecuted(migrations);
         })
         .then(function () {
           return this._run(method, { migrations: options });
@@ -289,12 +290,12 @@ module.exports = class Umzug extends EventEmitter {
     if (options.migrations) {
       return this.execute({
         migrations: options.migrations,
-        method: method
+        method: method,
       });
     } else {
       return rest().bind(this)
         .then(function (migrations) {
-          var result = Bluebird.resolve().bind(this);
+          let result = Bluebird.resolve().bind(this);
 
           if (options.to) {
             result = result
@@ -304,9 +305,9 @@ module.exports = class Umzug extends EventEmitter {
               })
               .then(function (migration) {
                 // ... and it must be pending/executed.
-                return method === 'up' ?
-                  this._isPending(migration) :
-                  this._wasExecuted(migration);
+                return method === 'up'
+                  ? this._isPending(migration)
+                  : this._wasExecuted(migration);
               });
           }
 
@@ -314,7 +315,7 @@ module.exports = class Umzug extends EventEmitter {
             return Bluebird.resolve(migrations);
           });
         })
-        .then(function(migrations) {
+        .then(function (migrations) {
           if (options.from) {
             return this._findMigrationsFromMatch(options.from, method);
           } else {
@@ -341,13 +342,13 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise.<Migration[]>}
    * @private
    */
-  _findMigrationsFromMatch(from, method) {
+  _findMigrationsFromMatch (from, method) {
     // We'll fetch all migrations and work our way from start to finish
     return this._findMigrations()
       .bind(this)
-      .then(function(migrations) {
-        var found = false;
-        return migrations.filter(function(migration) {
+      .then(function (migrations) {
+        let found = false;
+        return migrations.filter(function (migration) {
           if (migration.testFileName(from)) {
             found = true;
             return false;
@@ -355,17 +356,17 @@ module.exports = class Umzug extends EventEmitter {
           return found;
         });
       })
-      .filter(function(fromMigration) {
+      .filter(function (fromMigration) {
         // now check if they need to be run based on status and method
         return this._wasExecuted(fromMigration)
-          .then(function() {
+          .then(function () {
             if (method === 'up') {
               return false;
             } else {
               return true;
             }
           })
-          .catch(function() {
+          .catch(function () {
             if (method === 'up') {
               return true;
             } else {
@@ -380,7 +381,7 @@ module.exports = class Umzug extends EventEmitter {
    *
    * @param {*} message - Message to be logged.
    */
-  log(message) {
+  log (message) {
     if (this.options.logging) {
       this.options.logging(message);
     }
@@ -392,7 +393,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {*|SequelizeStorage|JSONStorage|Storage}
    * @private
    */
-  _initStorage() {
+  _initStorage () {
     if (typeof this.options.storage !== 'string') {
       return this.options.storage;
     }
@@ -419,7 +420,7 @@ module.exports = class Umzug extends EventEmitter {
     return storage;
   }
 
-  _getStorageClass() {
+  _getStorageClass () {
     switch (this.options.storage) {
       case 'none': return Storage;
       case 'json': return JSONStorage;
@@ -435,12 +436,12 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise.<Migration[]>}
    * @private
    */
-  _findMigrations() {
+  _findMigrations () {
     return Bluebird
       .promisify(fs.readdir)(this.options.migrations.path)
       .bind(this)
       .filter(function (file) {
-        if(!this.options.migrations.pattern.test(file)) {
+        if (!this.options.migrations.pattern.test(file)) {
           this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
           return false;
         }
@@ -472,7 +473,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise.<Migration>}
    * @private
    */
-  _findMigration(needle) {
+  _findMigration (needle) {
     return this
       ._findMigrations()
       .then(function (migrations) {
@@ -497,10 +498,10 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise}
    * @private
    */
-  _wasExecuted(_migration) {
+  _wasExecuted (_migration) {
     return this.executed().filter(function (migration) {
       return migration.testFileName(_migration.file);
-    }).then(function(migrations) {
+    }).then(function (migrations) {
       if (migrations[0]) {
         return Bluebird.resolve();
       } else {
@@ -517,7 +518,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise}
    * @private
    */
-  _wereExecuted(migrationNames) {
+  _wereExecuted (migrationNames) {
     return Bluebird
       .resolve(migrationNames)
       .bind(this)
@@ -534,10 +535,10 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise}
    * @private
    */
-  _isPending(_migration) {
+  _isPending (_migration) {
     return this.pending().filter(function (migration) {
       return migration.testFileName(_migration.file);
-    }).then(function(migrations) {
+    }).then(function (migrations) {
       if (migrations[0]) {
         return Bluebird.resolve();
       } else {
@@ -554,7 +555,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise}
    * @private
    */
-  _arePending(migrationNames) {
+  _arePending (migrationNames) {
     return Bluebird
       .resolve(migrationNames)
       .bind(this)
@@ -571,7 +572,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise.<String>} - List of migrations before `to`.
    * @private
    */
-  _findMigrationsUntilMatch(to, migrations) {
+  _findMigrationsUntilMatch (to, migrations) {
     return Bluebird.resolve(migrations)
       .map(function (migration) { return migration.file; })
       .reduce(function (acc, migration) {
@@ -589,4 +590,4 @@ module.exports = class Umzug extends EventEmitter {
       }, { migrations: [], add: true })
       .get('migrations');
   }
-}
+};

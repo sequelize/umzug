@@ -1,5 +1,4 @@
 import _path from 'path';
-import Bluebird from 'bluebird';
 import helper from './helper';
 
 /**
@@ -28,9 +27,9 @@ module.exports = class Migration {
    * migration methods.
    * @constructs Migration
    */
-  constructor(path, options) {
-    this.path    = _path.resolve(path);
-    this.file    = _path.basename(this.path);
+  constructor (path, options) {
+    this.path = _path.resolve(path);
+    this.file = _path.basename(this.path);
     this.options = options;
   }
 
@@ -40,7 +39,7 @@ module.exports = class Migration {
    *
    * @returns {Promise.<Object>} Required migration module
    */
-  migration() {
+  migration () {
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
       helper.resolve('coffee-script/register') ||
@@ -54,7 +53,7 @@ module.exports = class Migration {
       })();
     }
 
-    return import(this.path);
+    return require(this.path);
   }
 
   /**
@@ -62,7 +61,7 @@ module.exports = class Migration {
    *
    * @returns {Promise}
    */
-  up() {
+  up () {
     return this._exec(this.options.upName, [].slice.apply(arguments));
   }
 
@@ -71,7 +70,7 @@ module.exports = class Migration {
    *
    * @returns {Promise}
    */
-  down() {
+  down () {
     return this._exec(this.options.downName, [].slice.apply(arguments));
   }
 
@@ -80,7 +79,7 @@ module.exports = class Migration {
    * @param {String} needle - The beginning of the file name.
    * @returns {boolean}
    */
-  testFileName(needle) {
+  testFileName (needle) {
     return this.file.indexOf(needle) === 0;
   }
 
@@ -92,16 +91,15 @@ module.exports = class Migration {
    * @returns {Promise}
    * @private
    */
-  async _exec(method, args) {
+  async _exec (method, args) {
     const migration = await this.migration();
     let fun = migration[method];
     if (migration.default) {
       fun = migration.default[method] || migration[method];
     }
-    // TODO throw new Error(...)
-    if (!fun) throw 'Could not find migration method: ' + method;
+    if (!fun) throw new Error('Could not find migration method: ' + method);
     const wrappedFun = this.options.migrations.wrap(fun);
 
-    return await wrappedFun.apply(migration, args);
+    await wrappedFun.apply(migration, args);
   }
-}
+};
