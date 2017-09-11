@@ -2,35 +2,36 @@ import { expect } from 'chai';
 import helper from '../helper';
 import Storage from '../../src/storages/SequelizeStorage';
 import Sequelize from 'sequelize';
+import {join} from 'path';
 
 describe('sequelize', function () {
-  beforeEach(function() {
+  beforeEach(function () {
     helper.clearTmp();
 
-    this.storagePath = __dirname + '/../tmp/storage.sqlite';
-    this.sequelize   = new Sequelize('database', 'username', 'password', {
+    this.storagePath = join(__dirname, '/../tmp/storage.sqlite');
+    this.sequelize = new Sequelize('database', 'username', 'password', {
       dialect: 'sqlite',
       storage: this.storagePath,
-      logging: false
+      logging: false,
     });
   });
 
   describe('constructor', function () {
-    it('requires a "sequelize" or "model" storage option', function() {
+    it('requires a "sequelize" or "model" storage option', function () {
       expect(() => {
         new Storage();
       }).to.throw('One of "sequelize" or "model" storage option is required');
     });
 
     it('stores needed options', function () {
-      var storage = new Storage({ sequelize: this.sequelize });
-      expect(storage).to.have.property('sequelize')
+      let storage = new Storage({ sequelize: this.sequelize });
+      expect(storage).to.have.property('sequelize');
       expect(storage).to.have.property('model');
-      expect(storage).to.have.property('columnName')
+      expect(storage).to.have.property('columnName');
     });
 
     it('accepts a "sequelize" option and creates a model', function () {
-      var storage = new Storage({ sequelize: this.sequelize });
+      let storage = new Storage({ sequelize: this.sequelize });
       expect(storage.model).to.equal(
         this.sequelize.model('SequelizeMeta')
       );
@@ -53,9 +54,9 @@ describe('sequelize', function () {
     });
 
     it('accepts a "modelName" option', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        modelName: 'CustomModel'
+        modelName: 'CustomModel',
       });
       expect(storage.model).to.equal(
         this.sequelize.model('CustomModel')
@@ -66,9 +67,9 @@ describe('sequelize', function () {
     });
 
     it('accepts a "tableName" option', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        tableName: 'CustomTable'
+        tableName: 'CustomTable',
       });
       expect(storage.model).to.equal(
         this.sequelize.model('SequelizeMeta')
@@ -79,9 +80,9 @@ describe('sequelize', function () {
     });
 
     it('accepts a "columnName" option', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        columnName: 'customColumn'
+        columnName: 'customColumn',
       });
       return storage.model.sync()
         .then((model) => {
@@ -93,23 +94,23 @@ describe('sequelize', function () {
     });
 
     it('accepts a "timestamps" option', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        timestamps: true
+        timestamps: true,
       });
       return storage.model.sync()
         .then((model) => {
           return model.describe();
         })
         .then((description) => {
-          expect(description).to.have.all.keys(['name','createdAt','updatedAt']);
+          expect(description).to.have.all.keys(['name', 'createdAt', 'updatedAt']);
         });
     });
 
     it('accepts a "columnType" option', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        columnType: new Sequelize.STRING(190)
+        columnType: new Sequelize.STRING(190),
       });
       return storage.model.sync()
         .then((model) => {
@@ -126,17 +127,17 @@ describe('sequelize', function () {
     });
 
     it('accepts a "model" option', function () {
-      var Model = this.sequelize.define('CustomModel', {
+      let Model = this.sequelize.define('CustomModel', {
         columnName: {
-          type: Sequelize.STRING
+          type: Sequelize.STRING,
         },
         someOtherColumn: {
-          type: Sequelize.INTEGER
-        }
+          type: Sequelize.INTEGER,
+        },
       });
 
-      var storage = new Storage({
-        model: Model
+      let storage = new Storage({
+        model: Model,
       });
       expect(storage.model).to.equal(Model);
     });
@@ -144,8 +145,8 @@ describe('sequelize', function () {
 
   describe('logMigration', function () {
     it('creates the table if it doesn\'t exist yet', function () {
-      var storage = new Storage({
-        sequelize: this.sequelize
+      let storage = new Storage({
+        sequelize: this.sequelize,
       });
 
       return storage.model.sequelize.getQueryInterface().showAllTables()
@@ -164,8 +165,8 @@ describe('sequelize', function () {
     });
 
     it('writes the migration to the database', function () {
-      var storage = new Storage({
-        sequelize: this.sequelize
+      let storage = new Storage({
+        sequelize: this.sequelize,
       });
 
       return storage.logMigration('asd.js')
@@ -179,9 +180,9 @@ describe('sequelize', function () {
     });
 
     it('writes the migration to the database with a custom column name', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        columnName: 'customColumnName'
+        columnName: 'customColumnName',
       });
 
       return storage.logMigration('asd.js')
@@ -195,9 +196,9 @@ describe('sequelize', function () {
     });
 
     it('writes the migration to the database with timestamps', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        timestamps: true
+        timestamps: true,
       });
 
       // Sequelize | startTime | createdAt | endTime
@@ -206,7 +207,7 @@ describe('sequelize', function () {
       // Sequelize <= v2 doesn't store milliseconds in timestamps so comparing
       // it to startTime with milliseconds fails. That's why we ignore
       // milliseconds in startTime too.
-      var startTime = new Date(Math.floor(Date.now() / 1000) * 1000);
+      let startTime = new Date(Math.floor(Date.now() / 1000) * 1000);
 
       return storage.logMigration('asd.js')
         .then(() => {
@@ -222,7 +223,7 @@ describe('sequelize', function () {
 
   describe('unlogMigration', function () {
     it('creates the table if it doesn\'t exist yet', function () {
-      var storage = new Storage({ sequelize: this.sequelize });
+      let storage = new Storage({ sequelize: this.sequelize });
 
       return storage.model.sequelize.getQueryInterface().showAllTables()
         .then((allTables) => {
@@ -240,7 +241,7 @@ describe('sequelize', function () {
     });
 
     it('deletes the migration from the database', function () {
-      var storage = new Storage({ sequelize: this.sequelize });
+      let storage = new Storage({ sequelize: this.sequelize });
 
       return storage.logMigration('asd.js')
         .then(() => {
@@ -261,7 +262,7 @@ describe('sequelize', function () {
     });
 
     it('deletes only the passed migration', function () {
-      var storage = new Storage({ sequelize: this.sequelize });
+      let storage = new Storage({ sequelize: this.sequelize });
 
       return storage.logMigration('migration1.js')
         .then(() => { return storage.logMigration('migration2.js'); })
@@ -274,9 +275,9 @@ describe('sequelize', function () {
     });
 
     it('deletes the migration from the database with a custom column name', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        columnName: 'customColumnName'
+        columnName: 'customColumnName',
       });
 
       return storage.logMigration('asd.js')
@@ -298,9 +299,9 @@ describe('sequelize', function () {
     });
 
     it('deletes the migration from the database with timestamps', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        timestamps: true
+        timestamps: true,
       });
 
       return storage.logMigration('asd.js')
@@ -320,13 +321,12 @@ describe('sequelize', function () {
           expect(migrations).to.be.empty;
         });
     });
-
   });
 
   describe('executed', function () {
     it('creates the table if it doesn\'t exist yet', function () {
-      var storage = new Storage({
-        sequelize: this.sequelize
+      let storage = new Storage({
+        sequelize: this.sequelize,
       });
 
       return storage.model.sequelize.getQueryInterface().showAllTables()
@@ -345,8 +345,8 @@ describe('sequelize', function () {
     });
 
     it('returns an empty array if no migrations were logged yet', function () {
-      var storage = new Storage({
-        sequelize: this.sequelize
+      let storage = new Storage({
+        sequelize: this.sequelize,
       });
 
       return storage.executed()
@@ -356,8 +356,8 @@ describe('sequelize', function () {
     });
 
     it('returns executed migrations', function () {
-      var storage = new Storage({
-        sequelize: this.sequelize
+      let storage = new Storage({
+        sequelize: this.sequelize,
       });
 
       return storage.logMigration('asd.js')
@@ -370,9 +370,9 @@ describe('sequelize', function () {
     });
 
     it('returns executed migrations with a custom column name', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        columnName: 'customColumnName'
+        columnName: 'customColumnName',
       });
 
       return storage.logMigration('asd.js')
@@ -385,9 +385,9 @@ describe('sequelize', function () {
     });
 
     it('returns executed migrations with timestamps', function () {
-      var storage = new Storage({
+      let storage = new Storage({
         sequelize: this.sequelize,
-        timestamps: true
+        timestamps: true,
       });
 
       return storage.logMigration('asd.js')

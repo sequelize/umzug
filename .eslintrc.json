@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "standard"
+  ],
+  "globals": {
+    "__dirname": true,
+    "process": true
+  },
+  "rules": {
+    "no-var": "error",
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "strict": [
+      "error",
+      "never"
+    ]
+  }
+}

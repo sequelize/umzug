@@ -9,7 +9,7 @@ module.exports = {
    * @returns {*|undefined} Required module
    */
   resolve: function (packageName) {
-    var result;
+    let result;
 
     try {
       result = resolve(packageName, { basedir: process.cwd() });
@@ -23,5 +23,5 @@ module.exports = {
     }
 
     return result;
-  }
+  },
 };

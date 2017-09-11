@@ -1,43 +1,43 @@
 import _ from 'lodash';
-import Bluebird from 'bluebird';
 import fs from 'fs';
+import {join} from 'path';
 
-var helper = module.exports = {
-  clearTmp() {
-    var files = fs.readdirSync(__dirname + '/tmp');
+const helper = module.exports = {
+  clearTmp () {
+    let files = fs.readdirSync(join(__dirname, '/tmp'));
 
     files.forEach((file) => {
       if (file.match(/\.(js|json|sqlite|coffee)$/)) {
-        fs.unlinkSync(__dirname + '/tmp/' + file);
+        fs.unlinkSync(join(__dirname, '/tmp/', file));
       }
     });
   },
 
-  generateDummyMigration(name) {
+  generateDummyMigration (name) {
     fs.writeFileSync(
-      __dirname + '/tmp/' + name + '.js',
+      join(__dirname, '/tmp/' + name + '.js'),
       [
         '\'use strict\';',
         '',
         'module.exports = {',
         '  up: function () {},',
         '  down: function () {}',
-        '};'
+        '};',
       ].join('\n')
     );
 
     return name;
   },
 
-  prepareMigrations(count, options) {
+  prepareMigrations (count, options) {
     options = {
       names: [],
       ...options || {},
     };
 
     return new Promise((resolve) => {
-      var names = options.names;
-      var num   = 0;
+      let names = options.names;
+      let num = 0;
 
       helper.clearTmp();
 
@@ -51,40 +51,40 @@ var helper = module.exports = {
     });
   },
 
-  wrapStorageAsCustomThenable(storage) {
+  wrapStorageAsCustomThenable (storage) {
     return {
-      logMigration(migration) {
+      logMigration (migration) {
         return helper._convertPromiseToThenable(storage.logMigration(migration));
       },
-      unlogMigration(migration) {
+      unlogMigration (migration) {
         return helper._convertPromiseToThenable(storage.unlogMigration(migration));
       },
-      executed() {
+      executed () {
         return helper._convertPromiseToThenable(storage.executed());
-      }
+      },
     };
   },
 
-  _convertPromiseToThenable(promise) {
+  _convertPromiseToThenable (promise) {
     return {
-      then(onFulfilled, onRejected) {
-        //note don't return anything!
+      then (onFulfilled, onRejected) {
+        // note don't return anything!
         promise.then(onFulfilled, onRejected);
-      }
+      },
     };
   },
 
-  promisify(fn) {
+  promisify (fn) {
     return (...args) => {
       return new Promise((resolve, reject) => {
         fn(...args, (err, data) => {
           if (err) {
-            reject(err)
+            reject(err);
           } else {
-            resolve(data)
+            resolve(data);
           }
-        })
-      })
-    }
-  }
+        });
+      });
+    };
+  },
 };

@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import helper from '../helper';
 import Migration from '../../src/migration';
 import Umzug from '../../src/index';
+import {join} from 'path';
 
 describe('pending', function () {
   beforeEach(function () {
@@ -10,9 +11,9 @@ describe('pending', function () {
       .prepareMigrations(3)
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
-        this.umzug          = new Umzug({
-          migrations:     { path: __dirname + '/../tmp/' },
-          storageOptions: { path: __dirname + '/../tmp/umzug.json' }
+        this.umzug = new Umzug({
+          migrations: {path: join(__dirname, '/../tmp/')},
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
         });
       });
   });
@@ -43,7 +44,7 @@ describe('pending', function () {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
         return this.umzug.pending();
       }).then((migrations) => {
@@ -56,7 +57,7 @@ describe('pending', function () {
     });
 
     it('returns only the migrations that have not been run yet', function () {
-      var self = this;
+      let self = this;
 
       this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');
@@ -66,14 +67,12 @@ describe('pending', function () {
 
   describe('when storage returns a thenable', function () {
     beforeEach(function () {
-
-      //a migration has been executed already
+      // a migration has been executed already
       return this.umzug.execute({
         migrations: [ this.migrationNames[0] ],
-        method:     'up'
+        method: 'up',
       }).then(() => {
-
-        //storage returns a thenable
+        // storage returns a thenable
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
 
         return this.umzug.pending();
@@ -87,7 +86,7 @@ describe('pending', function () {
     });
 
     it('returns only the migrations that have not been run yet', function () {
-      var self = this;
+      let self = this;
 
       this.migrationNames.slice(1).forEach((migrationName, i) => {
         expect(self.migrations[i].file).to.equal(migrationName + '.js');

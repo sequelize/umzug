@@ -10,7 +10,7 @@ export default class Storage {
    * @param {String} migrationName - Name of migration to be logged.
    * @returns {Promise}
    */
-  logMigration(migrationName) {
+  logMigration (migrationName) {
     return Bluebird.resolve();
   }
 
@@ -20,7 +20,7 @@ export default class Storage {
    * @param {String} migrationName - Name of migration to unlog.
    * @returns {Promise}
    */
-  unlogMigration(migrationName) {
+  unlogMigration (migrationName) {
     return Bluebird.resolve();
   }
 
@@ -29,7 +29,7 @@ export default class Storage {
    *
    * @returns {Promise.<String[]>}
    */
-  executed() {
+  executed () {
     return Bluebird.resolve([]);
   }
 }
