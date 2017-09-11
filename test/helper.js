@@ -3,19 +3,39 @@ import fs from 'fs';
 import {join} from 'path';
 
 const helper = module.exports = {
-  clearTmp () {
-    let files = fs.readdirSync(join(__dirname, '/tmp'));
+  clearTmp (path) {
+    let tmpPath = join(__dirname, '/tmp');
+    path = path || tmpPath;
+    let files = fs.readdirSync(path);
 
     files.forEach((file) => {
+      let filePath = join(path, '/' + file);
       if (file.match(/\.(js|json|sqlite|coffee)$/)) {
-        fs.unlinkSync(join(__dirname, '/tmp/', file));
+        fs.unlinkSync(filePath);
+      } else if (fs.lstatSync(filePath).isDirectory()) {
+        helper.clearTmp(filePath);
       }
     });
+    if (path !== tmpPath) {
+      fs.rmdirSync(path);
+    }
   },
 
-  generateDummyMigration (name) {
+  generateDummyMigration: function (name, subDirectories) {
+    let path = join(__dirname, '/tmp/');
+    if (subDirectories) {
+      if (!_.isArray(subDirectories)) {
+        subDirectories = [subDirectories];
+      }
+      subDirectories.forEach((directory) => {
+        path = join(path, directory + '/');
+        if (!fs.existsSync(path)) {
+          fs.mkdirSync(path);
+        }
+      });
+    }
     fs.writeFileSync(
-      join(__dirname, '/tmp/' + name + '.js'),
+      join(path, name + '.js'),
       [
         '\'use strict\';',
         '',
@@ -32,6 +52,10 @@ const helper = module.exports = {
   prepareMigrations (count, options) {
     options = {
       names: [],
+      directories: [], // can be array of strings or array of array of strings
+      // example 1: ['foo','bar'] ==> generates /foo and /bar
+      // example 2: [['foo','bar'],['foo','bar2']] ==> generates /foo/bar and /foo/bar2
+      // example 3: ['foo',['foo','bar2']] ==> generates /foo and /foo/bar2
       ...options || {},
     };
 
@@ -44,7 +68,7 @@ const helper = module.exports = {
       _.times(count, (i) => {
         num++;
         names.push(options.names[i] || (num + '-migration'));
-        helper.generateDummyMigration(options.names[i]);
+        helper.generateDummyMigration(names[i], options.directories[i]);
       });
 
       resolve(names);
