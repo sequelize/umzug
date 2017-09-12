@@ -10,7 +10,7 @@ import Umzug from '../../src';
 describe('custom resolver', () => {
   beforeEach(function () {
     helper.clearTmp();
-    this.storagePath = resolve(__dirname, '/../tmp/storage.sqlite');
+    this.storagePath = resolve(__dirname, '../tmp/storage.sqlite');
     this.sequelize = new Sequelize('database', 'username', 'password', {
       dialect: 'sqlite',
       storage: this.storagePath,
@@ -48,7 +48,7 @@ describe('custom resolver', () => {
 
   it('resolves javascript files if no custom resolver is defined', async function () {
     this.pattern = /\.js$/;
-    this.path = resolve(__dirname, '/javascript');
+    this.path = resolve(__dirname, 'javascript');
     this.customResolver = undefined;
 
     await this.umzug().up();
@@ -58,7 +58,7 @@ describe('custom resolver', () => {
 
   it('can resolve sql files', async function () {
     this.pattern = /\.sql$/;
-    this.path = resolve(__dirname, '/sql');
+    this.path = resolve(__dirname, 'sql');
     this.customResolver = path => ({
       up: () => this.sequelize.query(readFileSync(path, 'utf8')),
     });
@@ -70,7 +70,7 @@ describe('custom resolver', () => {
 
   it('can resolve typescript files', async function () {
     this.pattern = /\.ts$/;
-    this.path = resolve(__dirname, '/typescript');
+    this.path = resolve(__dirname, 'typescript');
     this.customResolver = path => {
       const typescriptSrc = readFileSync(path, 'utf8');
       const transpiled = typescript.transpileModule(typescriptSrc, {});
@@ -89,7 +89,7 @@ describe('custom resolver', () => {
 
   it('can resolve coffeescript files', async function () {
     this.pattern = /\.coffee$/;
-    this.path = resolve(__dirname, '/coffeescript');
+    this.path = resolve(__dirname, 'coffeescript');
     this.customResolver = path => {
       const coffeescriptSrc = readFileSync(path, 'utf8');
       const javascriptSrc = coffeescript.compile(coffeescriptSrc);
