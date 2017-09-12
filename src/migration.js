@@ -45,9 +45,9 @@ module.exports = class Migration {
    *
    * @returns {Promise.<Object>} Required migration module
    */
-  migration() {
+  migration () {
     if (typeof this.options.migrations.customResolver === 'function') {
-        return this.options.migrations.customResolver(this.path);
+      return this.options.migrations.customResolver(this.path);
     }
     if (this.path.match(/\.coffee$/)) {
       // 1.7.x compiler registration
