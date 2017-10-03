@@ -40,6 +40,10 @@ module.exports = class Umzug extends EventEmitter {
    * @param {Migration~wrap} [options.migrations.wrap] - A function that
    * receives and returns the to be executed function. This can be used to
    * modify the function.
+   * @param {Migration~customResolver} [options.migrations.customResolver] - A
+   * function that specifies how to get a migration object from a path. This
+   * should return an object of the form { up: Function, down: Function }.
+   * Without this defined, a regular javascript import will be performed.
    * @constructs Umzug
    */
   constructor (options = {}) {
