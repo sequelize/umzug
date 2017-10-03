@@ -341,7 +341,17 @@ It is possible to configure *umzug* instance via passing an object to the constr
 
     // A function that receives and returns the to be executed function.
     // This can be used to modify the function.
-    wrap: function (fun) { return fun; }
+    wrap: function (fun) { return fun; },
+    
+    // A function that maps a file path to a migration object in the form
+    // { up: Function, down: Function }. The default for this is to require(...)
+    // the file as javascript, but you can use this to transpile TypeScript,
+    // read raw sql etc.
+    // See https://github.com/sequelize/umzug/tree/master/test/fixtures
+    // for examples.
+    customResolver: function (sqlPath)  {
+        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
+    }
   }
 }
 ```
