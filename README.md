@@ -68,7 +68,6 @@ Using the [SequelizeStorage](src/storages/MongoDBStorage.js) will create a colle
 
   // reference to a MongoDB Driver collection
   collection: MongoDBDriverCollection
-
 }
 ```
 #### Events
