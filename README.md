@@ -1,8 +1,6 @@
 # Umzug [![Build Status](https://travis-ci.org/sequelize/umzug.svg?branch=master)](https://travis-ci.org/sequelize/umzug)
 The *umzug* lib is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
 
-**[!!! Maintainer needed !!!](https://github.com/sequelize/umzug/issues/145)**
-
 ## Persistence
 In order to keep track of already executed tasks, *umzug* logs successfully executed migrations. This is done in order to allow rollbacks of tasks. There are multiple storage presets available, from which you can choose. Adding a custom is  super simple as well.
 
@@ -22,7 +20,7 @@ Using the [JSONStorage](src/storages/JSONStorage.js) will create a JSON file whi
 ```
 
 ### SequelizeStorage
-Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a table in your database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
+Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
 
 #### Options
 
@@ -55,6 +53,24 @@ Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a tab
 }
 ```
 
+### MongoDBStorage
+Using the [SequelizeStorage](src/storages/MongoDBStorage.js) will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
+
+#### Options
+
+```js
+{
+  // a connection to target database established with MongoDB Driver
+  connection: MongoDBDriverConnection,
+
+  // name of migration collection in MongoDB
+  collectionName: 'migrations',
+
+  // reference to a MongoDB Driver collection
+  collection: MongoDBDriverCollection
+
+}
+```
 #### Events
 
 Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place
