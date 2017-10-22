@@ -1,22 +1,9 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
 import {join} from 'path';
 
-describe('executed', function () {
-  beforeEach(function () {
-    helper.clearTmp();
-    return helper
-      .prepareMigrations(3)
-      .then((migrationNames) => {
-        this.migrationNames = migrationNames;
-        this.umzug = new Umzug({
-          migrations: { path: join(__dirname, '/../tmp/') },
-          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
-        });
-      });
-  });
-
+let executedTestSuite = function executedTestSuite () {
   describe('when no migrations has been executed yet', function () {
     beforeEach(function () {
       return this.umzug.executed()
@@ -37,7 +24,7 @@ describe('executed', function () {
   describe('when one migration has been executed yet', function () {
     beforeEach(function () {
       return this.umzug.execute({
-        migrations: [ this.migrationNames[0] ],
+        migrations: [this.migrationNames[0]],
         method: 'up',
       }).then(() => {
         return this.umzug.executed();
@@ -84,7 +71,7 @@ describe('executed', function () {
     beforeEach(function () {
       // migration has been executed already
       return this.umzug.execute({
-        migrations: [ this.migrationNames[0] ],
+        migrations: [this.migrationNames[0]],
         method: 'up',
       }).then(() => {
         this.umzug.storage = helper.wrapStorageAsCustomThenable(this.umzug.storage);
@@ -103,4 +90,38 @@ describe('executed', function () {
       expect(this.migrations[0].file).to.equal(this.migrationNames[0] + '.js');
     });
   });
+};
+
+describe('executed', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+    return helper
+      .prepareMigrations(3)
+      .then((migrationNames) => {
+        this.migrationNames = migrationNames;
+        this.umzug = new Umzug({
+          migrations: {path: join(__dirname, '/../tmp/')},
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
+        });
+      });
+  });
+
+  executedTestSuite();
+});
+
+describe('executed-directories', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+    return helper
+      .prepareMigrations(3, {directories: [['1', '2'], ['1', '2'], ['1', '3', '4', '5']]})
+      .then((migrationNames) => {
+        this.migrationNames = migrationNames;
+        this.umzug = new Umzug({
+          migrations: {path: join(__dirname, '/../tmp/'), traverseDirectories: true},
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
+        });
+      });
+  });
+
+  executedTestSuite();
 });

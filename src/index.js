@@ -66,6 +66,7 @@ module.exports = class Umzug extends EventEmitter {
       params: [],
       path: path.resolve(process.cwd(), 'migrations'),
       pattern: /^\d+[\w-]+\.js$/,
+      traverseDirectories: false,
       wrap: fun => fun,
       ...this.options.migrations,
     };
@@ -440,33 +441,47 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise.<Migration[]>}
    * @private
    */
-  _findMigrations () {
+  _findMigrations (migrationPath) {
+    let isRoot = !migrationPath;
+    if (isRoot) {
+      migrationPath = this.options.migrations.path;
+    }
     return Bluebird
-      .promisify(fs.readdir)(this.options.migrations.path)
+      .promisify(fs.readdir)(migrationPath)
       .bind(this)
-      .filter(function (file) {
-        if (!this.options.migrations.pattern.test(file)) {
-          this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
-          return false;
-        }
-        return true;
-      })
       .map(function (file) {
-        return path.resolve(this.options.migrations.path, file);
+        let filePath = path.resolve(migrationPath, file);
+        if (this.options.migrations.traverseDirectories) {
+          if (fs.lstatSync(filePath).isDirectory()) {
+            return this._findMigrations(filePath)
+              .then(function (migrations) {
+                return migrations;
+              });
+          }
+        }
+        if (this.options.migrations.pattern.test(file)) {
+          return new Migration(filePath, this.options);
+        }
+        this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
+        return file;
       })
-      .map(function (path) {
-        return new Migration(path, this.options);
+      .reduce(function (a, b) { return a.concat(b); }, []) // flatten the result to an array
+      .filter(function (file) {
+        return file instanceof Migration; // only care about Migration
       })
       .then(function (migrations) {
-        return migrations.sort(function (a, b) {
-          if (a.file > b.file) {
-            return 1;
-          } else if (a.file < b.file) {
-            return -1;
-          } else {
-            return 0;
-          }
-        });
+        if (isRoot) { // only sort if its root
+          return migrations.sort(function (a, b) {
+            if (a.file > b.file) {
+              return 1;
+            } else if (a.file < b.file) {
+              return -1;
+            } else {
+              return 0;
+            }
+          });
+        }
+        return migrations;
       });
   }
 

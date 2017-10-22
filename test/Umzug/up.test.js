@@ -1,23 +1,10 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import helper from '../helper';
 import Migration from '../../src/migration';
 import Umzug from '../../src';
 import {join} from 'path';
 
-describe('up', function () {
-  beforeEach(function () {
-    helper.clearTmp();
-    return helper
-      .prepareMigrations(3)
-      .then((migrationNames) => {
-        this.migrationNames = migrationNames;
-        this.umzug = new Umzug({
-          migrations: {path: join(__dirname, '/../tmp/')},
-          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
-        });
-      });
-  });
-
+let upTestuite = function upTestuite () {
   describe('when no migrations has been executed yet', function () {
     beforeEach(function () {
       return this.umzug.up().then((migrations) => {
@@ -43,7 +30,7 @@ describe('up', function () {
   describe('when a migration has been executed already', function () {
     beforeEach(function () {
       return this.umzug.execute({
-        migrations: [ this.migrationNames[0] ],
+        migrations: [this.migrationNames[0]],
         method: 'up',
       }).then(() => {
         return this.umzug.up();
@@ -120,7 +107,7 @@ describe('up', function () {
 
     describe('that does not match a migration', function () {
       it('rejects the promise', function () {
-        return this.umzug.up({ to: '123-asdasd' }).then(() => {
+        return this.umzug.up({to: '123-asdasd'}).then(() => {
           return Promise.reject(new Error('We should not end up here...'));
         }, (err) => {
           expect(err.message).to.equal('Unable to find migration: 123-asdasd');
@@ -131,9 +118,9 @@ describe('up', function () {
     describe('that does not match a pending migration', function () {
       it('rejects the promise', function () {
         return this.umzug
-          .execute({ migrations: this.migrationNames, method: 'up' })
+          .execute({migrations: this.migrationNames, method: 'up'})
           .then(() => {
-            return this.umzug.up({ to: this.migrationNames[1] });
+            return this.umzug.up({to: this.migrationNames[1]});
           })
           .then(() => {
             return Promise.reject(new Error('We should not end up here...'));
@@ -148,7 +135,9 @@ describe('up', function () {
     describe('that matches a pending migration', function () {
       beforeEach(function () {
         return this.umzug.up(this.migrationNames[1])
-          .then((migrations) => { this.migrations = migrations; });
+          .then((migrations) => {
+            this.migrations = migrations;
+          });
       });
 
       it('returns only 1 migrations', function () {
@@ -176,7 +165,7 @@ describe('up', function () {
     describe('that does not match a pending migration', function () {
       it('rejects the promise', function () {
         return this.umzug
-          .execute({ migrations: this.migrationNames, method: 'up' })
+          .execute({migrations: this.migrationNames, method: 'up'})
           .then(() => {
             return this.umzug.up(this.migrationNames[1]);
           })
@@ -193,7 +182,9 @@ describe('up', function () {
     describe('that matches a pending migration', function () {
       beforeEach(function () {
         return this.umzug.up([this.migrationNames[1]])
-          .then((migrations) => { this.migrations = migrations; });
+          .then((migrations) => {
+            this.migrations = migrations;
+          });
       });
 
       it('returns only 1 migrations', function () {
@@ -211,7 +202,9 @@ describe('up', function () {
     describe('that matches multiple pending migration', function () {
       beforeEach(function () {
         return this.umzug.up(this.migrationNames.slice(1))
-          .then((migrations) => { this.migrations = migrations; });
+          .then((migrations) => {
+            this.migrations = migrations;
+          });
       });
 
       it('returns only 2 migrations', function () {
@@ -240,7 +233,7 @@ describe('up', function () {
     describe('that does not match a pending migration', function () {
       it('rejects the promise', function () {
         return this.umzug
-          .execute({ migrations: this.migrationNames, method: 'up' })
+          .execute({migrations: this.migrationNames, method: 'up'})
           .then(() => {
             return this.umzug.up([this.migrationNames[1]]);
           })
@@ -255,7 +248,7 @@ describe('up', function () {
     describe('that does partially not match a pending migration', function () {
       it('rejects the promise', function () {
         return this.umzug
-          .execute({ migrations: this.migrationNames.slice(0, 2), method: 'up' })
+          .execute({migrations: this.migrationNames.slice(0, 2), method: 'up'})
           .then(() => {
             return this.umzug.up(this.migrationNames.slice(1));
           })
@@ -272,7 +265,7 @@ describe('up', function () {
     beforeEach(function () {
       // one migration has been executed already
       return this.umzug.execute({
-        migrations: [ this.migrationNames[0] ],
+        migrations: [this.migrationNames[0]],
         method: 'up',
       }).then(() => {
         // storage returns a thenable
@@ -302,4 +295,38 @@ describe('up', function () {
       });
     });
   });
+};
+
+describe('up', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+    return helper
+      .prepareMigrations(3)
+      .then((migrationNames) => {
+        this.migrationNames = migrationNames;
+        this.umzug = new Umzug({
+          migrations: {path: join(__dirname, '/../tmp/')},
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
+        });
+      });
+  });
+
+  upTestuite();
+});
+
+describe('up-directories', function () {
+  beforeEach(function () {
+    helper.clearTmp();
+    return helper
+      .prepareMigrations(3, {directories: [['1', '2'], ['1', '2'], ['1', '3', '4', '5']]})
+      .then((migrationNames) => {
+        this.migrationNames = migrationNames;
+        this.umzug = new Umzug({
+          migrations: {path: join(__dirname, '/../tmp/'), traverseDirectories: true},
+          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
+        });
+      });
+  });
+
+  upTestuite();
 });
