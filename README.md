@@ -139,7 +139,7 @@ module.exports = redefine.Class({
 ```
 
 ## Migrations
-Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method.
+Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
 
 ### Format
 A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
