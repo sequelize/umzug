@@ -180,7 +180,7 @@ npm install umzug
 ```
 
 ### API
-The basic usage of *umzug* is as simple as that:
+The basic usage of *umzug* is as simple as:
 
 ```js
 var Umzug = require('umzug');
@@ -305,7 +305,7 @@ umzug.down(['20141101203500-task', '20141101203501-task-2']);
 
 ### Configuration
 
-It is possible to configure *umzug* instance via passing an object to the constructor. The possible options are:
+It is possible to configure *umzug* instance by passing an object to the constructor. The possible options are:
 
 ```js
 {
