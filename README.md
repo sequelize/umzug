@@ -276,7 +276,7 @@ umzug.down().then(function (migration) {
 });
 ```
 
-It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverse of multiple migrations at once.
+It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
 umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
