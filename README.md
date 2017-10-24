@@ -244,7 +244,7 @@ You also have the ability to choose to run migrations *from* a specific migratio
 umzug.up({ from: '20141101203500-task' }).then(function (migrations) {});
 ```
 
-In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly usefull if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
+In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly useful if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
 
 You can combine `from` and `to` options to select a specific subset:
 
