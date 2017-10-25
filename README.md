@@ -139,7 +139,7 @@ module.exports = redefine.Class({
 ```
 
 ## Migrations
-Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks have return a Promise object which provides a `then` method.
+Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
 
 ### Format
 A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
@@ -180,7 +180,7 @@ npm install umzug
 ```
 
 ### API
-The basic usage of *umzug* is as simple as that:
+The basic usage of *umzug* is as simple as:
 
 ```js
 var Umzug = require('umzug');
@@ -244,7 +244,7 @@ You also have the ability to choose to run migrations *from* a specific migratio
 umzug.up({ from: '20141101203500-task' }).then(function (migrations) {});
 ```
 
-In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly usefull if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
+In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly useful if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
 
 You can combine `from` and `to` options to select a specific subset:
 
@@ -276,7 +276,7 @@ umzug.down().then(function (migration) {
 });
 ```
 
-It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverse of multiple migrations at once.
+It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
 umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
@@ -305,7 +305,7 @@ umzug.down(['20141101203500-task', '20141101203501-task-2']);
 
 ### Configuration
 
-It is possible to configure *umzug* instance via passing an object to the constructor. The possible options are:
+It is possible to configure *umzug* instance by passing an object to the constructor. The possible options are:
 
 ```js
 {
