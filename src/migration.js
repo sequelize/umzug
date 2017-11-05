@@ -52,7 +52,7 @@ module.exports = class Migration {
     if (this.path.match(/\.coffee$/)) {
       // 2.x compiler registration
       helper.resolve('coffeescript/register') ||
-        
+
       // 1.7.x compiler registration
       helper.resolve('coffee-script/register') ||
 
