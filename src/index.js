@@ -29,7 +29,8 @@ module.exports = class Umzug extends EventEmitter {
    * in migrations.
    * @param {Object} [options.storageOptions] - The options for the storage.
    * Check the available storages for further details.
-   * @param {Object} [options.migrations] -
+   * @param {Object|Array} [options.migrations] - options for loading migration
+   * files, or (advanced) an array of Migration instances
    * @param {Array} [options.migrations.params] - The params that gets passed to
    * the migrations. Might be an array or a synchronous function which returns
    * an array.
@@ -62,14 +63,16 @@ module.exports = class Umzug extends EventEmitter {
       throw new Error('The logging-option should be either a function or false');
     }
 
-    this.options.migrations = {
-      params: [],
-      path: path.resolve(process.cwd(), 'migrations'),
-      pattern: /^\d+[\w-]+\.js$/,
-      traverseDirectories: false,
-      wrap: fun => fun,
-      ...this.options.migrations,
-    };
+    if (!Array.isArray(this.options.migrations)) {
+      this.options.migrations = {
+        params: [],
+        path: path.resolve(process.cwd(), 'migrations'),
+        pattern: /^\d+[\w-]+\.js$/,
+        traverseDirectories: false,
+        wrap: fun => fun,
+        ...this.options.migrations,
+      };
+    }
 
     this.storage = this._initStorage();
   }
@@ -442,6 +445,9 @@ module.exports = class Umzug extends EventEmitter {
    * @private
    */
   _findMigrations (migrationPath) {
+    if (Array.isArray(this.options.migrations)) {
+      return Bluebird.resolve(this.options.migrations);
+    }
     let isRoot = !migrationPath;
     if (isRoot) {
       migrationPath = this.options.migrations.path;

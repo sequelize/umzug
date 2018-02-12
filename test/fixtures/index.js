@@ -6,6 +6,7 @@ import typescript from 'typescript';
 import coffeescript from 'coffee-script';
 import helper from '../helper';
 import Umzug from '../../src';
+import Migration from '../../src/migration';
 
 describe('custom resolver', () => {
   beforeEach(function () {
@@ -52,6 +53,36 @@ describe('custom resolver', () => {
     this.customResolver = undefined;
 
     await this.umzug().up();
+
+    await this.verifyTables();
+  });
+
+  it('an array of migrations created manually can be passed in', async function () {
+    const umzug = new Umzug({
+      migrations: [
+        new Migration(require.resolve('./javascript/1.users'), {
+          upName: 'up',
+          downName: 'down',
+          migrations: {
+            wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
+          },
+        }),
+        new Migration(require.resolve('./javascript/2.things'), {
+          upName: 'up',
+          downName: 'down',
+          migrations: {
+            wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
+          },
+        }),
+      ],
+      storage: 'sequelize',
+      storageOptions: {
+        path: this.storagePath,
+        sequelize: this.sequelize,
+      },
+    });
+
+    await umzug.up();
 
     await this.verifyTables();
   });
