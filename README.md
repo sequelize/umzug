@@ -327,6 +327,7 @@ It is possible to configure *umzug* instance by passing an object to the constru
   // The name of the negative method in migrations.
   downName: 'down',
 
+  // (advanced) you can pass an array of Migration instances instead of the options below
   migrations: {
     // The params that gets passed to the migrations.
     // Might be an array or a synchronous function which returns an array.
