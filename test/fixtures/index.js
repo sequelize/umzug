@@ -57,22 +57,18 @@ describe('custom resolver', () => {
     await this.verifyTables();
   });
 
-  it('an array of migrations created manually can be passed in', async function () {
+  it('an array of migrations instances created manually can be passed in', async function () {
     const umzug = new Umzug({
       migrations: [
         new Migration(require.resolve('./javascript/1.users'), {
           upName: 'up',
           downName: 'down',
-          migrations: {
-            wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
-          },
+          wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
         }),
         new Migration(require.resolve('./javascript/2.things'), {
           upName: 'up',
           downName: 'down',
-          migrations: {
-            wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
-          },
+          wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
         }),
       ],
       storage: 'sequelize',

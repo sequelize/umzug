@@ -327,7 +327,8 @@ It is possible to configure *umzug* instance by passing an object to the constru
   // The name of the negative method in migrations.
   downName: 'down',
 
-  // (advanced) you can pass an array of Migration instances instead of the options below
+  // This can be an object or an array of objects. Pass an array if you want to 
+  // load from different paths, or have a different resolver for different file types
   migrations: {
     // The params that gets passed to the migrations.
     // Might be an array or a synchronous function which returns an array.
@@ -352,7 +353,11 @@ It is possible to configure *umzug* instance by passing an object to the constru
     customResolver: function (sqlPath)  {
         return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
     }
-  }
+  },
+  
+  // (advanced) an array of pre-configured Migration instances. 
+  // If this is set, `options.migrations` is ignored.
+  migrationInstances: [new Migration('custom-migration.js'), {...}]
 }
 ```
 

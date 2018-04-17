@@ -22,10 +22,8 @@ module.exports = class Migration {
    * module.
    * @param {String} options.downName - Name of the method `down` in migration
    * module.
-   * @param {Object} options.migrations
-   * @param {Migration~wrap} options.migrations.wrap - Wrapper function for
-   * migration methods.
-   * @param {Migration~customResolver} [options.migrations.customResolver] - A
+   * @param {function} options.wrap - Wrapper function for migration methods.
+   * @param {function} options.customResolver - A
    * function that specifies how to get a migration object from a path. This
    * should return an object of the form { up: Function, down: Function }.
    * Without this defined, a regular javascript import will be performed.
@@ -46,8 +44,8 @@ module.exports = class Migration {
    * @returns {Promise.<Object>} Required migration module
    */
   migration () {
-    if (typeof this.options.migrations.customResolver === 'function') {
-      return this.options.migrations.customResolver(this.path);
+    if (typeof this.options.customResolver === 'function') {
+      return this.options.customResolver(this.path);
     }
     if (this.path.match(/\.coffee$/)) {
       // 2.x compiler registration
@@ -110,7 +108,7 @@ module.exports = class Migration {
       fun = migration.default[method] || migration[method];
     }
     if (!fun) throw new Error('Could not find migration method: ' + method);
-    const wrappedFun = this.options.migrations.wrap(fun);
+    const wrappedFun = this.options.wrap(fun);
 
     await wrappedFun.apply(migration, args);
   }

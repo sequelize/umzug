@@ -55,4 +55,11 @@ describe('constructor', function () {
     umzug.log();
     expect(spy.called).to.be.true;
   });
+
+  it('converts migration options object to array', () => {
+    const umzug = new Umzug({ migrations: { traverseDirectories: true } });
+    expect(umzug.options.migrations).to.be.an.array;
+    expect(umzug.options.migrations).to.have.length(1);
+    expect(umzug.options.migrations[0].traverseDirectories).to.be.true;
+  });
 });

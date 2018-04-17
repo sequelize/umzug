@@ -93,7 +93,7 @@ describe('execute', function () {
   });
 
   it('calls the migration with the specified params', function () {
-    this.umzug.options.migrations.params = [1, 2, 3];
+    this.umzug.options.migrations[0].params = [1, 2, 3];
 
     return this.migrate('up').then(() => {
       expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
@@ -101,7 +101,7 @@ describe('execute', function () {
   });
 
   it('calls the migration with the result of the passed function', function () {
-    this.umzug.options.migrations.params = () => {
+    this.umzug.options.migrations[0].params = () => {
       return [1, 2, 3];
     };
 
