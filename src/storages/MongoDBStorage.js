@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Storage from './Storage';
 
 /**
- * @class JSONStorage
+ * @class MongoDBStorage
  */
 export default class MongoDBStorage extends Storage {
   /**
