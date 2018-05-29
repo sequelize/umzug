@@ -3,4 +3,5 @@ describe('storages', function () {
   require('./mongodb.test');
   require('./none.test');
   require('./sequelize.test');
+  require('./redis.test');
 });
