@@ -9,6 +9,7 @@ import Storage from './storages/Storage';
 import JSONStorage from './storages/JSONStorage';
 import MongoDBStorage from './storages/MongoDBStorage';
 import SequelizeStorage from './storages/SequelizeStorage';
+import RedisStorage from './storages/RedisStorage';
 
 /**
  * @class Umzug
@@ -434,6 +435,7 @@ module.exports = class Umzug extends EventEmitter {
       case 'json': return JSONStorage;
       case 'mongodb': return MongoDBStorage;
       case 'sequelize': return SequelizeStorage;
+      case 'redis': return RedisStorage;
       default: return require(this.options.storage);
     }
   }
