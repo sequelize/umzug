@@ -10,42 +10,32 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "babel-runtime": "^6.23.0",
-    "bluebird": "^3.4.1",
-    "lodash": "^4.17.0",
-    "resolve": "^1.0.0"
+    "bluebird": "^3.5.2"
   },
+  "files": [
+    "lib"
+  ],
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-plugin-dynamic-import-node": "^1.1.0",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.4.0",
-    "babel-register": "^6.24.1",
-    "chai": "^3.5.0",
-    "coffee-script": "^1.8.0",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-mocha": "^4.11.0",
-    "eslint-plugin-node": "^5.2.0",
-    "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "gulp": "^3.8.10",
-    "gulp-babel": "^7.0.0",
-    "gulp-eslint": "^4.0.0",
-    "gulp-mocha": "^4.3.0",
-    "mocha": "^3.5.3",
-    "sequelize": "^3.30.4",
-    "sinon": "^2.1.0",
-    "sinon-chai": "^2.14.0",
-    "sqlite3": "^3.1.13",
-    "typescript": "^2.5.2",
-    "yargs": "^8.0.1"
+    "chai": "^4.2.0",
+    "eslint": "^5.8.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^5.2.0",
+    "sequelize": "^4.41.0",
+    "sinon": "^7.1.1",
+    "sinon-chai": "^3.2.0",
+    "sqlite3": "^4.0.3",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.6"
   },
   "scripts": {
-    "build": "gulp build",
-    "test": "gulp test"
+    "build": "tsc",
+    "test": "mocha -r ts-node/register/transpile-only -t 1000 --check-leaks 'test/**/*.js'",
+    "lint": "eslint src test"
   },
   "repository": {
     "type": "git",
@@ -64,6 +54,6 @@
   },
   "homepage": "https://github.com/sequelize/umzug",
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   }
 }

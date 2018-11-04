@@ -3,7 +3,6 @@ import { resolve, dirname } from 'path';
 import { expect } from 'chai';
 import Sequelize from 'sequelize';
 import typescript from 'typescript';
-import coffeescript from 'coffee-script';
 import helper from '../helper';
 import Umzug from '../../src';
 import Migration from '../../src/migration';
@@ -114,26 +113,6 @@ describe('custom resolver', () => {
     };
 
     await this.umzug().up();
-
-    await this.verifyTables();
-  });
-
-  it('can resolve coffeescript files', async function () {
-    this.pattern = /\.coffee$/;
-    this.path = resolve(__dirname, 'coffeescript');
-    this.customResolver = path => {
-      const coffeescriptSrc = readFileSync(path, 'utf8');
-      const javascriptSrc = coffeescript.compile(coffeescriptSrc);
-      const Module = module.constructor;
-      const m = new Module(path, module.parent);
-      m.filename = path;
-      m.paths = Module._nodeModulePaths(dirname(path));
-      m._compile(javascriptSrc, path);
-      return m.exports;
-    };
-
-    await this.umzug().up();
-
     await this.verifyTables();
   });
 });

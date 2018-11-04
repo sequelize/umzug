@@ -107,35 +107,35 @@ Create and publish a module which has to fulfill the following API. You can just
 var Bluebird = require('bluebird');
 var redefine = require('redefine');
 
-module.exports = redefine.Class({
-  constructor: function ({ option1: 'defaultValue1' } = {}) {
+class MyStorage {
+  constructor ({ option1: 'defaultValue1' } = {}) {
     this.option1 = option1;
-  },
+  }
 
-  logMigration: function (migrationName) {
-    return new Bluebird(function (resolve, reject) {
+  logMigration (migrationName) {
+    return new Bluebird((resolve, reject) => {
       // This function logs a migration as executed.
       // It will get called once a migration was
       // executed successfully.
     });
   },
 
-  unlogMigration: function (migrationName) {
-    return new Bluebird(function (resolve, reject) {
+  unlogMigration (migrationName) {
+    return new Bluebird((resolve, reject) => {
       // This function removes a previously logged migration.
       // It will get called once a migration has been reverted.
     });
   },
 
-  executed: function () {
-    return new Bluebird(function (resolve, reject) {
+  executed () {
+    return new Bluebird((resolve, reject) => {
       // This function lists the names of the logged
       // migrations. It will be used to calculate
       // pending migrations. The result has to be an
       // array with the names of the migration files.
     });
   }
-});
+}
 ```
 
 ## Migrations
@@ -150,15 +150,15 @@ A migration file ideally contains an `up` and a `down` method, which represent a
 var Bluebird = require('bluebird');
 
 module.exports = {
-  up: function () {
-    return new Bluebird(function (resolve, reject) {
+  up () {
+    return new Bluebird((resolve, reject) => {
       // Describe how to achieve the task.
       // Call resolve/reject at some point.
     });
   },
 
-  down: function () {
-    return new Bluebird(function (resolve, reject) {
+  down () {
+    return new Bluebird((resolve, reject) => {
       // Describe how to revert the task.
       // Call resolve/reject at some point.
     });
@@ -186,7 +186,7 @@ The basic usage of *umzug* is as simple as:
 var Umzug = require('umzug');
 var umzug = new Umzug({});
 
-umzug.someMethod().then(function (result) {
+umzug.someMethod().then((result) => {
   // do something with the result
 });
 ```
@@ -198,7 +198,7 @@ The `execute` method is a general purpose function that runs for every specified
 umzug.execute({
   migrations: ['some-id', 'some-other-id'],
   method: 'up'
-}).then(function (migrations) {
+}).then((migrations) => {
   // "migrations" will be an Array of all executed/reverted migrations.
 });
 ```
@@ -207,7 +207,7 @@ umzug.execute({
 You can get a list of pending/not yet executed migrations like this:
 
 ```js
-umzug.pending().then(function (migrations) {
+umzug.pending().then((migrations) => {
   // "migrations" will be an Array with the names of
   // pending migrations.
 });
@@ -217,7 +217,7 @@ umzug.pending().then(function (migrations) {
 You can get a list of already executed migrations like this:
 
 ```js
-umzug.executed().then(function (migrations) {
+umzug.executed().then((migrations) => {
   // "migrations" will be an Array of already executed migrations.
 });
 ```
@@ -226,7 +226,7 @@ umzug.executed().then(function (migrations) {
 The `up` method can be used to execute all pending migrations.
 
 ```js
-umzug.up().then(function (migrations) {
+umzug.up().then((migrations) => {
   // "migrations" will be an Array with the names of the
   // executed migrations.
 });
@@ -235,13 +235,13 @@ umzug.up().then(function (migrations) {
 It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name.
 
 ```js
-umzug.up({ to: '20141101203500-task' }).then(function (migrations) {});
+umzug.up({ to: '20141101203500-task' }).then( (migrations) => {});
 ```
 
 You also have the ability to choose to run migrations *from* a specific migration, excluding it:
 
 ```js
-umzug.up({ from: '20141101203500-task' }).then(function (migrations) {});
+umzug.up({ from: '20141101203500-task' }).then((migrations) => {});
 ```
 
 In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly useful if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
@@ -249,7 +249,7 @@ In the above example umzug will execute all the pending migrations found **after
 You can combine `from` and `to` options to select a specific subset:
 
 ```js
-umzug.up({ from: '20141101203500-task', to: '20151201103412-items' }).then(function (migrations) {});
+umzug.up({ from: '20141101203500-task', to: '20151201103412-items' }).then((migrations) => {});
 ```
 
 Running specific migrations while ignoring the right order, can be done like this:
@@ -271,7 +271,7 @@ Running
 The `down` method can be used to revert the last executed migration.
 
 ```js
-umzug.down().then(function (migration) {
+umzug.down().then((migration) => {
   // "migration" will the name of the reverted migration.
 });
 ```
@@ -279,7 +279,7 @@ umzug.down().then(function (migration) {
 It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
-umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
+umzug.down({ to: '20141031080000-task' }).then((migrations) => {
   // "migrations" will be an Array with the names of all reverted migrations.
 });
 ```
@@ -341,15 +341,15 @@ It is possible to configure *umzug* instance by passing an object to the constru
 
     // A function that receives and returns the to be executed function.
     // This can be used to modify the function.
-    wrap: function (fun) { return fun; },
-    
+    wrap (fun) { return fun; },
+
     // A function that maps a file path to a migration object in the form
     // { up: Function, down: Function }. The default for this is to require(...)
     // the file as javascript, but you can use this to transpile TypeScript,
     // read raw sql etc.
     // See https://github.com/sequelize/umzug/tree/master/test/fixtures
     // for examples.
-    customResolver: function (sqlPath)  {
+    customResolver: (sqlPath) => {
         return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
     }
   }

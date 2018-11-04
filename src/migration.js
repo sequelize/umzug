@@ -1,9 +1,5 @@
 import _path from 'path';
-import helper from './helper';
 
-/**
- * @class Migration
- */
 module.exports = class Migration {
   /**
    * Wrapper function for migration methods.
@@ -38,8 +34,7 @@ module.exports = class Migration {
   }
 
   /**
-   * Tries to require migration module. CoffeeScript support requires
-   * 'coffee-script' to be installed.
+   * Tries to require migration module.
    * To require other file types, like TypeScript or raw sql files, a
    * custom resolver can be used.
    *
@@ -48,21 +43,6 @@ module.exports = class Migration {
   migration () {
     if (typeof this.options.migrations.customResolver === 'function') {
       return this.options.migrations.customResolver(this.path);
-    }
-    if (this.path.match(/\.coffee$/)) {
-      // 2.x compiler registration
-      helper.resolve('coffeescript/register') ||
-
-      // 1.7.x compiler registration
-      helper.resolve('coffee-script/register') ||
-
-      // Prior to 1.7.x compiler registration
-      helper.resolve('coffee-script') ||
-      /* jshint expr: true */
-      (function () {
-        console.error('You have to add "coffee-script" to your package.json.');
-        process.exit(1);
-      })();
     }
 
     return require(this.path);
@@ -73,8 +53,8 @@ module.exports = class Migration {
    *
    * @returns {Promise}
    */
-  up () {
-    return this._exec(this.options.upName, [].slice.apply(arguments));
+  up (...args) {
+    return this._exec(this.options.upName, args);
   }
 
   /**
@@ -82,8 +62,8 @@ module.exports = class Migration {
    *
    * @returns {Promise}
    */
-  down () {
-    return this._exec(this.options.downName, [].slice.apply(arguments));
+  down (...args) {
+    return this._exec(this.options.downName, args);
   }
 
   /**
@@ -92,7 +72,7 @@ module.exports = class Migration {
    * @returns {boolean}
    */
   testFileName (needle) {
-    return this.file.indexOf(needle) === 0;
+    return this.file.startsWith(needle);
   }
 
   /**

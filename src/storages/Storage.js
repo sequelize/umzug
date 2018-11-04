@@ -1,8 +1,5 @@
 import Bluebird from 'bluebird';
 
-/**
- * @class Storage
- */
 export default class Storage {
   /**
    * Does nothing.

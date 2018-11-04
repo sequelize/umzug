@@ -1,8 +1,5 @@
 import Storage from './Storage';
 
-/**
- * @class SequelizeStorage
- */
 export default class SequelizeStorage extends Storage {
   /**
    * Constructs Sequelize based storage.
@@ -98,13 +95,11 @@ export default class SequelizeStorage extends Storage {
    * @returns {Promise}
    */
   logMigration (migrationName) {
-    let self = this;
-
     return this._model()
       .sync()
-      .then(function (Model) {
-        let migration = {};
-        migration[self.columnName] = migrationName;
+      .then((Model) => {
+        const migration = {};
+        migration[this.columnName] = migrationName;
         return Model.create(migration);
       });
   }
@@ -116,15 +111,14 @@ export default class SequelizeStorage extends Storage {
    * @returns {Promise}
    */
   unlogMigration (migrationName) {
-    let self = this;
-    let sequelize = this.sequelize;
-    let sequelizeVersion = sequelize.modelManager ? 2 : 1;
+    const sequelize = this.sequelize;
+    const sequelizeVersion = sequelize.modelManager ? 2 : 1;
 
     return this._model()
       .sync()
-      .then(function (Model) {
+      .then((Model) => {
         let where = {};
-        where[self.columnName] = migrationName;
+        where[this.columnName] = migrationName;
 
         if (sequelizeVersion > 1) {
           // This is an ugly hack to find out which function signature we have to use.
@@ -141,18 +135,10 @@ export default class SequelizeStorage extends Storage {
    * @returns {Promise.<String[]>}
    */
   executed () {
-    let self = this;
-
     return this._model()
       .sync()
-      .then(function (Model) {
-        return Model.findAll({ order: [ [ self.columnName, 'ASC' ] ] });
-      })
-      .then(function (migrations) {
-        return migrations.map(function (migration) {
-          return migration[self.columnName];
-        });
-      });
+      .then((Model) => Model.findAll({ order: [ [ this.columnName, 'ASC' ] ] }))
+      .then((migrations) => migrations.map((migration) => migration[this.columnName]));
   }
 
   /**

@@ -1,15 +1,14 @@
-import _ from 'lodash';
 import fs from 'fs';
-import {join} from 'path';
+import { join } from 'path';
 
 const helper = module.exports = {
   clearTmp (path) {
-    let tmpPath = join(__dirname, '/tmp');
+    const tmpPath = join(__dirname, '/tmp');
     path = path || tmpPath;
-    let files = fs.readdirSync(path);
+    const files = fs.readdirSync(path);
 
     files.forEach((file) => {
-      let filePath = join(path, '/' + file);
+      const filePath = join(path, '/' + file);
       if (file.match(/\.(js|json|sqlite|coffee)$/)) {
         fs.unlinkSync(filePath);
       } else if (fs.lstatSync(filePath).isDirectory()) {
@@ -21,10 +20,10 @@ const helper = module.exports = {
     }
   },
 
-  generateDummyMigration: function (name, subDirectories) {
+  generateDummyMigration (name, subDirectories) {
     let path = join(__dirname, '/tmp/');
     if (subDirectories) {
-      if (!_.isArray(subDirectories)) {
+      if (!Array.isArray(subDirectories)) {
         subDirectories = [subDirectories];
       }
       subDirectories.forEach((directory) => {
@@ -40,8 +39,8 @@ const helper = module.exports = {
         '\'use strict\';',
         '',
         'module.exports = {',
-        '  up: function () {},',
-        '  down: function () {}',
+        '  up () {},',
+        '  down () {}',
         '};',
       ].join('\n')
     );
@@ -60,17 +59,14 @@ const helper = module.exports = {
     };
 
     return new Promise((resolve) => {
-      let names = options.names;
-      let num = 0;
+      const names = options.names;
 
       helper.clearTmp();
 
-      _.times(count, (i) => {
-        num++;
-        names.push(options.names[i] || (num + '-migration'));
+      for (let i = 0; i < count; ++i) {
+        names.push(options.names[i] || ((i + 1) + '-migration'));
         helper.generateDummyMigration(names[i], options.directories[i]);
-      });
-
+      }
       resolve(names);
     });
   },
@@ -99,16 +95,14 @@ const helper = module.exports = {
   },
 
   promisify (fn) {
-    return (...args) => {
-      return new Promise((resolve, reject) => {
-        fn(...args, (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        });
+    return (...args) => new Promise((resolve, reject) => {
+      fn(...args, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
       });
-    };
+    });
   },
 };

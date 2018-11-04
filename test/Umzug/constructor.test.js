@@ -3,13 +3,13 @@ import Umzug from '../../src/index';
 import sinon from 'sinon';
 import helper from '../helper';
 
-describe('constructor', function () {
-  beforeEach(function () {
+describe('constructor', () => {
+  beforeEach(() => {
     helper.clearTmp();
   });
 
-  it('exposes some methods', function () {
-    let umzug = new Umzug();
+  it('exposes some methods', () => {
+    const umzug = new Umzug();
 
     expect(umzug).to.have.property('execute');
     expect(umzug).to.have.property('pending');
@@ -18,17 +18,17 @@ describe('constructor', function () {
     expect(umzug).to.have.property('log');
   });
 
-  it('instantiates the default storage', function () {
-    let umzug = new Umzug();
+  it('instantiates the default storage', () => {
+    const umzug = new Umzug();
     expect(umzug).to.have.property('storage');
   });
 
-  it('loads the specified storage module', function () {
-    let umzug = new Umzug({ storage: 'lodash' });
+  it('loads the specified storage module', () => {
+    const umzug = new Umzug({ storage: 'lodash' });
     expect(umzug).to.have.property('storage');
   });
 
-  it('uses passed storage object', function () {
+  it('uses passed storage object', () => {
     class CustomStorage {
       logMigration () {}
       unlogMigration () {}
@@ -36,12 +36,12 @@ describe('constructor', function () {
     }
 
     const storage = new CustomStorage();
-    let umzug = new Umzug({ storage });
+    const umzug = new Umzug({ storage });
     expect(umzug).to.have.property('storage');
     expect(umzug.storage).to.eql(storage);
   });
 
-  it('throws an error if the specified storage is neither a package nor a file', function () {
+  it('throws an error if the specified storage is neither a package nor a file', () => {
     expect(() => {
       new Umzug({ storage: 'nomnom' });
     }).to.throw(
@@ -49,9 +49,9 @@ describe('constructor', function () {
     );
   });
 
-  it('accepts a logging function', function () {
-    let spy = sinon.spy();
-    let umzug = new Umzug({ logging: spy });
+  it('accepts a logging function', () => {
+    const spy = sinon.spy();
+    const umzug = new Umzug({ logging: spy });
     umzug.log();
     expect(spy.called).to.be.true;
   });

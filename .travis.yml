@@ -3,20 +3,11 @@ sudo: false
 language: node_js
 
 node_js:
-  - '4'
   - '6'
-  - '7'
-
-cache: yarn
-
-env:
-  - SEQUELIZE=^1.0.0
-  - SEQUELIZE=^2.0.0
-  - SEQUELIZE=^3.0.0
-
-before_script:
-  - yarn add sequelize@$(echo $SEQUELIZE)
-  - yarn run build
+  - '8'
+  - '10'
 
 script:
-  - yarn test
+  - npm run build
+  - npm run lint
+  - npm test
