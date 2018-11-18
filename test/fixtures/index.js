@@ -7,6 +7,7 @@ import coffeescript from 'coffee-script';
 import helper from '../helper';
 import Umzug from '../../src';
 import uuid from 'uuid/v4';
+import Migration from '../../src/migration';
 
 describe('custom resolver', () => {
   beforeEach(function () {
