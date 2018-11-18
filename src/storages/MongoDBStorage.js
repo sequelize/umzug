@@ -2,18 +2,18 @@ import _ from 'lodash';
 import Storage from './Storage';
 
 /**
- * @class JSONStorage
+ * @class MongoDBStorage
  */
 export default class MongoDBStorage extends Storage {
   /**
-     * Constructs MongoDB collection storage.
-     *
-     * @param {Object} [options]
-     * Required either connection and collectionName OR collection
-     * @param {String} [options.connection] - a connection to target database established with MongoDB Driver
-     * @param {String} [options.collectionName] - name of migration collection in MongoDB
-     * @param {String} [options.collection] - reference to a MongoDB Driver collection
-     */
+   * Constructs MongoDB collection storage.
+   *
+   * @param {Object} [options]
+   * Required either connection and collectionName OR collection
+   * @param {String} [options.connection] - a connection to target database established with MongoDB Driver
+   * @param {String} [options.collectionName] - name of migration collection in MongoDB
+   * @param {String} [options.collection] - reference to a MongoDB Driver collection
+   */
   constructor ({connection, collectionName, collection}) {
     super();
     this.connection = connection;
@@ -30,30 +30,30 @@ export default class MongoDBStorage extends Storage {
   }
 
   /**
-     * Logs migration to be considered as executed.
-     *
-     * @param {String} migrationName - Name of the migration to be logged.
-     * @returns {Promise}
-     */
+   * Logs migration to be considered as executed.
+   *
+   * @param {String} migrationName - Name of the migration to be logged.
+   * @returns {Promise}
+   */
   logMigration (migrationName) {
     return this.collection.insertOne({migrationName});
   }
 
   /**
-     * Unlogs migration to be considered as pending.
-     *
-     * @param {String} migrationName - Name of the migration to be unlogged.
-     * @returns {Promise}
-     */
+   * Unlogs migration to be considered as pending.
+   *
+   * @param {String} migrationName - Name of the migration to be unlogged.
+   * @returns {Promise}
+   */
   unlogMigration (migrationName) {
     return this.collection.removeOne({migrationName});
   }
 
   /**
-     * Gets list of executed migrations.
-     *
-     * @returns {Promise.<String[]>}
-     */
+   * Gets list of executed migrations.
+   *
+   * @returns {Promise.<String[]>}
+   */
   executed () {
     return this.collection.find({})
       .sort({migrationName: 1})
