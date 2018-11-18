@@ -54,7 +54,7 @@ Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a tab
 ```
 
 ### MongoDBStorage
-Using the [SequelizeStorage](src/storages/MongoDBStorage.js) will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
+Using the [MongoDBStorage](src/storages/MongoDBStorage.js) will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
 
 #### Options
 
@@ -310,7 +310,7 @@ It is possible to configure *umzug* instance by passing an object to the constru
 ```js
 {
   // The storage.
-  // Possible values: 'json', 'sequelize', an argument for `require()`, including absolute paths
+  // Possible values: 'none', 'json', 'mongodb', 'sequelize', an argument for `require()`, including absolute paths
   storage: 'json',
 
   // The options for the storage.
@@ -327,6 +327,7 @@ It is possible to configure *umzug* instance by passing an object to the constru
   // The name of the negative method in migrations.
   downName: 'down',
 
+  // (advanced) you can pass an array of Migration instances instead of the options below
   migrations: {
     // The params that gets passed to the migrations.
     // Might be an array or a synchronous function which returns an array.

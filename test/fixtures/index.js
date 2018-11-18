@@ -57,6 +57,36 @@ describe('custom resolver', () => {
     await this.verifyTables();
   });
 
+  it('an array of migrations created manually can be passed in', async function () {
+    const umzug = new Umzug({
+      migrations: [
+        new Migration(require.resolve('./javascript/1.users'), {
+          upName: 'up',
+          downName: 'down',
+          migrations: {
+            wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
+          },
+        }),
+        new Migration(require.resolve('./javascript/2.things'), {
+          upName: 'up',
+          downName: 'down',
+          migrations: {
+            wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
+          },
+        }),
+      ],
+      storage: 'sequelize',
+      storageOptions: {
+        path: this.storagePath,
+        sequelize: this.sequelize,
+      },
+    });
+
+    await umzug.up();
+
+    await this.verifyTables();
+  });
+
   it('can resolve sql files', async function () {
     this.pattern = /\.sql$/;
     this.path = resolve(__dirname, 'sql');
