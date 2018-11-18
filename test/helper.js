@@ -11,7 +11,10 @@ const helper = module.exports = {
     files.forEach((file) => {
       let filePath = join(path, '/' + file);
       if (file.match(/\.(js|json|sqlite|coffee)$/)) {
-        fs.unlinkSync(filePath);
+        try {
+          fs.unlinkSync(filePath);
+        } catch (e) {
+        }
       } else if (fs.lstatSync(filePath).isDirectory()) {
         helper.clearTmp(filePath);
       }
@@ -43,7 +46,7 @@ const helper = module.exports = {
         '  up: function () {},',
         '  down: function () {}',
         '};',
-      ].join('\n')
+      ].join('\n'),
     );
 
     return name;
