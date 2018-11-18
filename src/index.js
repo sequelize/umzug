@@ -20,7 +20,7 @@ module.exports = class Umzug extends EventEmitter {
    *
    * @param {Object} [options]
    * @param {String} [options.storage='json'] - The storage. Possible values:
-   * 'json', 'sequelize', an argument for `require()`, including absolute paths.
+   * 'json', 'sequelize', 'mongodb', an argument for `require()`, including absolute paths.
    * @param {function|false} [options.logging=false] - The logging function.
    * A function that gets executed every time migrations start and have ended.
    * @param {String} [options.upName='up'] - The name of the positive method
@@ -398,7 +398,7 @@ module.exports = class Umzug extends EventEmitter {
   /**
    * Try to require and initialize storage.
    *
-   * @returns {*|SequelizeStorage|JSONStorage|Storage}
+   * @returns {*|SequelizeStorage|JSONStorage|MongoDBStorage|Storage}
    * @private
    */
   _initStorage () {

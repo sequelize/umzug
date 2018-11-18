@@ -38,6 +38,33 @@ describe('execute', function () {
     this.migration.down.restore();
   });
 
+  it('requires migration methods to return a promise', function () {
+    helper.clearTmp();
+    helper
+      .prepareMigrations(1, { names: ['123-migration'], returnUndefined: true })
+      .then(() => {
+        this.migration = require('../tmp/123-migration.js');
+        this.upStub = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
+        this.downStub = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
+        this.logSpy = sinon.spy();
+        this.umzug = new Umzug({
+          migrations: { path: join(__dirname, '/../tmp/') },
+          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+          logging: this.logSpy,
+        });
+        return this.umzug.execute({
+          migrations: ['123-migration'],
+          method: 'up',
+        });
+      })
+      .then(() => {
+        throw new Error('expected migration to fail');
+      })
+      .catch(error => {
+        expect(error.message).to.match(/Migration 123-migration.js (or wrapper) didn't return a promise/i);
+      });
+  });
+
   it('runs the up method of the migration', function () {
     return this
       .migrate('up')
@@ -180,8 +207,8 @@ describe('coffee-script support', function () {
       '\'use strict\'',
       '',
       'module.exports =',
-      '  up: () ->',
-      '  down: () ->',
+      '  up: () -> Promise.resolve()',
+      '  down: () -> Promise.resolve()',
     ].join('\n')
     );
   });

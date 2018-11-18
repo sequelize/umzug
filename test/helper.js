@@ -24,7 +24,7 @@ const helper = module.exports = {
     }
   },
 
-  generateDummyMigration: function (name, subDirectories) {
+  generateDummyMigration: function (name, subDirectories, options = {}) {
     let path = join(__dirname, '/tmp/');
     if (subDirectories) {
       if (!_.isArray(subDirectories)) {
@@ -43,8 +43,8 @@ const helper = module.exports = {
         '\'use strict\';',
         '',
         'module.exports = {',
-        '  up: function () {},',
-        '  down: function () {}',
+        `  up: function () { return ${options.returnUndefined ? 'undefined' : 'Promise.resolve()'}; },`,
+        `  down: function () { return ${options.returnUndefined ? 'undefined' : 'Promise.resolve()'}; }`,
         '};',
       ].join('\n'),
     );
@@ -61,6 +61,7 @@ const helper = module.exports = {
       // example 3: ['foo',['foo','bar2']] ==> generates /foo and /foo/bar2
       ...options || {},
     };
+    const {returnUndefined} = options;
 
     return new Promise((resolve) => {
       let names = options.names;
@@ -71,7 +72,7 @@ const helper = module.exports = {
       _.times(count, (i) => {
         num++;
         names.push(options.names[i] || (num + '-migration'));
-        helper.generateDummyMigration(names[i], options.directories[i]);
+        helper.generateDummyMigration(names[i], options.directories[i], {returnUndefined});
       });
 
       resolve(names);
