@@ -232,7 +232,7 @@ umzug.up().then(function (migrations) {
 });
 ```
 
-It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name.
+It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name (inclusive).
 
 ```js
 umzug.up({ to: '20141101203500-task' }).then(function (migrations) {});
@@ -276,7 +276,7 @@ umzug.down().then(function (migration) {
 });
 ```
 
-It is possible to pass the name of a migration until which the migrations should be reverted. This allows the reverting of multiple migrations at once.
+It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
 umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
