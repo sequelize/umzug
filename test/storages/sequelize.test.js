@@ -3,12 +3,13 @@ import helper from '../helper';
 import Storage from '../../src/storages/SequelizeStorage';
 import Sequelize from 'sequelize';
 import {join} from 'path';
+import uuid from 'uuid/v4';
 
 describe('sequelize', function () {
   beforeEach(function () {
     helper.clearTmp();
 
-    this.storagePath = join(__dirname, '/../tmp/storage.sqlite');
+    this.storagePath = join(__dirname, `/../tmp/storage-${uuid()}.sqlite`);
     this.sequelize = new Sequelize('database', 'username', 'password', {
       dialect: 'sqlite',
       storage: this.storagePath,

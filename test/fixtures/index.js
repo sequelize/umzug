@@ -1,17 +1,18 @@
 import { readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { resolve, dirname, join } from 'path';
 import { expect } from 'chai';
 import Sequelize from 'sequelize';
 import typescript from 'typescript';
 import coffeescript from 'coffee-script';
 import helper from '../helper';
 import Umzug from '../../src';
+import uuid from 'uuid/v4';
 import Migration from '../../src/migration';
 
 describe('custom resolver', () => {
   beforeEach(function () {
     helper.clearTmp();
-    this.storagePath = resolve(__dirname, '../tmp/storage.sqlite');
+    this.storagePath = join(__dirname, `/../tmp/storage-${uuid()}.sqlite`);
     this.sequelize = new Sequelize('database', 'username', 'password', {
       dialect: 'sqlite',
       storage: this.storagePath,
