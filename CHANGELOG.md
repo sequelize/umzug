@@ -11,9 +11,15 @@ All notable changes to this project will be documented in this file.
 - Doc fixes
   [#155](https://github.com/sequelize/umzug/pull/155)
 - Add support for coffeescript 2
+  [#157](https://github.com/sequelize/umzug/pull/157)
+- throw error if a migration method doesn't return a thenable
   [#158](https://github.com/sequelize/umzug/pull/158)
 - Update README.md with respect to MongoDBStorage
   [#165](https://github.com/sequelize/umzug/pull/165)
+- fix multiple jsdoc lines related to MongoDBStorage
+  [#174](https://github.com/sequelize/umzug/pull/174)
+- clarify up/down migrations "to" option
+  [#176](https://github.com/sequelize/umzug/pull/176)
 - Test isolation by using different sqlite databases in each testsuite
   [#180](https://github.com/sequelize/umzug/pull/180)
 

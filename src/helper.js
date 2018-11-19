@@ -1,5 +1,3 @@
-import { sync as resolve } from 'resolve';
-
 module.exports = {
   /**
    * Try to require module from file relative to process cwd or regular require.
@@ -12,7 +10,7 @@ module.exports = {
     let result;
 
     try {
-      result = resolve(packageName, { basedir: process.cwd() });
+      result = require.resolve(packageName, { basedir: process.cwd() });
       result = require(result);
     } catch (e) {
       try {

@@ -1,15 +1,15 @@
 import _ from 'lodash';
 import fs from 'fs';
-import {join} from 'path';
+import { join } from 'path';
 
 const helper = module.exports = {
   clearTmp (path) {
-    let tmpPath = join(__dirname, '/tmp');
+    const tmpPath = join(__dirname, '/tmp');
     path = path || tmpPath;
-    let files = fs.readdirSync(path);
+    const files = fs.readdirSync(path);
 
     files.forEach((file) => {
-      let filePath = join(path, '/' + file);
+      const filePath = join(path, '/' + file);
       if (file.match(/\.(js|json|sqlite|coffee)$/)) {
         try {
           fs.unlinkSync(filePath);
@@ -61,10 +61,10 @@ const helper = module.exports = {
       // example 3: ['foo',['foo','bar2']] ==> generates /foo and /foo/bar2
       ...options || {},
     };
-    const {returnUndefined} = options;
+    const { returnUndefined } = options;
 
     return new Promise((resolve) => {
-      let names = options.names;
+      const names = options.names;
       let num = 0;
 
       helper.clearTmp();
@@ -72,7 +72,7 @@ const helper = module.exports = {
       _.times(count, (i) => {
         num++;
         names.push(options.names[i] || (num + '-migration'));
-        helper.generateDummyMigration(names[i], options.directories[i], {returnUndefined});
+        helper.generateDummyMigration(names[i], options.directories[i], { returnUndefined });
       });
 
       resolve(names);
@@ -103,16 +103,14 @@ const helper = module.exports = {
   },
 
   promisify (fn) {
-    return (...args) => {
-      return new Promise((resolve, reject) => {
-        fn(...args, (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        });
+    return (...args) => new Promise((resolve, reject) => {
+      fn(...args, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
       });
-    };
+    });
   },
 };

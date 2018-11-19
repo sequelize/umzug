@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Storage from './Storage';
 
 /**
@@ -14,7 +13,7 @@ export default class MongoDBStorage extends Storage {
    * @param {String} [options.collectionName] - name of migration collection in MongoDB
    * @param {String} [options.collection] - reference to a MongoDB Driver collection
    */
-  constructor ({connection, collectionName, collection}) {
+  constructor ({ connection, collectionName, collection }) {
     super();
     this.connection = connection;
     this.collection = collection;
@@ -36,7 +35,7 @@ export default class MongoDBStorage extends Storage {
    * @returns {Promise}
    */
   logMigration (migrationName) {
-    return this.collection.insertOne({migrationName});
+    return this.collection.insertOne({ migrationName });
   }
 
   /**
@@ -46,7 +45,7 @@ export default class MongoDBStorage extends Storage {
    * @returns {Promise}
    */
   unlogMigration (migrationName) {
-    return this.collection.removeOne({migrationName});
+    return this.collection.removeOne({ migrationName });
   }
 
   /**
@@ -56,8 +55,8 @@ export default class MongoDBStorage extends Storage {
    */
   executed () {
     return this.collection.find({})
-      .sort({migrationName: 1})
+      .sort({ migrationName: 1 })
       .toArray()
-      .then((records) => _.map(records, 'migrationName'));
+      .then(records => records.map(r => r.migrationName));
   }
 }

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Bluebird from 'bluebird';
 import fs from 'fs';
 import _path from 'path';
@@ -27,14 +26,14 @@ export default class JSONStorage extends Storage {
    * @returns {Promise}
    */
   logMigration (migrationName) {
-    let filePath = this.path;
-    let readfile = Bluebird.promisify(fs.readFile);
-    let writefile = Bluebird.promisify(fs.writeFile);
+    const filePath = this.path;
+    const readfile = Bluebird.promisify(fs.readFile);
+    const writefile = Bluebird.promisify(fs.writeFile);
 
     return readfile(filePath)
-      .catch(function () { return '[]'; })
-      .then(function (content) { return JSON.parse(content); })
-      .then(function (content) {
+      .catch(() => '[]')
+      .then((content) => JSON.parse(content))
+      .then((content) => {
         content.push(migrationName);
         return writefile(filePath, JSON.stringify(content, null, '  '));
       });
@@ -47,15 +46,15 @@ export default class JSONStorage extends Storage {
    * @returns {Promise}
    */
   unlogMigration (migrationName) {
-    let filePath = this.path;
-    let readfile = Bluebird.promisify(fs.readFile);
-    let writefile = Bluebird.promisify(fs.writeFile);
+    const filePath = this.path;
+    const readfile = Bluebird.promisify(fs.readFile);
+    const writefile = Bluebird.promisify(fs.writeFile);
 
     return readfile(filePath)
-      .catch(function () { return '[]'; })
-      .then(function (content) { return JSON.parse(content); })
-      .then(function (content) {
-        content = _.without(content, migrationName);
+      .catch(() => '[]')
+      .then((content) => JSON.parse(content))
+      .then((content) => {
+        content = content.filter(m => m !== migrationName);
         return writefile(filePath, JSON.stringify(content, null, '  '));
       });
   }
@@ -66,13 +65,11 @@ export default class JSONStorage extends Storage {
    * @returns {Promise.<String[]>}
    */
   executed () {
-    let filePath = this.path;
-    let readfile = Bluebird.promisify(fs.readFile);
+    const filePath = this.path;
+    const readfile = Bluebird.promisify(fs.readFile);
 
     return readfile(filePath)
-      .catch(function () { return '[]'; })
-      .then(function (content) {
-        return JSON.parse(content);
-      });
+      .catch(() => '[]')
+      .then((content) => JSON.parse(content));
   }
 }

@@ -11,42 +11,38 @@
   "main": "lib/index.js",
   "dependencies": {
     "babel-runtime": "^6.23.0",
-    "bluebird": "^3.5.3",
-    "lodash": "^4.17.11",
-    "resolve": "^1.8.1",
-    "uuid": "^3.3.2"
+    "bluebird": "^3.5.3"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-plugin-dynamic-import-node": "^1.1.0",
+    "babel-plugin-dynamic-import-node": "^2.2.0",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.24.1",
-    "chai": "^3.5.0",
+    "chai": "^4.2.0",
     "coffee-script": "^1.8.0",
-    "eslint-config-standard": "^10.2.1",
+    "eslint": "^5.9.0",
+    "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-mocha": "^4.11.0",
-    "eslint-plugin-node": "^5.2.0",
-    "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "gulp": "^3.8.10",
-    "gulp-babel": "^7.0.0",
-    "gulp-eslint": "^4.0.0",
-    "gulp-mocha": "^4.3.0",
-    "mocha": "^3.5.3",
-    "sequelize": "^3.30.4",
-    "sinon": "^2.1.0",
-    "sinon-chai": "^2.14.0",
-    "sqlite3": "^3.1.13",
-    "typescript": "^2.5.2",
-    "yargs": "^8.0.1"
+    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "lodash": "^4.17.11",
+    "mocha": "^5.2.0",
+    "sequelize": "^4.41.2",
+    "sinon": "^7.1.1",
+    "sinon-chai": "^3.2.0",
+    "sqlite3": "^4.0.4",
+    "typescript": "^3.1.6",
+    "uuid": "^3.3.2"
   },
   "scripts": {
-    "build": "gulp build",
-    "test": "gulp test"
+    "build": "babel src --out-dir lib",
+    "lint": "eslint src test",
+    "test": "mocha -r babel-register --check-leaks test/index.js"
   },
   "repository": {
     "type": "git",
@@ -57,6 +53,10 @@
     {
       "name": "Jukka Hyytiälä",
       "email": "hyytiala.jukka@gmail.com"
+    },
+    {
+      "name": "Pascal Pflaum",
+      "email": "mail@pascalpflaum.de"
     }
   ],
   "license": "MIT",
@@ -65,6 +65,6 @@
   },
   "homepage": "https://github.com/sequelize/umzug",
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   }
 }
