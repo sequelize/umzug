@@ -1,29 +1,29 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import helper from '../helper';
-import path, {join} from 'path';
+import path, { join } from 'path';
 import Storage from '../../src/storages/JSONStorage';
 
-describe('JSON', function () {
-  beforeEach(function () {
+describe('JSON', () => {
+  beforeEach(() => {
     helper.clearTmp();
   });
 
-  describe('constructor', function () {
-    it('stores options', function () {
-      let storage = new Storage();
+  describe('constructor', () => {
+    it('stores options', () => {
+      const storage = new Storage();
       expect(storage).to.have.property('path');
     });
 
-    it('sets the default storage path', function () {
-      let storage = new Storage();
+    it('sets the default storage path', () => {
+      const storage = new Storage();
       expect(storage.path).to.equal(
         path.normalize(process.cwd() + '/umzug.json')
       );
     });
   });
 
-  describe('logMigration', function () {
+  describe('logMigration', () => {
     beforeEach(function () {
       this.path = join(__dirname, '/../tmp/umzug.json');
       this.storage = new Storage({ path: this.path });
@@ -38,17 +38,13 @@ describe('JSON', function () {
     });
 
     it('adds the passed value to the storage', function () {
-      return this.storage.logMigration('asd.js').then(() => {
-        return helper.promisify(fs.readFile)(this.path);
-      }).then((content) => {
-        return JSON.parse(content);
-      }).then((data) => {
+      return this.storage.logMigration('asd.js').then(() => helper.promisify(fs.readFile)(this.path)).then((content) => JSON.parse(content)).then((data) => {
         expect(data).to.eql(['asd.js']);
       });
     });
   });
 
-  describe('unlogMigration', function () {
+  describe('unlogMigration', () => {
     beforeEach(function () {
       this.path = join(__dirname, '/../tmp/umzug.json');
       this.storage = new Storage({ path: this.path });
@@ -56,24 +52,16 @@ describe('JSON', function () {
     });
 
     it('removes the passed value from the storage', function () {
-      let read = () => {
-        return helper
-          .promisify(fs.readFile)(this.path)
-          .then((content) => {
-            return JSON.parse(content);
-          });
-      };
+      const read = () => helper
+        .promisify(fs.readFile)(this.path)
+        .then((content) => JSON.parse(content));
 
-      return this.storage.logMigration('foo.js').then(() => {
-        return this.storage.logMigration('bar.js');
-      })
+      return this.storage.logMigration('foo.js').then(() => this.storage.logMigration('bar.js'))
         .then(read)
         .then((data) => {
           expect(data).to.eql([ 'foo.js', 'bar.js' ]);
         })
-        .then(() => {
-          return this.storage.unlogMigration('foo.js');
-        })
+        .then(() => this.storage.unlogMigration('foo.js'))
         .then(read)
         .then((data) => {
           expect(data).to.eql([ 'bar.js' ]);
@@ -81,7 +69,7 @@ describe('JSON', function () {
     });
   });
 
-  describe('executed', function () {
+  describe('executed', () => {
     beforeEach(function () {
       this.path = join(__dirname, '/../tmp/umzug.json');
       this.storage = new Storage({ path: this.path });
@@ -95,9 +83,7 @@ describe('JSON', function () {
     });
 
     it('returns executed migrations', function () {
-      return this.storage.logMigration('foo.js').then(() => {
-        return this.storage.executed();
-      }).then((data) => {
+      return this.storage.logMigration('foo.js').then(() => this.storage.executed()).then((data) => {
         expect(data).to.eql([ 'foo.js' ]);
       });
     });

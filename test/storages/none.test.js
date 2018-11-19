@@ -2,19 +2,19 @@ import { expect } from 'chai';
 import helper from '../helper';
 import Storage from '../../src/storages/Storage';
 
-describe('none', function () {
-  beforeEach(function () {
+describe('none', () => {
+  beforeEach(() => {
     helper.clearTmp();
   });
 
-  describe('constructor', function () {
-    it('stores no options', function () {
-      let storage = new Storage();
+  describe('constructor', () => {
+    it('stores no options', () => {
+      const storage = new Storage();
       expect(storage).to.not.have.property('options');
     });
   });
 
-  describe('executed', function () {
+  describe('executed', () => {
     beforeEach(function () {
       this.storage = new Storage();
       return helper.prepareMigrations(3);
@@ -27,9 +27,7 @@ describe('none', function () {
     });
 
     it('returns an empty array even if migrations were executed', function () {
-      return this.storage.logMigration('foo.js').then(() => {
-        return this.storage.executed();
-      }).then((data) => {
+      return this.storage.logMigration('foo.js').then(() => this.storage.executed()).then((data) => {
         expect(data).to.eql([]);
       });
     });
