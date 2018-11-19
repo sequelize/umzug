@@ -1,10 +1,10 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
-import {join} from 'path';
+import { join } from 'path';
 
-let executedTestSuite = function executedTestSuite () {
-  describe('when no migrations has been executed yet', function () {
+const executedTestSuite = function executedTestSuite () {
+  describe('when no migrations has been executed yet', () => {
     beforeEach(function () {
       return this.umzug.executed()
         .then((migrations) => {
@@ -21,14 +21,12 @@ let executedTestSuite = function executedTestSuite () {
     });
   });
 
-  describe('when one migration has been executed yet', function () {
+  describe('when one migration has been executed yet', () => {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: [this.migrationNames[0]],
         method: 'up',
-      }).then(() => {
-        return this.umzug.executed();
-      }).then((migrations) => {
+      }).then(() => this.umzug.executed()).then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -43,14 +41,12 @@ let executedTestSuite = function executedTestSuite () {
     });
   });
 
-  describe('when all migration has been executed yet', function () {
+  describe('when all migration has been executed yet', () => {
     beforeEach(function () {
       return this.umzug.execute({
         migrations: this.migrationNames,
         method: 'up',
-      }).then(() => {
-        return this.umzug.executed();
-      }).then((migrations) => {
+      }).then(() => this.umzug.executed()).then((migrations) => {
         this.migrations = migrations;
       });
     });
@@ -67,7 +63,7 @@ let executedTestSuite = function executedTestSuite () {
     });
   });
 
-  describe('when storage returns a thenable', function () {
+  describe('when storage returns a thenable', () => {
     beforeEach(function () {
       // migration has been executed already
       return this.umzug.execute({
@@ -92,7 +88,7 @@ let executedTestSuite = function executedTestSuite () {
   });
 };
 
-describe('executed', function () {
+describe('executed', () => {
   beforeEach(function () {
     helper.clearTmp();
     return helper
@@ -100,8 +96,8 @@ describe('executed', function () {
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
         this.umzug = new Umzug({
-          migrations: {path: join(__dirname, '/../tmp/')},
-          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
+          migrations: { path: join(__dirname, '/../tmp/') },
+          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
         });
       });
   });
@@ -109,16 +105,16 @@ describe('executed', function () {
   executedTestSuite();
 });
 
-describe('executed-directories', function () {
+describe('executed-directories', () => {
   beforeEach(function () {
     helper.clearTmp();
     return helper
-      .prepareMigrations(3, {directories: [['1', '2'], ['1', '2'], ['1', '3', '4', '5']]})
+      .prepareMigrations(3, { directories: [['1', '2'], ['1', '2'], ['1', '3', '4', '5']] })
       .then((migrationNames) => {
         this.migrationNames = migrationNames;
         this.umzug = new Umzug({
-          migrations: {path: join(__dirname, '/../tmp/'), traverseDirectories: true},
-          storageOptions: {path: join(__dirname, '/../tmp/umzug.json')},
+          migrations: { path: join(__dirname, '/../tmp/'), traverseDirectories: true },
+          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
         });
       });
   });

@@ -1,15 +1,15 @@
-import chai, {expect} from 'chai';
+import chai, { expect } from 'chai';
 import helper from '../helper';
 import Storage from '../../src/storages/MongoDBStorage';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
-describe('MongoDB', function () {
+describe('MongoDB', () => {
   let connectionApi;
   let collectionApi;
 
-  beforeEach(function () {
+  beforeEach(() => {
     helper.clearTmp();
     collectionApi = {
       insertOne: sinon.stub().resolves(),
@@ -20,64 +20,64 @@ describe('MongoDB', function () {
         }),
       }),
     };
-    connectionApi = {collection: sinon.stub().returns(collectionApi)};
+    connectionApi = { collection: sinon.stub().returns(collectionApi) };
   });
 
-  describe('constructor', function () {
-    it('should fail when connection is not set', function () {
-      expect(function () {
+  describe('constructor', () => {
+    it('should fail when connection is not set', () => {
+      expect(() => {
         new Storage({});
       }).to.throw();
     });
-    describe('stores options', function () {
-      it('-> connection', function () {
-        let storage = new Storage({connection: connectionApi});
+    describe('stores options', () => {
+      it('-> connection', () => {
+        const storage = new Storage({ connection: connectionApi });
         expect(storage.connection).to.equal(connectionApi);
       });
-      it('-> collection', function () {
-        let storage = new Storage({collection: collectionApi});
+      it('-> collection', () => {
+        const storage = new Storage({ collection: collectionApi });
         expect(storage.collection).to.equal(collectionApi);
       });
-      it('-> collectionName', function () {
-        let storage = new Storage({connection: connectionApi, collectionName: 'TEST'});
+      it('-> collectionName', () => {
+        const storage = new Storage({ connection: connectionApi, collectionName: 'TEST' });
         expect(storage.collectionName).to.equal('TEST');
       });
-      it('-> collectionName (default)', function () {
-        let storage = new Storage({connection: connectionApi});
+      it('-> collectionName (default)', () => {
+        const storage = new Storage({ connection: connectionApi });
         expect(storage.collectionName).to.equal('migrations');
       });
     });
   });
 
-  describe('logMigration', function () {
+  describe('logMigration', () => {
     beforeEach(function () {
-      this.storage = new Storage({collection: collectionApi});
+      this.storage = new Storage({ collection: collectionApi });
       return helper.prepareMigrations(3);
     });
 
     it('adds the passed value to the storage', function () {
       return this.storage.logMigration('asd.js').then(() => {
-        expect(collectionApi.insertOne).to.have.been.calledWith({migrationName: 'asd.js'});
+        expect(collectionApi.insertOne).to.have.been.calledWith({ migrationName: 'asd.js' });
       });
     });
   });
 
-  describe('unlogMigration', function () {
+  describe('unlogMigration', () => {
     beforeEach(function () {
-      this.storage = new Storage({collection: collectionApi});
+      this.storage = new Storage({ collection: collectionApi });
       return helper.prepareMigrations(3);
     });
 
     it('removes the passed value from the storage', function () {
       return this.storage.unlogMigration('asd.js').then(() => {
-        expect(collectionApi.removeOne).to.have.been.calledWith({migrationName: 'asd.js'});
+        expect(collectionApi.removeOne).to.have.been.calledWith({ migrationName: 'asd.js' });
       });
     });
   });
 
-  describe('executed', function () {
+  describe('executed', () => {
     beforeEach(function () {
-      this.storage = new Storage({collection: collectionApi});
+      this.storage = new Storage({ collection: collectionApi });
       return helper.prepareMigrations(3);
     });
 

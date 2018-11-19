@@ -1,4 +1,4 @@
-describe('storages', function () {
+describe('storages', () => {
   require('./json.test');
   require('./mongodb.test');
   require('./none.test');

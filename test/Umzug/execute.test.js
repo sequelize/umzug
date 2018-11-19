@@ -3,9 +3,9 @@ import { expect } from 'chai';
 import helper from '../helper';
 import Umzug from '../../src/index';
 import sinon from 'sinon';
-import {join} from 'path';
+import { join } from 'path';
 
-describe('execute', function () {
+describe('execute', () => {
   beforeEach(function () {
     helper.clearTmp();
     return helper
@@ -20,14 +20,12 @@ describe('execute', function () {
           storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
           logging: this.logSpy,
         });
-        this.migrate = (method) => {
-          return this.umzug.execute({
-            migrations: ['123-migration'],
-            method: method,
-          });
-        };
+        this.migrate = (method) => this.umzug.execute({
+          migrations: ['123-migration'],
+          method: method,
+        });
         ['migrating', 'migrated', 'reverting', 'reverted'].forEach((event) => {
-          let spy = this[event + 'EventSpy'] = sinon.spy();
+          const spy = this[event + 'EventSpy'] = sinon.spy();
           this.umzug.on(event, spy);
         }, this);
       });
@@ -96,19 +94,15 @@ describe('execute', function () {
   });
 
   it('does not execute a migration twice', function () {
-    return this.migrate('up').then(() => {
-      return this.migrate('up');
-    }).then(() => {
+    return this.migrate('up').then(() => this.migrate('up')).then(() => {
       expect(this.upStub.callCount).to.equal(1);
       expect(this.downStub.callCount).to.equal(0);
     });
   });
 
   it('does not add an executed entry to the storage.json', function () {
-    return this.migrate('up').then(() => {
-      return this.migrate('up');
-    }).then(() => {
-      let storage = require(this.umzug.options.storageOptions.path);
+    return this.migrate('up').then(() => this.migrate('up')).then(() => {
+      const storage = require(this.umzug.options.storageOptions.path);
       expect(storage).to.eql(['123-migration.js']);
     });
   });
@@ -128,25 +122,21 @@ describe('execute', function () {
   });
 
   it('calls the migration with the result of the passed function', function () {
-    this.umzug.options.migrations.params = () => {
-      return [1, 2, 3];
-    };
+    this.umzug.options.migrations.params = () => [1, 2, 3];
 
     return this.migrate('up').then(() => {
       expect(this.upStub.getCall(0).args).to.eql([1, 2, 3]);
     });
   });
 
-  describe('when the migration does not contain a migration method', function () {
+  describe('when the migration does not contain a migration method', () => {
     beforeEach(function () {
       this.oldup = this.migration.up;
       delete this.migration.up;
     });
 
     it('rejects the promise', function () {
-      return this.migrate('up').then(() => {
-        return Promise.reject(new Error('We should not end up here...'));
-      }, (err) => {
+      return this.migrate('up').then(() => Promise.reject(new Error('We should not end up here...')), (err) => {
         expect(err).to.be.an('error');
         expect(err.message).to.equal('Could not find migration method: up');
       });
@@ -159,8 +149,8 @@ describe('execute', function () {
   });
 });
 
-describe('migrations.wrap', function () {
-  beforeEach(function () {
+describe('migrations.wrap', () => {
+  beforeEach(() => {
     helper.clearTmp();
     require('fs').writeFileSync(join(__dirname, '/../tmp/123-callback-last-migration.js'), [
       '\'use strict\';',
@@ -175,9 +165,9 @@ describe('migrations.wrap', function () {
     );
   });
 
-  it('can be used to handle "callback last" migrations', function () {
-    let start = +new Date();
-    let umzug = new Umzug({
+  it('can be used to handle "callback last" migrations', () => {
+    const start = +new Date();
+    const umzug = new Umzug({
       migrations: {
         path: join(__dirname, '/../tmp/'),
         wrap: (fun) => {
@@ -200,8 +190,8 @@ describe('migrations.wrap', function () {
   });
 });
 
-describe('coffee-script support', function () {
-  beforeEach(function () {
+describe('coffee-script support', () => {
+  beforeEach(() => {
     helper.clearTmp();
     require('fs').writeFileSync(join(__dirname, '/../tmp/123-coffee-migration.coffee'), [
       '\'use strict\'',
@@ -213,8 +203,8 @@ describe('coffee-script support', function () {
     );
   });
 
-  it('runs the migration', function () {
-    let umzug = new Umzug({
+  it('runs the migration', () => {
+    const umzug = new Umzug({
       migrations: {
         path: join(__dirname, '/../tmp/'),
         pattern: /\.coffee$/,
@@ -231,18 +221,18 @@ describe('coffee-script support', function () {
   });
 });
 
-describe('ES6 module support', function () {
-  beforeEach(function () {
+describe('ES6 module support', () => {
+  beforeEach(() => {
     helper.clearTmp();
   });
 
-  it('executes exported method', function () {
+  it('executes exported method', () => {
     require('fs').writeFileSync(join(__dirname, '/../tmp/123-es6-named-migration.js'), `
       export async function up() {}
       export async function down() {}
     `);
 
-    let umzug = new Umzug({
+    const umzug = new Umzug({
       migrations: {
         path: join(__dirname, '/../tmp/'),
         pattern: /\.js$/,
@@ -258,7 +248,7 @@ describe('ES6 module support', function () {
     });
   });
 
-  it('executes default exported method', function () {
+  it('executes default exported method', () => {
     require('fs').writeFileSync(join(__dirname, '/../tmp/123-es6-default-migration.js'), `
       export default {
         async up() {},
@@ -266,7 +256,7 @@ describe('ES6 module support', function () {
       }
     `);
 
-    let umzug = new Umzug({
+    const umzug = new Umzug({
       migrations: {
         path: join(__dirname, '/../tmp/'),
         pattern: /\.js$/,
@@ -283,7 +273,7 @@ describe('ES6 module support', function () {
   });
 });
 
-describe('upName / downName', function () {
+describe('upName / downName', () => {
   beforeEach(function () {
     helper.clearTmp();
     require('fs').writeFileSync(join(__dirname, '/../tmp/123-custom-up-down-names-migration.js'), [
@@ -304,12 +294,10 @@ describe('upName / downName', function () {
       upName: 'myUp',
       downName: 'myDown',
     });
-    this.migrate = (method) => {
-      return this.umzug.execute({
-        migrations: ['123-custom-up-down-names-migration'],
-        method: method,
-      });
-    };
+    this.migrate = (method) => this.umzug.execute({
+      migrations: ['123-custom-up-down-names-migration'],
+      method: method,
+    });
   });
 
   afterEach(function () {

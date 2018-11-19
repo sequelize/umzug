@@ -98,12 +98,12 @@ export default class SequelizeStorage extends Storage {
    * @returns {Promise}
    */
   logMigration (migrationName) {
-    let self = this;
+    const self = this;
 
     return this._model()
       .sync()
-      .then(function (Model) {
-        let migration = {};
+      .then((Model) => {
+        const migration = {};
         migration[self.columnName] = migrationName;
         return Model.create(migration);
       });
@@ -116,13 +116,13 @@ export default class SequelizeStorage extends Storage {
    * @returns {Promise}
    */
   unlogMigration (migrationName) {
-    let self = this;
-    let sequelize = this.sequelize;
-    let sequelizeVersion = sequelize.modelManager ? 2 : 1;
+    const self = this;
+    const sequelize = this.sequelize;
+    const sequelizeVersion = sequelize.modelManager ? 2 : 1;
 
     return this._model()
       .sync()
-      .then(function (Model) {
+      .then((Model) => {
         let where = {};
         where[self.columnName] = migrationName;
 
@@ -141,18 +141,12 @@ export default class SequelizeStorage extends Storage {
    * @returns {Promise.<String[]>}
    */
   executed () {
-    let self = this;
+    const self = this;
 
     return this._model()
       .sync()
-      .then(function (Model) {
-        return Model.findAll({ order: [ [ self.columnName, 'ASC' ] ] });
-      })
-      .then(function (migrations) {
-        return migrations.map(function (migration) {
-          return migration[self.columnName];
-        });
-      });
+      .then((Model) => Model.findAll({ order: [ [ self.columnName, 'ASC' ] ] }))
+      .then((migrations) => migrations.map((migration) => migration[self.columnName]));
   }
 
   /**

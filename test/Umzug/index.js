@@ -1,4 +1,4 @@
-describe('Umzug', function () {
+describe('Umzug', () => {
   require('./constructor.test');
   require('./down.test');
   require('./execute.test');
