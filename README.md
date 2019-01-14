@@ -350,8 +350,13 @@ It is possible to configure *umzug* instance by passing an object to the constru
     // See https://github.com/sequelize/umzug/tree/master/test/fixtures
     // for examples.
     customResolver: function (sqlPath)  {
-        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
-    }
+      const sql = require('fs').readFileSync(sqlPath, 'utf8')
+      const [upSql, downSql] = sql.split(/^\s*--\s*down/)
+      return {
+        up: () => sequelize.query(upSql),
+        down: () => sequelize.query(downSql),
+      }
+    },
   }
 }
 ```
@@ -424,8 +429,13 @@ const umzug = new Umzug({
       // See https://github.com/sequelize/umzug/tree/master/test/fixtures
       // for examples.
       customResolver: function (sqlPath)  {
-          return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
-      }
+        const sql = require('fs').readFileSync(sqlPath, 'utf8')
+        const [upSql, downSql] = sql.split(/^\s*--\s*down/)
+        return {
+          up: () => sequelize.query(upSql),
+          down: () => sequelize.query(downSql),
+        }
+      },
     })
   )
 })
