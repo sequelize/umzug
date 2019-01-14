@@ -1,11 +1,15 @@
 import { expect } from 'chai';
-import Umzug from '../../src/index';
+import Umzug, { Migration } from '../../src/index';
 import sinon from 'sinon';
 import helper from '../helper';
 
 describe('constructor', () => {
   beforeEach(() => {
     helper.clearTmp();
+  });
+
+  it('exposes Migration class', () => {
+    expect(Migration).to.exist;
   });
 
   it('exposes some methods', () => {

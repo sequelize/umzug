@@ -342,7 +342,7 @@ It is possible to configure *umzug* instance by passing an object to the constru
     // A function that receives and returns the to be executed function.
     // This can be used to modify the function.
     wrap: function (fun) { return fun; },
-    
+
     // A function that maps a file path to a migration object in the form
     // { up: Function, down: Function }. The default for this is to require(...)
     // the file as javascript, but you can use this to transpile TypeScript,
@@ -354,6 +354,81 @@ It is possible to configure *umzug* instance by passing an object to the constru
     }
   }
 }
+```
+
+### Custom `Migration`s Array
+
+You may need more control over the available migrations for a variety of reasons:
+* Multiple migration directories that can't be covered by a single glob operation
+* Need to filter migrations by other criteria than a regular expression
+(for example, if you periodically want to create a SQL dump of your schema and
+get rid of applied migrations, you would want to prevent migrations older than
+the SQL dump from running when initializing a new DB)
+
+For any of these cases, you may pass an array of `Migration` class instances for
+`options.migrations` in the `Umzug` constructor.
+
+#### `new Migration(path, options)`
+
+##### `path`
+
+The path to the migration file
+
+##### `options`
+
+The a subset of the `Umzug` constructor options
+
+##### `options.upName` (optional, default: `'up'`)
+
+The name of the migrate method
+
+##### `options.downName` (optional, default: `'up'`)
+
+The name of the migrate method
+
+##### `options.migrations.wrap` (optional)
+
+Wrapper function for migration methods
+
+##### `options.migrations.customResolver` (optional)
+
+A function that specifies how to get a migration object from a path. This
+should return an object of the form { up: Function, down: Function }.
+Without this defined, a regular javascript import will be performed.
+
+#### Example
+
+```js
+import Umzug, {Migration} from 'umzug'
+import glob from 'glob'
+
+function isNewerThanSqlDump(file) {
+  ...
+}
+
+const umzug = new Umzug({
+  storage: 'json',
+  migrations: [
+    ...glob.sync('./migrations/**/*.js'),
+    ...glob.sync('../features/*/migrations/**/*.js'),
+  ].filter(isNewerThanSqlDump).map(
+    file => new Migration(file, {
+      // A function that receives and returns the to be executed function.
+      // This can be used to modify the function.
+      wrap: function (fun) { return fun; },
+
+      // A function that maps a file path to a migration object in the form
+      // { up: Function, down: Function }. The default for this is to require(...)
+      // the file as javascript, but you can use this to transpile TypeScript,
+      // read raw sql etc.
+      // See https://github.com/sequelize/umzug/tree/master/test/fixtures
+      // for examples.
+      customResolver: function (sqlPath)  {
+          return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
+      }
+    })
+  )
+})
 ```
 
 ## License

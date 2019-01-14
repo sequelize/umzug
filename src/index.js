@@ -13,7 +13,7 @@ import SequelizeStorage from './storages/SequelizeStorage';
  * @class Umzug
  * @extends EventEmitter
  */
-module.exports = class Umzug extends EventEmitter {
+class Umzug extends EventEmitter {
   /**
    * Constructs Umzug instance.
    *
@@ -585,3 +585,7 @@ module.exports = class Umzug extends EventEmitter {
       .get('migrations');
   }
 };
+
+Umzug.Migration = Migration;
+
+module.exports = Umzug;
