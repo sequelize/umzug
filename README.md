@@ -387,7 +387,7 @@ The a subset of the `Umzug` constructor options
 
 The name of the migrate method
 
-##### `options.downName` (optional, default: `'up'`)
+##### `options.downName` (optional, default: `'down'`)
 
 The name of the migrate method
 
