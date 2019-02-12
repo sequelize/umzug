@@ -339,6 +339,9 @@ It is possible to configure *umzug* instance by passing an object to the constru
     // The pattern that determines whether or not a file is a migration.
     pattern: /^\d+[\w-]+\.js$/,
 
+    // These patterns are excluded from the migrations path, otherwise a log will show up.
+    exclude: [/\.map$/, /\.gitkeep$/],
+
     // A function that receives and returns the to be executed function.
     // This can be used to modify the function.
     wrap: function (fun) { return fun; },

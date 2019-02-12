@@ -64,6 +64,7 @@ module.exports = class Umzug extends EventEmitter {
 
     if (!Array.isArray(this.options.migrations)) {
       this.options.migrations = {
+        exclude: [],
         params: [],
         path: path.resolve(process.cwd(), 'migrations'),
         pattern: /^\d+[\w-]+\.js$/,
@@ -445,7 +446,14 @@ module.exports = class Umzug extends EventEmitter {
         if (this.options.migrations.pattern.test(file)) {
           return new Migration(filePath, this.options);
         }
-        this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
+
+        const isExcluded = this.options.migrations.exclude.reduce(
+          (isExcluded, excludePattern) => isExcluded || excludePattern.test(file), false
+        );
+        if (!isExcluded) {
+          this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
+        }
+
         return file;
       })
       .reduce((a, b) => a.concat(b), []) // flatten the result to an array

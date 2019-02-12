@@ -63,6 +63,22 @@ describe('execute', () => {
       });
   });
 
+  it('ignores file patters found on the migration path', function () {
+    this.umzug.options.migrations.exclude = [/\.gitkeep$/];
+
+    return this
+      .migrate('up')
+      .then(() => {
+        expect(this.upStub.callCount).to.equal(1);
+        expect(this.downStub.callCount).to.equal(0);
+        expect(this.logSpy.callCount).to.equal(2);
+        expect(this.logSpy.getCall(0).args[0]).to.equal('== 123-migration: migrating =======');
+        expect(this.logSpy.getCall(1).args[0]).to.match(/== 123-migration: migrated \(0\.0\d\ds\)/);
+        expect(this.migratingEventSpy.calledWith('123-migration')).to.equal(true);
+        expect(this.migratedEventSpy.calledWith('123-migration')).to.equal(true);
+      });
+  });
+
   it('runs the up method of the migration', function () {
     return this
       .migrate('up')
