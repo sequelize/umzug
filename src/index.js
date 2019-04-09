@@ -445,7 +445,6 @@ module.exports = class Umzug extends EventEmitter {
         if (this.options.migrations.pattern.test(file)) {
           return new Migration(filePath, this.options);
         }
-        this.log('File: ' + file + ' does not match pattern: ' + this.options.migrations.pattern);
         return file;
       })
       .reduce((a, b) => a.concat(b), []) // flatten the result to an array
