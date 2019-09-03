@@ -24,7 +24,7 @@ const helper = module.exports = {
   },
 
   generateDummyMigration: function (name, subDirectories, options = {}) {
-    const randomName = () => Math.random().toString(36).substring(2, 15)
+    const randomName = () => Math.random().toString(36).substring(2, 15);
     let path = join(__dirname, '/tmp/');
     let migrationsPath = path;
     if (subDirectories) {
