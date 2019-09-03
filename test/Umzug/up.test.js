@@ -304,3 +304,20 @@ describe('up-directories', () => {
 
   upTestuite();
 });
+
+describe('up-directories with symbolicRef', () => {
+  beforeEach(function () {
+    helper.clearTmp();
+    return helper
+      .prepareMigrations(3, { directories: [['1', '2'], ['1', '2'], ['1', '3', '4', '5']], usesSymbolicRef: true })
+      .then((migrationNames) => {
+        this.migrationNames = migrationNames;
+        this.umzug = new Umzug({
+          migrations: { path: join(__dirname, '/../tmp/1'), traverseDirectories: true },
+          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+        });
+      });
+  });
+
+  upTestuite();
+});
