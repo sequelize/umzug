@@ -437,7 +437,7 @@ module.exports = class Umzug extends EventEmitter {
       .map(function (file) {
         const filePath = path.resolve(migrationPath, file);
         if (this.options.migrations.traverseDirectories) {
-          if (fs.lstatSync(filePath).isDirectory()) {
+          if (fs.statSync(filePath).isDirectory()) {
             return this._findMigrations(filePath)
               .then((migrations) => migrations);
           }

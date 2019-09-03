@@ -7,10 +7,9 @@ const helper = module.exports = {
     const tmpPath = join(__dirname, '/tmp');
     path = path || tmpPath;
     const files = fs.readdirSync(path);
-
     files.forEach((file) => {
       const filePath = join(path, '/' + file);
-      if (file.match(/\.(js|json|sqlite|coffee)$/)) {
+      if (file.match(/\.(js|json|sqlite|coffee)$/) || fs.lstatSync(filePath).isSymbolicLink()) {
         try {
           fs.unlinkSync(filePath);
         } catch (e) {
@@ -25,7 +24,9 @@ const helper = module.exports = {
   },
 
   generateDummyMigration: function (name, subDirectories, options = {}) {
+    const randomName = () => Math.random().toString(36).substring(2, 15)
     let path = join(__dirname, '/tmp/');
+    let migrationsPath = path;
     if (subDirectories) {
       if (!_.isArray(subDirectories)) {
         subDirectories = [subDirectories];
@@ -36,9 +37,18 @@ const helper = module.exports = {
           fs.mkdirSync(path);
         }
       });
+
+      migrationsPath = path;
+      if (options.usesSymbolicRef) {
+        const dirName = randomName();
+        migrationsPath = join(__dirname, '/tmp', dirName, '/');
+        path = join(path, dirName);
+        fs.mkdirSync(migrationsPath);
+        fs.symlinkSync(migrationsPath, path);
+      }
     }
     fs.writeFileSync(
-      join(path, name + '.js'),
+      join(migrationsPath, name + '.js'),
       [
         '\'use strict\';',
         '',
@@ -61,7 +71,7 @@ const helper = module.exports = {
       // example 3: ['foo',['foo','bar2']] ==> generates /foo and /foo/bar2
       ...options || {},
     };
-    const { returnUndefined } = options;
+    const { returnUndefined, usesSymbolicRef } = options;
 
     return new Promise((resolve) => {
       const names = options.names;
@@ -72,7 +82,7 @@ const helper = module.exports = {
       _.times(count, (i) => {
         num++;
         names.push(options.names[i] || (num + '-migration'));
-        helper.generateDummyMigration(names[i], options.directories[i], { returnUndefined });
+        helper.generateDummyMigration(names[i], options.directories[i], { returnUndefined, usesSymbolicRef });
       });
 
       resolve(names);
