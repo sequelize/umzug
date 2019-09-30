@@ -40,8 +40,8 @@
     "uuid": "^3.3.2"
   },
   "scripts": {
-    "build": "babel src --out-dir lib",
     "lint": "eslint src test",
+    "prepare": "babel src --out-dir lib",
     "test": "mocha -r babel-register --check-leaks test/index.js"
   },
   "repository": {
