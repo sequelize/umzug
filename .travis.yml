@@ -16,7 +16,7 @@ env:
 
 before_script:
   - npm i sequelize@$(echo $SEQUELIZE)
-  - npm run build
+  - npm run prepare
 
 script:
   - npm run lint
