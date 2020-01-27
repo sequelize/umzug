@@ -29,12 +29,20 @@ module.exports = class Migration {
    * function that specifies how to get a migration object from a path. This
    * should return an object of the form { up: Function, down: Function }.
    * Without this defined, a regular javascript import will be performed.
+   * @param {Migration~format} [options.migrations.format] - A function that
+   * receives the file name of the migration and returns the name of the 
+   * migration. This can be used to remove file extensions for example.
    * @constructs Migration
    */
   constructor (path, options) {
     this.path = _path.resolve(path);
-    this.file = _path.basename(this.path);
     this.options = options;
+
+    if (options && typeof options.migrations.format === 'function') {
+        this.file = options.migrations.format(this.path);
+    } else {
+        this.file = _path.basename(path);
+    }
   }
 
   /**

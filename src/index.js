@@ -44,6 +44,9 @@ module.exports = class Umzug extends EventEmitter {
    * function that specifies how to get a migration object from a path. This
    * should return an object of the form { up: Function, down: Function }.
    * Without this defined, a regular javascript import will be performed.
+   * @param {Migration~format} [options.migrations.format] - A function that
+   * receives the file name of the migration and returns the name of the 
+   * migration. This can be used to remove file extensions for example.
    * @constructs Umzug
    */
   constructor (options = {}) {
@@ -69,6 +72,7 @@ module.exports = class Umzug extends EventEmitter {
         pattern: /^\d+[\w-]+\.js$/,
         traverseDirectories: false,
         wrap: fun => fun,
+        format: undefined,
         ...this.options.migrations,
       };
     }
@@ -154,7 +158,7 @@ module.exports = class Umzug extends EventEmitter {
    * @returns {Promise.<Migration>}
    */
   executed () {
-    return Bluebird.resolve(this.storage.executed()).bind(this).map((file) => new Migration(file));
+    return Bluebird.resolve(this.storage.executed()).bind(this).map((file) => new Migration(file, this.options));
   }
 
   /**
