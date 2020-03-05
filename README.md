@@ -9,6 +9,48 @@ The *umzug* lib is a framework agnostic migration tool for Node.JS. The tool its
   * JSON
   * Sequelize
   * MongoDB
+  
+## Documentation
+
+### Minimal Example
+
+This example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage:
+
+```javascript
+
+const Sequelize = require('sequelize')
+const path = require('path')
+const Umzug = require('umzug')
+
+// creates a basic sqlite database
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: './db.sqlite'
+})
+
+const umzug = new Umzug({
+  migrations: {
+    // indicates the folder containing the migration .js files
+    path: path.join(__dirname, './migrations'),
+    // inject sequelize's QueryInterface in the migrations
+    params: [
+      sequelize.getQueryInterface()
+    ]
+  },
+  // indicates that the migration data should be store in the database
+  // itself through sequelize. The default configuration creates a table
+  // named `SequelizeMeta`.
+  storage: 'sequelize',
+  storageOptions: {
+    sequelize: sequelize
+  }
+})
+
+;(async () => {
+  await umzug.up()
+  console.log('All migrations performed successfully')
+})()
+```
 
 ## Storages
 
