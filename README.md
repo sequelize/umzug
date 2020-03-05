@@ -61,6 +61,9 @@ const umzug = new Umzug({
 
 const Sequelize = require('sequelize')
 
+// All migrations must provide a `up` and `down` functions that must return
+// a promise
+
 module.exports = {
   up: async (query) => {
     await query.createTable('users', {
@@ -89,12 +92,44 @@ module.exports = {
 }
 ```
 
-## Storages
 
-### JSONStorage
-Using the [JSONStorage](src/storages/JSONStorage.js) will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
+### Migrations
 
-#### Options
+Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
+
+A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
+
+```js
+'use strict';
+
+var Bluebird = require('bluebird');
+
+module.exports = {
+  up: function () {
+    return new Bluebird(function (resolve, reject) {
+      // Describe how to achieve the task.
+      // Call resolve/reject at some point.
+    });
+  },
+
+  down: function () {
+    return new Bluebird(function (resolve, reject) {
+      // Describe how to revert the task.
+      // Call resolve/reject at some point.
+    });
+  }
+};
+```
+
+### Storages
+
+Storages define where the migration data is stored.
+
+#### JSON Storage
+
+Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
+
+Options:
 
 ```js
 {
@@ -104,10 +139,11 @@ Using the [JSONStorage](src/storages/JSONStorage.js) will create a JSON file whi
 }
 ```
 
-### SequelizeStorage
-Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
+#### Sequelize Storage
 
-#### Options
+Using the `sequelize` storage will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
+
+Options:
 
 ```js
 {
@@ -138,10 +174,11 @@ Using the [SequelizeStorage](src/storages/SequelizeStorage.js) will create a tab
 }
 ```
 
-### MongoDBStorage
-Using the [MongoDBStorage](src/storages/MongoDBStorage.js) will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
+#### MongoDB Storage
 
-#### Options
+Using the `mongodb` storage will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
+
+Options:
 
 ```js
 {
@@ -155,25 +192,15 @@ Using the [MongoDBStorage](src/storages/MongoDBStorage.js) will create a collect
   collection: MongoDBDriverCollection
 }
 ```
-#### Events
 
-Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place
-to implement application-specific logic that must run around each migration:
+#### Custom
 
-* *migrating* - A migration is about to be executed.
-* *migrated* - A migration has successfully been executed.
-* *reverting* - A migration is about to be reverted.
-* *reverted* - A migration has successfully been reverted.
-
-### Storage
-If want to run migrations without storing them anywhere, you can use the [Storage](src/storages/Storage.js).
-
-### Custom
 In order to use custom storage, you have two options:
 
-#### Way 1: Pass instance to constructor
+##### Method 1: Pass instance to constructor
 
 You can pass your storage instance to Umzug constructor.
+
 ```js
 class CustomStorage {
   constructor(...) {...}
@@ -184,7 +211,7 @@ class CustomStorage {
 let umzug = new Umzug({ storage: new CustomStorage(...) })
 ```
 
-#### Way 2: Require external module from npmjs.com
+##### Method 2: Require external module from npmjs.com
 
 Create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
 
@@ -223,35 +250,16 @@ module.exports = redefine.Class({
 });
 ```
 
-## Migrations
-Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
+### Events
 
-### Format
-A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
+Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
 
-```js
-'use strict';
+* *migrating* - A migration is about to be executed.
+* *migrated* - A migration has successfully been executed.
+* *reverting* - A migration is about to be reverted.
+* *reverted* - A migration has successfully been reverted.
 
-var Bluebird = require('bluebird');
-
-module.exports = {
-  up: function () {
-    return new Bluebird(function (resolve, reject) {
-      // Describe how to achieve the task.
-      // Call resolve/reject at some point.
-    });
-  },
-
-  down: function () {
-    return new Bluebird(function (resolve, reject) {
-      // Describe how to revert the task.
-      // Call resolve/reject at some point.
-    });
-  }
-};
-```
-
-## Examples
+### Examples
 
 - [sequelize-migration-hello](https://github.com/abelnation/sequelize-migration-hello)
 
