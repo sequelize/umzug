@@ -387,7 +387,7 @@ module.exports = class MyStorage {
     // It will get called once a migration has been reverted.
   },
 
-  async executed:() {
+  async executed() {
     // This function lists the names of the logged
     // migrations. It will be used to calculate
     // pending migrations. The result has to be an
