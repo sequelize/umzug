@@ -2,9 +2,10 @@
 
 The *umzug* lib is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
 
+* Programmatic API for migrations
 * Database agnostic
 * Supports logging of migration process
-* Allows to define where the migration data is stored. Storage adapters are already provided:
+* Allows to define where the migration data is stored. Storage adapters are already provided for:
   * JSON
   * Sequelize
   * MongoDB
