@@ -58,8 +58,7 @@ const umzug = new Umzug({
 
 const Sequelize = require('sequelize')
 
-// All migrations must provide a `up` and `down` functions that must return
-// a promise
+// All migrations must provide a `up` and `down` async functions
 
 module.exports = {
   // `query` was passed in the `index.js` file
