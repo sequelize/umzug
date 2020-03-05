@@ -93,166 +93,6 @@ module.exports = {
 ```
 
 
-### Migrations
-
-Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
-
-A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
-
-```js
-
-module.exports = {
-  up: async () => {
-    ...
-  },
-  down: async () => {
-    ...
-  },
-};
-```
-
-### Storages
-
-Storages define where the migration data is stored.
-
-#### JSON Storage
-
-Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
-
-Options:
-
-```js
-{
-  // The path to the json storage.
-  // Defaults to process.cwd() + '/umzug.json';
-  path: process.cwd() + '/db/sequelize-meta.json'
-}
-```
-
-#### Sequelize Storage
-
-Using the `sequelize` storage will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
-
-Options:
-
-```js
-{
-  // The configured instance of Sequelize.
-  // Optional if `model` is passed.
-  sequelize: instance,
-
-  // The to be used Sequelize model.
-  // Must have column name matching `columnName` option
-  // Optional if `sequelize` is passed.
-  model: model,
-
-  // The name of the to be used model.
-  // Defaults to 'SequelizeMeta'
-  modelName: 'Schema',
-
-  // The name of table to create if `model` option is not supplied
-  // Defaults to `modelName`
-  tableName: 'Schema',
-
-  // The name of table column holding migration name.
-  // Defaults to 'name'.
-  columnName: 'migration',
-
-  // The type of the column holding migration name.
-  // Defaults to `Sequelize.STRING`
-  columnType: new Sequelize.STRING(100)
-}
-```
-
-#### MongoDB Storage
-
-Using the `mongodb` storage will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
-
-Options:
-
-```js
-{
-  // a connection to target database established with MongoDB Driver
-  connection: MongoDBDriverConnection,
-
-  // name of migration collection in MongoDB
-  collectionName: 'migrations',
-
-  // reference to a MongoDB Driver collection
-  collection: MongoDBDriverCollection
-}
-```
-
-#### Custom
-
-In order to use custom storage, you have two options:
-
-##### Method 1: Pass instance to constructor
-
-You can pass your storage instance to Umzug constructor.
-
-```js
-class CustomStorage {
-  constructor(...) {...}
-  logMigration(...) {...}
-  unlogMigration(...) {...}
-  executed(...) {...}
-}
-let umzug = new Umzug({ storage: new CustomStorage(...) })
-```
-
-##### Method 2: Require external module from npmjs.com
-
-Create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
-
-```js
-var Bluebird = require('bluebird');
-var redefine = require('redefine');
-
-module.exports = redefine.Class({
-  constructor: function ({ option1: 'defaultValue1' } = {}) {
-    this.option1 = option1;
-  },
-
-  logMigration: function (migrationName) {
-    return new Bluebird(function (resolve, reject) {
-      // This function logs a migration as executed.
-      // It will get called once a migration was
-      // executed successfully.
-    });
-  },
-
-  unlogMigration: function (migrationName) {
-    return new Bluebird(function (resolve, reject) {
-      // This function removes a previously logged migration.
-      // It will get called once a migration has been reverted.
-    });
-  },
-
-  executed: function () {
-    return new Bluebird(function (resolve, reject) {
-      // This function lists the names of the logged
-      // migrations. It will be used to calculate
-      // pending migrations. The result has to be an
-      // array with the names of the migration files.
-    });
-  }
-});
-```
-
-### Events
-
-Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
-
-* *migrating* - A migration is about to be executed.
-* *migrated* - A migration has successfully been executed.
-* *reverting* - A migration is about to be reverted.
-* *reverted* - A migration has successfully been reverted.
-
-### Examples
-
-- [sequelize-migration-hello](https://github.com/abelnation/sequelize-migration-hello)
-
 ## Usage
 
 ### Installation
@@ -438,6 +278,167 @@ It is possible to configure *umzug* instance by passing an object to the constru
   }
 }
 ```
+
+
+### Migrations
+
+Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
+
+A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
+
+```js
+
+module.exports = {
+  up: async () => {
+    ...
+  },
+  down: async () => {
+    ...
+  },
+};
+```
+
+### Storages
+
+Storages define where the migration data is stored.
+
+#### JSON Storage
+
+Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
+
+Options:
+
+```js
+{
+  // The path to the json storage.
+  // Defaults to process.cwd() + '/umzug.json';
+  path: process.cwd() + '/db/sequelize-meta.json'
+}
+```
+
+#### Sequelize Storage
+
+Using the `sequelize` storage will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
+
+Options:
+
+```js
+{
+  // The configured instance of Sequelize.
+  // Optional if `model` is passed.
+  sequelize: instance,
+
+  // The to be used Sequelize model.
+  // Must have column name matching `columnName` option
+  // Optional if `sequelize` is passed.
+  model: model,
+
+  // The name of the to be used model.
+  // Defaults to 'SequelizeMeta'
+  modelName: 'Schema',
+
+  // The name of table to create if `model` option is not supplied
+  // Defaults to `modelName`
+  tableName: 'Schema',
+
+  // The name of table column holding migration name.
+  // Defaults to 'name'.
+  columnName: 'migration',
+
+  // The type of the column holding migration name.
+  // Defaults to `Sequelize.STRING`
+  columnType: new Sequelize.STRING(100)
+}
+```
+
+#### MongoDB Storage
+
+Using the `mongodb` storage will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
+
+Options:
+
+```js
+{
+  // a connection to target database established with MongoDB Driver
+  connection: MongoDBDriverConnection,
+
+  // name of migration collection in MongoDB
+  collectionName: 'migrations',
+
+  // reference to a MongoDB Driver collection
+  collection: MongoDBDriverCollection
+}
+```
+
+#### Custom
+
+In order to use custom storage, you have two options:
+
+##### Method 1: Pass instance to constructor
+
+You can pass your storage instance to Umzug constructor.
+
+```js
+class CustomStorage {
+  constructor(...) {...}
+  logMigration(...) {...}
+  unlogMigration(...) {...}
+  executed(...) {...}
+}
+let umzug = new Umzug({ storage: new CustomStorage(...) })
+```
+
+##### Method 2: Require external module from npmjs.com
+
+Create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
+
+```js
+var Bluebird = require('bluebird');
+var redefine = require('redefine');
+
+module.exports = redefine.Class({
+  constructor: function ({ option1: 'defaultValue1' } = {}) {
+    this.option1 = option1;
+  },
+
+  logMigration: function (migrationName) {
+    return new Bluebird(function (resolve, reject) {
+      // This function logs a migration as executed.
+      // It will get called once a migration was
+      // executed successfully.
+    });
+  },
+
+  unlogMigration: function (migrationName) {
+    return new Bluebird(function (resolve, reject) {
+      // This function removes a previously logged migration.
+      // It will get called once a migration has been reverted.
+    });
+  },
+
+  executed: function () {
+    return new Bluebird(function (resolve, reject) {
+      // This function lists the names of the logged
+      // migrations. It will be used to calculate
+      // pending migrations. The result has to be an
+      // array with the names of the migration files.
+    });
+  }
+});
+```
+
+### Events
+
+Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
+
+* *migrating* - A migration is about to be executed.
+* *migrated* - A migration has successfully been executed.
+* *reverting* - A migration is about to be reverted.
+* *reverted* - A migration has successfully been reverted.
+
+## Examples
+
+* [sequelize-migration-hello](https://github.com/abelnation/sequelize-migration-hello)
 
 ## License
 
