@@ -238,7 +238,7 @@ const migration = await umzug.down()
 It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
-const migrations = umzug.down({ to: '20141031080000-task' })
+const migrations = await umzug.down({ to: '20141031080000-task' })
 // returns an array of all reverted migrations.
 ```
 
@@ -263,9 +263,7 @@ await umzug.down(['20141101203500-task', '20141101203501-task-2'])
 
 ### Migrations
 
-Migrations are basically files that describe ways of executing and reverting tasks. In order to allow asynchronicity, tasks return a Promise object which provides a `then` method.
-
-A migration file ideally contains an `up` and a `down` method, which represent a function which achieves the task and a function that reverts a task. The file could look like this:
+A migration file ideally exposes an `up` and a `down` async functions. They will perform the task of upgrading or downgrading the database.
 
 ```js
 
