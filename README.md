@@ -101,7 +101,7 @@ The *umzug* lib is available on npm:
 npm install umzug
 ```
 
-#### Configuration
+#### Umzug instance
 
 It is possible to configure *umzug* instance by passing an object to the constructor. The possible options are:
 
