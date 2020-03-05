@@ -62,6 +62,7 @@ const Sequelize = require('sequelize')
 // a promise
 
 module.exports = {
+  // `query` was passed in the `index.js` file
   up: async (query) => {
     await query.createTable('users', {
       id: {
@@ -83,7 +84,7 @@ module.exports = {
       }
     })
   },
-  down: async () => {
+  down: async (query) => {
     await query.dropTable('users')
   }
 }
