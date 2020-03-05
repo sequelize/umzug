@@ -101,6 +101,61 @@ The *umzug* lib is available on npm:
 npm install umzug
 ```
 
+#### Configuration
+
+It is possible to configure *umzug* instance by passing an object to the constructor. The possible options are:
+
+```js
+const Umzug = require('umzug')
+
+const umzug = new Umzug({
+  // The storage.
+  // Possible values: 'none', 'json', 'mongodb', 'sequelize', an argument for `require()`, including absolute paths
+  storage: 'json',
+
+  // The options for the storage.
+  // Check the available storages for further details.
+  storageOptions: {},
+
+  // The logging function.
+  // A function that gets executed everytime migrations start and have ended.
+  logging: false,
+
+  // The name of the positive method in migrations.
+  upName: 'up',
+
+  // The name of the negative method in migrations.
+  downName: 'down',
+
+  // (advanced) you can pass an array of Migration instances instead of the options below
+  migrations: {
+    // The params that gets passed to the migrations.
+    // Might be an array or a synchronous function which returns an array.
+    params: [],
+
+    // The path to the migrations directory.
+    path: 'migrations',
+
+    // The pattern that determines whether or not a file is a migration.
+    pattern: /^\d+[\w-]+\.js$/,
+
+    // A function that receives and returns the to be executed function.
+    // This can be used to modify the function.
+    wrap: function (fun) { return fun; },
+    
+    // A function that maps a file path to a migration object in the form
+    // { up: Function, down: Function }. The default for this is to require(...)
+    // the file as javascript, but you can use this to transpile TypeScript,
+    // read raw sql etc.
+    // See https://github.com/sequelize/umzug/tree/master/test/fixtures
+    // for examples.
+    customResolver: function (sqlPath)  {
+        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
+    }
+  }
+})
+```
+
 #### Executing migrations
 
 The `execute` method is a general purpose function that runs for every specified migrations the respective function.
@@ -207,60 +262,6 @@ There are also shorthand version of that:
 await umzug.down('20141101203500-task') // Runs just the passed migration
 await umzug.down(['20141101203500-task', '20141101203501-task-2'])
 ```
-
-### Configuration
-
-It is possible to configure *umzug* instance by passing an object to the constructor. The possible options are:
-
-```js
-{
-  // The storage.
-  // Possible values: 'none', 'json', 'mongodb', 'sequelize', an argument for `require()`, including absolute paths
-  storage: 'json',
-
-  // The options for the storage.
-  // Check the available storages for further details.
-  storageOptions: {},
-
-  // The logging function.
-  // A function that gets executed everytime migrations start and have ended.
-  logging: false,
-
-  // The name of the positive method in migrations.
-  upName: 'up',
-
-  // The name of the negative method in migrations.
-  downName: 'down',
-
-  // (advanced) you can pass an array of Migration instances instead of the options below
-  migrations: {
-    // The params that gets passed to the migrations.
-    // Might be an array or a synchronous function which returns an array.
-    params: [],
-
-    // The path to the migrations directory.
-    path: 'migrations',
-
-    // The pattern that determines whether or not a file is a migration.
-    pattern: /^\d+[\w-]+\.js$/,
-
-    // A function that receives and returns the to be executed function.
-    // This can be used to modify the function.
-    wrap: function (fun) { return fun; },
-    
-    // A function that maps a file path to a migration object in the form
-    // { up: Function, down: Function }. The default for this is to require(...)
-    // the file as javascript, but you can use this to transpile TypeScript,
-    // read raw sql etc.
-    // See https://github.com/sequelize/umzug/tree/master/test/fixtures
-    // for examples.
-    customResolver: function (sqlPath)  {
-        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
-    }
-  }
-}
-```
-
 
 ### Migrations
 
