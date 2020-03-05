@@ -92,79 +92,64 @@ module.exports = {
 }
 ```
 
+### Usage
 
-## Usage
-
-### Installation
+#### Installation
 The *umzug* lib is available on npm:
 
 ```js
 npm install umzug
 ```
 
-### API
-The basic usage of *umzug* is as simple as:
-
-```js
-var Umzug = require('umzug');
-var umzug = new Umzug({});
-
-umzug.someMethod().then(function (result) {
-  // do something with the result
-});
-```
-
 #### Executing migrations
+
 The `execute` method is a general purpose function that runs for every specified migrations the respective function.
 
 ```js
-umzug.execute({
+const migrations = await umzug.execute({
   migrations: ['some-id', 'some-other-id'],
   method: 'up'
-}).then(function (migrations) {
-  // "migrations" will be an Array of all executed/reverted migrations.
-});
+})
+// returns an array of all executed/reverted migrations.
 ```
 
 #### Getting all pending migrations
+
 You can get a list of pending/not yet executed migrations like this:
 
 ```js
-umzug.pending().then(function (migrations) {
-  // "migrations" will be an Array with the names of
-  // pending migrations.
-});
+const migrations = await umzug.pending()
+// returns an array of all pending migrations.
 ```
 
 #### Getting all executed migrations
+
 You can get a list of already executed migrations like this:
 
 ```js
-umzug.executed().then(function (migrations) {
-  // "migrations" will be an Array of already executed migrations.
-});
+const migrations = await umzug.executed()
+// returns an array of all already executed migrations
 ```
 
 #### Executing pending migrations
+
 The `up` method can be used to execute all pending migrations.
 
 ```js
-umzug.up().then(function (migrations) {
-  // "migrations" will be an Array with the names of the
-  // executed migrations.
-});
+const migrations = await umzug.up()
+// returns an array of all executed migrations
 ```
 
 It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name (inclusive).
 
 ```js
-umzug.up({ to: '20141101203500-task' }).then(function (migrations) {});
+await umzug.up({ to: '20141101203500-task' })
 ```
 
 You also have the ability to choose to run migrations *from* a specific migration, excluding it:
 
 ```js
-umzug.up({ from: '20141101203500-task' }).then(function (migrations) {});
+await umzug.up({ from: '20141101203500-task' })
 ```
 
 In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly useful if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
@@ -172,23 +157,21 @@ In the above example umzug will execute all the pending migrations found **after
 You can combine `from` and `to` options to select a specific subset:
 
 ```js
-umzug.up({ from: '20141101203500-task', to: '20151201103412-items' }).then(function (migrations) {});
+await umzug.up({ from: '20141101203500-task', to: '20151201103412-items' })
 ```
 
 Running specific migrations while ignoring the right order, can be done like this:
 
 ```js
-umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+await umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] })
 ```
 
 There are also shorthand version of that:
 
 ```js
-umzug.up('20141101203500-task'); // Runs just the passed migration
-umzug.up(['20141101203500-task', '20141101203501-task-2']);
+await umzug.up('20141101203500-task'); // Runs just the passed migration
+await umzug.up(['20141101203500-task', '20141101203501-task-2']);
 ```
-
-Running
 
 #### Reverting executed migration
 The `down` method can be used to revert the last executed migration.
