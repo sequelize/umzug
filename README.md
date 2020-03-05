@@ -174,39 +174,38 @@ await umzug.up(['20141101203500-task', '20141101203501-task-2']);
 ```
 
 #### Reverting executed migration
+
 The `down` method can be used to revert the last executed migration.
 
 ```js
-umzug.down().then(function (migration) {
-  // "migration" will the name of the reverted migration.
-});
+const migration = await umzug.down()
+// returns the reverted migration.
 ```
 
 It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
-umzug.down({ to: '20141031080000-task' }).then(function (migrations) {
-  // "migrations" will be an Array with the names of all reverted migrations.
-});
+const migrations = umzug.down({ to: '20141031080000-task' })
+// returns an array of all reverted migrations.
 ```
 
 To revert all migrations, you can pass 0 as the `to` parameter:
 
 ```js
-umzug.down({ to: 0 });
+await umzug.down({ to: 0 })
 ```
 
 Reverting specific migrations while ignoring the right order, can be done like this:
 
 ```js
-umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+await umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] })
 ```
 
 There are also shorthand version of that:
 
 ```js
-umzug.down('20141101203500-task'); // Runs just the passed migration
-umzug.down(['20141101203500-task', '20141101203501-task-2']);
+await umzug.down('20141101203500-task') // Runs just the passed migration
+await umzug.down(['20141101203500-task', '20141101203501-task-2'])
 ```
 
 ### Configuration
