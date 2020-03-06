@@ -14,13 +14,15 @@ describe('migrationsList', () => {
     let downed = false;
     const migrations = migrationsList([{
       name: '00',
-      up: async () => {
+      up: async (param) => {
+        expect(param).to.equal('hello');
         upped = true;
       },
-      down: async () => {
+      down: async (param) => {
+        expect(param).to.equal('hello');
         downed = true;
       },
-    }]);
+    }], ['hello']);
     const umzug = new Umzug({
       migrations,
       storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
