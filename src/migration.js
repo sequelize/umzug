@@ -39,7 +39,10 @@ module.exports = class Migration {
     this.options = options;
 
     if (options && options.migrations && typeof options.migrations.format === 'function') {
-        this.file = options.migrations.format(this.path);
+      this.file = options.migrations.format(this.path);
+      if (typeof this.file !== 'string') {
+        throw new Error(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
+      }
     } else {
         this.file = _path.basename(path);
     }
