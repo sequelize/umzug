@@ -103,7 +103,8 @@ module.exports = class Migration {
    * @returns {boolean}
    */
   testFileName (needle) {
-    return this.file.indexOf(needle) === 0;
+    const formattedNeedle = this.options.nameFormatter(needle);
+    return this.file.indexOf(formattedNeedle) === 0;
   }
 
   /**
