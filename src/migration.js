@@ -38,7 +38,7 @@ module.exports = class Migration {
     this.path = _path.resolve(path);
     this.options = options;
 
-    if (options && typeof options.migrations.format === 'function') {
+    if (options && options.migrations && typeof options.migrations.format === 'function') {
         this.file = options.migrations.format(this.path);
     } else {
         this.file = _path.basename(path);
