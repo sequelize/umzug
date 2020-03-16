@@ -44,7 +44,7 @@ module.exports = class Migration {
         throw new Error(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
       }
     } else {
-        this.file = _path.basename(path);
+      this.file = _path.basename(path);
     }
   }
 
