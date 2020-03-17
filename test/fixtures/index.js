@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { resolve, dirname, join, basename } from 'path';
+import { resolve, dirname, join, parse } from 'path';
 import { expect } from 'chai';
 import Sequelize from 'sequelize';
 import typescript from 'typescript';
@@ -32,7 +32,7 @@ describe('custom resolver', () => {
           ],
           pattern: this.pattern,
           customResolver: this.customResolver,
-          nameFormatter: (path) => basename(path).replace(/\.[^/.]+$/, ''), // Remove file extension
+          nameFormatter: (path) => parse(path).name,
         },
         storage: 'sequelize',
         storageOptions: {
@@ -73,7 +73,7 @@ describe('custom resolver', () => {
           downName: 'down',
           migrations: {
             wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
-            nameFormatter: (path) => basename(path).replace(/\.[^/.]+$/, ''), // Remove file extension
+            nameFormatter: (path) => parse(path).name,
           },
         }),
         new Migration(require.resolve('./javascript/2.things'), {
@@ -81,7 +81,7 @@ describe('custom resolver', () => {
           downName: 'down',
           migrations: {
             wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
-            nameFormatter: (path) => basename(path).replace(/\.[^/.]+$/, ''), // Remove file extension
+            nameFormatter: (path) => parse(path).name,
           },
         }),
       ],
