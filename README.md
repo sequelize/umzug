@@ -124,7 +124,7 @@ const umzug = new Umzug({
   // The name of the negative method in migrations.
   downName: 'down',
 
-  // (advanced) you can pass an array of Migration instances instead of the options below
+  // (advanced) you can pass an array of migrations built with `migrationsList()` instead of the options below
   migrations: {
     // The params that gets passed to the migrations.
     // Might be an array or a synchronous function which returns an array.
@@ -262,6 +262,10 @@ await umzug.down(['20141101203500-task', '20141101203501-task-2'])
 
 ### Migrations
 
+There are two ways to specify migrations.
+
+#### Migration files
+
 A migration file ideally exposes an `up` and a `down` async functions. They will perform the task of upgrading or downgrading the database.
 
 ```js
@@ -274,6 +278,28 @@ module.exports = {
     ...
   },
 };
+```
+
+Migration files should be located in the same directory, according to the info you gave to the `Umzug` constructor.
+
+#### Direct migrations list
+
+You can also specify directly a list of migrations to the `Umzug` constructor. We recommend the usage of the `Umzug.migrationsList()` function
+as bellow:
+
+```js
+const umzug = new Umzug({
+  migrations: Umzug.migrationsList([
+    {
+      // the name of the migration is mandatory
+      name: '00-first-migration',
+      up: ...,
+      down: ...
+    }
+  ], 
+  // a facultative list of parameters that will be sent to the `up` and `down` functions
+  [sequelize.getQueryInterface()])
+})
 ```
 
 ### Storages
