@@ -34,17 +34,19 @@ module.exports = class Migration {
    * of the migration. This can be used to remove file extensions for example.
    * @constructs Migration
    */
-  constructor (path, options) {
+  constructor (path, options = {}) {
     this.path = _path.resolve(path);
-    this.options = options;
+    this.options = {
+      ...options,
+      migrations: {
+        nameFormatter: (path) => _path.basename(path),
+        ...options.migrations,
+      },
+    };
 
-    if (options && options.migrations && typeof options.migrations.nameFormatter === 'function') {
-      this.file = options.migrations.nameFormatter(this.path);
-      if (typeof this.file !== 'string') {
-        throw new Error(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
-      }
-    } else {
-      this.file = _path.basename(path);
+    this.file = this.options.migrations.nameFormatter(this.path);
+    if (typeof this.file !== 'string') {
+      throw new Error(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
     }
   }
 
@@ -103,7 +105,7 @@ module.exports = class Migration {
    * @returns {boolean}
    */
   testFileName (needle) {
-    const formattedNeedle = this.options.nameFormatter(needle);
+    const formattedNeedle = this.options.migrations.nameFormatter(needle);
     return this.file.indexOf(formattedNeedle) === 0;
   }
 

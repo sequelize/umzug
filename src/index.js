@@ -72,7 +72,6 @@ module.exports = class Umzug extends EventEmitter {
         pattern: /^\d+[\w-]+\.js$/,
         traverseDirectories: false,
         wrap: fun => fun,
-        nameFormatter: undefined,
         ...this.options.migrations,
       };
     }
