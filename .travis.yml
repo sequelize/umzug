@@ -2,17 +2,18 @@ sudo: false
 
 language: node_js
 
-node_js:
-  - '6'
-  - '8'
-  - '10'
-  - '11'
-
 cache: npm
 
-env:
-  - SEQUELIZE=^3.0.0
-  - SEQUELIZE=^4.0.0
+jobs:
+  include:
+  - node_js: '6'
+    env: SEQUELIZE=3
+  - node_js: '6'
+    env: SEQUELIZE=4
+  - node_js: '6'
+    env: SEQUELIZE=latest
+  - node_js: '10'
+    env: SEQUELIZE=next
 
 before_script:
   - npm i sequelize@$(echo $SEQUELIZE)

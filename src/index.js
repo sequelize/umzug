@@ -3,6 +3,7 @@ import fs from 'fs';
 import Migration from './migration';
 import path from 'path';
 import { EventEmitter } from 'events';
+import migrationsList from './migrationsList';
 
 import Storage from './storages/Storage';
 import JSONStorage from './storages/JSONStorage';
@@ -587,3 +588,5 @@ module.exports = class Umzug extends EventEmitter {
       .get('migrations');
   }
 };
+
+module.exports.migrationsList = migrationsList;

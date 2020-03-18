@@ -5,4 +5,5 @@ describe('Umzug', () => {
   require('./executed.test');
   require('./pending.test');
   require('./up.test');
+  require('./migrationsList.test');
 });

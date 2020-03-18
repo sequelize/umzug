@@ -43,7 +43,10 @@ describe('custom resolver', () => {
     };
 
     this.verifyTables = async () => {
-      const tables = await this.sequelize.query('select * from sqlite_master where type=\'table\'');
+      const tables = await this.sequelize.query(
+        'select * from sqlite_master where type=\'table\'',
+        { type: Sequelize.QueryTypes.SHOWTABLES }
+      );
 
       expect(tables.sort()).to.deep.equal(['SequelizeMeta', 'thing', 'user']);
     };
