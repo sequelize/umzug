@@ -46,7 +46,7 @@ module.exports = class Umzug extends EventEmitter {
    * should return an object of the form { up: Function, down: Function }.
    * Without this defined, a regular javascript import will be performed.
    * @param {Migration~nameFormatter} [options.migrations.nameFormatter] - A
-   * function that receives the file name of the migration and returns the name
+   * function that receives the file path of the migration and returns the name
    * of the migration. This can be used to remove file extensions for example.
    * @constructs Umzug
    */

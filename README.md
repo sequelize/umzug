@@ -150,9 +150,9 @@ const umzug = new Umzug({
         return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) };
     }
 
-    // A function that receives the file name of the migration and returns the name of the 
+    // A function that receives the file path of the migration and returns the name of the 
     // migration. This can be used to remove file extensions for example.
-    nameFormatter: function (fileName) {
+    nameFormatter: function (filePath) {
         return path.parse(fileName).name;
     }
   }
