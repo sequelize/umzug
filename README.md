@@ -349,8 +349,14 @@ It is possible to configure *umzug* instance by passing an object to the constru
     // read raw sql etc.
     // See https://github.com/sequelize/umzug/tree/master/test/fixtures
     // for examples.
-    customResolver: function (sqlPath)  {
-        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
+    customResolver: function (sqlPath) {
+        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) };
+    }
+
+    // A function that receives the file name of the migration and returns the name of the 
+    // migration. This can be used to remove file extensions for example.
+    nameFormatter: function (fileName) {
+        return path.parse(fileName).name;
     }
   }
 }
