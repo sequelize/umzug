@@ -153,7 +153,7 @@ const umzug = new Umzug({
     // A function that receives the file path of the migration and returns the name of the 
     // migration. This can be used to remove file extensions for example.
     nameFormatter: function (filePath) {
-        return path.parse(fileName).name;
+        return path.parse(filePath).name;
     }
   }
 })
