@@ -6,7 +6,7 @@ import typescript from 'typescript';
 import coffeescript from 'coffee-script';
 import helper from '../helper';
 import Umzug from '../../src';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import Migration from '../../src/migration';
 
 describe('custom resolver', () => {
