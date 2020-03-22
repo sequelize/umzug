@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v2.3.0 - 2020-03-22
+
+### Added
+- `migrationsList` helper to easily build a valid list of migrations
+  [#199](https://github.com/sequelize/umzug/pull/199)
+  
+### Changed
+- Documentation updates
+  [#198](https://github.com/sequelize/umzug/pull/198)
+- Updated dependencies
+  [#203](https://github.com/sequelize/umzug/pull/203)
+- Configure babel to not rely on babel-runtime
+  [#202](https://github.com/sequelize/umzug/pull/202)
+- Skip logging non-migration files
+  [#190](https://github.com/sequelize/umzug/pull/190)
+
 ## v2.2.0 - 2018-11-18
 
 ### Added
