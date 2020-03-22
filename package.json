@@ -10,7 +10,6 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "babel-runtime": "^6.23.0",
     "bluebird": "^3.5.3"
   },
   "devDependencies": {
