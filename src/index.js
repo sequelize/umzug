@@ -19,7 +19,7 @@ module.exports = class Umzug extends EventEmitter {
    * Constructs Umzug instance.
    *
    * @param {Object} [options]
-   * @param {String} [options.storage='json'] - The storage. Possible values:
+   * @param {String|Object} [options.storage='json'] - The storage. Possible values:
    * 'json', 'sequelize', 'mongodb', an argument for `require()`, including absolute paths.
    * @param {function|false} [options.logging=false] - The logging function.
    * A function that gets executed every time migrations start and have ended.
