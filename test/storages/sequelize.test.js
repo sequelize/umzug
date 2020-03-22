@@ -3,7 +3,7 @@ import helper from '../helper';
 import Storage from '../../src/storages/SequelizeStorage';
 import Sequelize from 'sequelize';
 import { join } from 'path';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 describe('sequelize', () => {
   beforeEach(function () {

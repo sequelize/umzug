@@ -10,38 +10,39 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
-    "bluebird": "^3.5.3"
+    "bluebird": "^3.7.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-plugin-dynamic-import-node": "^2.2.0",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/register": "^7.9.0",
+    "babel-plugin-dynamic-import-node": "^2.3.0",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.24.1",
     "chai": "^4.2.0",
     "coffee-script": "^1.8.0",
     "eslint": "^5.9.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-mocha": "^6.3.0",
     "eslint-plugin-node": "^8.0.0",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "lodash": "^4.17.11",
-    "mocha": "^5.2.0",
-    "sequelize": "^4.41.2",
-    "sinon": "^7.1.1",
-    "sinon-chai": "^3.2.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "lodash": "^4.17.15",
+    "mocha": "^6.2.2",
+    "sequelize": "^5.21.5",
+    "sinon": "^7.5.0",
+    "sinon-chai": "^3.5.0",
     "sqlite3": "^4.1.1",
-    "typescript": "^3.1.6",
-    "uuid": "^3.3.2"
+    "typescript": "^3.8.3",
+    "uuid": "^7.0.2"
   },
   "scripts": {
     "lint": "eslint src test",
     "prepare": "babel src --out-dir lib",
-    "test": "mocha -r babel-register --check-leaks test/index.js"
+    "test": "mocha -r @babel/register --check-leaks test/index.js"
   },
   "repository": {
     "type": "git",
