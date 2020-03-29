@@ -1,5 +1,8 @@
 # Change Log
-All notable changes to this project will be documented in this file.
+
+All notable changes to this project until v2.3.0 were documented in this file.
+
+For the change logs for versions above v2.3.0, please refer to the GitHub releases section.
 
 ## v2.3.0 - 2020-03-22
 
