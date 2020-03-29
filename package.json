@@ -8,21 +8,12 @@
     "migrations",
     "sequelize"
   ],
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "dependencies": {
     "bluebird": "^3.7.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
-    "@babel/plugin-transform-runtime": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
-    "@babel/register": "^7.9.0",
-    "babel-plugin-dynamic-import-node": "^2.3.0",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "chai": "^4.2.0",
-    "coffee-script": "^1.8.0",
     "eslint": "^5.9.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.20.1",
@@ -36,12 +27,10 @@
     "sinon": "^7.5.0",
     "sinon-chai": "^3.5.0",
     "sqlite3": "^4.1.1",
-    "typescript": "^3.8.3",
     "uuid": "^7.0.2"
   },
   "scripts": {
     "lint": "eslint src test",
-    "prepare": "babel src --out-dir lib",
     "test": "mocha --check-leaks test/index.js"
   },
   "repository": {

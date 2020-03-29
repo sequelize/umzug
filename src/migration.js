@@ -51,10 +51,7 @@ module.exports = class Migration {
   }
 
   /**
-   * Tries to require migration module. CoffeeScript support requires
-   * 'coffee-script' to be installed.
-   * To require other file types, like TypeScript or raw sql files, a
-   * custom resolver can be used.
+   * Tries to require migration module.
    *
    * @returns {Promise.<Object>} Required migration module
    */
@@ -62,23 +59,7 @@ module.exports = class Migration {
     if (typeof this.options.migrations.customResolver === 'function') {
       return this.options.migrations.customResolver(this.path);
     }
-    if (this.path.match(/\.coffee$/)) {
-      // 2.x compiler registration
-      helper.resolve('coffeescript/register') ||
 
-      // 1.7.x compiler registration
-      helper.resolve('coffee-script/register') ||
-
-      // Prior to 1.7.x compiler registration
-      helper.resolve('coffee-script') ||
-      /* jshint expr: true */
-      (function () {
-        console.error('You have to add "coffee-script" to your package.json.');
-        process.exit(1);
-      })();
-    }
-
-    helper.resolve('@babel/register');
     return require(this.path);
   }
 

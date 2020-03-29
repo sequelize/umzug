@@ -10,7 +10,7 @@ const helper = module.exports = {
 
     files.forEach((file) => {
       const filePath = join(path, '/' + file);
-      if (file.match(/\.(js|json|sqlite|coffee)$/)) {
+      if (file.match(/\.(js|json|sqlite)$/)) {
         try {
           fs.unlinkSync(filePath);
         } catch (e) {
