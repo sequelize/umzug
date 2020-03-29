@@ -9,6 +9,7 @@
     "sequelize"
   ],
   "main": "src/index.js",
+  "files": ["src"],
   "dependencies": {
     "bluebird": "^3.7.2"
   },
