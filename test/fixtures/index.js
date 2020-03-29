@@ -1,13 +1,13 @@
-import { readFileSync } from 'fs';
-import { resolve, dirname, join, parse } from 'path';
-import { expect } from 'chai';
-import Sequelize from 'sequelize';
-import typescript from 'typescript';
-import coffeescript from 'coffee-script';
-import helper from '../helper';
-import Umzug from '../../src';
-import { v4 as uuid } from 'uuid';
-import Migration from '../../src/migration';
+const { readFileSync } = require('fs');
+const { resolve, dirname, join, parse } = require('path');
+const { expect } = require('chai');
+const Sequelize = require('sequelize');
+const typescript = require('typescript');
+const coffeescript = require('coffee-script');
+const helper = require('../helper');
+const Umzug = require('../../src');
+const { v4: uuid } = require('uuid');
+const Migration = require('../../src/migration');
 
 describe('custom resolver', () => {
   beforeEach(function () {

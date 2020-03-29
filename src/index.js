@@ -1,14 +1,14 @@
-import Bluebird from 'bluebird';
-import fs from 'fs';
-import Migration from './migration';
-import path from 'path';
-import { EventEmitter } from 'events';
-import migrationsList from './migrationsList';
+const Bluebird = require('bluebird');
+const fs = require('fs');
+const Migration = require('./migration');
+const path = require('path');
+const { EventEmitter } = require('events');
+const migrationsList = require('./migrationsList');
 
-import Storage from './storages/Storage';
-import JSONStorage from './storages/JSONStorage';
-import MongoDBStorage from './storages/MongoDBStorage';
-import SequelizeStorage from './storages/SequelizeStorage';
+const Storage = require('./storages/Storage');
+const JSONStorage = require('./storages/JSONStorage');
+const MongoDBStorage = require('./storages/MongoDBStorage');
+const SequelizeStorage = require('./storages/SequelizeStorage');
 
 /**
  * @class Umzug

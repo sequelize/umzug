@@ -1,9 +1,9 @@
-import Storage from './Storage';
+const Storage = require('./Storage');
 
 /**
  * @class MongoDBStorage
  */
-export default class MongoDBStorage extends Storage {
+class MongoDBStorage extends Storage {
   /**
    * Constructs MongoDB collection storage.
    *
@@ -60,3 +60,5 @@ export default class MongoDBStorage extends Storage {
       .then(records => records.map(r => r.migrationName));
   }
 }
+
+module.exports = MongoDBStorage;

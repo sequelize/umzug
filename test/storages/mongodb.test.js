@@ -1,8 +1,9 @@
-import chai, { expect } from 'chai';
-import helper from '../helper';
-import Storage from '../../src/storages/MongoDBStorage';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
+const chai = require('chai');
+const { expect } = chai;
+const helper = require('../helper');
+const Storage = require('../../src/storages/MongoDBStorage');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 
 describe('MongoDB', () => {

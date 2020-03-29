@@ -1,6 +1,6 @@
-import _ from 'lodash';
-import fs from 'fs';
-import { join } from 'path';
+const _ = require('lodash');
+const fs = require('fs');
+const { join } = require('path');
 
 const helper = module.exports = {
   clearTmp (path) {

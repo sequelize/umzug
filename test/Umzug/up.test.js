@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import helper from '../helper';
-import Migration from '../../src/migration';
-import Umzug from '../../src';
-import { join } from 'path';
+const { expect } = require('chai');
+const helper = require('../helper');
+const Migration = require('../../src/migration');
+const Umzug = require('../../src');
+const { join } = require('path');
 
 const upTestuite = function upTestuite () {
   describe('when no migrations has been executed yet', () => {

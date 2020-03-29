@@ -42,7 +42,7 @@
   "scripts": {
     "lint": "eslint src test",
     "prepare": "babel src --out-dir lib",
-    "test": "mocha -r @babel/register --check-leaks test/index.js"
+    "test": "mocha --check-leaks test/index.js"
   },
   "repository": {
     "type": "git",

@@ -1,9 +1,9 @@
-import Bluebird from 'bluebird';
-import { expect } from 'chai';
-import helper from '../helper';
-import Umzug from '../../src/index';
-import sinon from 'sinon';
-import { join } from 'path';
+const Bluebird = require('bluebird');
+const { expect } = require('chai');
+const helper = require('../helper');
+const Umzug = require('../../src/index');
+const sinon = require('sinon');
+const { join } = require('path');
 
 describe('execute', () => {
   beforeEach(function () {

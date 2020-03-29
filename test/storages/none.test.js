@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import helper from '../helper';
-import Storage from '../../src/storages/Storage';
+const { expect } = require('chai');
+const helper = require('../helper');
+const Storage = require('../../src/storages/Storage');
 
 describe('none', () => {
   beforeEach(() => {

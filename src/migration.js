@@ -1,5 +1,5 @@
-import _path from 'path';
-import helper from './helper';
+const _path = require('path');
+const helper = require('./helper');
 
 /**
  * @class Migration
@@ -78,6 +78,7 @@ module.exports = class Migration {
       })();
     }
 
+    helper.resolve('@babel/register');
     return require(this.path);
   }
 

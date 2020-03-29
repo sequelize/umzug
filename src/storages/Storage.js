@@ -1,9 +1,9 @@
-import Bluebird from 'bluebird';
+const Bluebird = require('bluebird');
 
 /**
  * @class Storage
  */
-export default class Storage {
+class Storage {
   /**
    * Does nothing.
    *
@@ -33,3 +33,5 @@ export default class Storage {
     return Bluebird.resolve([]);
   }
 }
+
+module.exports = Storage;
