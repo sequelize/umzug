@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { resolve, dirname, join } from 'path';
+import { resolve, dirname, join, parse } from 'path';
 import { expect } from 'chai';
 import Sequelize from 'sequelize';
 import typescript from 'typescript';
@@ -32,6 +32,7 @@ describe('custom resolver', () => {
           ],
           pattern: this.pattern,
           customResolver: this.customResolver,
+          nameFormatter: (path) => parse(path).name,
         },
         storage: 'sequelize',
         storageOptions: {
@@ -49,6 +50,11 @@ describe('custom resolver', () => {
 
       expect(tables.sort()).to.deep.equal(['SequelizeMeta', 'thing', 'user']);
     };
+    this.verifyMeta = async () => {
+      const [meta] = await this.sequelize.query('select * from `SequelizeMeta`');
+
+      expect(meta).to.deep.equal([ { name: '1.users' }, { name: '2.things' } ]);
+    };
   });
 
   it('resolves javascript files if no custom resolver is defined', async function () {
@@ -59,6 +65,7 @@ describe('custom resolver', () => {
     await this.umzug().up();
 
     await this.verifyTables();
+    await this.verifyMeta();
   });
 
   it('an array of migrations created manually can be passed in', async function () {
@@ -69,6 +76,7 @@ describe('custom resolver', () => {
           downName: 'down',
           migrations: {
             wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
+            nameFormatter: (path) => parse(path).name,
           },
         }),
         new Migration(require.resolve('./javascript/2.things'), {
@@ -76,6 +84,7 @@ describe('custom resolver', () => {
           downName: 'down',
           migrations: {
             wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
+            nameFormatter: (path) => parse(path).name,
           },
         }),
       ],
@@ -89,6 +98,7 @@ describe('custom resolver', () => {
     await umzug.up();
 
     await this.verifyTables();
+    await this.verifyMeta();
   });
 
   it('can resolve sql files', async function () {
@@ -101,6 +111,7 @@ describe('custom resolver', () => {
     await this.umzug().up();
 
     await this.verifyTables();
+    await this.verifyMeta();
   });
 
   it('can resolve typescript files', async function () {
@@ -120,6 +131,7 @@ describe('custom resolver', () => {
     await this.umzug().up();
 
     await this.verifyTables();
+    await this.verifyMeta();
   });
 
   it('can resolve coffeescript files', async function () {
@@ -139,5 +151,6 @@ describe('custom resolver', () => {
     await this.umzug().up();
 
     await this.verifyTables();
+    await this.verifyMeta();
   });
 });

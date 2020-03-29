@@ -148,8 +148,14 @@ const umzug = new Umzug({
     // read raw sql etc.
     // See https://github.com/sequelize/umzug/tree/master/test/fixtures
     // for examples.
-    customResolver: function (sqlPath)  {
-        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) }
+    customResolver: function (sqlPath) {
+        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) };
+    }
+
+    // A function that receives the file path of the migration and returns the name of the 
+    // migration. This can be used to remove file extensions for example.
+    nameFormatter: function (filePath) {
+        return path.parse(filePath).name;
     }
   }
 })

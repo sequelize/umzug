@@ -29,12 +29,25 @@ module.exports = class Migration {
    * function that specifies how to get a migration object from a path. This
    * should return an object of the form { up: Function, down: Function }.
    * Without this defined, a regular javascript import will be performed.
+   * @param {Migration~nameFormatter} [options.migrations.nameFormatter] - A
+   * function that receives the file path of the migration and returns the name
+   * of the migration. This can be used to remove file extensions for example.
    * @constructs Migration
    */
-  constructor (path, options) {
+  constructor (path, options = {}) {
     this.path = _path.resolve(path);
-    this.file = _path.basename(this.path);
-    this.options = options;
+    this.options = {
+      ...options,
+      migrations: {
+        nameFormatter: (path) => _path.basename(path),
+        ...options.migrations,
+      },
+    };
+
+    this.file = this.options.migrations.nameFormatter(this.path);
+    if (typeof this.file !== 'string') {
+      throw new Error(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
+    }
   }
 
   /**
@@ -92,7 +105,8 @@ module.exports = class Migration {
    * @returns {boolean}
    */
   testFileName (needle) {
-    return this.file.indexOf(needle) === 0;
+    const formattedNeedle = this.options.migrations.nameFormatter(needle);
+    return this.file.indexOf(formattedNeedle) === 0;
   }
 
   /**
