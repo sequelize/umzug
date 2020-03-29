@@ -116,12 +116,6 @@ const umzug = new Umzug({
   // A function that gets executed everytime migrations start and have ended.
   logging: false,
 
-  // The name of the positive method in migrations.
-  upName: 'up',
-
-  // The name of the negative method in migrations.
-  downName: 'down',
-
   // (advanced) you can pass an array of migrations built with `migrationsList()` instead of the options below
   migrations: {
     // The params that gets passed to the migrations.

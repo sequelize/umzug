@@ -70,16 +70,12 @@ describe('custom resolver', () => {
     const umzug = new Umzug({
       migrations: [
         new Migration(require.resolve('./javascript/1.users'), {
-          upName: 'up',
-          downName: 'down',
           migrations: {
             wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
             nameFormatter: (path) => parse(path).name,
           },
         }),
         new Migration(require.resolve('./javascript/2.things'), {
-          upName: 'up',
-          downName: 'down',
           migrations: {
             wrap: fn => () => fn(this.sequelize.getQueryInterface(), this.sequelize.constructor),
             nameFormatter: (path) => parse(path).name,

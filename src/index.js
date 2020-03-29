@@ -23,10 +23,6 @@ module.exports = class Umzug extends EventEmitter {
    * 'json', 'sequelize', 'mongodb', an argument for `require()`, including absolute paths.
    * @param {function|false} [options.logging=false] - The logging function.
    * A function that gets executed every time migrations start and have ended.
-   * @param {String} [options.upName='up'] - The name of the positive method
-   * in migrations.
-   * @param {String} [options.downName='down'] - The name of the negative method
-   * in migrations.
    * @param {Object} [options.storageOptions] - The options for the storage.
    * Check the available storages for further details.
    * @param {Object|Array} [options.migrations] - options for loading migration
@@ -57,8 +53,6 @@ module.exports = class Umzug extends EventEmitter {
       storage: 'json',
       storageOptions: {},
       logging: false,
-      upName: 'up',
-      downName: 'down',
       ...options,
     };
 

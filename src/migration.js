@@ -17,10 +17,6 @@ module.exports = class Migration {
    *
    * @param {String} path - Path of the migration file.
    * @param {Object} options
-   * @param {String} options.upName - Name of the method `up` in migration
-   * module.
-   * @param {String} options.downName - Name of the method `down` in migration
-   * module.
    * @param {Object} options.migrations
    * @param {Migration~wrap} options.migrations.wrap - Wrapper function for
    * migration methods.
@@ -68,7 +64,7 @@ module.exports = class Migration {
    * @returns {Promise}
    */
   up () {
-    return this._exec(this.options.upName, [].slice.apply(arguments));
+    return this._exec('up', [].slice.apply(arguments));
   }
 
   /**
@@ -77,7 +73,7 @@ module.exports = class Migration {
    * @returns {Promise}
    */
   down () {
-    return this._exec(this.options.downName, [].slice.apply(arguments));
+    return this._exec('down', [].slice.apply(arguments));
   }
 
   /**
