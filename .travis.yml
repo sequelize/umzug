@@ -1,24 +1,14 @@
-sudo: false
-
 language: node_js
-
-cache: npm
 
 jobs:
   include:
-  - node_js: '6'
-    env: SEQUELIZE=3
-  - node_js: '6'
-    env: SEQUELIZE=4
-  - node_js: '6'
-    env: SEQUELIZE=latest
+  - node_js: '10'
+    env: SEQUELIZE=5
   - node_js: '10'
     env: SEQUELIZE=next
 
 before_script:
   - npm i sequelize@$(echo $SEQUELIZE)
-  - npm run prepare
 
 script:
-  - npm run lint
   - npm test
