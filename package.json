@@ -9,7 +9,9 @@
     "sequelize"
   ],
   "main": "src/index.js",
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "bluebird": "^3.7.2"
   },
@@ -24,6 +26,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "lodash": "^4.17.15",
     "mocha": "^6.2.2",
+    "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
     "sequelize": "^5.21.5",
     "sinon": "^7.5.0",
     "sinon-chai": "^3.5.0",
@@ -32,7 +35,8 @@
   },
   "scripts": {
     "lint": "eslint src test",
-    "test": "mocha --check-leaks test/index.js"
+    "test": "mocha --check-leaks test/index.js",
+    "release": "np --no-2fa"
   },
   "repository": {
     "type": "git",
