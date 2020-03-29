@@ -35,7 +35,7 @@
   },
   "scripts": {
     "lint": "eslint src test",
-    "mocha": "mocha --check-leaks test/index.js",
+    "mocha": "mocha --check-leaks test/index.js --timeout 10000",
     "test": "npm run lint && npm run mocha",
     "release": "np --no-2fa"
   },
