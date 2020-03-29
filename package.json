@@ -1,7 +1,7 @@
 {
   "name": "umzug",
   "version": "2.3.0",
-  "description": "Framework agnostic migration tool for Node.JS",
+  "description": "Framework-agnostic migration tool for Node",
   "keywords": [
     "migrate",
     "migration",
@@ -52,6 +52,10 @@
     {
       "name": "Pascal Pflaum",
       "email": "mail@pascalpflaum.de"
+    },
+    {
+      "name": "Pedro Augusto de Paula Barbosa",
+      "email": "papb1996@gmail.com"
     }
   ],
   "license": "MIT",
