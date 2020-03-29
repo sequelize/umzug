@@ -1,8 +1,9 @@
-import { expect } from 'chai';
-import fs from 'fs';
-import helper from '../helper';
-import path, { join } from 'path';
-import Storage from '../../src/storages/JSONStorage';
+const { expect } = require('chai');
+const fs = require('fs');
+const helper = require('../helper');
+const path = require('path');
+const { join } = path;
+const Storage = require('../../src/storages/JSONStorage');
 
 describe('JSON', () => {
   beforeEach(() => {

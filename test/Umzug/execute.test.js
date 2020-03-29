@@ -1,9 +1,9 @@
-import Bluebird from 'bluebird';
-import { expect } from 'chai';
-import helper from '../helper';
-import Umzug from '../../src/index';
-import sinon from 'sinon';
-import { join } from 'path';
+const Bluebird = require('bluebird');
+const { expect } = require('chai');
+const helper = require('../helper');
+const Umzug = require('../../src/index');
+const sinon = require('sinon');
+const { join } = require('path');
 
 describe('execute', () => {
   beforeEach(function () {
@@ -184,89 +184,6 @@ describe('migrations.wrap', () => {
       method: 'up',
     }).then(() => {
       expect(+new Date() - start).to.be.greaterThan(200);
-    });
-  });
-});
-
-describe('coffee-script support', () => {
-  beforeEach(() => {
-    helper.clearTmp();
-    require('fs').writeFileSync(join(__dirname, '/../tmp/123-coffee-migration.coffee'), [
-      '\'use strict\'',
-      '',
-      'module.exports =',
-      '  up: () -> Promise.resolve()',
-      '  down: () -> Promise.resolve()',
-    ].join('\n')
-    );
-  });
-
-  it('runs the migration', () => {
-    const umzug = new Umzug({
-      migrations: {
-        path: join(__dirname, '/../tmp/'),
-        pattern: /\.coffee$/,
-      },
-      storageOptions: {
-        path: join(__dirname, '/../tmp/umzug.json'),
-      },
-    });
-
-    return umzug.execute({
-      migrations: ['123-coffee-migration'],
-      method: 'up',
-    });
-  });
-});
-
-describe('ES6 module support', () => {
-  beforeEach(() => {
-    helper.clearTmp();
-  });
-
-  it('executes exported method', () => {
-    require('fs').writeFileSync(join(__dirname, '/../tmp/123-es6-named-migration.js'), `
-      export async function up() {}
-      export async function down() {}
-    `);
-
-    const umzug = new Umzug({
-      migrations: {
-        path: join(__dirname, '/../tmp/'),
-        pattern: /\.js$/,
-      },
-      storageOptions: {
-        path: join(__dirname, '/../tmp/umzug.json'),
-      },
-    });
-
-    return umzug.execute({
-      migrations: ['123-es6-named-migration'],
-      method: 'up',
-    });
-  });
-
-  it('executes default exported method', () => {
-    require('fs').writeFileSync(join(__dirname, '/../tmp/123-es6-default-migration.js'), `
-      export default {
-        async up() {},
-        async down() {}
-      }
-    `);
-
-    const umzug = new Umzug({
-      migrations: {
-        path: join(__dirname, '/../tmp/'),
-        pattern: /\.js$/,
-      },
-      storageOptions: {
-        path: join(__dirname, '/../tmp/umzug.json'),
-      },
-    });
-
-    return umzug.execute({
-      migrations: ['123-es6-default-migration'],
-      method: 'up',
     });
   });
 });

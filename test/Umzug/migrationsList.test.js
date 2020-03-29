@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import Umzug from '../../src';
-import { join } from 'path';
-import migrationsList from '../../src/migrationsList';
-import helper from '../helper';
+const { expect } = require('chai');
+const Umzug = require('../../src');
+const { join } = require('path');
+const migrationsList = require('../../src/migrationsList');
+const helper = require('../helper');
 
 describe('migrationsList', () => {
   beforeEach(() => {

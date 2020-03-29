@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import helper from '../helper';
-import Storage from '../../src/storages/SequelizeStorage';
-import Sequelize from 'sequelize';
-import { join } from 'path';
-import { v4 as uuid } from 'uuid';
+const { expect } = require('chai');
+const helper = require('../helper');
+const Storage = require('../../src/storages/SequelizeStorage');
+const Sequelize = require('sequelize');
+const { join } = require('path');
+const { v4: uuid } = require('uuid');
 
 describe('sequelize', () => {
   beforeEach(function () {

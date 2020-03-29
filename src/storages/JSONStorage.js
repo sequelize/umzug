@@ -1,12 +1,12 @@
-import Bluebird from 'bluebird';
-import fs from 'fs';
-import _path from 'path';
-import Storage from './Storage';
+const Bluebird = require('bluebird');
+const fs = require('fs');
+const _path = require('path');
+const Storage = require('./Storage');
 
 /**
  * @class JSONStorage
  */
-export default class JSONStorage extends Storage {
+class JSONStorage extends Storage {
   /**
    * Constructs JSON file storage.
    *
@@ -73,3 +73,5 @@ export default class JSONStorage extends Storage {
       .then((content) => JSON.parse(content));
   }
 }
+
+module.exports = JSONStorage;

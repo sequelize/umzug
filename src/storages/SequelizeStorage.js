@@ -1,9 +1,9 @@
-import Storage from './Storage';
+const Storage = require('./Storage');
 
 /**
  * @class SequelizeStorage
  */
-export default class SequelizeStorage extends Storage {
+class SequelizeStorage extends Storage {
   /**
    * Constructs Sequelize based storage.
    *
@@ -159,3 +159,5 @@ export default class SequelizeStorage extends Storage {
     return this.model;
   }
 }
+
+module.exports = SequelizeStorage;

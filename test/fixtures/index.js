@@ -1,13 +1,11 @@
-import { readFileSync } from 'fs';
-import { resolve, dirname, join, parse } from 'path';
-import { expect } from 'chai';
-import Sequelize from 'sequelize';
-import typescript from 'typescript';
-import coffeescript from 'coffee-script';
-import helper from '../helper';
-import Umzug from '../../src';
-import { v4 as uuid } from 'uuid';
-import Migration from '../../src/migration';
+const { readFileSync } = require('fs');
+const { resolve, join, parse } = require('path');
+const { expect } = require('chai');
+const Sequelize = require('sequelize');
+const helper = require('../helper');
+const Umzug = require('../../src');
+const { v4: uuid } = require('uuid');
+const Migration = require('../../src/migration');
 
 describe('custom resolver', () => {
   beforeEach(function () {
@@ -107,46 +105,6 @@ describe('custom resolver', () => {
     this.customResolver = path => ({
       up: () => this.sequelize.query(readFileSync(path, 'utf8')),
     });
-
-    await this.umzug().up();
-
-    await this.verifyTables();
-    await this.verifyMeta();
-  });
-
-  it('can resolve typescript files', async function () {
-    this.pattern = /\.ts$/;
-    this.path = resolve(__dirname, 'typescript');
-    this.customResolver = path => {
-      const typescriptSrc = readFileSync(path, 'utf8');
-      const transpiled = typescript.transpileModule(typescriptSrc, {});
-      const Module = module.constructor;
-      const m = new Module(path, module.parent);
-      m.filename = path;
-      m.paths = Module._nodeModulePaths(dirname(path));
-      m._compile(transpiled.outputText, path);
-      return m.exports;
-    };
-
-    await this.umzug().up();
-
-    await this.verifyTables();
-    await this.verifyMeta();
-  });
-
-  it('can resolve coffeescript files', async function () {
-    this.pattern = /\.coffee$/;
-    this.path = resolve(__dirname, 'coffeescript');
-    this.customResolver = path => {
-      const coffeescriptSrc = readFileSync(path, 'utf8');
-      const javascriptSrc = coffeescript.compile(coffeescriptSrc);
-      const Module = module.constructor;
-      const m = new Module(path, module.parent);
-      m.filename = path;
-      m.paths = Module._nodeModulePaths(dirname(path));
-      m._compile(javascriptSrc, path);
-      return m.exports;
-    };
 
     await this.umzug().up();
 

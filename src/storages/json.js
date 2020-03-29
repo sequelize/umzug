@@ -1,6 +1,4 @@
-import JSONStorage from './JSONStorage';
-
-module.exports = JSONStorage;
+module.exports = require('./JSONStorage');
 
 console.warn(
   'Deprecated: JSONStorage\'s filename has changed!',

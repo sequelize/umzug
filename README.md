@@ -2,32 +2,31 @@
 
 [!! We are looking for maintainers !!](https://github.com/sequelize/umzug/issues/204)
 
-The *umzug* lib is a framework agnostic migration tool for Node.JS. The tool itself is not specifically related to databases but basically provides a clean API for running and rolling back tasks.
+Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
 
 * Programmatic API for migrations
 * Database agnostic
 * Supports logging of migration process
 * Supports multiple storages for migration data
-  
+
 ## Documentation
 
 ### Minimal Example
 
 The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage.
 
-`index.js`:
+* **`index.js`**:
 
 ```javascript
-
-const Sequelize = require('sequelize')
-const path = require('path')
-const Umzug = require('umzug')
+const Sequelize = require('sequelize');
+const path = require('path');
+const Umzug = require('umzug');
 
 // creates a basic sqlite database
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './db.sqlite'
-})
+});
 
 const umzug = new Umzug({
   migrations: {
@@ -42,29 +41,25 @@ const umzug = new Umzug({
   // itself through sequelize. The default configuration creates a table
   // named `SequelizeMeta`.
   storage: 'sequelize',
-  storageOptions: {
-    sequelize: sequelize
-  }
-})
+  storageOptions: { sequelize }
+});
 
-;(async () => {
+(async () => {
   // checks migrations and run them if they are not already applied
-  await umzug.up()
-  console.log('All migrations performed successfully')
-})()
+  await umzug.up();
+  console.log('All migrations performed successfully');
+})();
 ```
 
-`migrations/00_initial.js`:
+* **`migrations/00_initial.js`**:
 
 ```javascript
-
-const Sequelize = require('sequelize')
+const Sequelize = require('sequelize');
 
 // All migrations must provide a `up` and `down` async functions
-
 module.exports = {
   // `query` was passed in the `index.js` file
-  up: async (query) => {
+  async up(query) {
     await query.createTable('users', {
       id: {
         type: Sequelize.INTEGER,
@@ -83,29 +78,30 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       }
-    })
+    });
   },
-  down: async (query) => {
-    await query.dropTable('users')
+  async down(query) {
+    await query.dropTable('users');
   }
-}
+};
 ```
 
 ### Usage
 
 #### Installation
-The *umzug* lib is available on npm:
 
-```js
+Umzug is available on npm:
+
+```bash
 npm install umzug
 ```
 
 #### Umzug instance
 
-It is possible to configure *umzug* instance by passing an object to the constructor. The possible options are:
+It is possible to configure an Umzug instance by passing an object to the constructor. The possible options are:
 
 ```js
-const Umzug = require('umzug')
+const Umzug = require('umzug');
 
 const umzug = new Umzug({
   // The storage.
@@ -140,22 +136,24 @@ const umzug = new Umzug({
 
     // A function that receives and returns the to be executed function.
     // This can be used to modify the function.
-    wrap: function (fun) { return fun; },
-    
+    wrap(migrationFunction) { return migrationFunction; },
+
     // A function that maps a file path to a migration object in the form
     // { up: Function, down: Function }. The default for this is to require(...)
     // the file as javascript, but you can use this to transpile TypeScript,
     // read raw sql etc.
-    // See https://github.com/sequelize/umzug/tree/master/test/fixtures
-    // for examples.
-    customResolver: function (sqlPath) {
-        return { up: () => sequelize.query(require('fs').readFileSync(sqlPath, 'utf8')) };
+    customResolver(sqlPath) {
+      return {
+        async up() {
+          await sequelize.query(fs.readFileSync(sqlPath, 'utf8'));
+        };
+      }
     }
 
     // A function that receives the file path of the migration and returns the name of the 
     // migration. This can be used to remove file extensions for example.
-    nameFormatter: function (filePath) {
-        return path.parse(filePath).name;
+    nameFormatter(filePath) {
+      return path.parse(filePath).name;
     }
   }
 })
@@ -169,7 +167,7 @@ The `execute` method is a general purpose function that runs for every specified
 const migrations = await umzug.execute({
   migrations: ['some-id', 'some-other-id'],
   method: 'up'
-})
+});
 // returns an array of all executed/reverted migrations.
 ```
 
@@ -178,7 +176,7 @@ const migrations = await umzug.execute({
 You can get a list of pending/not yet executed migrations like this:
 
 ```js
-const migrations = await umzug.pending()
+const migrations = await umzug.pending();
 // returns an array of all pending migrations.
 ```
 
@@ -187,7 +185,7 @@ const migrations = await umzug.pending()
 You can get a list of already executed migrations like this:
 
 ```js
-const migrations = await umzug.executed()
+const migrations = await umzug.executed();
 // returns an array of all already executed migrations
 ```
 
@@ -196,20 +194,20 @@ const migrations = await umzug.executed()
 The `up` method can be used to execute all pending migrations.
 
 ```js
-const migrations = await umzug.up()
+const migrations = await umzug.up();
 // returns an array of all executed migrations
 ```
 
 It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name (inclusive).
 
 ```js
-await umzug.up({ to: '20141101203500-task' })
+await umzug.up({ to: '20141101203500-task' });
 ```
 
 You also have the ability to choose to run migrations *from* a specific migration, excluding it:
 
 ```js
-await umzug.up({ from: '20141101203500-task' })
+await umzug.up({ from: '20141101203500-task' });
 ```
 
 In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly useful if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
@@ -217,13 +215,13 @@ In the above example umzug will execute all the pending migrations found **after
 You can combine `from` and `to` options to select a specific subset:
 
 ```js
-await umzug.up({ from: '20141101203500-task', to: '20151201103412-items' })
+await umzug.up({ from: '20141101203500-task', to: '20151201103412-items' });
 ```
 
 Running specific migrations while ignoring the right order, can be done like this:
 
 ```js
-await umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] })
+await umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
 ```
 
 There are also shorthand version of that:
@@ -238,39 +236,39 @@ await umzug.up(['20141101203500-task', '20141101203501-task-2']);
 The `down` method can be used to revert the last executed migration.
 
 ```js
-const migration = await umzug.down()
+const migration = await umzug.down();
 // returns the reverted migration.
 ```
 
 It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
-const migrations = await umzug.down({ to: '20141031080000-task' })
+const migrations = await umzug.down({ to: '20141031080000-task' });
 // returns an array of all reverted migrations.
 ```
 
 To revert all migrations, you can pass 0 as the `to` parameter:
 
 ```js
-await umzug.down({ to: 0 })
+await umzug.down({ to: 0 });
 ```
 
 Reverting specific migrations while ignoring the right order, can be done like this:
 
 ```js
-await umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] })
+await umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
 ```
 
-There are also shorthand version of that:
+There are also shorthand versions of that:
 
 ```js
-await umzug.down('20141101203500-task') // Runs just the passed migration
-await umzug.down(['20141101203500-task', '20141101203501-task-2'])
+await umzug.down('20141101203500-task'); // Runs just the passed migration
+await umzug.down(['20141101203500-task', '20141101203501-task-2']);
 ```
 
 ### Migrations
 
-There are two ways to specify migrations.
+There are two ways to specify migrations: via files or directly via an array of migrations.
 
 #### Migration files
 
@@ -297,17 +295,26 @@ as bellow:
 
 ```js
 const umzug = new Umzug({
-  migrations: Umzug.migrationsList([
-    {
-      // the name of the migration is mandatory
-      name: '00-first-migration',
-      up: ...,
-      down: ...
-    }
-  ], 
-  // a facultative list of parameters that will be sent to the `up` and `down` functions
-  [sequelize.getQueryInterface()])
-})
+  migrations: Umzug.migrationsList(
+    [
+      {
+        // the name of the migration is mandatory
+        name: '00-first-migration',
+        async up(queryInterface) { /* ... */ },
+        async down(queryInterface) { /* ... */ }
+      },
+      {
+        name: '01-foo-bar-migration',
+        async up(queryInterface) { /* ... */ },
+        async down(queryInterface) { /* ... */ }
+      }
+    ],
+    // an optional list of parameters that will be sent to the `up` and `down` functions
+    [
+      sequelize.getQueryInterface()
+    ]
+  )
+});
 ```
 
 ### Storages

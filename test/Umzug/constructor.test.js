@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import Umzug from '../../src/index';
-import sinon from 'sinon';
-import helper from '../helper';
+const { expect } = require('chai');
+const Umzug = require('../../src/index');
+const sinon = require('sinon');
+const helper = require('../helper');
 
 describe('constructor', () => {
   beforeEach(() => {

@@ -1,6 +1,4 @@
-import Storage from './Storage';
-
-module.exports = Storage;
+module.exports = require('./Storage');
 
 console.warn(
   'Deprecated: Storage\'s (former none storage) filename has changed!',

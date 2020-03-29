@@ -1,3 +1,3 @@
-import './Umzug';
-import './storages';
-import './fixtures';
+require('./Umzug');
+require('./storages');
+require('./fixtures');

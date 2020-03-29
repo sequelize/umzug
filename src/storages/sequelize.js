@@ -1,6 +1,4 @@
-import SequelizeStorage from './SequelizeStorage';
-
-module.exports = SequelizeStorage;
+module.exports = require('./SequelizeStorage');
 
 console.warn(
   'Deprecated: SequelizeStorage\'s filename has changed!',
