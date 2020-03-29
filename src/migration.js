@@ -1,5 +1,4 @@
 const _path = require('path');
-const helper = require('./helper');
 
 /**
  * @class Migration
