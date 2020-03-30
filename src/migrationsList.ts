@@ -6,15 +6,17 @@
  * @param {Array} params A facultative list of params that will be given to the 'up' and 'down' functions.
  * @returns {Array} The migrations in Umzug's format
  */
-module.exports = function migrationsList (migrations, params = []) {
-  const tmp = migrations.map(({ up, down, name }) => ({
-    file: name,
-    testFileName: function (needle) {
-      return this.file.indexOf(needle) === 0;
-    },
-    up,
-    down,
-  }));
-  tmp.params = params;
-  return tmp;
-};
+export function migrationsList(migrations, params = []) {
+	const tmp = migrations.map(({ up, down, name }) => (
+		{
+			file: name,
+			testFileName: function (needle) {
+				return this.file.indexOf(needle) === 0;
+			},
+			up,
+			down
+		}
+	));
+	tmp.params = params;
+	return tmp;
+}

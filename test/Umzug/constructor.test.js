@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const Umzug = require('../../src/index');
+const { Umzug } = require('../../lib/index');
 const sinon = require('sinon');
 const helper = require('../helper');
 

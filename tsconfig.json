@@ -1,0 +1,18 @@
+{
+	"include": [
+		"src"
+	],
+	"compilerOptions": {
+		"outDir": "lib",
+		"target": "es2018",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"declaration": false,
+		"pretty": true,
+		"newLine": "lf",
+		"stripInternal": true,
+		"noEmitOnError": true,
+		"skipLibCheck": true
+	}
+}

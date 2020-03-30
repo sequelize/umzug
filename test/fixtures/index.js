@@ -3,9 +3,9 @@ const { resolve, join, parse } = require('path');
 const { expect } = require('chai');
 const Sequelize = require('sequelize');
 const helper = require('../helper');
-const Umzug = require('../../src');
+const { Umzug } = require('../../lib');
 const { v4: uuid } = require('uuid');
-const Migration = require('../../src/migration');
+const { Migration } = require('../../lib/migration');
 
 describe('custom resolver', () => {
   beforeEach(function () {

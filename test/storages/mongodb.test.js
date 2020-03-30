@@ -1,7 +1,7 @@
 const chai = require('chai');
 const { expect } = chai;
 const helper = require('../helper');
-const Storage = require('../../src/storages/MongoDBStorage');
+const { MongoDBStorage: Storage } = require('../../lib/storages/MongoDBStorage');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 chai.use(sinonChai);

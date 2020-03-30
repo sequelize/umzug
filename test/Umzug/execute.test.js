@@ -1,7 +1,7 @@
 const Bluebird = require('bluebird');
 const { expect } = require('chai');
 const helper = require('../helper');
-const Umzug = require('../../src/index');
+const { Umzug } = require('../../lib/index');
 const sinon = require('sinon');
 const { join } = require('path');
 
