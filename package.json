@@ -13,7 +13,9 @@
 		"lib"
 	],
 	"dependencies": {
-		"bluebird": "^3.7.2"
+		"bluebird": "^3.7.2",
+		"fs-jetpack": "^2.2.3",
+		"p-map": "^4.0.0"
 	},
 	"devDependencies": {
 		"chai": "^4.2.0",
@@ -25,6 +27,7 @@
 		"sinon": "^7.5.0",
 		"sinon-chai": "^3.5.0",
 		"sqlite3": "^4.1.1",
+		"type-fest": "^0.12.0",
 		"typescript": "~3.8.3",
 		"uuid": "^7.0.2"
 	},
