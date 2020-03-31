@@ -1,6 +1,4 @@
-import Bluebird = require('bluebird');
-import _path = require('path');
-import fs = require('fs');
+import jetpack = require('fs-jetpack');
 import { Storage } from './Storage';
 
 export interface JSONStorageConstructorOptions {
@@ -22,7 +20,7 @@ export class JSONStorage extends Storage {
 	 */
 	constructor (options?: JSONStorageConstructorOptions) {
 		super();
-		this.path = (options && options.path) ?? _path.resolve(process.cwd(), 'umzug.json');
+		this.path = (options && options.path) ?? jetpack.path(process.cwd(), 'umzug.json');
 	}
 
 	/**
@@ -31,18 +29,11 @@ export class JSONStorage extends Storage {
 	 * @param {String} migrationName - Name of the migration to be logged.
 	 * @returns {Promise}
 	 */
-	logMigration (migrationName) {
-		const filePath = this.path;
-		const readfile = Bluebird.promisify(fs.readFile);
-		const writefile = Bluebird.promisify(fs.writeFile);
+	async logMigration(migrationName: string): Promise<void> {
+		const loggedMigrations = await this.executed();
+		loggedMigrations.push(migrationName);
 
-		return readfile(filePath)
-			.catch(() => '[]')
-			.then((content) => JSON.parse(content))
-			.then((content) => {
-				content.push(migrationName);
-				return writefile(filePath, JSON.stringify(content, null, '  '));
-			});
+		await jetpack.writeAsync(this.path, JSON.stringify(loggedMigrations, null, 2));
 	}
 
 	/**
@@ -51,31 +42,18 @@ export class JSONStorage extends Storage {
 	 * @param {String} migrationName - Name of the migration to be unlogged.
 	 * @returns {Promise}
 	 */
-	unlogMigration (migrationName) {
-		const filePath = this.path;
-		const readfile = Bluebird.promisify(fs.readFile);
-		const writefile = Bluebird.promisify(fs.writeFile);
+	async unlogMigration(migrationName: string): Promise<void> {
+		const loggedMigrations = await this.executed();
+		const updatedMigrations = loggedMigrations.filter(name => name !== migrationName);
 
-		return readfile(filePath)
-			.catch(() => '[]')
-			.then((content) => JSON.parse(content))
-			.then((content) => {
-				content = content.filter(m => m !== migrationName);
-				return writefile(filePath, JSON.stringify(content, null, '  '));
-			});
+		await jetpack.writeAsync(this.path, JSON.stringify(updatedMigrations, null, 2));
 	}
 
 	/**
 	 * Gets list of executed migrations.
-	 *
-	 * @returns {Promise.<String[]>}
 	 */
-	executed () {
-		const filePath = this.path;
-		const readfile = Bluebird.promisify(fs.readFile);
-
-		return readfile(filePath)
-			.catch(() => '[]')
-			.then((content) => JSON.parse(content));
+	async executed(): Promise<string[]> {
+		const content = await jetpack.readAsync(this.path);
+		return content ? JSON.parse(content) : [];
 	}
 }
