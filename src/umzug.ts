@@ -186,21 +186,17 @@ export class Umzug extends EventEmitter {
 
 	/**
 	 * Lists pending migrations.
-	 *
-	 * @returns {Promise.<Migration[]>}
 	 */
-	pending () {
-		return this
-			._findMigrations()
-			.bind(this)
-			.then(function (all) {
-				return Bluebird.join(all, this.executed());
-			})
-			.spread((all, executed) => {
-				const executedFiles = executed.map((migration) => migration.file);
+	public pending(): Bluebird<Migration[]> {
+		// TODO remove bluebird, make function async
+		return Bluebird.try(async () => {
+			const all = await this._findMigrations();
+			const executed = await this.executed();
 
-				return all.filter((migration) => executedFiles.indexOf(migration.file) === -1);
-			});
+			const executedFiles = executed.map(migration => migration.file);
+
+			return all.filter(migration => !executedFiles.includes(migration.file));
+		});
 	}
 
 	/**
