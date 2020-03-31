@@ -9,24 +9,33 @@ import { JSONStorage } from './storages/JSONStorage';
 import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
 
+export const STORAGES_BY_NAME = {
+	none: Storage,
+	json: JSONStorage,
+	mongodb: MongoDBStorage,
+	sequelize: SequelizeStorage
+};
+
 export interface UmzugExecuteOptions {
 	migrations: string[];
 	method: 'up' | 'down';
 }
 
+export interface UmzugConstructorMigrationOptions {
+	params?: any[] | (() => any[]);
+	path?: string;
+	pattern?: RegExp;
+	traverseDirectories?: boolean;
+	wrap?: (unwrappedFunction: Function) => Function;
+	customResolver?: (path: string) => any;
+	nameFormatter?: (path: string) => string;
+}
+
 export interface UmzugConstructorOptions {
-	storage?: string;
+	storage?: string | Storage;
 	logging?: Function | false;
 	storageOptions?: any;
-	migrations?: {
-		params?: any[] | (() => any[]);
-		path?: string;
-		pattern?: RegExp;
-		traverseDirectories?: boolean;
-		wrap?: (unwrappedFunction: Function) => Function;
-		customResolver?: (path: string) => any;
-		nameFormatter?: (path: string) => string;
-	};
+	migrations?: UmzugConstructorMigrationOptions;
 }
 
 /**
@@ -34,7 +43,7 @@ export interface UmzugConstructorOptions {
  * @extends EventEmitter
  */
 export class Umzug extends EventEmitter {
-	public storage: any;
+	public storage: Storage;
 
 	/**
 	 * Constructs Umzug instance.
@@ -92,7 +101,7 @@ export class Umzug extends EventEmitter {
 			};
 		}
 
-		this.storage = this._initStorage();
+		this.storage = this._getStorage();
 	}
 
 	/**
@@ -395,33 +404,30 @@ export class Umzug extends EventEmitter {
 
 	/**
 	 * Try to require and initialize storage.
-	 *
-	 * @returns {*|SequelizeStorage|JSONStorage|MongoDBStorage|Storage}
-	 * @private
 	 */
-	_initStorage () {
+	private _getStorage(): Storage {
+		if (this.options.storage instanceof Storage) {
+			return this.options.storage;
+		}
+
 		if (typeof this.options.storage !== 'string') {
+			// TODO
+			// throw new Error('Unexpected options.storage type.');
 			return this.options.storage;
 		}
 
 		let StorageClass;
-		try {
-			StorageClass = this._getStorageClass();
-		} catch (e) {
-			throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
+		if (STORAGES_BY_NAME[this.options.storage]) {
+			StorageClass = STORAGES_BY_NAME[this.options.storage];
+		} else {
+			try {
+				StorageClass = require(this.options.storage);
+			} catch (e) {
+				throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
+			}
 		}
 
 		return new StorageClass(this.options.storageOptions);
-	}
-
-	_getStorageClass () {
-		switch (this.options.storage) {
-			case 'none': return Storage;
-			case 'json': return JSONStorage;
-			case 'mongodb': return MongoDBStorage;
-			case 'sequelize': return SequelizeStorage;
-			default: return require(this.options.storage);
-		}
 	}
 
 	/**
