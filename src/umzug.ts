@@ -2,7 +2,9 @@ import Bluebird = require('bluebird');
 import fs = require('fs');
 import { Migration } from './migration';
 import path = require('path');
+import jetpack = require('fs-jetpack');
 import { EventEmitter } from 'events';
+import pMap = require('p-map');
 
 import { Storage } from './storages/Storage';
 import { JSONStorage } from './storages/JSONStorage';
@@ -38,10 +40,6 @@ export interface UmzugConstructorOptions {
 	migrations?: UmzugConstructorMigrationOptions;
 }
 
-/**
- * @class Umzug
- * @extends EventEmitter
- */
 export class Umzug extends EventEmitter {
 	public storage: Storage;
 
@@ -76,7 +74,7 @@ export class Umzug extends EventEmitter {
 	 * of the migration. This can be used to remove file extensions for example.
 	 * @constructs Umzug
 	 */
-	constructor (public readonly options?: UmzugConstructorOptions) {
+	constructor(public readonly options?: UmzugConstructorOptions) {
 		super();
 
 		this.options = {
@@ -178,11 +176,12 @@ export class Umzug extends EventEmitter {
 
 	/**
 	 * Lists executed migrations.
-	 *
-	 * @returns {Promise.<Migration>}
 	 */
-	executed () {
-		return Bluebird.resolve(this.storage.executed()).bind(this).map((file) => new Migration(file, this.options));
+	public executed(): Bluebird<Migration[]> {
+		// TODO remove bluebird, make the function async
+		return Bluebird.resolve((async () => {
+			return pMap((await this.storage.executed()) as string[], file => new Migration(file, this.options));
+		})());
 	}
 
 	/**
