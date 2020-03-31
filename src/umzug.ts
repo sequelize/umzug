@@ -411,19 +411,7 @@ export class Umzug extends EventEmitter {
 			throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
 		}
 
-		let storage = new StorageClass(this.options.storageOptions);
-		if (storage && storage.options && storage.options.storageOptions) {
-			console.warn(
-				'Deprecated: Umzug Storage constructor has changed!',
-				'old syntax: new Storage({ storageOptions: { ... } })',
-				'new syntax: new Storage({ ... })',
-				'where ... represents the same storageOptions passed to Umzug constructor.',
-				'For more information: https://github.com/sequelize/umzug/pull/137'
-			);
-			storage = new StorageClass(this.options);
-		}
-
-		return storage;
+		return new StorageClass(this.options.storageOptions);
 	}
 
 	_getStorageClass () {
