@@ -5,6 +5,7 @@ import path = require('path');
 import jetpack = require('fs-jetpack');
 import { EventEmitter } from 'events';
 import pMap = require('p-map');
+import pEachSeries = require('p-each-series');
 
 import { Storage } from './storages/Storage';
 import { JSONStorage } from './storages/JSONStorage';
@@ -106,76 +107,70 @@ export class Umzug extends EventEmitter {
 		this.storage = this._getStorage();
 	}
 
+	// TODO remove this function
+	execute(options?: UmzugExecuteOptions): Bluebird<Migration[]> {
+		return TODO_BLUEBIRD(async () => {
+			return this.execute2(options);
+		});
+	}
+
 	/**
 	 * Executes given migrations with a given method.
-	 *
-	 * @param {Object}   [options]
-	 * @param {String[]} [options.migrations=[]]
-	 * @param {String}   [options.method='up']
-	 * @returns {Promise}
 	 */
-	execute (options?: UmzugExecuteOptions) {
-		const self = this;
+	private async execute2(options?: UmzugExecuteOptions): Promise<Migration[]> {
+		const method = options.method ?? 'up';
+		const migrations = await pMap(options.migrations ?? [], name => this._findMigration(name));
 
-		options = {
-			migrations: [],
-			method: 'up',
-			...options,
-		};
+		await pEachSeries(migrations, async migration => {
+			const name = path.basename(migration.file, path.extname(migration.file));
+			let startTime = undefined;
 
-		return Bluebird
-			.map(options.migrations, (migration) => self._findMigration(migration))
-			.then((migrations) => ({
-				...options,
-				migrations,
-			}))
-			.then((options) => Bluebird.each(options.migrations, (migration) => {
-				const name = path.basename(migration.file, path.extname(migration.file));
-				let startTime;
-				return self
-					._wasExecuted(migration)
-					.catch(() => false)
-					.then((executed) => (typeof executed === 'undefined') ? true : executed)
-					.tap((executed) => {
-						if (!executed || (options.method === 'down')) {
-							const fun = (migration[options.method] || Bluebird.resolve);
-							let params = self.options.migrations.params;
+			const executed = await this._checkExecuted2(migration);
 
-							if (typeof params === 'function') {
-								params = params();
-							}
+			if (!executed || method === 'down') {
+				let params = this.options.migrations.params;
+				if (typeof params === 'function') {
+					params = params();
+				}
 
-							if (options.method === 'up') {
-								self.log('== ' + name + ': migrating =======');
-								self.emit('migrating', name, migration);
-							} else {
-								self.log('== ' + name + ': reverting =======');
-								self.emit('reverting', name, migration);
-							}
+				if (method === 'up') {
+					this.log('== ' + name + ': migrating =======');
+					this.emit('migrating', name, migration);
+				} else {
+					this.log('== ' + name + ': reverting =======');
+					this.emit('reverting', name, migration);
+				}
 
-							startTime = new Date();
+				startTime = new Date();
 
-							return fun.apply(migration, params);
-						}
-					})
-					.then((executed) => {
-						if (!executed && (options.method === 'up')) {
-							return Bluebird.resolve(self.storage.logMigration(migration.file));
-						} else if (options.method === 'down') {
-							return Bluebird.resolve(self.storage.unlogMigration(migration.file));
-						}
-					})
-					.tap(() => {
-						const duration = (((new Date() as any) - startTime) / 1000).toFixed(3);
-						if (options.method === 'up') {
-							self.log('== ' + name + ': migrated (' + duration + 's)\n');
-							self.emit('migrated', name, migration);
-						} else {
-							self.log('== ' + name + ': reverted (' + duration + 's)\n');
-							self.emit('reverted', name, migration);
-						}
-					});
-			}));
+				if (migration[method]) {
+					await migration[method].apply(migration, params);
+				}
+			}
+
+			if (!executed && (method === 'up')) {
+				await this.storage.logMigration(migration.file);
+			} else if (method === 'down') {
+				await this.storage.unlogMigration(migration.file);
+			}
+
+			// TODO uncomment this
+			// if (startTime === undefined) {
+			// 	throw new Error('Why is a duration of NaN acceptable??');
+			// }
+
+			const duration = (((new Date() as any) - startTime) / 1000).toFixed(3);
+
+			if (method === 'up') {
+				this.log(`== ${name}: migrated (${duration}s)\n`);
+				this.emit('migrated', name, migration);
+			} else {
+				this.log(`== ${name}: reverted (${duration}s)\n`);
+				this.emit('reverted', name, migration);
+			}
+		});
+
+		return migrations;
 	}
 
 	/**

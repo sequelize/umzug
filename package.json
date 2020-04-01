@@ -15,6 +15,7 @@
 	"dependencies": {
 		"bluebird": "^3.7.2",
 		"fs-jetpack": "^2.2.3",
+		"p-each-series": "^2.1.0",
 		"p-map": "^4.0.0"
 	},
 	"devDependencies": {
