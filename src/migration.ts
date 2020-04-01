@@ -1,17 +1,11 @@
 import _path = require('path');
 
-/**
- * @class Migration
- */
-export class Migration {
-	/**
-	 * Wrapper function for migration methods.
-	 *
-	 * @callback Migration~wrap
-	 * @param {function} - Migration method to be wrapped.
-	 * @return {*|Promise}
-	 */
+export interface MigrationDefinition {
+	up(): Promise<any>;
+	down(): Promise<any>;
+}
 
+export class Migration {
 	public readonly file: string;
 
 	/**
@@ -51,16 +45,28 @@ export class Migration {
 	}
 
 	/**
-	 * Tries to require migration module.
+	 * Obtain the migration definition module, using a custom resolver if present.
 	 *
-	 * @returns {Promise.<Object>} Required migration module
+	 * @returns {Promise<any>} The migration definition module
 	 */
-	migration () {
+	async migration(): Promise<MigrationDefinition> {
+		let result;
+
 		if (typeof this.options.migrations.customResolver === 'function') {
-			return this.options.migrations.customResolver(this.path);
+			result = this.options.migrations.customResolver(this.path);
+		} else {
+			result = require(this.path);
 		}
 
-		return require(this.path);
+		if (!result) {
+			throw new Error(`Failed to obtain migration definition module for '${this.path}'`);
+		}
+
+		if (!result.up && !result.down && result.default) {
+			result = result.default;
+		}
+
+		return result;
 	}
 
 	/**
@@ -99,15 +105,16 @@ export class Migration {
 	 * @returns {Promise}
 	 * @private
 	 */
-	async _exec (method, args) {
+	async _exec(method, args): Promise<void> {
 		const migration = await this.migration();
+
 		let fun = migration[method];
-		if (migration.default) {
-			fun = migration.default[method] || migration[method];
-		}
 		if (!fun) throw new Error('Could not find migration method: ' + method);
+
 		const wrappedFun = this.options.migrations.wrap(fun);
+
 		const result = wrappedFun.apply(migration, args);
+
 		if (!result || typeof result.then !== 'function') {
 			throw new Error(`Migration ${this.file} (or wrapper) didn't return a promise`);
 		}
