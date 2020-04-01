@@ -388,10 +388,8 @@ export class Umzug extends EventEmitter {
 
 	/**
 	 * Pass message to logger if logging is enabled.
-	 *
-	 * @param {*} message - Message to be logged.
 	 */
-	log (message) {
+	log(message: any): void {
 		if (this.options.logging) {
 			this.options.logging(message);
 		}
@@ -418,7 +416,9 @@ export class Umzug extends EventEmitter {
 			try {
 				StorageClass = require(this.options.storage);
 			} catch (e) {
-				throw new Error('Unable to resolve the storage: ' + this.options.storage + ', ' + e);
+				const error2 = new Error(`Unable to resolve the storage: ${this.options.storage}, ${e}`);
+				(error2 as any).parent = e;
+				throw error2;
 			}
 		}
 
