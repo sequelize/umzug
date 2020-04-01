@@ -23,6 +23,8 @@ module.exports = class Umzug extends EventEmitter {
    * 'json', 'sequelize', 'mongodb', an argument for `require()`, including absolute paths.
    * @param {function|false} [options.logging=false] - The logging function.
    * A function that gets executed every time migrations start and have ended.
+   * @param {function} [options.migrationSorting] - The sorting function.
+   * A function that sorts the migration file.
    * @param {Object} [options.storageOptions] - The options for the storage.
    * Check the available storages for further details.
    * @param {Object|Array} [options.migrations] - options for loading migration
@@ -53,6 +55,15 @@ module.exports = class Umzug extends EventEmitter {
       storage: 'json',
       storageOptions: {},
       logging: false,
+      migrationSorting: (a, b) => {
+        if (a > b) {
+          return 1;
+        } else if (a < b) {
+          return -1;
+        } else {
+          return 0;
+        }
+      },
       ...options,
     };
 
@@ -451,15 +462,7 @@ module.exports = class Umzug extends EventEmitter {
       )
       .then((migrations) => {
         if (isRoot) { // only sort if its root
-          return migrations.sort((a, b) => {
-            if (a.file > b.file) {
-              return 1;
-            } else if (a.file < b.file) {
-              return -1;
-            } else {
-              return 0;
-            }
-          });
+          return migrations.sort((a, b) => this.options.migrationSorting(a.file, b.file));
         }
         return migrations;
       });

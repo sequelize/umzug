@@ -116,6 +116,18 @@ const umzug = new Umzug({
   // A function that gets executed everytime migrations start and have ended.
   logging: false,
 
+  // The sorting function.
+  // A function that can sort the migrations by name.
+  migrationSorting(a, b) {
+    if (a > b) {
+      return 1;
+    } else if (a < b) {
+      return -1;
+    } else {
+      return 0;
+    }
+  },
+
   // (advanced) you can pass an array of migrations built with `migrationsList()` instead of the options below
   migrations: {
     // The params that gets passed to the migrations.
@@ -142,13 +154,13 @@ const umzug = new Umzug({
           await sequelize.query(fs.readFileSync(sqlPath, 'utf8'));
         };
       }
-    }
+    },
 
     // A function that receives the file path of the migration and returns the name of the 
     // migration. This can be used to remove file extensions for example.
     nameFormatter(filePath) {
       return path.parse(filePath).name;
-    }
+    },
   }
 })
 ```
