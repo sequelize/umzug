@@ -351,41 +351,37 @@ export class Umzug extends EventEmitter {
 	 * @param {String} method - Either 'up' or 'down'. If method is 'up', only
 	 * pending migrations will be accepted. Otherwise only executed migrations
 	 * will be accepted.
-	 * @returns {Promise.<Migration[]>}
-	 * @private
 	 */
-	_findMigrationsFromMatch (from, method) {
-		// We'll fetch all migrations and work our way from start to finish
-		return this._findMigrations()
-			.bind(this)
-			.then((migrations) => {
-				let found = false;
-				return migrations.filter((migration) => {
-					if (migration.testFileName(from)) {
-						found = true;
-						return false;
-					}
-					return found;
-				});
-			})
-			.filter(function (fromMigration) {
-				// now check if they need to be run based on status and method
-				return this._wasExecuted(fromMigration)
-					.then(() => {
-						if (method === 'up') {
-							return false;
-						} else {
-							return true;
-						}
-					})
-					.catch(() => {
-						if (method === 'up') {
-							return true;
-						} else {
-							return false;
-						}
-					});
+	private async _findMigrationsFromMatch(from, method): Bluebird<Migration[]> {
+		return TODO_BLUEBIRD(async () => {
+			// We'll fetch all migrations and work our way from start to finish
+			let migrations = await this._findMigrations();
+
+			let found = false;
+			
+			migrations = migrations.filter(migration => {
+				if (migration.testFileName(from)) {
+					found = true;
+					return false;
+				}
+				return found;
 			});
+
+			const filteredMigrations: Migration[] = [];
+
+			for (const migration of migrations) {
+				// now check if they need to be run based on status and method
+				if (await this._checkExecuted2(migration)) {
+					if (method !== 'up') {
+						filteredMigrations.push(migration)
+					}
+				} else if (method === 'up') {
+					filteredMigrations.push(migration)
+				}
+			}
+
+			return filteredMigrations;
+		});
 	}
 
 	/**
