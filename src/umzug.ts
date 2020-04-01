@@ -211,8 +211,10 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	up (options) {
-		return this._run('up', options, this.pending.bind(this));
+	public up(options): Bluebird<any> {
+		return TODO_BLUEBIRD(async () => {
+			return this._run2('up', options, this.pending.bind(this));
+		});
 	}
 
 	/**
@@ -230,20 +232,22 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	down (options) {
-		const getExecuted = function () {
-			return this.executed().bind(this).then((migrations) => migrations.reverse());
-		}.bind(this);
+	public down(options): Bluebird<any> {
+		return TODO_BLUEBIRD(async () => {
+			const getReversedExecuted = async () => {
+				return (await this.executed()).reverse();
+			};
 
-		if (typeof options === 'undefined' || !Object.keys(options).length) {
-			return getExecuted().bind(this).then(function (migrations) {
-				return migrations[0]
-					? this.down(migrations[0].file)
-					: Bluebird.resolve([]);
-			});
-		} else {
-			return this._run('down', options, getExecuted.bind(this));
-		}
+			if (!options || Object.keys(options).length === 0) {
+				const migrations = await getReversedExecuted();
+				if (migrations[0]) {
+					return this.down(migrations[0].file);
+				}
+				return [];
+			}
+			
+			return this._run('down', options, getReversedExecuted);
+		});
 	}
 
 	_run(method, options, rest?: Function) {
