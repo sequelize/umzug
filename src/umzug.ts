@@ -246,12 +246,11 @@ export class Umzug extends EventEmitter {
 		}
 	}
 
-	/**
-	 * Callback function to get migrations in right order.
-	 *
-	 * @callback Umzug~rest
-	 * @return {Promise.<Migration[]>}
-	 */
+	_run(method, options, rest?: Function) {
+		return TODO_BLUEBIRD(async () => {
+			return this._run2(method, options, rest);
+		});
+	}
 
 	/**
 	 * Execute migrations either down or up.
@@ -268,74 +267,51 @@ export class Umzug extends EventEmitter {
 	 * @param {String}     [options.to] - The last migration to execute (inc).
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @param {Umzug~rest} [rest] - Function to get migrations in right order.
-	 * @returns {Promise}
-	 * @private
 	 */
-	_run (method, options, rest?: Function) {
+	private async _run2(method, options?: string | string[] | { migrations?: string[], from?: string; to?: string }, rest?: Function): Promise<any> {
 		if (typeof options === 'string') {
-			return this._run(method, [ options ]);
-		} else if (Array.isArray(options)) {
-			return Bluebird.resolve(options).bind(this)
-				.map(function (migration) {
-					return this._findMigration(migration);
-				})
-				.then(function (migrations) {
-					return method === 'up'
-						? this._arePending(migrations)
-						: this._wereExecuted(migrations);
-				})
-				.then(function () {
-					return this._run(method, { migrations: options });
-				});
+			return this._run2(method, [options]);
 		}
 
-		options = {
-			to: null,
-			from: null,
-			migrations: null,
-			...options || {},
-		};
+		if (Array.isArray(options)) {
+			const migrationNames = options;
 
-		if (options.migrations) {
+			const migrations = await pMap(migrationNames, m => this._findMigration(m));
+
+			if (method === 'up') {
+				await this._assertPending2(migrations);
+			} else {
+				await this._assertExecuted2(migrations);
+			}
+
+			return this._run2(method, { migrations: options });
+		}
+
+		if (options && options.migrations) {
 			return this.execute({
 				migrations: options.migrations,
 				method: method,
 			});
-		} else {
-			return rest().bind(this)
-				.then(function (migrations) {
-					let result = Bluebird.resolve().bind(this);
-
-					if (options.to) {
-						result = result
-							.then(function () {
-								// There must be a migration matching to options.to...
-								return this._findMigration(options.to);
-							})
-							.then(function (migration) {
-								// ... and it must be pending/executed.
-								return method === 'up'
-									? this._isPending(migration)
-									: this._wasExecuted(migration);
-							});
-					}
-
-					return result.then(() => Bluebird.resolve(migrations));
-				})
-				.then(function (migrations) {
-					if (options.from) {
-						return this._findMigrationsFromMatch(options.from, method);
-					} else {
-						return migrations;
-					}
-				})
-				.then(function (migrations) {
-					return this._findMigrationsUntilMatch(options.to, migrations);
-				})
-				.then(function (migrationFiles) {
-					return this._run(method, { migrations: migrationFiles });
-				});
 		}
+
+		let temp = await rest();
+
+		if (options && options.to) {
+			const migration = await this._findMigration(options.to);
+			if (method === 'up') {
+				await this._assertPending2(migration);
+			} else {
+				await this._assertExecuted2(migration);
+			}
+		}
+
+		if (options && options.from) {
+			temp = await this._findMigrationsFromMatch(options.from, method);
+		}
+
+		const migrationFiles = await this._findMigrationsUntilMatch(options && options.to, temp);
+
+		return this._run2(method, { migrations: migrationFiles });
 	}
 
 	/**
