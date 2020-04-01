@@ -572,13 +572,17 @@ export class Umzug extends EventEmitter {
 	 *
 	 * @param {String} to - The last one migration to be accepted.
 	 * @param {Migration[]} migrations - Migration list to be filtered.
-	 * @returns {Promise.<String>} - List of migrations before `to`.
-	 * @private
 	 */
-	_findMigrationsUntilMatch (to, migrations) {
-		return Bluebird.resolve(migrations)
-			.map((migration) => migration.file)
-			.reduce((acc, migration) => {
+	private async _findMigrationsUntilMatch(to, _migrations: any): Bluebird<string[]> {
+		return TODO_BLUEBIRD(async () => {
+			if (!Array.isArray(_migrations)) {
+				_migrations = [_migrations];
+			}
+
+			const migrations: Migration[] = await Promise.all(_migrations);
+
+			const files = migrations.map(migration => migration.file);
+			const temp = files.reduce((acc, migration) => {
 				if (acc.add) {
 					acc.migrations.push(migration);
 
@@ -590,7 +594,9 @@ export class Umzug extends EventEmitter {
 				}
 
 				return acc;
-			}, { migrations: [], add: true })
-			.get('migrations');
+			}, { migrations: [], add: true });
+
+			return temp.migrations;
+		});
 	}
 }
