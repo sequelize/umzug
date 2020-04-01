@@ -478,22 +478,16 @@ export class Umzug extends EventEmitter {
 
 	/**
 	 * Gets a migration with a given name.
-	 *
-	 * @param {String} needle - Name of the migration.
-	 * @returns {Promise.<Migration>}
-	 * @private
 	 */
-	_findMigration (needle) {
-		return this
-			._findMigrations()
-			.then((migrations) => migrations.filter((migration) => migration.testFileName(needle))[0])
-			.then((migration) => {
-				if (migration) {
-					return migration;
-				} else {
-					return Bluebird.reject(new Error('Unable to find migration: ' + needle));
-				}
-			});
+	private _findMigration(name: string): Bluebird<Migration> {
+		return TODO_BLUEBIRD(async () => {
+			const migrations = await this._findMigrations();
+			const found = migrations.find(m => m.testFileName(name));
+			if (found) {
+				return found;
+			}
+			throw new Error(`Unable to find migration: ${name}`);
+		});
 	}
 
 	private async _checkExecuted2(arg: Migration | Migration[]): Promise<boolean> {
