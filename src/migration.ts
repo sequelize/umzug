@@ -71,30 +71,24 @@ export class Migration {
 
 	/**
 	 * Executes method `up` of migration.
-	 *
-	 * @returns {Promise}
 	 */
-	up () {
-		return this._exec('up', [].slice.apply(arguments));
+	async up(...args): Promise<void> {
+		await this._exec('up', args);
 	}
 
 	/**
 	 * Executes method `down` of migration.
-	 *
-	 * @returns {Promise}
 	 */
-	down () {
-		return this._exec('down', [].slice.apply(arguments));
+	async down(...args): Promise<void> {
+		return this._exec('down', args);
 	}
 
 	/**
 	 * Check if migration file name is starting with needle.
 	 * @param {String} needle - The beginning of the file name.
-	 * @returns {boolean}
 	 */
-	testFileName (needle) {
-		const formattedNeedle = this.options.migrations.nameFormatter(needle);
-		return this.file.indexOf(formattedNeedle) === 0;
+	testFileName(needle: string): boolean {
+		return this.file.startsWith(this.options.migrations.nameFormatter(needle));
 	}
 
 	/**
