@@ -531,39 +531,39 @@ export class Umzug extends EventEmitter {
 		});
 	}
 
-	/**
-	 * Checks if migration is pending. It will success if and only if there is
-	 * a pending migration with a given name.
-	 *
-	 * @param {String} _migration - Name of migration to be checked.
-	 * @returns {Promise}
-	 * @private
-	 */
-	_isPending (_migration) {
-		return this.pending().filter((migration) => migration.testFileName(_migration.file)).then((migrations) => {
-			if (migrations[0]) {
-				return Bluebird.resolve();
-			} else {
-				return Bluebird.reject(new Error('Migration is not pending: ' + _migration.file));
-			}
+	private async _checkPending2(arg: Migration | Migration[]): Promise<boolean> {
+		if (Array.isArray(arg)) {
+			return (await pMap(arg, m => this._checkPending2(m))).every(x => x);
+		}
+		const pendingMigrations = await this.pending();
+		const found = pendingMigrations.find(m => m.testFileName(arg.file));
+		return !!found;
+	}
+
+	private async _assertPending2(arg: Migration | Migration[]): Promise<void> {
+		if (Array.isArray(arg)) {
+			await pMap(arg, m => this._assertPending2(m));
+			return;
+		}
+		const pendingMigrations = await this.pending();
+		const found = pendingMigrations.find(m => m.testFileName(arg.file));
+		if (!found) {
+			throw new Error(`Migration is not pending: ${arg.file}`);
+		}
+	}
+
+	// TODO remove this function
+	_isPending(migration) {
+		return TODO_BLUEBIRD(async () => {
+			await this._assertPending2(migration);
 		});
 	}
 
-	/**
-	 * Checks if a list of migrations are all pending. It will success if and only
-	 * if there is a pending migration for each given name.
-	 *
-	 * @param {String[]} migrationNames - List of migration names to be checked.
-	 * @returns {Promise}
-	 * @private
-	 */
-	_arePending (migrationNames) {
-		return Bluebird
-			.resolve(migrationNames)
-			.bind(this)
-			.map(function (migration) {
-				return this._isPending(migration);
-			});
+	// TODO remove this function
+	_arePending(migrations) {
+		return TODO_BLUEBIRD(async () => {
+			await this._assertPending2(migrations);
+		});
 	}
 
 	/**
