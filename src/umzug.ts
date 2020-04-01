@@ -496,21 +496,31 @@ export class Umzug extends EventEmitter {
 			});
 	}
 
-	/**
-	 * Checks if migration is executed. It will success if and only if there is
-	 * an executed migration with a given name.
-	 *
-	 * @param {String} _migration - Name of migration to be checked.
-	 * @returns {Promise}
-	 * @private
-	 */
-	_wasExecuted (_migration) {
-		return this.executed().filter((migration) => migration.testFileName(_migration.file)).then((migrations) => {
-			if (migrations[0]) {
-				return Bluebird.resolve();
-			} else {
-				return Bluebird.reject(new Error('Migration was not executed: ' + _migration.file));
-			}
+	private async _checkExecuted2(arg: Migration | Migration[]): Promise<boolean> {
+		if (Array.isArray(arg)) {
+			return (await pMap(arg, m => this._checkExecuted2(m))).every(x => x);
+		}
+		const executedMigrations = await this.executed();
+		const found = executedMigrations.find(m => m.testFileName(arg.file));
+		return !!found;
+	}
+
+	private async _assertExecuted2(arg: Migration | Migration[]): Promise<void> {
+		if (Array.isArray(arg)) {
+			await pMap(arg, m => this._assertExecuted2(m));
+			return;
+		}
+		const executedMigrations = await this.executed();
+		const found = executedMigrations.find(m => m.testFileName(arg.file));
+		if (!found) {
+			throw new Error(`Migration was not executed: ${arg.file}`);
+		}
+	}
+
+	// TODO remove this function
+	private _wasExecuted(_migration): Bluebird<void> {
+		return TODO_BLUEBIRD(async () => {
+			await this._assertExecuted2(_migration);
 		});
 	}
 
