@@ -429,52 +429,51 @@ export class Umzug extends EventEmitter {
 
 	/**
 	 * Loads all migrations in ascending order.
-	 *
-	 * @returns {Promise.<Migration[]>}
-	 * @private
 	 */
-	_findMigrations (migrationPath?: string) {
-		if (Array.isArray(this.options.migrations)) {
-			return Bluebird.resolve(this.options.migrations);
-		}
-		const isRoot = !migrationPath;
-		if (isRoot) {
-			migrationPath = this.options.migrations.path;
-		}
-		return Bluebird
-			.promisify(fs.readdir)(migrationPath)
-			.bind(this)
-			.map(function (file) {
-				const filePath = path.resolve(migrationPath, file);
-				if (this.options.migrations.traverseDirectories) {
-					if (fs.lstatSync(filePath).isDirectory()) {
-						return this._findMigrations(filePath)
-							.then((migrations) => migrations);
+	private _findMigrations(migrationPath?: string): Bluebird<Migration[]> {
+		return TODO_BLUEBIRD(async () => {
+			if (Array.isArray(this.options.migrations)) {
+				return this.options.migrations;
+			}
+
+			const isRoot = !migrationPath;
+			if (isRoot) {
+				migrationPath = this.options.migrations.path;
+			}
+
+			const shallowFiles = await jetpack.listAsync(migrationPath);
+
+			const migrations: Migration[] =
+				(await pMap(shallowFiles, fileName => {
+					const filePath = jetpack.path(migrationPath, fileName);
+
+					if (this.options.migrations.traverseDirectories && jetpack.exists(filePath) === 'dir') {
+						return this._findMigrations(filePath);
 					}
-				}
-				if (this.options.migrations.pattern.test(file)) {
-					return new Migration(filePath, this.options);
-				}
-				return file;
-			})
-			.reduce((a, b) => a.concat(b), []) // flatten the result to an array
-			.filter((file) =>
-				file instanceof Migration // only care about Migration
-			)
-			.then((migrations) => {
-				if (isRoot) { // only sort if its root
-					return migrations.sort((a, b) => {
-						if (a.file > b.file) {
-							return 1;
-						} else if (a.file < b.file) {
-							return -1;
-						} else {
-							return 0;
-						}
-					});
-				}
-				return migrations;
-			});
+
+					if (this.options.migrations.pattern.test(fileName)) {
+						return Promise.resolve(new Migration(filePath, this.options));
+					}
+
+					return Promise.resolve(null);
+				}))
+				.reduce((a, b) => a.concat(b), []) // flatten the result to an array
+				.filter(x => x instanceof Migration); // only care about Migration
+			
+			if (isRoot) { // only sort if its root
+				migrations.sort((a, b) => {
+					if (a.file > b.file) {
+						return 1;
+					} else if (a.file < b.file) {
+						return -1;
+					} else {
+						return 0;
+					}
+				});
+			}
+
+			return migrations;
+		});
 	}
 
 	/**
