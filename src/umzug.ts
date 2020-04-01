@@ -518,27 +518,17 @@ export class Umzug extends EventEmitter {
 	}
 
 	// TODO remove this function
-	private _wasExecuted(_migration): Bluebird<void> {
+	_wasExecuted(migration): Bluebird<void> {
 		return TODO_BLUEBIRD(async () => {
-			await this._assertExecuted2(_migration);
+			await this._assertExecuted2(migration);
 		});
 	}
 
-	/**
-	 * Checks if a list of migrations are all executed. It will success if and
-	 * only if there is an executed migration for each given name.
-	 *
-	 * @param {String[]} migrationNames - List of migration names to be checked.
-	 * @returns {Promise}
-	 * @private
-	 */
-	_wereExecuted (migrationNames) {
-		return Bluebird
-			.resolve(migrationNames)
-			.bind(this)
-			.map(function (migration) {
-				return this._wasExecuted(migration);
-			});
+	// TODO remove this function
+	_wereExecuted(migrations): Bluebird<void> {
+		return TODO_BLUEBIRD(async () => {
+			await this._assertExecuted2(migrations);
+		});
 	}
 
 	/**
