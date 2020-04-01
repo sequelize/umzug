@@ -11,6 +11,10 @@ import { JSONStorage } from './storages/JSONStorage';
 import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
 
+function TODO_BLUEBIRD(f) {
+	return Bluebird.try(f);
+}
+
 export const STORAGES_BY_NAME = {
 	none: Storage,
 	json: JSONStorage,
@@ -178,18 +182,16 @@ export class Umzug extends EventEmitter {
 	 * Lists executed migrations.
 	 */
 	public executed(): Bluebird<Migration[]> {
-		// TODO remove bluebird, make the function async
-		return Bluebird.resolve((async () => {
+		return TODO_BLUEBIRD(async () => {
 			return pMap((await this.storage.executed()) as string[], file => new Migration(file, this.options));
-		})());
+		});
 	}
 
 	/**
 	 * Lists pending migrations.
 	 */
 	public pending(): Bluebird<Migration[]> {
-		// TODO remove bluebird, make function async
-		return Bluebird.try(async () => {
+		return TODO_BLUEBIRD(async () => {
 			const all = await this._findMigrations();
 			const executed = await this.executed();
 
