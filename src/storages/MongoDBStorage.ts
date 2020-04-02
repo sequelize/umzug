@@ -44,7 +44,7 @@ export class MongoDBStorage extends Storage {
 	 *
 	 * @param {String} migrationName - Name of the migration to be logged.
 	 */
-	async logMigration(migrationName): Promise<void> {
+	async logMigration(migrationName: string): Promise<void> {
 		await this.collection.insertOne({ migrationName });
 	}
 
@@ -53,7 +53,7 @@ export class MongoDBStorage extends Storage {
 	 *
 	 * @param {String} migrationName - Name of the migration to be unlogged.
 	 */
-	async unlogMigration(migrationName): Promise<void> {
+	async unlogMigration(migrationName: string): Promise<void> {
 		await this.collection.removeOne({ migrationName });
 	}
 

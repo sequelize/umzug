@@ -8,10 +8,14 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
-		"declaration": false,
+		"declaration": true,
 		"pretty": true,
 		"newLine": "lf",
 		"stripInternal": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
 		"noEmitOnError": true,
 		"skipLibCheck": true
 	}

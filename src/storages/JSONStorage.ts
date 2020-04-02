@@ -26,8 +26,7 @@ export class JSONStorage extends Storage {
 	/**
 	 * Logs migration to be considered as executed.
 	 *
-	 * @param {String} migrationName - Name of the migration to be logged.
-	 * @returns {Promise}
+	 * @param {string} migrationName - Name of the migration to be logged.
 	 */
 	async logMigration(migrationName: string): Promise<void> {
 		const loggedMigrations = await this.executed();
@@ -39,8 +38,7 @@ export class JSONStorage extends Storage {
 	/**
 	 * Unlogs migration to be considered as pending.
 	 *
-	 * @param {String} migrationName - Name of the migration to be unlogged.
-	 * @returns {Promise}
+	 * @param {string} migrationName - Name of the migration to be unlogged.
 	 */
 	async unlogMigration(migrationName: string): Promise<void> {
 		const loggedMigrations = await this.executed();
