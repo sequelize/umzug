@@ -23,8 +23,9 @@ export class MongoDBStorage extends Storage {
 	 * @param {String} [options.collectionName] - name of migration collection in MongoDB
 	 * @param {String} [options.collection] - reference to a MongoDB Driver collection
 	 */
-	constructor (options: MongoDBStorageConstructorOptions) {
+	constructor(options: MongoDBStorageConstructorOptions) {
 		super();
+
 		this.connection = options.connection;
 		this.collection = options.collection;
 		this.collectionName = options.collectionName || 'migrations';
@@ -42,31 +43,25 @@ export class MongoDBStorage extends Storage {
 	 * Logs migration to be considered as executed.
 	 *
 	 * @param {String} migrationName - Name of the migration to be logged.
-	 * @returns {Promise}
 	 */
-	logMigration (migrationName) {
-		return this.collection.insertOne({ migrationName });
+	async logMigration(migrationName): Promise<void> {
+		await this.collection.insertOne({ migrationName });
 	}
 
 	/**
 	 * Unlogs migration to be considered as pending.
 	 *
 	 * @param {String} migrationName - Name of the migration to be unlogged.
-	 * @returns {Promise}
 	 */
-	unlogMigration (migrationName) {
-		return this.collection.removeOne({ migrationName });
+	async unlogMigration(migrationName): Promise<void> {
+		await this.collection.removeOne({ migrationName });
 	}
 
 	/**
 	 * Gets list of executed migrations.
-	 *
-	 * @returns {Promise.<String[]>}
 	 */
-	executed () {
-		return this.collection.find({})
-			.sort({ migrationName: 1 })
-			.toArray()
-			.then(records => records.map(r => r.migrationName));
+	async executed(): Promise<string[]> {
+		const records = await this.collection.find({}).sort({ migrationName: 1 }).toArray();
+		return records.map(r => r.migrationName);
 	}
 }

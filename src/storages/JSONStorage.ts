@@ -18,7 +18,7 @@ export class JSONStorage extends Storage {
 	 * @param {String} [options.path='./umzug.json'] - Path to JSON file where
 	 * the log is stored. Defaults './umzug.json' relative to process' cwd.
 	 */
-	constructor (options?: JSONStorageConstructorOptions) {
+	constructor(options?: JSONStorageConstructorOptions) {
 		super();
 		this.path = (options && options.path) ?? jetpack.path(process.cwd(), 'umzug.json');
 	}

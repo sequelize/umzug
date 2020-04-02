@@ -1,5 +1,5 @@
 import { Storage } from './Storage';
-import { SequelizeType, ModelType } from './type-helpers/sequelize-type-helpers';
+import { SequelizeType, ModelClassType } from './type-helpers/sequelize-type-helpers';
 import { SetRequired } from 'type-fest';
 
 interface _SequelizeStorageConstructorOptions {
@@ -61,7 +61,7 @@ export class SequelizeStorage extends Storage {
 	public readonly modelName: string;
 	public readonly tableName: string;
 	public readonly schema: any;
-	public readonly model: ModelType;
+	public readonly model: ModelClassType;
 
 	/**
 	 * Constructs Sequelize based storage.
@@ -96,7 +96,7 @@ export class SequelizeStorage extends Storage {
 		this.model = options.model ?? this.getModel();
 	}
 
-	getModel(): ModelType {
+	getModel(): ModelClassType {
 		if (this.sequelize.isDefined(this.modelName)) {
 			return this.sequelize.model(this.modelName);
 		}
@@ -119,7 +119,7 @@ export class SequelizeStorage extends Storage {
 				charset: 'utf8',
 				collate: 'utf8_unicode_ci',
 			}
-		) as ModelType;
+		) as ModelClassType;
 	}
 
 	async logMigration(migrationName: string): Promise<void> {
@@ -147,7 +147,7 @@ export class SequelizeStorage extends Storage {
 		return migrations.map(migration => migration[this.columnName]);
 	}
 
-	_model(): ModelType {
+	_model(): ModelClassType {
 		return this.model;
 	}
 }

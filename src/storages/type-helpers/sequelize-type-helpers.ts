@@ -4,8 +4,8 @@ interface ModelTempInterface extends ModelClass {
 	[key: string]: any
 }
 
-type ModelType = typeof ModelClass & {
+type ModelClassType = typeof ModelClass & {
 	new (values?: object, options?: any): ModelTempInterface;
 }
 
-export { SequelizeType, ModelType };
+export { SequelizeType, ModelClassType };
