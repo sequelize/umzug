@@ -1,5 +1,4 @@
-import Bluebird = require('bluebird');
-import fs = require('fs');
+import { TODO_BLUEBIRD } from './todo-remove-bluebird';
 import { Migration } from './migration';
 import path = require('path');
 import jetpack = require('fs-jetpack');
@@ -11,10 +10,6 @@ import { Storage } from './storages/Storage';
 import { JSONStorage } from './storages/JSONStorage';
 import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
-
-function TODO_BLUEBIRD(f) {
-	return Bluebird.try(f);
-}
 
 export const STORAGES_BY_NAME = {
 	none: Storage,
@@ -112,7 +107,7 @@ export class Umzug extends EventEmitter {
 	}
 
 	// TODO remove this function
-	execute(options?: UmzugExecuteOptions): Bluebird<Migration[]> {
+	execute(options?: UmzugExecuteOptions): Promise<Migration[]> {
 		return TODO_BLUEBIRD(async () => {
 			return this.execute2(options);
 		});
@@ -180,7 +175,7 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Lists executed migrations.
 	 */
-	public executed(): Bluebird<Migration[]> {
+	public executed(): Promise<Migration[]> {
 		return TODO_BLUEBIRD(async () => {
 			return pMap((await this.storage.executed()) as string[], file => new Migration(file, this.options));
 		});
@@ -189,7 +184,7 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Lists pending migrations.
 	 */
-	public pending(): Bluebird<Migration[]> {
+	public pending(): Promise<Migration[]> {
 		return TODO_BLUEBIRD(async () => {
 			const all = await this._findMigrations();
 			const executed = await this.executed();
@@ -215,7 +210,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	public up(options): Bluebird<any> {
+	public up(options): Promise<any> {
 		return TODO_BLUEBIRD(async () => {
 			return this._run2('up', options, this.pending.bind(this));
 		});
@@ -236,7 +231,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	public down(options): Bluebird<any> {
+	public down(options): Promise<any> {
 		return TODO_BLUEBIRD(async () => {
 			const getReversedExecuted = async () => {
 				return (await this.executed()).reverse();
@@ -331,7 +326,7 @@ export class Umzug extends EventEmitter {
 	 * pending migrations will be accepted. Otherwise only executed migrations
 	 * will be accepted.
 	 */
-	private async _findMigrationsFromMatch(from, method): Bluebird<Migration[]> {
+	private async _findMigrationsFromMatch(from, method): Promise<Migration[]> {
 		return TODO_BLUEBIRD(async () => {
 			// We'll fetch all migrations and work our way from start to finish
 			let migrations = await this._findMigrations();
@@ -405,7 +400,7 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Loads all migrations in ascending order.
 	 */
-	private _findMigrations(migrationPath?: string): Bluebird<Migration[]> {
+	private _findMigrations(migrationPath?: string): Promise<Migration[]> {
 		return TODO_BLUEBIRD(async () => {
 			if (Array.isArray(this.options.migrations)) {
 				return this.options.migrations;
@@ -456,7 +451,7 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Gets a migration with a given name.
 	 */
-	private _findMigration(name: string): Bluebird<Migration> {
+	private _findMigration(name: string): Promise<Migration> {
 		return TODO_BLUEBIRD(async () => {
 			const migrations = await this._findMigrations();
 			const found = migrations.find(m => m.testFileName(name));
@@ -489,14 +484,14 @@ export class Umzug extends EventEmitter {
 	}
 
 	// TODO remove this function
-	_wasExecuted(migration): Bluebird<void> {
+	_wasExecuted(migration): Promise<void> {
 		return TODO_BLUEBIRD(async () => {
 			await this._assertExecuted2(migration);
 		});
 	}
 
 	// TODO remove this function
-	_wereExecuted(migrations): Bluebird<void> {
+	_wereExecuted(migrations): Promise<void> {
 		return TODO_BLUEBIRD(async () => {
 			await this._assertExecuted2(migrations);
 		});
@@ -543,7 +538,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String} to - The last one migration to be accepted.
 	 * @param {Migration[]} migrations - Migration list to be filtered.
 	 */
-	private async _findMigrationsUntilMatch(to, _migrations: any): Bluebird<string[]> {
+	private async _findMigrationsUntilMatch(to, _migrations: any): Promise<string[]> {
 		return TODO_BLUEBIRD(async () => {
 			if (!Array.isArray(_migrations)) {
 				_migrations = [_migrations];
