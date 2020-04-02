@@ -28,7 +28,7 @@ export interface UmzugExecuteOptions {
 	method: 'up' | 'down';
 }
 
-export interface UmzugConstructorMigrationOptions {
+export interface UmzugConstructorMigrationOptionsA {
 	params?: any[] | (() => any[]);
 	path?: string;
 	pattern?: RegExp;
@@ -38,11 +38,15 @@ export interface UmzugConstructorMigrationOptions {
 	nameFormatter?: (path: string) => string;
 }
 
+export interface UmzugConstructorMigrationOptionsB extends Array<Migration> {
+	params?: any[] | (() => any[]);
+}
+
 export interface UmzugConstructorOptions {
 	storage?: string | Storage;
 	logging?: Function | false;
 	storageOptions?: any;
-	migrations?: UmzugConstructorMigrationOptions;
+	migrations?: UmzugConstructorMigrationOptionsA | UmzugConstructorMigrationOptionsB;
 }
 
 export class Umzug extends EventEmitter {
@@ -407,9 +411,11 @@ export class Umzug extends EventEmitter {
 				return this.options.migrations;
 			}
 
+			const migrationOptions = this.options.migrations as UmzugConstructorMigrationOptionsA;
+
 			const isRoot = !migrationPath;
 			if (isRoot) {
-				migrationPath = this.options.migrations.path;
+				migrationPath = migrationOptions.path;
 			}
 
 			const shallowFiles = await jetpack.listAsync(migrationPath);
@@ -418,11 +424,11 @@ export class Umzug extends EventEmitter {
 				(await pMap(shallowFiles, fileName => {
 					const filePath = jetpack.path(migrationPath, fileName);
 
-					if (this.options.migrations.traverseDirectories && jetpack.exists(filePath) === 'dir') {
+					if (migrationOptions.traverseDirectories && jetpack.exists(filePath) === 'dir') {
 						return this._findMigrations(filePath);
 					}
 
-					if (this.options.migrations.pattern.test(fileName)) {
+					if (migrationOptions.pattern.test(fileName)) {
 						return Promise.resolve(new Migration(filePath, this.options));
 					}
 
