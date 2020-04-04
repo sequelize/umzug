@@ -116,7 +116,7 @@ export class Umzug extends EventEmitter {
 			const name = path.basename(migration.file, path.extname(migration.file));
 			let startTime = undefined;
 
-			const executed = await this._checkExecuted2(migration);
+			const executed = await this._checkExecuted(migration);
 
 			if (!executed || method === 'down') {
 				let params = this.options.migrations.params;
@@ -199,7 +199,7 @@ export class Umzug extends EventEmitter {
 	 * @returns {Promise}
 	 */
 	async up(options?): Promise<any> {
-		return this._run2('up', options, this.pending.bind(this));
+		return this._run('up', options, this.pending.bind(this));
 	}
 
 	/**
@@ -233,10 +233,6 @@ export class Umzug extends EventEmitter {
 		return this._run('down', options, getReversedExecuted);
 	}
 
-	async _run(method: 'up' | 'down', options?, rest?: Function) {
-		return this._run2(method, options, rest);
-	}
-
 	/**
 	 * Execute migrations either down or up.
 	 *
@@ -253,9 +249,9 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @param {Umzug~rest} [rest] - Function to get migrations in right order.
 	 */
-	private async _run2(method, options?: string | string[] | { migrations?: string[], from?: string; to?: string }, rest?: Function): Promise<any> {
+	private async _run(method, options?: string | string[] | { migrations?: string[], from?: string; to?: string }, rest?: Function): Promise<any> {
 		if (typeof options === 'string') {
-			return this._run2(method, [options]);
+			return this._run(method, [options]);
 		}
 
 		if (Array.isArray(options)) {
@@ -264,12 +260,12 @@ export class Umzug extends EventEmitter {
 			const migrations = await pMap(migrationNames, m => this._findMigration(m));
 
 			if (method === 'up') {
-				await this._assertPending2(migrations);
+				await this._assertPending(migrations);
 			} else {
-				await this._assertExecuted2(migrations);
+				await this._assertExecuted(migrations);
 			}
 
-			return this._run2(method, { migrations: options });
+			return this._run(method, { migrations: options });
 		}
 
 		if (options && options.migrations) {
@@ -284,9 +280,9 @@ export class Umzug extends EventEmitter {
 		if (options && options.to) {
 			const migration = await this._findMigration(options.to);
 			if (method === 'up') {
-				await this._assertPending2(migration);
+				await this._assertPending(migration);
 			} else {
-				await this._assertExecuted2(migration);
+				await this._assertExecuted(migration);
 			}
 		}
 
@@ -296,7 +292,7 @@ export class Umzug extends EventEmitter {
 
 		const migrationFiles = await this._findMigrationsUntilMatch(options && options.to, temp);
 
-		return this._run2(method, { migrations: migrationFiles });
+		return this._run(method, { migrations: migrationFiles });
 	}
 
 	/**
@@ -326,7 +322,7 @@ export class Umzug extends EventEmitter {
 
 		for (const migration of migrations) {
 			// now check if they need to be run based on status and method
-			if (await this._checkExecuted2(migration)) {
+			if (await this._checkExecuted(migration)) {
 				if (method !== 'up') {
 					filteredMigrations.push(migration)
 				}
@@ -438,18 +434,18 @@ export class Umzug extends EventEmitter {
 		throw new Error(`Unable to find migration: ${name}`);
 	}
 
-	private async _checkExecuted2(arg: Migration | Migration[]): Promise<boolean> {
+	private async _checkExecuted(arg: Migration | Migration[]): Promise<boolean> {
 		if (Array.isArray(arg)) {
-			return (await pMap(arg, m => this._checkExecuted2(m))).every(x => x);
+			return (await pMap(arg, m => this._checkExecuted(m))).every(x => x);
 		}
 		const executedMigrations = await this.executed();
 		const found = executedMigrations.find(m => m.testFileName(arg.file));
 		return !!found;
 	}
 
-	private async _assertExecuted2(arg: Migration | Migration[]): Promise<void> {
+	private async _assertExecuted(arg: Migration | Migration[]): Promise<void> {
 		if (Array.isArray(arg)) {
-			await pMap(arg, m => this._assertExecuted2(m));
+			await pMap(arg, m => this._assertExecuted(m));
 			return;
 		}
 		const executedMigrations = await this.executed();
@@ -459,28 +455,18 @@ export class Umzug extends EventEmitter {
 		}
 	}
 
-	// TODO remove this function
-	async _wasExecuted(migration): Promise<void> {
-		await this._assertExecuted2(migration);
-	}
-
-	// TODO remove this function
-	async _wereExecuted(migrations): Promise<void> {
-		await this._assertExecuted2(migrations);
-	}
-
-	private async _checkPending2(arg: Migration | Migration[]): Promise<boolean> {
+	private async _checkPending(arg: Migration | Migration[]): Promise<boolean> {
 		if (Array.isArray(arg)) {
-			return (await pMap(arg, m => this._checkPending2(m))).every(x => x);
+			return (await pMap(arg, m => this._checkPending(m))).every(x => x);
 		}
 		const pendingMigrations = await this.pending();
 		const found = pendingMigrations.find(m => m.testFileName(arg.file));
 		return !!found;
 	}
 
-	private async _assertPending2(arg: Migration | Migration[]): Promise<void> {
+	private async _assertPending(arg: Migration | Migration[]): Promise<void> {
 		if (Array.isArray(arg)) {
-			await pMap(arg, m => this._assertPending2(m));
+			await pMap(arg, m => this._assertPending(m));
 			return;
 		}
 		const pendingMigrations = await this.pending();
@@ -488,16 +474,6 @@ export class Umzug extends EventEmitter {
 		if (!found) {
 			throw new Error(`Migration is not pending: ${arg.file}`);
 		}
-	}
-
-	// TODO remove this function
-	async _isPending(migration) {
-		await this._assertPending2(migration);
-	}
-
-	// TODO remove this function
-	async _arePending(migrations) {
-		await this._assertPending2(migrations);
 	}
 
 	/**
