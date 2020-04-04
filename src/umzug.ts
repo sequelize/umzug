@@ -1,4 +1,3 @@
-import { TODO_BLUEBIRD } from './todo-remove-bluebird';
 import { Migration } from './migration';
 import path = require('path');
 import jetpack = require('fs-jetpack');
@@ -106,17 +105,10 @@ export class Umzug extends EventEmitter {
 		this.storage = this._getStorage();
 	}
 
-	// TODO remove this function
-	execute(options?: UmzugExecuteOptions): Promise<Migration[]> {
-		return TODO_BLUEBIRD(async () => {
-			return this.execute2(options);
-		});
-	}
-
 	/**
 	 * Executes given migrations with a given method.
 	 */
-	private async execute2(options?: UmzugExecuteOptions): Promise<Migration[]> {
+	async execute(options?: UmzugExecuteOptions): Promise<Migration[]> {
 		const method = options.method ?? 'up';
 		const migrations = await pMap(options.migrations ?? [], name => this._findMigration(name));
 
@@ -175,24 +167,20 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Lists executed migrations.
 	 */
-	public executed(): Promise<Migration[]> {
-		return TODO_BLUEBIRD(async () => {
-			return pMap((await this.storage.executed()) as string[], file => new Migration(file, this.options));
-		});
+	async executed(): Promise<Migration[]> {
+		return pMap((await this.storage.executed()) as string[], file => new Migration(file, this.options));
 	}
 
 	/**
 	 * Lists pending migrations.
 	 */
-	public pending(): Promise<Migration[]> {
-		return TODO_BLUEBIRD(async () => {
-			const all = await this._findMigrations();
-			const executed = await this.executed();
+	async pending(): Promise<Migration[]> {
+		const all = await this._findMigrations();
+		const executed = await this.executed();
 
-			const executedFiles = executed.map(migration => migration.file);
+		const executedFiles = executed.map(migration => migration.file);
 
-			return all.filter(migration => !executedFiles.includes(migration.file));
-		});
+		return all.filter(migration => !executedFiles.includes(migration.file));
 	}
 
 	/**
@@ -210,10 +198,8 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	public up(options?): Promise<any> {
-		return TODO_BLUEBIRD(async () => {
-			return this._run2('up', options, this.pending.bind(this));
-		});
+	async up(options?): Promise<any> {
+		return this._run2('up', options, this.pending.bind(this));
 	}
 
 	/**
@@ -231,28 +217,24 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	public down(options?): Promise<any> {
-		return TODO_BLUEBIRD(async () => {
-			const getReversedExecuted = async () => {
-				return (await this.executed()).reverse();
-			};
+	async down(options?): Promise<any> {
+		const getReversedExecuted = async () => {
+			return (await this.executed()).reverse();
+		};
 
-			if (!options || Object.keys(options).length === 0) {
-				const migrations = await getReversedExecuted();
-				if (migrations[0]) {
-					return this.down(migrations[0].file);
-				}
-				return [];
+		if (!options || Object.keys(options).length === 0) {
+			const migrations = await getReversedExecuted();
+			if (migrations[0]) {
+				return this.down(migrations[0].file);
 			}
-			
-			return this._run('down', options, getReversedExecuted);
-		});
+			return [];
+		}
+		
+		return this._run('down', options, getReversedExecuted);
 	}
 
-	_run(method: 'up' | 'down', options?, rest?: Function) {
-		return TODO_BLUEBIRD(async () => {
-			return this._run2(method, options, rest);
-		});
+	async _run(method: 'up' | 'down', options?, rest?: Function) {
+		return this._run2(method, options, rest);
 	}
 
 	/**
@@ -327,35 +309,33 @@ export class Umzug extends EventEmitter {
 	 * will be accepted.
 	 */
 	private async _findMigrationsFromMatch(from, method): Promise<Migration[]> {
-		return TODO_BLUEBIRD(async () => {
-			// We'll fetch all migrations and work our way from start to finish
-			let migrations = await this._findMigrations();
+		// We'll fetch all migrations and work our way from start to finish
+		let migrations = await this._findMigrations();
 
-			let found = false;
-			
-			migrations = migrations.filter(migration => {
-				if (migration.testFileName(from)) {
-					found = true;
-					return false;
-				}
-				return found;
-			});
+		let found = false;
+		
+		migrations = migrations.filter(migration => {
+			if (migration.testFileName(from)) {
+				found = true;
+				return false;
+			}
+			return found;
+		});
 
-			const filteredMigrations: Migration[] = [];
+		const filteredMigrations: Migration[] = [];
 
-			for (const migration of migrations) {
-				// now check if they need to be run based on status and method
-				if (await this._checkExecuted2(migration)) {
-					if (method !== 'up') {
-						filteredMigrations.push(migration)
-					}
-				} else if (method === 'up') {
+		for (const migration of migrations) {
+			// now check if they need to be run based on status and method
+			if (await this._checkExecuted2(migration)) {
+				if (method !== 'up') {
 					filteredMigrations.push(migration)
 				}
+			} else if (method === 'up') {
+				filteredMigrations.push(migration)
 			}
+		}
 
-			return filteredMigrations;
-		});
+		return filteredMigrations;
 	}
 
 	/**
@@ -400,66 +380,62 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Loads all migrations in ascending order.
 	 */
-	private _findMigrations(migrationPath?: string): Promise<Migration[]> {
-		return TODO_BLUEBIRD(async () => {
-			if (Array.isArray(this.options.migrations)) {
-				return this.options.migrations;
-			}
+	private async _findMigrations(migrationPath?: string): Promise<Migration[]> {
+		if (Array.isArray(this.options.migrations)) {
+			return this.options.migrations;
+		}
 
-			const migrationOptions = this.options.migrations as UmzugConstructorMigrationOptionsA;
+		const migrationOptions = this.options.migrations as UmzugConstructorMigrationOptionsA;
 
-			const isRoot = !migrationPath;
-			if (isRoot) {
-				migrationPath = migrationOptions.path;
-			}
+		const isRoot = !migrationPath;
+		if (isRoot) {
+			migrationPath = migrationOptions.path;
+		}
 
-			const shallowFiles = await jetpack.listAsync(migrationPath);
+		const shallowFiles = await jetpack.listAsync(migrationPath);
 
-			const migrations: Migration[] =
-				(await pMap(shallowFiles, fileName => {
-					const filePath = jetpack.path(migrationPath, fileName);
+		const migrations: Migration[] =
+			(await pMap(shallowFiles, fileName => {
+				const filePath = jetpack.path(migrationPath, fileName);
 
-					if (migrationOptions.traverseDirectories && jetpack.exists(filePath) === 'dir') {
-						return this._findMigrations(filePath);
-					}
+				if (migrationOptions.traverseDirectories && jetpack.exists(filePath) === 'dir') {
+					return this._findMigrations(filePath);
+				}
 
-					if (migrationOptions.pattern.test(fileName)) {
-						return Promise.resolve(new Migration(filePath, this.options));
-					}
+				if (migrationOptions.pattern.test(fileName)) {
+					return Promise.resolve(new Migration(filePath, this.options));
+				}
 
-					return Promise.resolve(null);
-				}))
-				.reduce((a, b) => a.concat(b), []) // flatten the result to an array
-				.filter(x => x instanceof Migration); // only care about Migration
-			
-			if (isRoot) { // only sort if its root
-				migrations.sort((a, b) => {
-					if (a.file > b.file) {
-						return 1;
-					} else if (a.file < b.file) {
-						return -1;
-					} else {
-						return 0;
-					}
-				});
-			}
+				return Promise.resolve(null);
+			}))
+			.reduce((a, b) => a.concat(b), []) // flatten the result to an array
+			.filter(x => x instanceof Migration); // only care about Migration
+		
+		if (isRoot) { // only sort if its root
+			migrations.sort((a, b) => {
+				if (a.file > b.file) {
+					return 1;
+				} else if (a.file < b.file) {
+					return -1;
+				} else {
+					return 0;
+				}
+			});
+		}
 
-			return migrations;
-		});
+		return migrations;
 	}
 
 	/**
 	 * Gets a migration with a given name.
 	 */
-	private _findMigration(name: string): Promise<Migration> {
-		return TODO_BLUEBIRD(async () => {
-			const migrations = await this._findMigrations();
-			const found = migrations.find(m => m.testFileName(name));
-			if (found) {
-				return found;
-			}
-			throw new Error(`Unable to find migration: ${name}`);
-		});
+	private async _findMigration(name: string): Promise<Migration> {
+		const migrations = await this._findMigrations();
+		const found = migrations.find(m => m.testFileName(name));
+		if (found) {
+			return found;
+		}
+		throw new Error(`Unable to find migration: ${name}`);
 	}
 
 	private async _checkExecuted2(arg: Migration | Migration[]): Promise<boolean> {
@@ -484,17 +460,13 @@ export class Umzug extends EventEmitter {
 	}
 
 	// TODO remove this function
-	_wasExecuted(migration): Promise<void> {
-		return TODO_BLUEBIRD(async () => {
-			await this._assertExecuted2(migration);
-		});
+	async _wasExecuted(migration): Promise<void> {
+		await this._assertExecuted2(migration);
 	}
 
 	// TODO remove this function
-	_wereExecuted(migrations): Promise<void> {
-		return TODO_BLUEBIRD(async () => {
-			await this._assertExecuted2(migrations);
-		});
+	async _wereExecuted(migrations): Promise<void> {
+		await this._assertExecuted2(migrations);
 	}
 
 	private async _checkPending2(arg: Migration | Migration[]): Promise<boolean> {
@@ -519,17 +491,13 @@ export class Umzug extends EventEmitter {
 	}
 
 	// TODO remove this function
-	_isPending(migration) {
-		return TODO_BLUEBIRD(async () => {
-			await this._assertPending2(migration);
-		});
+	async _isPending(migration) {
+		await this._assertPending2(migration);
 	}
 
 	// TODO remove this function
-	_arePending(migrations) {
-		return TODO_BLUEBIRD(async () => {
-			await this._assertPending2(migrations);
-		});
+	async _arePending(migrations) {
+		await this._assertPending2(migrations);
 	}
 
 	/**
@@ -539,29 +507,27 @@ export class Umzug extends EventEmitter {
 	 * @param {Migration[]} migrations - Migration list to be filtered.
 	 */
 	private async _findMigrationsUntilMatch(to, _migrations: any): Promise<string[]> {
-		return TODO_BLUEBIRD(async () => {
-			if (!Array.isArray(_migrations)) {
-				_migrations = [_migrations];
+		if (!Array.isArray(_migrations)) {
+			_migrations = [_migrations];
+		}
+
+		const migrations: Migration[] = await Promise.all(_migrations);
+
+		const files = migrations.map(migration => migration.file);
+		const temp = files.reduce((acc, migration) => {
+			if (acc.add) {
+				acc.migrations.push(migration);
+
+				if (to && (migration.indexOf(to) === 0)) {
+					// Stop adding the migrations once the final migration
+					// has been added.
+					acc.add = false;
+				}
 			}
 
-			const migrations: Migration[] = await Promise.all(_migrations);
+			return acc;
+		}, { migrations: [], add: true });
 
-			const files = migrations.map(migration => migration.file);
-			const temp = files.reduce((acc, migration) => {
-				if (acc.add) {
-					acc.migrations.push(migration);
-
-					if (to && (migration.indexOf(to) === 0)) {
-						// Stop adding the migrations once the final migration
-						// has been added.
-						acc.add = false;
-					}
-				}
-
-				return acc;
-			}, { migrations: [], add: true });
-
-			return temp.migrations;
-		});
+		return temp.migrations;
 	}
 }
