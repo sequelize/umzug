@@ -3,7 +3,7 @@ const fs = require('fs');
 const helper = require('../helper');
 const path = require('path');
 const { join } = path;
-const { JSONStorage: Storage } = require('../../lib/storages/JSONStorage');
+const { JSONStorage: Storage } = require('../../lib/src/storages/JSONStorage');
 
 describe('JSON', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 const { expect } = require('chai');
-const { Umzug } = require('../../lib');
+const { Umzug } = require('../../lib/src');
 const { join } = require('path');
-const { migrationsList } = require('../../lib/migrationsList');
+const { migrationsList } = require('../../lib/src/migrationsList');
 const helper = require('../helper');
 
 describe('migrationsList', () => {

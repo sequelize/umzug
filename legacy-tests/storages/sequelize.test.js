@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const helper = require('../helper');
-const { SequelizeStorage: Storage } = require('../../lib/storages/SequelizeStorage');
+const { SequelizeStorage: Storage } = require('../../lib/src/storages/SequelizeStorage');
 const Sequelize = require('sequelize');
 const { join } = require('path');
 const { v4: uuid } = require('uuid');

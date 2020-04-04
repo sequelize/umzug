@@ -1,3 +1,4 @@
 node_modules
-test/tmp
+legacy-tests/tmp
 lib
+umzug.json

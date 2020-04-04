@@ -11,7 +11,7 @@ import { JSONStorage } from './storages/JSONStorage';
 import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
 
-export const STORAGES_BY_NAME = {
+const STORAGES_BY_NAME = {
 	none: Storage,
 	json: JSONStorage,
 	mongodb: MongoDBStorage,
@@ -210,7 +210,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	public up(options): Promise<any> {
+	public up(options?): Promise<any> {
 		return TODO_BLUEBIRD(async () => {
 			return this._run2('up', options, this.pending.bind(this));
 		});
@@ -231,7 +231,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	public down(options): Promise<any> {
+	public down(options?): Promise<any> {
 		return TODO_BLUEBIRD(async () => {
 			const getReversedExecuted = async () => {
 				return (await this.executed()).reverse();
@@ -249,7 +249,7 @@ export class Umzug extends EventEmitter {
 		});
 	}
 
-	_run(method, options, rest?: Function) {
+	_run(method: 'up' | 'down', options?, rest?: Function) {
 		return TODO_BLUEBIRD(async () => {
 			return this._run2(method, options, rest);
 		});
