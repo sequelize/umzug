@@ -198,7 +198,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	async up(options?): Promise<any> {
+	async up(options?): Promise<Migration[]> {
 		return this._run('up', options, this.pending.bind(this));
 	}
 
@@ -217,7 +217,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @returns {Promise}
 	 */
-	async down(options?): Promise<any> {
+	async down(options?): Promise<Migration[]> {
 		const getReversedExecuted = async () => {
 			return (await this.executed()).reverse();
 		};
@@ -249,7 +249,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @param {Umzug~rest} [rest] - Function to get migrations in right order.
 	 */
-	private async _run(method, options?: string | string[] | { migrations?: string[], from?: string; to?: string }, rest?: Function): Promise<any> {
+	private async _run(method, options?: string | string[] | { migrations?: string[], from?: string; to?: string }, rest?: Function): Promise<Migration[]> {
 		if (typeof options === 'string') {
 			return this._run(method, [options]);
 		}
@@ -363,9 +363,9 @@ export class Umzug extends EventEmitter {
 		} else {
 			try {
 				StorageClass = require(this.options.storage);
-			} catch (e) {
-				const error2 = new Error(`Unable to resolve the storage: ${this.options.storage}, ${e}`);
-				(error2 as any).parent = e;
+			} catch (error) {
+				const error2 = new Error(`Unable to resolve the storage: ${this.options.storage}, ${error}`);
+				(error2 as any).parent = error;
 				throw error2;
 			}
 		}
@@ -482,28 +482,26 @@ export class Umzug extends EventEmitter {
 	 * @param {String} to - The last one migration to be accepted.
 	 * @param {Migration[]} migrations - Migration list to be filtered.
 	 */
-	private async _findMigrationsUntilMatch(to, _migrations: any): Promise<string[]> {
-		if (!Array.isArray(_migrations)) {
-			_migrations = [_migrations];
+	private async _findMigrationsUntilMatch(to?: string, migrations?: Migration[]): Promise<string[]> {
+		if (!Array.isArray(migrations)) {
+			migrations = [migrations];
 		}
 
-		const migrations: Migration[] = await Promise.all(_migrations);
-
 		const files = migrations.map(migration => migration.file);
-		const temp = files.reduce((acc, migration) => {
-			if (acc.add) {
-				acc.migrations.push(migration);
 
-				if (to && (migration.indexOf(to) === 0)) {
-					// Stop adding the migrations once the final migration
-					// has been added.
-					acc.add = false;
-				}
+		if (!to) {
+			return files;
+		}
+
+		const result: string[] = [];
+
+		for (const file of files) {
+			result.push(file);
+			if (file.indexOf(to) === 0) {
+				break;
 			}
+		}
 
-			return acc;
-		}, { migrations: [], add: true });
-
-		return temp.migrations;
+		return result;
 	}
 }
