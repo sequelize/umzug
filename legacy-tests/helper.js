@@ -1,44 +1,41 @@
 const _ = require('lodash');
-const fs = require('fs');
-const { join } = require('path');
+const jetpack = require('fs-jetpack').cwd(__dirname);
 
 const helper = module.exports = {
   clearTmp (path) {
-    const tmpPath = join(__dirname, '/tmp');
+    const tmpPath = jetpack.path('tmp');
     path = path || tmpPath;
-    const files = fs.readdirSync(path);
+    const files = jetpack.list(path);
 
     files.forEach((file) => {
-      const filePath = join(path, '/' + file);
+      const filePath = jetpack.path(path, file);
       if (file.match(/\.(js|json|sqlite)$/)) {
         try {
-          fs.unlinkSync(filePath);
+          jetpack.remove(filePath);
         } catch (e) {
         }
-      } else if (fs.lstatSync(filePath).isDirectory()) {
+      } else if (jetpack.exists(filePath) === 'dir') {
         helper.clearTmp(filePath);
       }
     });
     if (path !== tmpPath) {
-      fs.rmdirSync(path);
+      jetpack.remove(path);
     }
   },
 
-  generateDummyMigration: function (name, subDirectories, options = {}) {
-    let path = join(__dirname, '/tmp/');
+  generateDummyMigration(name, subDirectories, options = {}) {
+    let path = jetpack.path('tmp');
     if (subDirectories) {
       if (!_.isArray(subDirectories)) {
         subDirectories = [subDirectories];
       }
       subDirectories.forEach((directory) => {
-        path = join(path, directory + '/');
-        if (!fs.existsSync(path)) {
-          fs.mkdirSync(path);
-        }
+        path = jetpack.path(path, directory);
+        jetpack.dir(path);
       });
     }
-    fs.writeFileSync(
-      join(path, name + '.js'),
+    jetpack.write(
+      jetpack.path(path, name + '.js'),
       [
         '\'use strict\';',
         '',
