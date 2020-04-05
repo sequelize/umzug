@@ -1,25 +1,15 @@
 const _ = require('lodash');
 const jetpack = require('fs-jetpack').cwd(__dirname);
+const { ToryFolder } = require('tory');
 
 const helper = module.exports = {
-  clearTmp (path) {
-    const tmpPath = jetpack.path('tmp');
-    path = path || tmpPath;
-    const files = jetpack.list(path);
-
-    files.forEach((file) => {
-      const filePath = jetpack.path(path, file);
-      if (file.match(/\.(js|json|sqlite)$/)) {
-        try {
-          jetpack.remove(filePath);
-        } catch (e) {
-        }
-      } else if (jetpack.exists(filePath) === 'dir') {
-        helper.clearTmp(filePath);
-      }
-    });
-    if (path !== tmpPath) {
-      jetpack.remove(path);
+  clearTmp() {
+    jetpack.dir('tmp');
+    const tmpFolder = new ToryFolder(jetpack.path('tmp'));
+    for (const file of tmpFolder.toDFSFilesRecursiveIterable()) {
+      try {
+        jetpack.remove(file.absolutePath);
+      } catch (_) {}
     }
   },
 
