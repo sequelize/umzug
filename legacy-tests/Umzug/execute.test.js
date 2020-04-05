@@ -1,9 +1,10 @@
-const Bluebird = require('bluebird');
 const { expect } = require('chai');
 const helper = require('../helper');
 const { Umzug } = require('../../lib/src/index');
 const sinon = require('sinon');
 const { join } = require('path');
+
+const resolveStub = Promise.resolve.bind(Promise);
 
 describe('execute', () => {
   beforeEach(function () {
@@ -12,8 +13,8 @@ describe('execute', () => {
       .prepareMigrations(1, { names: ['123-migration'] })
       .then(() => {
         this.migration = require('../tmp/123-migration.js');
-        this.upStub = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
-        this.downStub = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
+        this.upStub = sinon.stub(this.migration, 'up').callsFake(resolveStub);
+        this.downStub = sinon.stub(this.migration, 'down').callsFake(resolveStub);
         this.logSpy = sinon.spy();
         this.umzug = new Umzug({
           migrations: { path: join(__dirname, '/../tmp/') },
@@ -42,8 +43,8 @@ describe('execute', () => {
       .prepareMigrations(1, { names: ['123-migration'], returnUndefined: true })
       .then(() => {
         this.migration = require('../tmp/123-migration.js');
-        this.upStub = sinon.stub(this.migration, 'up').callsFake(Bluebird.resolve);
-        this.downStub = sinon.stub(this.migration, 'down').callsFake(Bluebird.resolve);
+        this.upStub = sinon.stub(this.migration, 'up').callsFake(resolveStub);
+        this.downStub = sinon.stub(this.migration, 'down').callsFake(resolveStub);
         this.logSpy = sinon.spy();
         this.umzug = new Umzug({
           migrations: { path: join(__dirname, '/../tmp/') },

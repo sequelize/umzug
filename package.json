@@ -13,18 +13,17 @@
 		"lib"
 	],
 	"dependencies": {
-		"bluebird": "^3.7.2",
 		"fs-jetpack": "^2.2.3",
 		"p-each-series": "^2.1.0",
 		"p-map": "^4.0.0",
-		"tory": "^0.4.3"
+		"tory": "~0.4.3"
 	},
 	"devDependencies": {
 		"@ava/typescript": "^1.1.1",
 		"ava": "^3.5.0",
 		"chai": "^4.2.0",
 		"del-cli": "^3.0.0",
-		"eslint-config-xo-typescript": "^0.27.0",
+		"eslint-config-xo-typescript": "~0.27.0",
 		"lodash": "^4.17.15",
 		"mocha": "^6.2.2",
 		"np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
@@ -33,10 +32,10 @@
 		"sinon-chai": "^3.5.0",
 		"source-map-support": "^0.5.16",
 		"sqlite3": "^4.1.1",
-		"type-fest": "^0.12.0",
+		"type-fest": "^0.13.0",
 		"typescript": "~3.8.3",
 		"uuid": "^7.0.2",
-		"xo": "^0.28.2"
+		"xo": "^0.28.3"
 	},
 	"scripts": {
 		"build": "del-cli lib && tsc",
