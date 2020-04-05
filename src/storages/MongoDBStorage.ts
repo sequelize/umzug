@@ -1,63 +1,62 @@
 import { UmzugStorage } from './type-helpers/umzug-storage';
 
-export interface MongoDBStorageConstructorOptions {
-	readonly connection: any;
-	readonly collectionName?: string;
-	readonly collection: any;
-}
+type AnyObject = { [key: string]: any };
 
-/**
- * @class MongoDBStorage
- */
-export class MongoDBStorage implements UmzugStorage {
-	public readonly connection: any;
-	public readonly collectionName?: string;
-	public readonly collection: any;
+export interface MongoDBConnectionOptions {
+	/**
+	A connection to target database established with MongoDB Driver
+	*/
+	readonly connection: AnyObject;
 
 	/**
-	 * Constructs MongoDB collection storage.
-	 *
-	 * @param {Object} [options]
-	 * Required either connection and collectionName OR collection
-	 * @param {String} [options.connection] - a connection to target database established with MongoDB Driver
-	 * @param {String} [options.collectionName] - name of migration collection in MongoDB
-	 * @param {String} [options.collection] - reference to a MongoDB Driver collection
-	 */
-	constructor(options: MongoDBStorageConstructorOptions) {
-		this.connection = options.connection;
-		this.collection = options.collection;
-		this.collectionName = options.collectionName || 'migrations';
+	The name of the migration collection in MongoDB
 
-		if (!this.connection && !this.collection) {
+	@default 'migrations'
+	*/
+	readonly collectionName?: string;
+}
+
+export interface MongoDBCollectionOptions {
+	/**
+	A reference to a MongoDB Driver collection
+	*/
+	readonly collection: AnyObject;
+}
+
+export type MongoDBStorageConstructorOptions = MongoDBConnectionOptions | MongoDBCollectionOptions;
+
+function isMongoDBCollectionOptions(arg: any): arg is MongoDBCollectionOptions {
+	return Boolean(arg?.collection);
+}
+
+export class MongoDBStorage implements UmzugStorage {
+	public readonly collection: AnyObject;
+	public readonly connection: any; // TODO remove this
+	public readonly collectionName: string; // TODO remove this
+
+	constructor(options: MongoDBStorageConstructorOptions) {
+		if (!options || (!(options as any).collection && !(options as any).connection)) {
 			throw new Error('MongoDB Connection or Collection required');
 		}
 
-		if (!this.collection) {
-			this.collection = this.connection.collection(this.collectionName);
+		if (isMongoDBCollectionOptions(options)) {
+			this.collection = options.collection;
+		} else {
+			this.collection = options.connection.collection(options.collectionName ?? 'migrations');
 		}
+
+		this.connection = (options as any).connection; // TODO remove this
+		this.collectionName = (options as any).collectionName ?? 'migrations'; // TODO remove this
 	}
 
-	/**
-	 * Logs migration to be considered as executed.
-	 *
-	 * @param {String} migrationName - Name of the migration to be logged.
-	 */
 	async logMigration(migrationName: string): Promise<void> {
 		await this.collection.insertOne({ migrationName });
 	}
 
-	/**
-	 * Unlogs migration to be considered as pending.
-	 *
-	 * @param {String} migrationName - Name of the migration to be unlogged.
-	 */
 	async unlogMigration(migrationName: string): Promise<void> {
 		await this.collection.removeOne({ migrationName });
 	}
 
-	/**
-	 * Gets list of executed migrations.
-	 */
 	async executed(): Promise<string[]> {
 		type Record = { migrationName: string };
 		const records: Record[] = await this.collection.find({}).sort({ migrationName: 1 }).toArray();

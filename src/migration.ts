@@ -34,8 +34,8 @@ export class Migration {
 	}
 
 	/**
-	 * Obtain the migration definition module, using a custom resolver if present.
-	 */
+	Obtain the migration definition module, using a custom resolver if present.
+	*/
 	async migration(): Promise<MigrationDefinition> {
 		let result: MigrationDefinition;
 
@@ -57,29 +57,29 @@ export class Migration {
 	}
 
 	/**
-	 * Executes method `up` of migration.
-	 */
+	Executes method `up` of the migration.
+	*/
 	async up(...args: readonly any[]): Promise<void> {
 		await this._exec('up', args);
 	}
 
 	/**
-	 * Executes method `down` of migration.
-	 */
+	Executes method `down` of the migration.
+	*/
 	async down(...args: readonly any[]): Promise<void> {
 		return this._exec('down', args);
 	}
 
 	/**
-	 * Check if migration file name starts with the given string.
-	 */
+	Check if migration file name starts with the given string.
+	*/
 	testFileName(string: string): boolean {
 		return this.file.startsWith(this.options.migrations.nameFormatter(string));
 	}
 
 	/**
-	 * Executes a given method of migration with given arguments.
-	 */
+	Executes a given method of migration with given arguments.
+	*/
 	private async _exec(method: 'up' | 'down', args: readonly any[]): Promise<void> {
 		const migration = await this.migration();
 

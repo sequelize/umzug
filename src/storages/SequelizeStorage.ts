@@ -4,45 +4,55 @@ import { SetRequired } from 'type-fest';
 
 interface _SequelizeStorageConstructorOptions {
 	/**
-	 * The configured instance of Sequelize.
-	 */
+	The configured instance of Sequelize. If omitted, it is inferred from the `model` option.
+	*/
 	readonly sequelize?: SequelizeType;
 
-	/** The model representing the SequelizeMeta table. Must have a column
-	 * that matches the `columnName` option. If omitted, it is created automatically.
-	 */
+	/**
+	The model representing the SequelizeMeta table. Must have a column that matches the `columnName` option. If omitted, it is created automatically.
+	*/
 	readonly model?: any;
 
 	/**
-	 * The name of the model. If omitted, defaults to "SequelizeMeta"
-	 */
+	The name of the model.
+
+	@default 'SequelizeMeta'
+	*/
 	readonly modelName?: string;
 
 	/**
-	 * The name of the table. If omitted, defaults to the model name.
-	 */
+	The name of the table. If omitted, defaults to the model name.
+	*/
 	readonly tableName?: string;
 
 	/**
-	 * Name of the schema under which the table is to be created.
-	 * Defaults to `undefined`.
-	 */
+	Name of the schema under which the table is to be created.
+
+	@default undefined
+	*/
 	readonly schema?: any;
 
 	/**
-	 * Name of the table column holding the executed migration names.
-	 */
+	Name of the table column holding the executed migration names.
+
+	@default 'name'
+	*/
 	readonly columnName?: string;
 
 	/**
-	 * The type of the column holding the executed migration names. For utf8mb4 charsets
-	 * under InnoDB, you may need to set this <= 190. Defaults to `Sequelize.DataTypes.STRING`.
-	 */
+	The type of the column holding the executed migration names.
+
+	For `utf8mb4` charsets under InnoDB, you may need to set this to less than 190
+
+	@default Sequelize.DataTypes.STRING
+	*/
 	readonly columnType?: any;
 
 	/**
-	 * Option to add timestamps to the table
-	 */
+	Option to add timestamps to the table
+
+	@default false
+	*/
 	readonly timestamps?: boolean;
 }
 
@@ -50,9 +60,6 @@ export type SequelizeStorageConstructorOptions =
 	SetRequired<_SequelizeStorageConstructorOptions, 'sequelize'> |
 	SetRequired<_SequelizeStorageConstructorOptions, 'model'>;
 
-/**
- * @class SequelizeStorage
- */
 export class SequelizeStorage implements UmzugStorage {
 	public readonly sequelize: SequelizeType;
 	public readonly columnType: string;
@@ -64,21 +71,12 @@ export class SequelizeStorage implements UmzugStorage {
 	public readonly model: ModelClassType;
 
 	/**
-	 * Constructs Sequelize based storage.
-	 *
-	 * Stores migration in a database table using Sequelize. One of "sequelize" or
-	 * "model" storage option is required.
-	 *
-	 * If "sequelize" option is supplied will create a model named "SequelizeMeta"
-	 * with timestamps and an attribute "name" for storing migrations. The model
-	 * name, table name, and column name are customizable with options.
-	 *
-	 * If "model" option is supplied will use existing model for storing
-	 * migrations. The model must have an attribute "name", which can be
-	 * customized.
-	 *
-	 * If the table does not exist it will be created automatically.
-	 */
+	Constructs Sequelize based storage. Migrations will be stored in a SequelizeMeta table using the given instance of Sequelize.
+
+	If a model is given, it will be used directly as the model for the SequelizeMeta table. Otherwise, it will be created automatically according to the given options.
+
+	If the table does not exist it will be created automatically upon the logging of the first migration.
+	*/
 	constructor(options: SequelizeStorageConstructorOptions) {
 		if (!options || (!options.model && !options.sequelize)) {
 			throw new Error('One of "sequelize" or "model" storage option is required');
@@ -136,9 +134,6 @@ export class SequelizeStorage implements UmzugStorage {
 		});
 	}
 
-	/**
-	 * Gets list of executed migrations.
-	 */
 	async executed(): Promise<string[]> {
 		await this.model.sync();
 		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
@@ -152,6 +147,7 @@ export class SequelizeStorage implements UmzugStorage {
 		});
 	}
 
+	// TODO remove this
 	_model(): ModelClassType {
 		return this.model;
 	}
