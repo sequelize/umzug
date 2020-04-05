@@ -1,9 +1,9 @@
 import { Migration } from './migration';
 import path = require('path');
-import jetpack = require('fs-jetpack');
 import { EventEmitter } from 'events';
 import pMap = require('p-map');
 import pEachSeries = require('p-each-series');
+import { ToryFolder } from 'tory';
 
 import { NoneStorage } from './storages/NoneStorage';
 import { JSONStorage } from './storages/JSONStorage';
@@ -406,51 +406,36 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Loads all migrations in ascending order.
 	 */
-	private async _findMigrations(migrationPath?: string): Promise<Migration[]> {
+	private async _findMigrations(): Promise<Migration[]> {
 		if (Array.isArray(this.options.migrations)) {
 			return this.options.migrations;
 		}
 
 		const migrationOptions = this.options.migrations;
 
-		const isRoot = !migrationPath;
-		if (isRoot) {
-			migrationPath = migrationOptions.path;
-		}
+		const migrationsFolder = new ToryFolder(migrationOptions.path);
 
-		const shallowFiles = await jetpack.listAsync(migrationPath);
+		const migrationsFileIterable = migrationOptions.traverseDirectories ?
+			migrationsFolder.toDFSFilesRecursiveIterable() :
+			migrationsFolder.getFiles();
 
-		const migrations: Migration[] =
-			(await pMap(shallowFiles, async fileName => {
-				const filePath = jetpack.path(migrationPath, fileName);
+		const migrationFiles = [...migrationsFileIterable].filter(file => {
+			return migrationOptions.pattern.test(file.name);
+		});
 
-				if (migrationOptions.traverseDirectories && jetpack.exists(filePath) === 'dir') {
-					return this._findMigrations(filePath);
-				}
+		const migrations = migrationFiles.map(file => new Migration(file.absolutePath, this.options as any));
 
-				if (migrationOptions.pattern.test(fileName)) {
-					// TODO remove this forced type-cast
-					return Promise.resolve(new Migration(filePath, this.options as any));
-				}
+		migrations.sort((a, b) => {
+			if (a.file > b.file) {
+				return 1;
+			}
 
-				return Promise.resolve(null);
-			}))
-				.reduce((a, b) => a.concat(b), []) // Flatten the result to an array
-				.filter(x => x instanceof Migration); // Only care about Migration
+			if (a.file < b.file) {
+				return -1;
+			}
 
-		if (isRoot) { // Only sort if its root
-			migrations.sort((a, b) => {
-				if (a.file > b.file) {
-					return 1;
-				}
-
-				if (a.file < b.file) {
-					return -1;
-				}
-
-				return 0;
-			});
-		}
+			return 0;
+		});
 
 		return migrations;
 	}
