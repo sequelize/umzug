@@ -1,69 +1,107 @@
 {
-  "name": "umzug",
-  "version": "3.0.0-beta.1",
-  "description": "Framework-agnostic migration tool for Node",
-  "keywords": [
-    "migrate",
-    "migration",
-    "migrations",
-    "sequelize"
-  ],
-  "main": "src/index.js",
-  "files": [
-    "src"
-  ],
-  "dependencies": {
-    "bluebird": "^3.7.2"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "eslint": "^5.9.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-mocha": "^6.3.0",
-    "eslint-plugin-node": "^8.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "lodash": "^4.17.15",
-    "mocha": "^6.2.2",
-    "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
-    "sequelize": "^5.21.5",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.5.0",
-    "sqlite3": "^4.1.1",
-    "uuid": "^7.0.2"
-  },
-  "scripts": {
-    "lint": "eslint src test",
-    "mocha": "mocha --check-leaks test/index.js --timeout 10000",
-    "test": "npm run lint && npm run mocha",
-    "release": "np --no-2fa"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sequelize/umzug.git"
-  },
-  "author": "Sascha Depold <sascha@depold.com>",
-  "contributors": [
-    {
-      "name": "Jukka Hyytiälä",
-      "email": "hyytiala.jukka@gmail.com"
-    },
-    {
-      "name": "Pascal Pflaum",
-      "email": "mail@pascalpflaum.de"
-    },
-    {
-      "name": "Pedro Augusto de Paula Barbosa",
-      "email": "papb1996@gmail.com"
-    }
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/sequelize/umzug/issues"
-  },
-  "homepage": "https://github.com/sequelize/umzug",
-  "engines": {
-    "node": ">=10.0.0"
-  }
+	"name": "umzug",
+	"version": "3.0.0-beta.1",
+	"description": "Framework-agnostic migration tool for Node",
+	"keywords": [
+		"migrate",
+		"migration",
+		"migrations",
+		"sequelize"
+	],
+	"main": "lib/index.js",
+	"files": [
+		"lib"
+	],
+	"dependencies": {
+		"fs-jetpack": "^2.2.3",
+		"p-each-series": "^2.1.0",
+		"p-map": "^4.0.0",
+		"tory": "~0.4.3"
+	},
+	"devDependencies": {
+		"@ava/typescript": "^1.1.1",
+		"ava": "^3.5.0",
+		"chai": "^4.2.0",
+		"del-cli": "^3.0.0",
+		"eslint-config-xo-typescript": "~0.27.0",
+		"lodash": "^4.17.15",
+		"mocha": "^6.2.2",
+		"np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
+		"sequelize": "^5.21.5",
+		"sinon": "^7.5.0",
+		"sinon-chai": "^3.5.0",
+		"source-map-support": "^0.5.16",
+		"sqlite3": "^4.1.1",
+		"type-fest": "^0.13.0",
+		"typescript": "~3.8.3",
+		"uuid": "^7.0.2",
+		"xo": "^0.28.3"
+	},
+	"scripts": {
+		"build": "del-cli lib && tsc",
+		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js",
+		"prepack": "npm run build",
+		"release": "np --no-2fa",
+		"test": "npm run build && xo && ava test/test.ts && npm run mocha"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sequelize/umzug.git"
+	},
+	"author": "Sascha Depold <sascha@depold.com>",
+	"contributors": [
+		{
+			"name": "Jukka Hyytiälä",
+			"email": "hyytiala.jukka@gmail.com"
+		},
+		{
+			"name": "Pascal Pflaum",
+			"email": "mail@pascalpflaum.de"
+		},
+		{
+			"name": "Pedro Augusto de Paula Barbosa",
+			"email": "papb1996@gmail.com"
+		}
+	],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/sequelize/umzug/issues"
+	},
+	"homepage": "https://github.com/sequelize/umzug",
+	"engines": {
+		"node": ">=10.0.0"
+	},
+	"ava": {
+		"verbose": true,
+		"require": [
+			"source-map-support/register"
+		],
+		"typescript": {
+			"rewritePaths": {
+				"src/": "lib/src/",
+				"test/": "lib/test/"
+			}
+		},
+		"timeout": "2m"
+	},
+	"xo": {
+		"extends": "xo-typescript",
+		"extensions": [
+			"ts"
+		],
+		"ignore": "legacy-tests",
+		"rules": {
+			"unicorn/string-content": "off",
+			"unicorn/filename-case": "off",
+			"@typescript-eslint/prefer-readonly-parameter-types": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/unified-signatures": "off",
+			"linebreak-style": "off",
+			"object-curly-spacing": [
+				"error",
+				"always"
+			]
+		}
+	}
 }

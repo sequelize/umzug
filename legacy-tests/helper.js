@@ -1,44 +1,31 @@
 const _ = require('lodash');
-const fs = require('fs');
-const { join } = require('path');
+const jetpack = require('fs-jetpack').cwd(__dirname);
+const { ToryFolder } = require('tory');
 
 const helper = module.exports = {
-  clearTmp (path) {
-    const tmpPath = join(__dirname, '/tmp');
-    path = path || tmpPath;
-    const files = fs.readdirSync(path);
-
-    files.forEach((file) => {
-      const filePath = join(path, '/' + file);
-      if (file.match(/\.(js|json|sqlite)$/)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch (e) {
-        }
-      } else if (fs.lstatSync(filePath).isDirectory()) {
-        helper.clearTmp(filePath);
-      }
-    });
-    if (path !== tmpPath) {
-      fs.rmdirSync(path);
+  clearTmp() {
+    jetpack.dir('tmp');
+    const tmpFolder = new ToryFolder(jetpack.path('tmp'));
+    for (const file of tmpFolder.toDFSFilesRecursiveIterable()) {
+      try {
+        jetpack.remove(file.absolutePath);
+      } catch (_) {}
     }
   },
 
-  generateDummyMigration: function (name, subDirectories, options = {}) {
-    let path = join(__dirname, '/tmp/');
+  generateDummyMigration(name, subDirectories, options = {}) {
+    let path = jetpack.path('tmp');
     if (subDirectories) {
       if (!_.isArray(subDirectories)) {
         subDirectories = [subDirectories];
       }
       subDirectories.forEach((directory) => {
-        path = join(path, directory + '/');
-        if (!fs.existsSync(path)) {
-          fs.mkdirSync(path);
-        }
+        path = jetpack.path(path, directory);
+        jetpack.dir(path);
       });
     }
-    fs.writeFileSync(
-      join(path, name + '.js'),
+    jetpack.write(
+      jetpack.path(path, name + '.js'),
       [
         '\'use strict\';',
         '',

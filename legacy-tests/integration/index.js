@@ -3,7 +3,7 @@ const expect = chai.expect;
 
 describe('integration Tests', () => {
   it('lib can be required', () => {
-    const lib = require('../../lib');
+    const lib = require('../../lib/src');
     expect(lib).to.be.a('function');
     expect(lib.name).equal('Umzug');
   });
