@@ -4,6 +4,9 @@
 
 Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
 
+## Highlights
+
+* Written in TypeScript - you have built-in typings and auto-completion right in your IDE
 * Programmatic API for migrations
 * Database agnostic
 * Supports logging of migration process
