@@ -61,7 +61,8 @@ export class MongoDBStorage extends Storage {
 	 * Gets list of executed migrations.
 	 */
 	async executed(): Promise<string[]> {
-		const records = await this.collection.find({}).sort({ migrationName: 1 }).toArray();
+		type Record = { migrationName: string };
+		const records: Record[] = await this.collection.find({}).sort({ migrationName: 1 }).toArray();
 		return records.map(r => r.migrationName);
 	}
 }

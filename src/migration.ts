@@ -2,11 +2,11 @@ import _path = require('path');
 import { MigrationDefinition, ShortMigrationOptions } from './types';
 
 export interface MigrationConstructorOptions {
-	readonly migrations?: ShortMigrationOptions
+	readonly migrations?: ShortMigrationOptions;
 }
 
 function isPromise(arg?: any): arg is Promise<any> {
-	// eslint-disable-next promise/prefer-await-to-then
+	// eslint-disable-next-line promise/prefer-await-to-then
 	return arg && typeof arg.then === 'function';
 }
 

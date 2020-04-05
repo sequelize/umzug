@@ -132,7 +132,8 @@ export class Umzug extends EventEmitter {
 			try {
 				StorageClass = require(storage);
 			} catch (error) {
-				const error2 = new Error(`Unable to resolve the storage: ${storage}, ${error}`);
+				const errorDescription = `${error}`; // eslint-disable-line @typescript-eslint/restrict-template-expressions
+				const error2 = new Error(`Unable to resolve the storage: ${storage}, ${errorDescription}`);
 				(error2 as any).parent = error;
 				throw error2;
 			}
@@ -274,6 +275,15 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
+	 * Pass message to logger if logging is enabled.
+	 */
+	log(message: any): void {
+		if (this.options.logging) {
+			this.options.logging(message);
+		}
+	}
+
+	/**
 	 * Execute migrations either down or up.
 	 *
 	 * If options is a migration name (String), it will be executed.
@@ -289,7 +299,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @param {Umzug~rest} [rest] - Function to get migrations in right order.
 	 */
-	private async _run(method, options?: string | string[] | { migrations?: string[]; from?: string; to?: string }, rest?: Function): Promise<Migration[]> {
+	private async _run(method, options?: string | string[] | { migrations?: string[]; from?: string; to?: string }, rest?: () => Promise<Migration[]>): Promise<Migration[]> {
 		if (typeof options === 'string') {
 			return this._run(method, [options]);
 		}
@@ -297,7 +307,7 @@ export class Umzug extends EventEmitter {
 		if (Array.isArray(options)) {
 			const migrationNames = options;
 
-			const migrations = await pMap(migrationNames, m => this._findMigration(m));
+			const migrations = await pMap(migrationNames, async m => this._findMigration(m));
 
 			if (method === 'up') {
 				await this._assertPending(migrations);
@@ -315,7 +325,7 @@ export class Umzug extends EventEmitter {
 			});
 		}
 
-		let temporary = await rest();
+		let migrationList = await rest();
 
 		if (options?.to) {
 			const migration = await this._findMigration(options.to);
@@ -327,10 +337,10 @@ export class Umzug extends EventEmitter {
 		}
 
 		if (options?.from) {
-			temporary = await this._findMigrationsFromMatch(options.from, method);
+			migrationList = await this._findMigrationsFromMatch(options.from, method);
 		}
 
-		const migrationFiles = await this._findMigrationsUntilMatch(options?.to, temporary);
+		const migrationFiles = await this._findMigrationsUntilMatch(options?.to, migrationList);
 
 		return this._run(method, { migrations: migrationFiles });
 	}
@@ -363,6 +373,7 @@ export class Umzug extends EventEmitter {
 
 		for (const migration of migrations) {
 			// Now check if they need to be run based on status and method
+			// eslint-disable-next-line no-await-in-loop
 			if (await this._checkExecuted(migration)) {
 				if (method !== 'up') {
 					filteredMigrations.push(migration);
@@ -373,15 +384,6 @@ export class Umzug extends EventEmitter {
 		}
 
 		return filteredMigrations;
-	}
-
-	/**
-	 * Pass message to logger if logging is enabled.
-	 */
-	log(message: any): void {
-		if (this.options.logging) {
-			this.options.logging(message);
-		}
 	}
 
 	/**
@@ -402,7 +404,7 @@ export class Umzug extends EventEmitter {
 		const shallowFiles = await jetpack.listAsync(migrationPath);
 
 		const migrations: Migration[] =
-			(await pMap(shallowFiles, fileName => {
+			(await pMap(shallowFiles, async fileName => {
 				const filePath = jetpack.path(migrationPath, fileName);
 
 				if (migrationOptions.traverseDirectories && jetpack.exists(filePath) === 'dir') {
@@ -451,7 +453,7 @@ export class Umzug extends EventEmitter {
 
 	private async _checkExecuted(arg: Migration | Migration[]): Promise<boolean> {
 		if (Array.isArray(arg)) {
-			return (await pMap(arg, m => this._checkExecuted(m))).every(x => x);
+			return (await pMap(arg, async m => this._checkExecuted(m))).every(x => x);
 		}
 
 		const executedMigrations = await this.executed();
@@ -461,7 +463,7 @@ export class Umzug extends EventEmitter {
 
 	private async _assertExecuted(arg: Migration | Migration[]): Promise<void> {
 		if (Array.isArray(arg)) {
-			await pMap(arg, m => this._assertExecuted(m));
+			await pMap(arg, async m => this._assertExecuted(m));
 			return;
 		}
 
@@ -474,7 +476,7 @@ export class Umzug extends EventEmitter {
 
 	private async _checkPending(arg: Migration | Migration[]): Promise<boolean> {
 		if (Array.isArray(arg)) {
-			return (await pMap(arg, m => this._checkPending(m))).every(x => x);
+			return (await pMap(arg, async m => this._checkPending(m))).every(x => x);
 		}
 
 		const pendingMigrations = await this.pending();
@@ -484,7 +486,7 @@ export class Umzug extends EventEmitter {
 
 	private async _assertPending(arg: Migration | Migration[]): Promise<void> {
 		if (Array.isArray(arg)) {
-			await pMap(arg, m => this._assertPending(m));
+			await pMap(arg, async m => this._assertPending(m));
 			return;
 		}
 
