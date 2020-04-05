@@ -1,9 +1,13 @@
 export class Storage {
-  async logMigration(_migrationName: string): Promise<void> {}
+	// TODO
+	// eslint-disable-next
+	constructor(_options?: any) {}
 
-  async unlogMigration(_migrationName: string): Promise<void> {}
+	async logMigration(_migrationName: string): Promise<void> {}
 
-  async executed(): Promise<string[]> {
-    return [];
-  }
+	async unlogMigration(_migrationName: string): Promise<void> {}
+
+	async executed(): Promise<string[]> {
+		return [];
+	}
 }

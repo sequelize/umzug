@@ -1,8 +1,13 @@
 import _path = require('path');
+import { MigrationDefinition, ShortMigrationOptions } from './types';
 
-export interface MigrationDefinition {
-	up(): Promise<any>;
-	down(): Promise<any>;
+export interface MigrationConstructorOptions {
+	readonly migrations?: ShortMigrationOptions
+}
+
+function isPromise(arg?: any): arg is Promise<any> {
+	// eslint-disable-next promise/prefer-await-to-then
+	return arg && typeof arg.then === 'function';
 }
 
 export class Migration {
@@ -27,20 +32,20 @@ export class Migration {
 	 */
 	constructor(
 		public readonly path: string,
-		public readonly options?: any
+		private readonly options?: MigrationConstructorOptions
 	) {
 		this.path = _path.resolve(path);
 		this.options = {
 			...options,
 			migrations: {
-				nameFormatter: (path) => _path.basename(path),
-				...options.migrations,
-			},
+				nameFormatter: (path: string) => _path.basename(path),
+				...options.migrations
+			}
 		};
 
 		this.file = this.options.migrations.nameFormatter(this.path);
 		if (typeof this.file !== 'string') {
-			throw new Error(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
+			throw new TypeError(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
 		}
 	}
 
@@ -50,7 +55,7 @@ export class Migration {
 	 * @returns {Promise<any>} The migration definition module
 	 */
 	async migration(): Promise<MigrationDefinition> {
-		let result;
+		let result: MigrationDefinition;
 
 		if (typeof this.options.migrations.customResolver === 'function') {
 			result = this.options.migrations.customResolver(this.path);
@@ -72,14 +77,14 @@ export class Migration {
 	/**
 	 * Executes method `up` of migration.
 	 */
-	async up(...args): Promise<void> {
+	async up(...args: readonly any[]): Promise<void> {
 		await this._exec('up', args);
 	}
 
 	/**
 	 * Executes method `down` of migration.
 	 */
-	async down(...args): Promise<void> {
+	async down(...args: readonly any[]): Promise<void> {
 		return this._exec('down', args);
 	}
 
@@ -99,17 +104,17 @@ export class Migration {
 	 * @returns {Promise}
 	 * @private
 	 */
-	async _exec(method, args): Promise<void> {
+	async _exec(method: 'up' | 'down', args: readonly any[]): Promise<void> {
 		const migration = await this.migration();
 
-		let fun = migration[method];
-		if (!fun) throw new Error('Could not find migration method: ' + method);
+		const fn = migration[method];
+		if (!fn) {
+			throw new Error('Could not find migration method: ' + method);
+		}
 
-		const wrappedFun = this.options.migrations.wrap(fun);
+		const result = this.options.migrations.wrap(fn).apply(migration, args);
 
-		const result = wrappedFun.apply(migration, args);
-
-		if (!result || typeof result.then !== 'function') {
+		if (!isPromise(result)) {
 			throw new Error(`Migration ${this.file} (or wrapper) didn't return a promise`);
 		}
 

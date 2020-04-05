@@ -20,7 +20,7 @@ export class JSONStorage extends Storage {
 	 */
 	constructor(options?: JSONStorageConstructorOptions) {
 		super();
-		this.path = (options && options.path) ?? jetpack.path(process.cwd(), 'umzug.json');
+		this.path = options?.path ?? jetpack.path(process.cwd(), 'umzug.json');
 	}
 
 	/**
@@ -52,6 +52,6 @@ export class JSONStorage extends Storage {
 	 */
 	async executed(): Promise<string[]> {
 		const content = await jetpack.readAsync(this.path);
-		return content ? JSON.parse(content) : [];
+		return content ? (JSON.parse(content) as string[]) : [];
 	}
 }

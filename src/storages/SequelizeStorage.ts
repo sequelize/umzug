@@ -109,15 +109,15 @@ export class SequelizeStorage extends Storage {
 					allowNull: false,
 					unique: true,
 					primaryKey: true,
-					autoIncrement: false,
-				},
+					autoIncrement: false
+				}
 			},
 			{
 				tableName: this.tableName,
 				schema: this.schema,
 				timestamps: this.timestamps,
 				charset: 'utf8',
-				collate: 'utf8_unicode_ci',
+				collate: 'utf8_unicode_ci'
 			}
 		) as ModelClassType;
 	}
@@ -143,8 +143,15 @@ export class SequelizeStorage extends Storage {
 	 */
 	async executed(): Promise<string[]> {
 		await this.model.sync();
-		const migrations = await this.model.findAll({ order: [[ this.columnName, 'ASC' ]] });
-		return migrations.map(migration => migration[this.columnName]);
+		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
+		return migrations.map(migration => {
+			const name = migration[this.columnName];
+			if (typeof name !== 'string') {
+				throw new TypeError(`Unexpected migration name type: expected string, got ${typeof name}`);
+			}
+
+			return name;
+		});
 	}
 
 	_model(): ModelClassType {

@@ -1,4 +1,4 @@
-import { MigrationDefinition } from './migration';
+import { MigrationDefinition } from './types';
 import { UmzugConstructorMigrationOptionsB } from './umzug';
 
 export interface MigrationDefinitionWithName extends MigrationDefinition {
@@ -10,24 +10,24 @@ export interface MigrationDefinitionWithName extends MigrationDefinition {
  * Umzug's format.
  *
  * @param {Array} migrations A list of migration. Each one must contain 'up', 'down' and 'name'.
- * @param {Array} params A facultative list of params that will be given to the 'up' and 'down' functions.
+ * @param {Array} parameters A facultative list of parameters that will be given to the 'up' and 'down' functions.
  * @returns {Array} The migrations in Umzug's format
  */
-export function migrationsList(migrations: MigrationDefinitionWithName[], params: any[] = []): UmzugConstructorMigrationOptionsB {
-	let pseudoMigrations = migrations.map(({ up, down, name }) => {
+export function migrationsList(migrations: MigrationDefinitionWithName[], parameters: any[] = []): UmzugConstructorMigrationOptionsB {
+	const pseudoMigrations = migrations.map(({ up, down, name }) => {
 		return {
 			file: name,
-			testFileName(needle) {
-				return this.file.startsWith(needle);
+			testFileName(needle: string): boolean {
+				return name.startsWith(needle);
 			},
 			up,
 			down
 		};
 	});
 
-	// TODO remove type-cast hack, make pseudoMigrations real migrations
+	/// TODO remove type-cast hack, make pseudoMigrations real migrations
 	const migrationOptions: UmzugConstructorMigrationOptionsB = pseudoMigrations as UmzugConstructorMigrationOptionsB;
-	migrationOptions.params = params;
+	migrationOptions.params = parameters;
 
 	return migrationOptions;
 }

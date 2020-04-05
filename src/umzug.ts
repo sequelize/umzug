@@ -10,6 +10,8 @@ import { JSONStorage } from './storages/JSONStorage';
 import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
 
+import { ShortMigrationOptions } from './types';
+
 const STORAGES_BY_NAME = {
 	none: Storage,
 	json: JSONStorage,
@@ -18,32 +20,32 @@ const STORAGES_BY_NAME = {
 };
 
 export interface UmzugExecuteOptions {
-	migrations: string[];
-	method: 'up' | 'down';
+	readonly migrations: string[];
+	readonly method: 'up' | 'down';
 }
 
-export interface UmzugConstructorMigrationOptionsA {
-	params?: any[] | (() => any[]);
-	path?: string;
-	pattern?: RegExp;
-	traverseDirectories?: boolean;
-	wrap?: (unwrappedFunction: Function) => Function;
-	customResolver?: (path: string) => any;
-	nameFormatter?: (path: string) => string;
+export interface UmzugConstructorMigrationOptionsA extends ShortMigrationOptions {
+	readonly params?: any[] | (() => any[]);
+	readonly path?: string;
+	readonly pattern?: RegExp;
+	readonly traverseDirectories?: boolean;
 }
 
 export interface UmzugConstructorMigrationOptionsB extends Array<Migration> {
 	params?: any[] | (() => any[]);
 }
 
+export type UmzugConstructorMigrationOptions = UmzugConstructorMigrationOptionsA | UmzugConstructorMigrationOptionsB;
+
 export interface UmzugConstructorOptions {
-	storage?: string | Storage;
-	logging?: Function | false;
-	storageOptions?: any;
-	migrations?: UmzugConstructorMigrationOptionsA | UmzugConstructorMigrationOptionsB;
+	readonly storage?: string | Storage;
+	readonly logging?: ((...args: any[]) => void) | false;
+	readonly storageOptions?: any;
+	readonly migrations?: UmzugConstructorMigrationOptions;
 }
 
 export class Umzug extends EventEmitter {
+	public readonly options: Required<UmzugConstructorOptions>;
 	public storage: Storage;
 
 	/**
@@ -77,32 +79,66 @@ export class Umzug extends EventEmitter {
 	 * of the migration. This can be used to remove file extensions for example.
 	 * @constructs Umzug
 	 */
-	constructor(public readonly options?: UmzugConstructorOptions) {
+	constructor(options?: UmzugConstructorOptions) {
 		super();
+		options = options ?? {};
 
-		this.options = {
-			storage: 'json',
-			storageOptions: {},
-			logging: false,
-			...options,
-		};
-
-		if (this.options.logging && typeof this.options.logging !== 'function') {
+		if (options.logging && typeof options.logging !== 'function') {
 			throw new Error('The logging-option should be either a function or false');
 		}
 
-		if (!Array.isArray(this.options.migrations)) {
-			this.options.migrations = {
+		let migrations;
+		if (Array.isArray(options.migrations)) {
+			migrations = options.migrations;
+		} else {
+			migrations = {
 				params: [],
 				path: path.resolve(process.cwd(), 'migrations'),
 				pattern: /^\d+[\w-]+\.js$/,
 				traverseDirectories: false,
-				wrap: fun => fun,
-				...this.options.migrations,
+				wrap: (fn: () => Promise<any>) => fn,
+				...options.migrations
 			};
 		}
 
-		this.storage = this._getStorage();
+		this.options = {
+			storage: options.storage ?? 'json',
+			storageOptions: options.storageOptions ?? {},
+			logging: options.logging ?? false,
+			migrations
+		};
+
+		this.storage = Umzug.resolveStorageOption(this.options.storage, this.options.storageOptions);
+	}
+
+	/**
+	 * Try to require and initialize storage.
+	 */
+	private static resolveStorageOption(storage: Storage | string, storageOptions: any): Storage {
+		if (storage instanceof Storage) {
+			return storage;
+		}
+
+		if (typeof storage !== 'string') {
+			// TODO
+			// throw new Error('Unexpected options.storage type.');
+			return storage;
+		}
+
+		let StorageClass: typeof Storage;
+		if (STORAGES_BY_NAME[storage]) {
+			StorageClass = STORAGES_BY_NAME[storage];
+		} else {
+			try {
+				StorageClass = require(storage);
+			} catch (error) {
+				const error2 = new Error(`Unable to resolve the storage: ${storage}, ${error}`);
+				(error2 as any).parent = error;
+				throw error2;
+			}
+		}
+
+		return new StorageClass(storageOptions);
 	}
 
 	/**
@@ -110,19 +146,21 @@ export class Umzug extends EventEmitter {
 	 */
 	async execute(options?: UmzugExecuteOptions): Promise<Migration[]> {
 		const method = options.method ?? 'up';
-		const migrations = await pMap(options.migrations ?? [], name => this._findMigration(name));
+		const migrations = await pMap(options.migrations ?? [], async name => this._findMigration(name));
 
 		await pEachSeries(migrations, async migration => {
 			const name = path.basename(migration.file, path.extname(migration.file));
-			let startTime = undefined;
+			let startTime;
 
 			const executed = await this._checkExecuted(migration);
 
 			if (!executed || method === 'down') {
-				let params = this.options.migrations.params;
+				let { params } = this.options.migrations;
 				if (typeof params === 'function') {
 					params = params();
 				}
+
+				params = params || [];
 
 				if (method === 'up') {
 					this.log('== ' + name + ': migrating =======');
@@ -135,7 +173,7 @@ export class Umzug extends EventEmitter {
 				startTime = new Date();
 
 				if (migration[method]) {
-					await migration[method].apply(migration, params);
+					await migration[method](...params);
 				}
 			}
 
@@ -168,7 +206,8 @@ export class Umzug extends EventEmitter {
 	 * Lists executed migrations.
 	 */
 	async executed(): Promise<Migration[]> {
-		return pMap((await this.storage.executed()) as string[], file => new Migration(file, this.options));
+		// TODO remove this forced type-cast
+		return pMap((await this.storage.executed()), file => new Migration(file, this.options as any));
 	}
 
 	/**
@@ -227,9 +266,10 @@ export class Umzug extends EventEmitter {
 			if (migrations[0]) {
 				return this.down(migrations[0].file);
 			}
+
 			return [];
 		}
-		
+
 		return this._run('down', options, getReversedExecuted);
 	}
 
@@ -249,7 +289,7 @@ export class Umzug extends EventEmitter {
 	 * @param {String[]}   [options.migrations] - List of migrations to execute.
 	 * @param {Umzug~rest} [rest] - Function to get migrations in right order.
 	 */
-	private async _run(method, options?: string | string[] | { migrations?: string[], from?: string; to?: string }, rest?: Function): Promise<Migration[]> {
+	private async _run(method, options?: string | string[] | { migrations?: string[]; from?: string; to?: string }, rest?: Function): Promise<Migration[]> {
 		if (typeof options === 'string') {
 			return this._run(method, [options]);
 		}
@@ -268,16 +308,16 @@ export class Umzug extends EventEmitter {
 			return this._run(method, { migrations: options });
 		}
 
-		if (options && options.migrations) {
+		if (options?.migrations) {
 			return this.execute({
 				migrations: options.migrations,
-				method: method,
+				method
 			});
 		}
 
-		let temp = await rest();
+		let temporary = await rest();
 
-		if (options && options.to) {
+		if (options?.to) {
 			const migration = await this._findMigration(options.to);
 			if (method === 'up') {
 				await this._assertPending(migration);
@@ -286,11 +326,11 @@ export class Umzug extends EventEmitter {
 			}
 		}
 
-		if (options && options.from) {
-			temp = await this._findMigrationsFromMatch(options.from, method);
+		if (options?.from) {
+			temporary = await this._findMigrationsFromMatch(options.from, method);
 		}
 
-		const migrationFiles = await this._findMigrationsUntilMatch(options && options.to, temp);
+		const migrationFiles = await this._findMigrationsUntilMatch(options?.to, temporary);
 
 		return this._run(method, { migrations: migrationFiles });
 	}
@@ -309,25 +349,26 @@ export class Umzug extends EventEmitter {
 		let migrations = await this._findMigrations();
 
 		let found = false;
-		
+
 		migrations = migrations.filter(migration => {
 			if (migration.testFileName(from)) {
 				found = true;
 				return false;
 			}
+
 			return found;
 		});
 
 		const filteredMigrations: Migration[] = [];
 
 		for (const migration of migrations) {
-			// now check if they need to be run based on status and method
+			// Now check if they need to be run based on status and method
 			if (await this._checkExecuted(migration)) {
 				if (method !== 'up') {
-					filteredMigrations.push(migration)
+					filteredMigrations.push(migration);
 				}
 			} else if (method === 'up') {
-				filteredMigrations.push(migration)
+				filteredMigrations.push(migration);
 			}
 		}
 
@@ -344,36 +385,6 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Try to require and initialize storage.
-	 */
-	private _getStorage(): Storage {
-		if (this.options.storage instanceof Storage) {
-			return this.options.storage;
-		}
-
-		if (typeof this.options.storage !== 'string') {
-			// TODO
-			// throw new Error('Unexpected options.storage type.');
-			return this.options.storage;
-		}
-
-		let StorageClass;
-		if (STORAGES_BY_NAME[this.options.storage]) {
-			StorageClass = STORAGES_BY_NAME[this.options.storage];
-		} else {
-			try {
-				StorageClass = require(this.options.storage);
-			} catch (error) {
-				const error2 = new Error(`Unable to resolve the storage: ${this.options.storage}, ${error}`);
-				(error2 as any).parent = error;
-				throw error2;
-			}
-		}
-
-		return new StorageClass(this.options.storageOptions);
-	}
-
-	/**
 	 * Loads all migrations in ascending order.
 	 */
 	private async _findMigrations(migrationPath?: string): Promise<Migration[]> {
@@ -381,7 +392,7 @@ export class Umzug extends EventEmitter {
 			return this.options.migrations;
 		}
 
-		const migrationOptions = this.options.migrations as UmzugConstructorMigrationOptionsA;
+		const migrationOptions = this.options.migrations;
 
 		const isRoot = !migrationPath;
 		if (isRoot) {
@@ -399,23 +410,26 @@ export class Umzug extends EventEmitter {
 				}
 
 				if (migrationOptions.pattern.test(fileName)) {
-					return Promise.resolve(new Migration(filePath, this.options));
+					// TODO remove this forced type-cast
+					return Promise.resolve(new Migration(filePath, this.options as any));
 				}
 
 				return Promise.resolve(null);
 			}))
-			.reduce((a, b) => a.concat(b), []) // flatten the result to an array
-			.filter(x => x instanceof Migration); // only care about Migration
-		
-		if (isRoot) { // only sort if its root
+				.reduce((a, b) => a.concat(b), []) // Flatten the result to an array
+				.filter(x => x instanceof Migration); // Only care about Migration
+
+		if (isRoot) { // Only sort if its root
 			migrations.sort((a, b) => {
 				if (a.file > b.file) {
 					return 1;
-				} else if (a.file < b.file) {
-					return -1;
-				} else {
-					return 0;
 				}
+
+				if (a.file < b.file) {
+					return -1;
+				}
+
+				return 0;
 			});
 		}
 
@@ -431,6 +445,7 @@ export class Umzug extends EventEmitter {
 		if (found) {
 			return found;
 		}
+
 		throw new Error(`Unable to find migration: ${name}`);
 	}
 
@@ -438,9 +453,10 @@ export class Umzug extends EventEmitter {
 		if (Array.isArray(arg)) {
 			return (await pMap(arg, m => this._checkExecuted(m))).every(x => x);
 		}
+
 		const executedMigrations = await this.executed();
 		const found = executedMigrations.find(m => m.testFileName(arg.file));
-		return !!found;
+		return Boolean(found);
 	}
 
 	private async _assertExecuted(arg: Migration | Migration[]): Promise<void> {
@@ -448,6 +464,7 @@ export class Umzug extends EventEmitter {
 			await pMap(arg, m => this._assertExecuted(m));
 			return;
 		}
+
 		const executedMigrations = await this.executed();
 		const found = executedMigrations.find(m => m.testFileName(arg.file));
 		if (!found) {
@@ -459,9 +476,10 @@ export class Umzug extends EventEmitter {
 		if (Array.isArray(arg)) {
 			return (await pMap(arg, m => this._checkPending(m))).every(x => x);
 		}
+
 		const pendingMigrations = await this.pending();
 		const found = pendingMigrations.find(m => m.testFileName(arg.file));
-		return !!found;
+		return Boolean(found);
 	}
 
 	private async _assertPending(arg: Migration | Migration[]): Promise<void> {
@@ -469,6 +487,7 @@ export class Umzug extends EventEmitter {
 			await pMap(arg, m => this._assertPending(m));
 			return;
 		}
+
 		const pendingMigrations = await this.pending();
 		const found = pendingMigrations.find(m => m.testFileName(arg.file));
 		if (!found) {
@@ -497,7 +516,7 @@ export class Umzug extends EventEmitter {
 
 		for (const file of files) {
 			result.push(file);
-			if (file.indexOf(to) === 0) {
+			if (file.startsWith(to)) {
 				break;
 			}
 		}

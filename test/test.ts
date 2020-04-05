@@ -3,7 +3,7 @@ import jetpack = require('fs-jetpack');
 import { Umzug, Migration, migrationsList } from '../src';
 
 test('migrations list', async t => {
-	let executed = [];
+	const executed = [];
 
 	await jetpack.removeAsync('umzug.json');
 
