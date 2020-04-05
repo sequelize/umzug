@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const helper = require('../helper');
-const { Storage } = require('../../lib/src/storages/Storage');
+const { NoneStorage: Storage } = require('../../lib/src/storages/NoneStorage');
 
 describe('none', () => {
   beforeEach(() => {

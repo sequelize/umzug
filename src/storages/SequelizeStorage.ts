@@ -1,4 +1,4 @@
-import { Storage } from './Storage';
+import { UmzugStorage } from './type-helpers/umzug-storage';
 import { SequelizeType, ModelClassType } from './type-helpers/sequelize-type-helpers';
 import { SetRequired } from 'type-fest';
 
@@ -53,7 +53,7 @@ export type SequelizeStorageConstructorOptions =
 /**
  * @class SequelizeStorage
  */
-export class SequelizeStorage extends Storage {
+export class SequelizeStorage implements UmzugStorage {
 	public readonly sequelize: SequelizeType;
 	public readonly columnType: string;
 	public readonly columnName: string;
@@ -80,8 +80,6 @@ export class SequelizeStorage extends Storage {
 	 * If the table does not exist it will be created automatically.
 	 */
 	constructor(options: SequelizeStorageConstructorOptions) {
-		super();
-
 		if (!options || (!options.model && !options.sequelize)) {
 			throw new Error('One of "sequelize" or "model" storage option is required');
 		}

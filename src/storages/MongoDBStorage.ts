@@ -1,4 +1,4 @@
-import { Storage } from './Storage';
+import { UmzugStorage } from './type-helpers/umzug-storage';
 
 export interface MongoDBStorageConstructorOptions {
 	readonly connection: any;
@@ -9,7 +9,7 @@ export interface MongoDBStorageConstructorOptions {
 /**
  * @class MongoDBStorage
  */
-export class MongoDBStorage extends Storage {
+export class MongoDBStorage implements UmzugStorage {
 	public readonly connection: any;
 	public readonly collectionName?: string;
 	public readonly collection: any;
@@ -24,8 +24,6 @@ export class MongoDBStorage extends Storage {
 	 * @param {String} [options.collection] - reference to a MongoDB Driver collection
 	 */
 	constructor(options: MongoDBStorageConstructorOptions) {
-		super();
-
 		this.connection = options.connection;
 		this.collection = options.collection;
 		this.collectionName = options.collectionName || 'migrations';

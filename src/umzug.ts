@@ -5,19 +5,13 @@ import { EventEmitter } from 'events';
 import pMap = require('p-map');
 import pEachSeries = require('p-each-series');
 
-import { Storage } from './storages/Storage';
+import { NoneStorage } from './storages/NoneStorage';
 import { JSONStorage } from './storages/JSONStorage';
 import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
 
+import { UmzugStorage, isUmzugStorage } from './storages/type-helpers/umzug-storage';
 import { ShortMigrationOptions } from './types';
-
-const STORAGES_BY_NAME = {
-	none: Storage,
-	json: JSONStorage,
-	mongodb: MongoDBStorage,
-	sequelize: SequelizeStorage
-};
 
 export interface UmzugExecuteOptions {
 	readonly migrations: string[];
@@ -38,7 +32,7 @@ export interface UmzugConstructorMigrationOptionsB extends Array<Migration> {
 export type UmzugConstructorMigrationOptions = UmzugConstructorMigrationOptionsA | UmzugConstructorMigrationOptionsB;
 
 export interface UmzugConstructorOptions {
-	readonly storage?: string | Storage;
+	readonly storage?: string | UmzugStorage;
 	readonly logging?: ((...args: any[]) => void) | false;
 	readonly storageOptions?: any;
 	readonly migrations?: UmzugConstructorMigrationOptions;
@@ -46,7 +40,7 @@ export interface UmzugConstructorOptions {
 
 export class Umzug extends EventEmitter {
 	public readonly options: Required<UmzugConstructorOptions>;
-	public storage: Storage;
+	public storage: UmzugStorage;
 
 	/**
 	 * Constructs Umzug instance.
@@ -114,8 +108,8 @@ export class Umzug extends EventEmitter {
 	/**
 	 * Try to require and initialize storage.
 	 */
-	private static resolveStorageOption(storage: Storage | string, storageOptions: any): Storage {
-		if (storage instanceof Storage) {
+	private static resolveStorageOption(storage: UmzugStorage | string, storageOptions: any): UmzugStorage {
+		if (isUmzugStorage(storage)) {
 			return storage;
 		}
 
@@ -125,21 +119,44 @@ export class Umzug extends EventEmitter {
 			return storage;
 		}
 
-		let StorageClass: typeof Storage;
-		if (STORAGES_BY_NAME[storage]) {
-			StorageClass = STORAGES_BY_NAME[storage];
-		} else {
-			try {
-				StorageClass = require(storage);
-			} catch (error) {
-				const errorDescription = `${error}`; // eslint-disable-line @typescript-eslint/restrict-template-expressions
-				const error2 = new Error(`Unable to resolve the storage: ${storage}, ${errorDescription}`);
-				(error2 as any).parent = error;
-				throw error2;
-			}
+		if (storage === 'none') {
+			return new NoneStorage();
 		}
 
-		return new StorageClass(storageOptions);
+		if (storage === 'json') {
+			return new JSONStorage(storageOptions);
+		}
+
+		if (storage === 'mongodb') {
+			return new MongoDBStorage(storageOptions);
+		}
+
+		if (storage === 'sequelize') {
+			return new SequelizeStorage(storageOptions);
+		}
+
+		let StorageClass;
+		try {
+			StorageClass = require(storage);
+		} catch (error) {
+			const errorDescription = `${error}`; // eslint-disable-line @typescript-eslint/restrict-template-expressions
+			const error2 = new Error(`Unable to resolve the storage: ${storage}, ${errorDescription}`);
+			(error2 as any).parent = error;
+			throw error2;
+		}
+
+		const storageInstance = new StorageClass(storageOptions);
+
+		/*
+		// TODO uncomment this
+		if (!isUmzugStorage(storageInstance)) {
+			throw new Error(`Invalid custom storage instance obtained from \`new require('${storage}')\``);
+		}
+
+		return storageInstance;
+		*/
+
+		return storageInstance as UmzugStorage;
 	}
 
 	/**
