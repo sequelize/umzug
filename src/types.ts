@@ -130,3 +130,36 @@ export interface UmzugConstructorOptions {
 	*/
 	readonly migrations?: UmzugConstructorMigrationOptions;
 }
+
+export type UmzugEventNames = 'migrating' | 'reverting' | 'migrated' | 'reverted';
+
+export type UmzugRunOptions =
+	/**
+	Migration to execute.
+	*/
+	string |
+
+	/**
+	Migrations to execute.
+	*/
+	string[] |
+
+	/**
+	Object specifying which migrations to execute.
+	*/
+	{
+		/**
+		List of migrations to execute (by name).
+		*/
+		migrations?: string[];
+
+		/**
+		The migration to start executing from. The given migration is not executed itself, only the ones after it.
+		*/
+		from?: string;
+
+		/**
+		The last migration to execute (included).
+		*/
+		to?: string;
+	};

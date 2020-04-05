@@ -97,6 +97,7 @@
 			"@typescript-eslint/prefer-readonly-parameter-types": "off",
 			"@typescript-eslint/no-unsafe-member-access": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/unified-signatures": "off",
 			"object-curly-spacing": [
 				"error",
 				"always"
