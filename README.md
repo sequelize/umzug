@@ -17,74 +17,66 @@ The following example uses a Sqlite database through sequelize and persists the 
 
 * **`index.js`**:
 
-```javascript
-const Sequelize = require('sequelize');
-const path = require('path');
-const Umzug = require('umzug');
+```js
+const { Sequelize } = require('sequelize');
+const { Umzug } = require('umzug');
 
-// creates a basic sqlite database
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: './db.sqlite'
-});
+const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
 
 const umzug = new Umzug({
   migrations: {
-    // indicates the folder containing the migration .js files
-    path: path.join(__dirname, './migrations'),
-    // inject sequelize's QueryInterface in the migrations
+    path: './migrations',
     params: [
       sequelize.getQueryInterface()
     ]
   },
-  // indicates that the migration data should be store in the database
-  // itself through sequelize. The default configuration creates a table
-  // named `SequelizeMeta`.
   storage: 'sequelize',
   storageOptions: { sequelize }
 });
 
 (async () => {
-  // checks migrations and run them if they are not already applied
+  // Checks migrations and run them if they are not already applied. To keep
+  // track of the executed migrations, a table (and sequelize model) called SequelizeMeta
+  // will be automatically created (if it doesn't exist already) and parsed.
   await umzug.up();
-  console.log('All migrations performed successfully');
 })();
 ```
 
 * **`migrations/00_initial.js`**:
 
-```javascript
-const Sequelize = require('sequelize');
+```js
+const { Sequelize } = require('sequelize');
 
-// All migrations must provide a `up` and `down` async functions
-module.exports = {
-  // `query` was passed in the `index.js` file
-  async up(query) {
-    await query.createTable('users', {
-      id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false
-      }
-    });
-  },
-  async down(query) {
-    await query.dropTable('users');
-  }
-};
+async function up(queryInterface) {
+	await queryInterface.createTable('users', {
+		id: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			primaryKey: true
+		},
+		name: {
+			type: Sequelize.STRING,
+			allowNull: false
+		},
+		createdAt: {
+			type: Sequelize.DATE,
+			allowNull: false
+		},
+		updatedAt: {
+			type: Sequelize.DATE,
+			allowNull: false
+		}
+	});
+}
+
+async function down(queryInterface) {
+	await queryInterface.dropTable('users');
+}
+
+module.exports = { up, down };
 ```
+
+See [this test](https://github.com/sequelize/umzug/blob/9780ba8b288098d518a3c11538b4751765821eb2/test/test.ts) for another example of Umzug usage.
 
 ### Usage
 
@@ -98,60 +90,14 @@ npm install umzug
 
 #### Umzug instance
 
-It is possible to configure an Umzug instance by passing an object to the constructor. The possible options are:
+It is possible to configure an Umzug instance by passing an object to the constructor.
 
 ```js
-const Umzug = require('umzug');
-
-const umzug = new Umzug({
-  // The storage.
-  // Possible values: 'none', 'json', 'mongodb', 'sequelize', an argument for `require()`, including absolute paths
-  storage: 'json',
-
-  // The options for the storage.
-  // Check the available storages for further details.
-  storageOptions: {},
-
-  // The logging function.
-  // A function that gets executed everytime migrations start and have ended.
-  logging: false,
-
-  // (advanced) you can pass an array of migrations built with `migrationsList()` instead of the options below
-  migrations: {
-    // The params that gets passed to the migrations.
-    // Might be an array or a synchronous function which returns an array.
-    params: [],
-
-    // The path to the migrations directory.
-    path: 'migrations',
-
-    // The pattern that determines whether or not a file is a migration.
-    pattern: /^\d+[\w-]+\.js$/,
-
-    // A function that receives and returns the to be executed function.
-    // This can be used to modify the function.
-    wrap(migrationFunction) { return migrationFunction; },
-
-    // A function that maps a file path to a migration object in the form
-    // { up: Function, down: Function }. The default for this is to require(...)
-    // the file as javascript, but you can use this to transpile TypeScript,
-    // read raw sql etc.
-    customResolver(sqlPath) {
-      return {
-        async up() {
-          await sequelize.query(fs.readFileSync(sqlPath, 'utf8'));
-        };
-      }
-    }
-
-    // A function that receives the file path of the migration and returns the name of the 
-    // migration. This can be used to remove file extensions for example.
-    nameFormatter(filePath) {
-      return path.parse(filePath).name;
-    }
-  }
-})
+const { Umzug } = require('umzug');
+const umzug = new Umzug({ /* ... options ... */ });
 ```
+
+Check the documentation for the options in [src/types.ts](https://github.com/sequelize/umzug/blob/9780ba8b288098d518a3c11538b4751765821eb2/src/types.ts#L100).
 
 #### Executing migrations
 
@@ -167,7 +113,7 @@ const migrations = await umzug.execute({
 
 #### Getting all pending migrations
 
-You can get a list of pending/not yet executed migrations like this:
+You can get a list of pending (i.e. not yet executed) migrations with the `pending()` method:
 
 ```js
 const migrations = await umzug.pending();
@@ -176,7 +122,7 @@ const migrations = await umzug.pending();
 
 #### Getting all executed migrations
 
-You can get a list of already executed migrations like this:
+You can get a list of already executed migrations with the `executed()` method:
 
 ```js
 const migrations = await umzug.executed();
@@ -231,7 +177,7 @@ The `down` method can be used to revert the last executed migration.
 
 ```js
 const migration = await umzug.down();
-// returns the reverted migration.
+// reverts the last migration and returns it.
 ```
 
 It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.
@@ -269,14 +215,13 @@ There are two ways to specify migrations: via files or directly via an array of 
 A migration file ideally exposes an `up` and a `down` async functions. They will perform the task of upgrading or downgrading the database.
 
 ```js
-
 module.exports = {
-  up: async () => {
-    ...
+  async up() {
+    /* ... */
   },
-  down: async () => {
-    ...
-  },
+  async down() {
+    /* ... */
+  }
 };
 ```
 
@@ -288,8 +233,10 @@ You can also specify directly a list of migrations to the `Umzug` constructor. W
 as bellow:
 
 ```js
+const { Umzug, migrationsList } = require('umzug');
+
 const umzug = new Umzug({
-  migrations: Umzug.migrationsList(
+  migrations: migrationsList(
     [
       {
         // the name of the migration is mandatory
@@ -319,69 +266,19 @@ Storages define where the migration data is stored.
 
 Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
 
-Options:
-
-```js
-{
-  // The path to the json storage.
-  // Defaults to process.cwd() + '/umzug.json';
-  path: process.cwd() + '/db/sequelize-meta.json'
-}
-```
+See the options it can take in [src/storages/JSONStorage.ts](https://github.com/sequelize/umzug/blob/9780ba8b288098d518a3c11538b4751765821eb2/src/storages/JSONStorage.ts#L4).
 
 #### Sequelize Storage
 
 Using the `sequelize` storage will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
 
-Options:
-
-```js
-{
-  // The configured instance of Sequelize.
-  // Optional if `model` is passed.
-  sequelize: instance,
-
-  // The to be used Sequelize model.
-  // Must have column name matching `columnName` option
-  // Optional if `sequelize` is passed.
-  model: model,
-
-  // The name of the to be used model.
-  // Defaults to 'SequelizeMeta'
-  modelName: 'Schema',
-
-  // The name of table to create if `model` option is not supplied
-  // Defaults to `modelName`
-  tableName: 'Schema',
-
-  // The name of table column holding migration name.
-  // Defaults to 'name'.
-  columnName: 'migration',
-
-  // The type of the column holding migration name.
-  // Defaults to `Sequelize.STRING`
-  columnType: new Sequelize.STRING(100)
-}
-```
+See the options it can take in [src/storages/SequelizeStorage.ts](https://github.com/sequelize/umzug/blob/9780ba8b288098d518a3c11538b4751765821eb2/src/storages/SequelizeStorage.ts#L5).
 
 #### MongoDB Storage
 
 Using the `mongodb` storage will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
 
-Options:
-
-```js
-{
-  // a connection to target database established with MongoDB Driver
-  connection: MongoDBDriverConnection,
-
-  // name of migration collection in MongoDB
-  collectionName: 'migrations',
-
-  // reference to a MongoDB Driver collection
-  collection: MongoDBDriverCollection
-}
-```
+See the options it can take in [src/storages/MongoDBStorage.ts](https://github.com/sequelize/umzug/blob/9780ba8b288098d518a3c11538b4751765821eb2/src/storages/MongoDBStorage.ts#L26).
 
 #### Custom
 
@@ -401,48 +298,34 @@ class CustomStorage {
 let umzug = new Umzug({ storage: new CustomStorage(...) })
 ```
 
-##### Method 2: Require external module from npmjs.com
+Your instance must adhere to the [UmzugStorage](https://github.com/sequelize/umzug/blob/master/src/storages/type-helpers/umzug-storage.ts) interface.
 
-Create and publish a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. The API that needs to be exposed looks like this:
+##### Method 2: Pass module name to be required
+
+Create a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. 
+
+The module must export a class that implements the [UmzugStorage](https://github.com/sequelize/umzug/blob/master/src/storages/type-helpers/umzug-storage.ts) interface.
+
+For example, if you're using TypeScript:
 
 ```js
-module.exports = class MyStorage {
-  constructor({ option1: 'defaultValue1' } = {}) {
-    this.option1 = option1;
-  },
+import { UmzugStorage } from 'umzug/lib/src/storages/type-helpers'
 
-  async logMigration(migrationName) {
-    // This function logs a migration as executed.
-    // It will get called once a migration was
-    // executed successfully.
-  },
-
-  async unlogMigration(migrationName) {
-    // This function removes a previously logged migration.
-    // It will get called once a migration has been reverted.
-  },
-
-  async executed() {
-    // This function lists the names of the logged
-    // migrations. It will be used to calculate
-    // pending migrations. The result has to be an
-    // array with the names of the migration files.
-  }
+class MyStorage implements UmzugStorage {
+  /* ... */
 }
+
+module.exports = MyStorage;
 ```
 
 ### Events
 
-Umzug is an EventEmitter. Each of the following events will be called with `name, migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
+Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#events_class_eventemitter). Each of the following events will be called with `name` and `migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
 
-* *migrating* - A migration is about to be executed.
-* *migrated* - A migration has successfully been executed.
-* *reverting* - A migration is about to be reverted.
-* *reverted* - A migration has successfully been reverted.
-
-## Examples
-
-* [sequelize-migration-hello](https://github.com/abelnation/sequelize-migration-hello)
+* `migrating` - A migration is about to be executed.
+* `migrated` - A migration has successfully been executed.
+* `reverting` - A migration is about to be reverted.
+* `reverted` - A migration has successfully been reverted.
 
 ## License
 
