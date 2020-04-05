@@ -43,7 +43,7 @@
 		"mocha": "mocha --check-leaks legacy-tests/index.js",
 		"prepack": "npm run build",
 		"release": "np --no-2fa",
-		"test": "npm run build && ava test/test.ts && npm run mocha"
+		"test": "npm run build && xo && ava test/test.ts && npm run mocha"
 	},
 	"repository": {
 		"type": "git",
