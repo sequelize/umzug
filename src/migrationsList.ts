@@ -1,5 +1,4 @@
-import { MigrationDefinition } from './types';
-import { UmzugConstructorMigrationOptionsB } from './umzug';
+import { MigrationDefinition, UmzugConstructorMigrationOptionsB } from './types';
 
 export interface MigrationDefinitionWithName extends MigrationDefinition {
 	name: string;

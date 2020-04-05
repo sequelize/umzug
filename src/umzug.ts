@@ -11,68 +11,12 @@ import { MongoDBStorage } from './storages/MongoDBStorage';
 import { SequelizeStorage } from './storages/SequelizeStorage';
 
 import { UmzugStorage, isUmzugStorage } from './storages/type-helpers/umzug-storage';
-import { ShortMigrationOptions } from './types';
-
-export interface UmzugExecuteOptions {
-	readonly migrations: string[];
-	readonly method: 'up' | 'down';
-}
-
-export interface UmzugConstructorMigrationOptionsA extends ShortMigrationOptions {
-	readonly params?: any[] | (() => any[]);
-	readonly path?: string;
-	readonly pattern?: RegExp;
-	readonly traverseDirectories?: boolean;
-}
-
-export interface UmzugConstructorMigrationOptionsB extends Array<Migration> {
-	params?: any[] | (() => any[]);
-}
-
-export type UmzugConstructorMigrationOptions = UmzugConstructorMigrationOptionsA | UmzugConstructorMigrationOptionsB;
-
-export interface UmzugConstructorOptions {
-	readonly storage?: string | UmzugStorage;
-	readonly logging?: ((...args: any[]) => void) | false;
-	readonly storageOptions?: any;
-	readonly migrations?: UmzugConstructorMigrationOptions;
-}
+import { UmzugExecuteOptions, UmzugConstructorOptions } from './types';
 
 export class Umzug extends EventEmitter {
 	public readonly options: Required<UmzugConstructorOptions>;
 	public storage: UmzugStorage;
 
-	/**
-	 * Constructs Umzug instance.
-	 *
-	 * @param {Object} [options]
-	 * @param {String|Object} [options.storage='json'] - The storage. Possible values:
-	 * 'json', 'sequelize', 'mongodb', an argument for `require()`, including absolute paths.
-	 * @param {function|false} [options.logging=false] - The logging function.
-	 * A function that gets executed every time migrations start and have ended.
-	 * @param {Object} [options.storageOptions] - The options for the storage.
-	 * Check the available storages for further details.
-	 * @param {Object|Array} [options.migrations] - options for loading migration
-	 * files, or (advanced) an array of Migration instances
-	 * @param {Array} [options.migrations.params] - The params that gets passed to
-	 * the migrations. Might be an array or a synchronous function which returns
-	 * an array.
-	 * @param {String} [options.migrations.path] - The path to the migrations
-	 * directory.
-	 * @param {RegExp} [options.migrations.pattern] - The pattern that determines
-	 * whether or not a file is a migration.
-	 * @param {Migration~wrap} [options.migrations.wrap] - A function that
-	 * receives and returns the to be executed function. This can be used to
-	 * modify the function.
-	 * @param {Migration~customResolver} [options.migrations.customResolver] - A
-	 * function that specifies how to get a migration object from a path. This
-	 * should return an object of the form { up: Function, down: Function }.
-	 * Without this defined, a regular javascript import will be performed.
-	 * @param {Migration~nameFormatter} [options.migrations.nameFormatter] - A
-	 * function that receives the file path of the migration and returns the name
-	 * of the migration. This can be used to remove file extensions for example.
-	 * @constructs Umzug
-	 */
 	constructor(options?: UmzugConstructorOptions) {
 		super();
 		options = options ?? {};
@@ -106,8 +50,8 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Try to require and initialize storage.
-	 */
+	Try to require and initialize storage.
+	*/
 	private static resolveStorageOption(storage: UmzugStorage | string, storageOptions: any): UmzugStorage {
 		if (isUmzugStorage(storage)) {
 			return storage;
@@ -160,8 +104,8 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Executes given migrations with a given method.
-	 */
+	Executes given migrations with a given method.
+	*/
 	async execute(options?: UmzugExecuteOptions): Promise<Migration[]> {
 		const method = options.method ?? 'up';
 		const migrations = await pMap(options.migrations ?? [], async name => this._findMigration(name));
@@ -221,16 +165,16 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Lists executed migrations.
-	 */
+	Lists executed migrations.
+	*/
 	async executed(): Promise<Migration[]> {
 		// TODO remove this forced type-cast
 		return pMap((await this.storage.executed()), file => new Migration(file, this.options as any));
 	}
 
 	/**
-	 * Lists pending migrations.
-	 */
+	Lists pending migrations.
+	*/
 	async pending(): Promise<Migration[]> {
 		const all = await this._findMigrations();
 		const executed = await this.executed();
@@ -241,39 +185,39 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Execute migrations up.
-	 *
-	 * If options is a migration name (String), it will be executed.
-	 * If options is a list of migration names (String[]), them will be executed.
-	 * If options is Object:
-	 * - { from: 'migration-1', to: 'migration-n' } - execute migrations in range.
-	 * - { migrations: [] } - execute migrations in array.
-	 *
-	 * @param {String|String[]|Object} options
-	 * @param {String}     [options.from] - The first migration to execute (exc).
-	 * @param {String}     [options.to] - The last migration to execute (inc).
-	 * @param {String[]}   [options.migrations] - List of migrations to execute.
-	 * @returns {Promise}
-	 */
+	Execute migrations up.
+
+	If options is a migration name (String), it will be executed.
+	If options is a list of migration names (String[]), them will be executed.
+	If options is Object:
+	- { from: 'migration-1', to: 'migration-n' } - execute migrations in range.
+	- { migrations: [] } - execute migrations in array.
+
+	@param {String|String[]|Object} options
+	@param {String}     [options.from] - The first migration to execute (exc).
+	@param {String}     [options.to] - The last migration to execute (inc).
+	@param {String[]}   [options.migrations] - List of migrations to execute.
+	@returns {Promise}
+	*/
 	async up(options?): Promise<Migration[]> {
 		return this._run('up', options, this.pending.bind(this));
 	}
 
 	/**
-	 * Execute migrations down.
-	 *
-	 * If options is a migration name (String), it will be executed.
-	 * If options is a list of migration names (String[]), them will be executed.
-	 * If options is Object:
-	 * - { from: 'migration-n', to: 'migration-1' } - execute migrations in range.
-	 * - { migrations: [] } - execute migrations in array.
-	 *
-	 * @param {String|String[]|Object} options
-	 * @param {String}     [options.from] - The first migration to execute (exc).
-	 * @param {String}     [options.to] - The last migration to execute (inc).
-	 * @param {String[]}   [options.migrations] - List of migrations to execute.
-	 * @returns {Promise}
-	 */
+	Execute migrations down.
+
+	If options is a migration name (String), it will be executed.
+	If options is a list of migration names (String[]), them will be executed.
+	If options is Object:
+	- { from: 'migration-n', to: 'migration-1' } - execute migrations in range.
+	- { migrations: [] } - execute migrations in array.
+
+	@param {String|String[]|Object} options
+	@param {String}     [options.from] - The first migration to execute (exc).
+	@param {String}     [options.to] - The last migration to execute (inc).
+	@param {String[]}   [options.migrations] - List of migrations to execute.
+	@returns {Promise}
+	*/
 	async down(options?): Promise<Migration[]> {
 		const getReversedExecuted = async () => {
 			return (await this.executed()).reverse();
@@ -292,8 +236,8 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Pass message to logger if logging is enabled.
-	 */
+	Pass message to logger if logging is enabled.
+	*/
 	log(message: any): void {
 		if (this.options.logging) {
 			this.options.logging(message);
@@ -301,21 +245,21 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Execute migrations either down or up.
-	 *
-	 * If options is a migration name (String), it will be executed.
-	 * If options is a list of migration names (String[]), them will be executed.
-	 * If options is Object:
-	 * - { from: 'migration-1', to: 'migration-n' } - execute migrations in range.
-	 * - { migrations: [] } - execute migrations in array.
-	 *
-	 * @param {String} method - Method to run. Either 'up' or 'down'.
-	 * @param {String|String[]|Object} options
-	 * @param {String}     [options.from] - The first migration to execute (exc).
-	 * @param {String}     [options.to] - The last migration to execute (inc).
-	 * @param {String[]}   [options.migrations] - List of migrations to execute.
-	 * @param {Umzug~rest} [rest] - Function to get migrations in right order.
-	 */
+	Execute migrations either down or up.
+
+	If options is a migration name (String), it will be executed.
+	If options is a list of migration names (String[]), them will be executed.
+	If options is Object:
+	- { from: 'migration-1', to: 'migration-n' } - execute migrations in range.
+	- { migrations: [] } - execute migrations in array.
+
+	@param {String} method - Method to run. Either 'up' or 'down'.
+	@param {String|String[]|Object} options
+	@param {String}     [options.from] - The first migration to execute (exc).
+	@param {String}     [options.to] - The last migration to execute (inc).
+	@param {String[]}   [options.migrations] - List of migrations to execute.
+	@param {Umzug~rest} [rest] - Function to get migrations in right order.
+	*/
 	private async _run(method, options?: string | string[] | { migrations?: string[]; from?: string; to?: string }, rest?: () => Promise<Migration[]>): Promise<Migration[]> {
 		if (typeof options === 'string') {
 			return this._run(method, [options]);
@@ -363,14 +307,14 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Lists pending/executed migrations depending on method from a given
-	 * migration excluding it.
-	 *
-	 * @param {String} from - Migration name to be searched.
-	 * @param {String} method - Either 'up' or 'down'. If method is 'up', only
-	 * pending migrations will be accepted. Otherwise only executed migrations
-	 * will be accepted.
-	 */
+	Lists pending/executed migrations depending on method from a given
+	migration excluding it.
+
+	@param {String} from - Migration name to be searched.
+	@param {String} method - Either 'up' or 'down'. If method is 'up', only
+	pending migrations will be accepted. Otherwise only executed migrations
+	will be accepted.
+	*/
 	private async _findMigrationsFromMatch(from, method): Promise<Migration[]> {
 		// We'll fetch all migrations and work our way from start to finish
 		let migrations = await this._findMigrations();
@@ -404,8 +348,8 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Loads all migrations in ascending order.
-	 */
+	Loads all migrations in ascending order.
+	*/
 	private async _findMigrations(): Promise<Migration[]> {
 		if (Array.isArray(this.options.migrations)) {
 			return this.options.migrations;
@@ -441,8 +385,8 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Gets a migration with a given name.
-	 */
+	Gets a migration with a given name.
+	*/
 	private async _findMigration(name: string): Promise<Migration> {
 		const migrations = await this._findMigrations();
 		const found = migrations.find(m => m.testFileName(name));
@@ -500,11 +444,11 @@ export class Umzug extends EventEmitter {
 	}
 
 	/**
-	 * Skip migrations in a given migration list after `to` migration.
-	 *
-	 * @param {String} to - The last one migration to be accepted.
-	 * @param {Migration[]} migrations - Migration list to be filtered.
-	 */
+	Skip migrations in a given migration list after `to` migration.
+
+	@param {String} to - The last one migration to be accepted.
+	@param {Migration[]} migrations - Migration list to be filtered.
+	*/
 	private async _findMigrationsUntilMatch(to?: string, migrations?: Migration[]): Promise<string[]> {
 		if (!Array.isArray(migrations)) {
 			migrations = [migrations];

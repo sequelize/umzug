@@ -1,6 +1,7 @@
 import _path = require('path');
 import { MigrationDefinition, ShortMigrationOptions } from './types';
 
+// TODO remove this, use `ShortMigrationOptions` directly in place of `MigrationConstructorOptions`
 export interface MigrationConstructorOptions {
 	readonly migrations?: ShortMigrationOptions;
 }
@@ -13,23 +14,6 @@ function isPromise(arg?: any): arg is Promise<any> {
 export class Migration {
 	public readonly file: string;
 
-	/**
-	 * Constructs Migration.
-	 *
-	 * @param {String} path - Path of the migration file.
-	 * @param {Object} options
-	 * @param {Object} options.migrations
-	 * @param {Migration~wrap} options.migrations.wrap - Wrapper function for
-	 * migration methods.
-	 * @param {Migration~customResolver} [options.migrations.customResolver] - A
-	 * function that specifies how to get a migration object from a path. This
-	 * should return an object of the form { up: Function, down: Function }.
-	 * Without this defined, a regular javascript import will be performed.
-	 * @param {Migration~nameFormatter} [options.migrations.nameFormatter] - A
-	 * function that receives the file path of the migration and returns the name
-	 * of the migration. This can be used to remove file extensions for example.
-	 * @constructs Migration
-	 */
 	constructor(
 		public readonly path: string,
 		private readonly options?: MigrationConstructorOptions
@@ -51,8 +35,6 @@ export class Migration {
 
 	/**
 	 * Obtain the migration definition module, using a custom resolver if present.
-	 *
-	 * @returns {Promise<any>} The migration definition module
 	 */
 	async migration(): Promise<MigrationDefinition> {
 		let result: MigrationDefinition;
@@ -89,22 +71,16 @@ export class Migration {
 	}
 
 	/**
-	 * Check if migration file name is starting with needle.
-	 * @param {String} needle - The beginning of the file name.
+	 * Check if migration file name starts with the given string.
 	 */
-	testFileName(needle: string): boolean {
-		return this.file.startsWith(this.options.migrations.nameFormatter(needle));
+	testFileName(string: string): boolean {
+		return this.file.startsWith(this.options.migrations.nameFormatter(string));
 	}
 
 	/**
 	 * Executes a given method of migration with given arguments.
-	 *
-	 * @param {String} method - Name of the method to be called.
-	 * @param {*} args - Arguments to be used when called the method.
-	 * @returns {Promise}
-	 * @private
 	 */
-	async _exec(method: 'up' | 'down', args: readonly any[]): Promise<void> {
+	private async _exec(method: 'up' | 'down', args: readonly any[]): Promise<void> {
 		const migration = await this.migration();
 
 		const fn = migration[method];
