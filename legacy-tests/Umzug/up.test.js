@@ -1,10 +1,10 @@
 const { expect } = require('chai');
 const helper = require('../helper');
-const Migration = require('../../src/migration');
-const Umzug = require('../../src');
+const { Migration } = require('../../lib/src/migration');
+const { Umzug } = require('../../lib/src');
 const { join } = require('path');
 
-const upTestuite = function upTestuite () {
+const upTestSuite = function upTestSuite () {
   describe('when no migrations has been executed yet', () => {
     beforeEach(function () {
       return this.umzug.up().then((migrations) => {
@@ -285,7 +285,7 @@ describe('up', () => {
       });
   });
 
-  upTestuite();
+  upTestSuite();
 });
 
 describe('up-directories', () => {
@@ -302,5 +302,5 @@ describe('up-directories', () => {
       });
   });
 
-  upTestuite();
+  upTestSuite();
 });

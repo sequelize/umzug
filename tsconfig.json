@@ -1,0 +1,24 @@
+{
+	"include": [
+		"src",
+		"test"
+	],
+	"compilerOptions": {
+		"outDir": "lib",
+		"target": "es2018",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"declaration": true,
+		"sourceMap": true,
+		"pretty": true,
+		"newLine": "lf",
+		"stripInternal": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noEmitOnError": true,
+		"skipLibCheck": true
+	}
+}
