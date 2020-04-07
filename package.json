@@ -40,8 +40,9 @@
 	"scripts": {
 		"build": "del-cli lib && tsc",
 		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js",
-		"prepack": "npm run build",
+		"prepare": "npm run build",
 		"release": "np --no-2fa",
+		"ava": "npm run build && ava test/test.ts",
 		"test": "npm run build && xo && ava test/test.ts && npm run mocha"
 	},
 	"repository": {
