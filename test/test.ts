@@ -1,8 +1,23 @@
 import test from 'ava';
 import jetpack = require('fs-jetpack');
 import { Umzug, Migration, migrationsList } from '../src';
+import pkgDir = require('pkg-dir');
 
-test('migrations list', async t => {
+test('Compiles & exports correctly', async t => {
+	const dir = await pkgDir(__dirname);
+
+	let requiredJS;
+
+	t.notThrows(() => {
+		requiredJS = require(dir);
+	});
+
+	t.truthy(requiredJS.Umzug);
+	t.truthy(requiredJS.Migration);
+	t.truthy(requiredJS.migrationsList);
+});
+
+test('migrationsList() works', async t => {
 	const executed = [];
 
 	await jetpack.removeAsync('umzug.json');
