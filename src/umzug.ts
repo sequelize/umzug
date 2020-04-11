@@ -388,7 +388,7 @@ export class Umzug extends EventEmitter {
 	*/
 	private async _findMigrations(): Promise<Migration[]> {
 		if (Array.isArray(this.options.migrations)) {
-			return this.options.migrations;
+			return this.options.migrations.sort((a, b) => this.options.migrationSorting(a.file, b.file));
 		}
 
 		const migrationOptions = this.options.migrations;
