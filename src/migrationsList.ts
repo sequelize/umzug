@@ -12,7 +12,10 @@ export interface MigrationDefinitionWithName extends MigrationDefinition {
  * @param {Array} parameters A facultative list of parameters that will be given to the 'up' and 'down' functions.
  * @returns {Array} The migrations in Umzug's format
  */
-export function migrationsList(migrations: MigrationDefinitionWithName[], parameters: any[] = []): UmzugConstructorMigrationOptionsB {
+export function migrationsList(
+	migrations: MigrationDefinitionWithName[],
+	parameters: any[] = []
+): UmzugConstructorMigrationOptionsB {
 	const pseudoMigrations = migrations.map(({ up, down, name }) => {
 		return {
 			file: name,
@@ -20,7 +23,7 @@ export function migrationsList(migrations: MigrationDefinitionWithName[], parame
 				return name.startsWith(needle);
 			},
 			up,
-			down
+			down,
 		};
 	});
 
