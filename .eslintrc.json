@@ -1,28 +1,29 @@
 {
-  "extends": [
-    "standard"
-  ],
   "globals": {
     "__dirname": true,
     "process": true
   },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {"ecmaVersion": 2018, "sourceType": "module"},
+  "plugins": [
+    "@typescript-eslint/eslint-plugin",
+    "prettier"
+  ],
+  "ignorePatterns": ["lib", "node_modules"],
   "rules": {
+    "prettier/prettier": ["warn", {
+      "singleQuote": true,
+      "semi": true,
+      "arrowParens": "avoid",
+      "trailingComma": "es5",
+      "bracketSpacing": true,
+      "endOfLine": "auto",
+      "printWidth": 120,
+      "useTabs": true
+    }],
     "prefer-arrow-callback": "error",
     "prefer-const": "error",
-    "arrow-body-style": ["error", "as-needed"],
     "no-var": "error",
-    "comma-dangle": [
-      "error",
-      "always-multiline"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
     "strict": [
       "error",
       "never"

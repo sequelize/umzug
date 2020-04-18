@@ -7,7 +7,6 @@ export interface MigrationConstructorOptions {
 }
 
 function isPromise(arg?: any): arg is Promise<any> {
-	// eslint-disable-next-line promise/prefer-await-to-then
 	return arg && typeof arg.then === 'function';
 }
 
