@@ -16,6 +16,7 @@ module.exports = {
     'plugin:import/typescript',
     'plugin:ava/recommended',
     'xo',
+    'xo-typescript',
   ],
   ignorePatterns: ['lib', 'node_modules'],
   globals: { __dirname: true, process: true },
@@ -41,7 +42,7 @@ module.exports = {
 
     '@typescript-eslint/prefer-function-type': 'error',
     '@typescript-eslint/restrict-template-expressions': 'error',
-    "@typescript-eslint/no-unused-vars": ["error", {
+    '@typescript-eslint/no-unused-vars': ['error', {
       varsIgnorePattern: '^_',
       argsIgnorePattern: '^_',
       caughtErrorsIgnorePattern: '^_',
@@ -51,12 +52,17 @@ module.exports = {
 
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/prefer-readonly-parameter-types': 'off',	
+    '@typescript-eslint/no-unsafe-member-access': 'off',	
+    '@typescript-eslint/no-unsafe-call': 'off',	
+    '@typescript-eslint/unified-signatures': 'off',
 
     // xo defaults that overlap with prettier
     'comma-dangle': 'off',
     'object-curly-spacing': 'off',
     'operator-linebreak': 'off',
     'no-mixed-spaces-and-tabs': 'off',
+    '@typescript-eslint/indent': 'off',
 
     // covered by `@typescript-eslint/no-unsued-vars`
     'no-unused-vars': 'off',
