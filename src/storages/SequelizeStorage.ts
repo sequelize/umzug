@@ -2,6 +2,7 @@ import { UmzugStorage } from './type-helpers/umzug-storage';
 import { SequelizeType, ModelClassType } from './type-helpers/sequelize-type-helpers';
 import { SetRequired } from 'type-fest';
 
+// eslint-disable-next-line @typescript-eslint/class-name-casing
 interface _SequelizeStorageConstructorOptions {
 	/**
 	The configured instance of Sequelize. If omitted, it is inferred from the `model` option.
