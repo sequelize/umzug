@@ -9,7 +9,6 @@
     "**/node_modules/**": true
   },
   "javascript.implicitProjectConfig.checkJs": true,
-  "eslint.validate": ["markdown", "javascript", "typescript"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   }
