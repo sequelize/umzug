@@ -37,7 +37,7 @@ export class Umzug extends EventEmitter {
 				pattern: /^\d+[\w-]+\.js$/,
 				traverseDirectories: false,
 				wrap: (fn: () => Promise<any>) => fn,
-				...options.migrations
+				...options.migrations,
 			};
 		}
 
@@ -45,7 +45,7 @@ export class Umzug extends EventEmitter {
 			storage: options.storage ?? 'json',
 			storageOptions: options.storageOptions ?? {},
 			logging: options.logging ?? false,
-			migrations
+			migrations,
 		};
 
 		this.storage = Umzug.resolveStorageOption(this.options.storage, this.options.storageOptions);
@@ -109,24 +109,15 @@ export class Umzug extends EventEmitter {
 
 	// #region EventEmitter explicit implementation typings
 
-	on(
-		eventName: UmzugEventNames,
-		cb?: (name: string, migration: Migration) => void
-	): this {
+	on(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
 		return super.on(eventName, cb);
 	}
 
-	addListener(
-		eventName: UmzugEventNames,
-		cb?: (name: string, migration: Migration) => void
-	): this {
+	addListener(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
 		return super.addListener(eventName, cb);
 	}
 
-	removeListener(
-		eventName: UmzugEventNames,
-		cb?: (name: string, migration: Migration) => void
-	): this {
+	removeListener(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
 		return super.removeListener(eventName, cb);
 	}
 
@@ -168,7 +159,7 @@ export class Umzug extends EventEmitter {
 				}
 			}
 
-			if (!executed && (method === 'up')) {
+			if (!executed && method === 'up') {
 				await this.storage.logMigration(migration.file);
 			} else if (method === 'down') {
 				await this.storage.unlogMigration(migration.file);
@@ -198,7 +189,7 @@ export class Umzug extends EventEmitter {
 	*/
 	async executed(): Promise<Migration[]> {
 		// TODO remove this forced type-cast
-		return pMap((await this.storage.executed()), file => new Migration(file, this.options as any));
+		return pMap(await this.storage.executed(), file => new Migration(file, this.options as any));
 	}
 
 	/**
@@ -289,7 +280,11 @@ export class Umzug extends EventEmitter {
 		}
 	}
 
-	private async _run(method: 'up' | 'down', options?: UmzugRunOptions, rest?: () => Promise<Migration[]>): Promise<Migration[]> {
+	private async _run(
+		method: 'up' | 'down',
+		options?: UmzugRunOptions,
+		rest?: () => Promise<Migration[]>
+	): Promise<Migration[]> {
 		if (typeof options === 'string') {
 			return this._run(method, [options]);
 		}
@@ -311,7 +306,7 @@ export class Umzug extends EventEmitter {
 		if (options?.migrations) {
 			return this.execute({
 				migrations: options.migrations,
-				method
+				method,
 			});
 		}
 
@@ -382,9 +377,9 @@ export class Umzug extends EventEmitter {
 
 		const migrationsFolder = new ToryFolder(migrationOptions.path);
 
-		const migrationsFileIterable = migrationOptions.traverseDirectories ?
-			migrationsFolder.toDFSFilesRecursiveIterable() :
-			migrationsFolder.getFiles();
+		const migrationsFileIterable = migrationOptions.traverseDirectories
+			? migrationsFolder.toDFSFilesRecursiveIterable()
+			: migrationsFolder.getFiles();
 
 		const migrationFiles = [...migrationsFileIterable].filter(file => {
 			return migrationOptions.pattern.test(file.name);

@@ -2,6 +2,7 @@ import { UmzugStorage } from './type-helpers/umzug-storage';
 import { SequelizeType, ModelClassType } from './type-helpers/sequelize-type-helpers';
 import { SetRequired } from 'type-fest';
 
+// eslint-disable-next-line @typescript-eslint/class-name-casing
 interface _SequelizeStorageConstructorOptions {
 	/**
 	The configured instance of Sequelize. If omitted, it is inferred from the `model` option.
@@ -57,8 +58,8 @@ interface _SequelizeStorageConstructorOptions {
 }
 
 export type SequelizeStorageConstructorOptions =
-	SetRequired<_SequelizeStorageConstructorOptions, 'sequelize'> |
-	SetRequired<_SequelizeStorageConstructorOptions, 'model'>;
+	| SetRequired<_SequelizeStorageConstructorOptions, 'sequelize'>
+	| SetRequired<_SequelizeStorageConstructorOptions, 'model'>;
 
 export class SequelizeStorage implements UmzugStorage {
 	public readonly sequelize: SequelizeType;
@@ -105,15 +106,15 @@ export class SequelizeStorage implements UmzugStorage {
 					allowNull: false,
 					unique: true,
 					primaryKey: true,
-					autoIncrement: false
-				}
+					autoIncrement: false,
+				},
 			},
 			{
 				tableName: this.tableName,
 				schema: this.schema,
 				timestamps: this.timestamps,
 				charset: 'utf8',
-				collate: 'utf8_unicode_ci'
+				collate: 'utf8_unicode_ci',
 			}
 		) as ModelClassType;
 	}
@@ -121,7 +122,7 @@ export class SequelizeStorage implements UmzugStorage {
 	async logMigration(migrationName: string): Promise<void> {
 		await this.model.sync();
 		await this.model.create({
-			[this.columnName]: migrationName
+			[this.columnName]: migrationName,
 		});
 	}
 
@@ -129,8 +130,8 @@ export class SequelizeStorage implements UmzugStorage {
 		await this.model.sync();
 		await this.model.destroy({
 			where: {
-				[this.columnName]: migrationName
-			}
+				[this.columnName]: migrationName,
+			},
 		});
 	}
 

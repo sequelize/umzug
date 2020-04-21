@@ -11,4 +11,5 @@ before_script:
   - npm i sequelize@$(echo $SEQUELIZE)
 
 script:
+  - npm run lint
   - npm test
