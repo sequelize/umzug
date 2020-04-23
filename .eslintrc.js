@@ -63,6 +63,7 @@ module.exports = {
     'operator-linebreak': 'off',
     'no-mixed-spaces-and-tabs': 'off',
     '@typescript-eslint/indent': 'off',
+    '@typescript-eslint/member-delimiter-style': 'off',
 
     // covered by `@typescript-eslint/no-unsued-vars`
     'no-unused-vars': 'off',

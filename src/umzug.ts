@@ -487,3 +487,72 @@ export class Umzug extends EventEmitter {
 		return result;
 	}
 }
+
+import * as glob from 'glob';
+
+export interface MigrationContainer {
+	up: () => Promise<unknown>;
+	down?: () => Promise<unknown>;
+}
+
+export type MigrationList = Array<{ name: string; migration: MigrationContainer }>;
+
+export type GlobParams = Parameters<typeof glob.sync>;
+
+export interface GetUmzugParams<S extends UmzugStorage> {
+	storage: S;
+	logging?: ((...args: any[]) => void) | false;
+	storageOptions?: any;
+	migrations:
+		| {
+				glob: string | GlobParams;
+				resolve?: (params: { path: string; name: string; storage: S }) => MigrationContainer;
+		  }
+		| MigrationList
+		| ((storage: S) => MigrationList);
+}
+
+import { basename, extname } from 'path';
+
+export const umzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
+	const getMigrationList = (): MigrationList => {
+		if (Array.isArray(params.migrations)) {
+			return params.migrations;
+		}
+
+		if (typeof params.migrations === 'function') {
+			return params.migrations(params.storage);
+		}
+
+		const fileGlob = params.migrations.glob;
+		const globParams: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
+
+		const resolver =
+			params.migrations.resolve ||
+			(({ name, storage }) => ({
+				up: async () => storage.logMigration(name),
+				down: async () => storage.unlogMigration(name),
+			}));
+
+		const files = glob.sync(...globParams);
+		return files.map(path => {
+			const name = basename(path, extname(path));
+			return {
+				name,
+				migration: resolver({ storage: params.storage, path, name }),
+			};
+		});
+	};
+
+	const migrationList = getMigrationList();
+
+	return new Umzug({
+		logging: params.logging,
+		storage: params.storage,
+		storageOptions: params.storageOptions,
+		migrations: migrationList.map(({ name, migration }) => {
+			const resolved = { up: migration.up, down: migration.down || Promise.resolve };
+			return new Migration(name, { migrations: { customResolver: () => resolved } });
+		}),
+	});
+};
