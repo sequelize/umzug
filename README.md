@@ -2,6 +2,8 @@
 
 Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
 
+_Note: master represents the next major version of umzug, v3, currently in beta. For the stable version, please refer to the [v2.x branch](https://github.com/sequelize/umzug/tree/v2.x)._
+
 ## Highlights
 
 * Written in TypeScript - you have built-in typings and auto-completion right in your IDE
