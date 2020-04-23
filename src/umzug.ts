@@ -489,6 +489,7 @@ export class Umzug extends EventEmitter {
 }
 
 import * as glob from 'glob';
+import { basename, extname } from 'path';
 
 export interface MigrationContainer {
 	up: () => Promise<unknown>;
@@ -512,39 +513,39 @@ export interface GetUmzugParams<S extends UmzugStorage> {
 		| ((storage: S) => MigrationList);
 }
 
-import { basename, extname } from 'path';
+export type InputMigrations<S extends UmzugStorage> = GetUmzugParams<S>['migrations']
 
-export const umzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
-	const getMigrationList = (): MigrationList => {
-		if (Array.isArray(params.migrations)) {
-			return params.migrations;
-		}
+export const resolveMigrations = <S extends UmzugStorage>(inputMigrations: InputMigrations<S>, storage: S) => {
+	if (Array.isArray(inputMigrations)) {
+		return inputMigrations;
+	}
 
-		if (typeof params.migrations === 'function') {
-			return params.migrations(params.storage);
-		}
+	if (typeof inputMigrations === 'function') {
+		return inputMigrations(storage);
+	}
 
-		const fileGlob = params.migrations.glob;
-		const globParams: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
+	const fileGlob = inputMigrations.glob;
+	const globParams: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
-		const resolver =
-			params.migrations.resolve ||
-			(({ name, storage }) => ({
-				up: async () => storage.logMigration(name),
-				down: async () => storage.unlogMigration(name),
-			}));
+	const resolver =
+		inputMigrations.resolve ||
+		(({ name, storage }) => ({
+			up: async () => storage.logMigration(name),
+			down: async () => storage.unlogMigration(name),
+		}));
 
-		const files = glob.sync(...globParams);
-		return files.map(path => {
-			const name = basename(path, extname(path));
-			return {
-				name,
-				migration: resolver({ storage: params.storage, path, name }),
-			};
-		});
-	};
+	const files = glob.sync(...globParams);
+	return files.map(path => {
+		const name = basename(path, extname(path));
+		return {
+			name,
+			migration: resolver({ storage, path, name }),
+		};
+	});
+}
 
-	const migrationList = getMigrationList();
+export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
+	const migrationList = resolveMigrations(params.migrations, params.storage);
 
 	return new Umzug({
 		logging: params.logging,
