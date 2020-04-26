@@ -78,4 +78,10 @@ module.exports = {
     // consider forcing a change for next major version though.
     'unicorn/filename-case': 'off',
   },
+  overrides: [{
+    files: ['test/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-return': 'off'
+    }
+  }]
 };

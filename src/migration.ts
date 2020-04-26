@@ -91,7 +91,7 @@ export class Migration {
 		const result = wrapped.apply(migration, args);
 
 		if (!isPromise(result)) {
-			throw new Error(`Migration ${this.file} (or wrapper) didn't return a promise`);
+			// Throw new Error(`Migration ${this.file} (or wrapper) didn't return a promise`);
 		}
 
 		await result;
