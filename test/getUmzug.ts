@@ -26,7 +26,7 @@ test('getUmzug with migrations array', async t => {
 	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
 
 	t.deepEqual(names(await umzug.executed()), ['migration1', 'migration2']);
-	t.true(spy.calledOnce);
+	t.true(spy.calledTwice);
 	t.deepEqual(spy.firstCall.args, ['migration1-up']);
 });
 
@@ -57,7 +57,7 @@ test('getUmzug with function returning migrations array', async t => {
 	t.deepEqual(spy.firstCall.args, ['migration1-up', umzug.storage]);
 });
 
-test('getUmzug with glob', async t => {
+test('getUmzug with file globbing', async t => {
 	const spy = sinon.spy();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/glob'), {
@@ -72,6 +72,45 @@ test('getUmzug with glob', async t => {
 	const umzug = getUmzug({
 		migrations: {
 			glob: ['*.sql', { cwd: syncer.baseDir }],
+			resolve: params => ({
+				up: spy.bind(null, params),
+			}),
+		},
+		storage: new JSONStorage({ path: storagePath }),
+	});
+
+	await umzug.up();
+
+	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
+
+	t.deepEqual(names(await umzug.executed()), ['migration1', 'migration2', 'migration3']);
+	t.true(spy.calledThrice);
+	t.deepEqual(spy.firstCall.args, [
+		{
+			storage: umzug.storage,
+			name: 'migration1',
+			path: 'migration1.sql',
+		},
+	]);
+});
+
+test('getUmzug with custom file globbing options', async t => {
+	const spy = sinon.spy();
+
+	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/glob'), {
+		'migration1.sql': 'select true',
+		'migration2.sql': 'select true',
+		'should-be-ignored.txt': 'abc',
+		'migration3.sql': 'select true',
+		'ignoreme1.sql': 'select false',
+		'ignoreme2.sql': 'select false',
+	});
+	syncer.sync();
+
+	const storagePath = join(syncer.baseDir, 'storage.json');
+	const umzug = getUmzug({
+		migrations: {
+			glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
 			resolve: params => ({
 				up: spy.bind(null, params),
 			}),
