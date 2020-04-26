@@ -500,22 +500,25 @@ export type MigrationList = Array<{ name: string; migration: MigrationContainer 
 
 export type GlobParams = Parameters<typeof glob.sync>;
 
-export interface GetUmzugParams<S extends UmzugStorage> {
-	storage: S;
+export interface GetUmzugParams<Storage extends UmzugStorage> {
+	storage: Storage;
 	logging?: ((...args: any[]) => void) | false;
 	storageOptions?: any;
-	migrations:
-		| {
-				glob: string | GlobParams;
-				resolve?: (params: { path: string; name: string; storage: S }) => MigrationContainer;
-		  }
-		| MigrationList
-		| ((storage: S) => MigrationList);
+	migrations: InputMigrations<Storage>;
 }
 
-export type InputMigrations<S extends UmzugStorage> = GetUmzugParams<S>['migrations'];
+export type InputMigrations<Storage extends UmzugStorage> =
+	| {
+			glob: string | GlobParams;
+			resolve?: (params: { path: string; name: string; storage: Storage }) => MigrationContainer;
+	  }
+	| MigrationList
+	| ((storage: Storage) => MigrationList);
 
-export const resolveMigrations = <S extends UmzugStorage>(inputMigrations: InputMigrations<S>, storage: S) => {
+export const resolveMigrations = <Storage extends UmzugStorage>(
+	inputMigrations: InputMigrations<Storage>,
+	storage: Storage
+) => {
 	if (Array.isArray(inputMigrations)) {
 		return inputMigrations;
 	}
