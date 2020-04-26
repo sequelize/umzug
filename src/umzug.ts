@@ -513,7 +513,7 @@ export interface GetUmzugParams<S extends UmzugStorage> {
 		| ((storage: S) => MigrationList);
 }
 
-export type InputMigrations<S extends UmzugStorage> = GetUmzugParams<S>['migrations']
+export type InputMigrations<S extends UmzugStorage> = GetUmzugParams<S>['migrations'];
 
 export const resolveMigrations = <S extends UmzugStorage>(inputMigrations: InputMigrations<S>, storage: S) => {
 	if (Array.isArray(inputMigrations)) {
@@ -542,7 +542,7 @@ export const resolveMigrations = <S extends UmzugStorage>(inputMigrations: Input
 			migration: resolver({ storage, path, name }),
 		};
 	});
-}
+};
 
 export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
 	const migrationList = resolveMigrations(params.migrations, params.storage);

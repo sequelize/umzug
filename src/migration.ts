@@ -86,7 +86,9 @@ export class Migration {
 			throw new Error('Could not find migration method: ' + method);
 		}
 
-		const result = this.options.migrations.wrap(fn).apply(migration, args);
+		const wrapped = this.options.migrations.wrap ? this.options.migrations.wrap(fn) : fn;
+
+		const result = wrapped.apply(migration, args);
 
 		if (!isPromise(result)) {
 			throw new Error(`Migration ${this.file} (or wrapper) didn't return a promise`);
