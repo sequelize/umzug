@@ -83,28 +83,26 @@ test.serial('migration sort', async t => {
 	await jetpack.removeAsync('umzug.json');
 
 	const umzug = new Umzug({
-		migrations: migrationsList(
-			[
-				{
-					name: '00-first-migration',
-					async up(): Promise<void> {
-						executed.push('00-first-migration-up');
-					},
-					async down(): Promise<void> {
-						executed.push('00-first-migration-down');
-					}
+		migrations: migrationsList([
+			{
+				name: '00-first-migration',
+				async up(): Promise<void> {
+					executed.push('00-first-migration-up');
 				},
-				{
-					name: '01-second-migration',
-					async up(): Promise<void> {
-						executed.push('01-second-migration-up');
-					},
-					async down(): Promise<void> {
-						executed.push('01-second-migration-down');
-					}
-				}
-			]
-		),
+				async down(): Promise<void> {
+					executed.push('00-first-migration-down');
+				},
+			},
+			{
+				name: '01-second-migration',
+				async up(): Promise<void> {
+					executed.push('01-second-migration-up');
+				},
+				async down(): Promise<void> {
+					executed.push('01-second-migration-down');
+				},
+			},
+		]),
 		migrationSorting: (a, b) => {
 			if (a > b) {
 				return -1;
@@ -115,7 +113,7 @@ test.serial('migration sort', async t => {
 			}
 
 			return 0;
-		}
+		},
 	});
 	const names = (migrations: Migration[]) => migrations.map(m => m.file);
 
@@ -137,7 +135,12 @@ test.serial('migration sort', async t => {
 	t.deepEqual(names(await umzug.pending()), ['00-first-migration']);
 
 	t.deepEqual(names(await umzug.down()), ['01-second-migration']);
-	t.deepEqual(executed, ['01-second-migration-up', '00-first-migration-up', '00-first-migration-down', '01-second-migration-down']);
+	t.deepEqual(executed, [
+		'01-second-migration-up',
+		'00-first-migration-up',
+		'00-first-migration-down',
+		'01-second-migration-down',
+	]);
 	t.deepEqual(names(await umzug.executed()), []);
 	t.deepEqual(names(await umzug.pending()), ['01-second-migration', '00-first-migration']);
 
