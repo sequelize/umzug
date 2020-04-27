@@ -24,7 +24,7 @@ export interface ShortMigrationOptions {
 
 	This can be used to modify the behavior of the migration function if necessary.
 	*/
-	wrap?(fn: () => Promise<any>): (() => Promise<any>);
+	wrap?(fn: () => Promise<any>): () => Promise<any>;
 
 	/**
 	A function that specifies how to get a migration object from a file path. It must return an object with `up` and `down` methods.
@@ -112,7 +112,7 @@ export interface UmzugConstructorOptions {
 	/**
 	The logging function.
 
-	A function that gets executed every time migrations start and have ended.
+	A function that gets executed everytime migrations start and have ended.
 
 	Set to `false` to disable.
 	*/
@@ -123,7 +123,7 @@ export interface UmzugConstructorOptions {
 
 	A function that sorts migrations.
 	*/
-	readonly migrationSorting?: ((a: string, b: string) => number);
+	readonly migrationSorting?: (a: string, b: string) => number;
 
 	/**
 	The options for instantiating the storage. Check the available storages for further details.
@@ -141,32 +141,20 @@ export interface UmzugConstructorOptions {
 export type UmzugEventNames = 'migrating' | 'reverting' | 'migrated' | 'reverted';
 
 export type UmzugRunOptions =
-	/**
-	Migration to execute.
-	*/
-	string |
+	/** Migration to execute. */
+	| string
 
-	/**
-	Migrations to execute.
-	*/
-	string[] |
+	/** Migrations to execute. */
+	| string[]
 
-	/**
-	Object specifying which migrations to execute.
-	*/
-	{
-		/**
-		List of migrations to execute (by name).
-		*/
-		migrations?: string[];
+	/** Object specifying which migrations to execute. */
+	| {
+			/** List of migrations to execute (by name). */
+			migrations?: string[];
 
-		/**
-		The migration to start executing from. The given migration is not executed itself, only the ones after it.
-		*/
-		from?: string;
+			/** The migration to start executing from. The given migration is not executed itself, only the ones after it. */
+			from?: string;
 
-		/**
-		The last migration to execute (included).
-		*/
-		to?: string;
-	};
+			/** The last migration to execute (included). */
+			to?: string;
+	  };

@@ -16,5 +16,10 @@ export interface UmzugStorage {
 }
 
 export function isUmzugStorage(arg: any): arg is UmzugStorage {
-	return arg && typeof arg.logMigration === 'function' && typeof arg.unlogMigration === 'function' && typeof arg.executed === 'function';
+	return (
+		arg &&
+		typeof arg.logMigration === 'function' &&
+		typeof arg.unlogMigration === 'function' &&
+		typeof arg.executed === 'function'
+	);
 }

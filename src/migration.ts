@@ -7,29 +7,27 @@ export interface MigrationConstructorOptions {
 }
 
 function isPromise(arg?: any): arg is Promise<any> {
-	// eslint-disable-next-line promise/prefer-await-to-then
 	return arg && typeof arg.then === 'function';
 }
 
 export class Migration {
 	public readonly file: string;
 
-	constructor(
-		public readonly path: string,
-		private readonly options?: MigrationConstructorOptions
-	) {
+	constructor(public readonly path: string, private readonly options?: MigrationConstructorOptions) {
 		this.path = _path.resolve(path);
 		this.options = {
 			...options,
 			migrations: {
 				nameFormatter: (path: string) => _path.basename(path),
-				...options.migrations
-			}
+				...options.migrations,
+			},
 		};
 
 		this.file = this.options.migrations.nameFormatter(this.path);
 		if (typeof this.file !== 'string') {
-			throw new TypeError(`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`);
+			throw new TypeError(
+				`Unexpected migration formatter result for '${this.path}': expected string, got ${typeof this.file}`
+			);
 		}
 	}
 
