@@ -119,6 +119,13 @@ export interface UmzugConstructorOptions {
 	readonly logging?: ((...args: any[]) => void) | false;
 
 	/**
+	The sorting function.
+
+	A function that sorts migrations.
+	*/
+	readonly migrationSorting?: (a: string, b: string) => number;
+
+	/**
 	The options for instantiating the storage. Check the available storages for further details.
 	*/
 	readonly storageOptions?: any;
