@@ -79,7 +79,7 @@ async function down(queryInterface) {
 module.exports = { up, down };
 ```
 
-See [this test](https://github.com/sequelize/umzug/blob/9780ba8b288098d518a3c11538b4751765821eb2/test/test.ts) for another example of Umzug usage.
+See [this test](./test/test.ts) for another example of Umzug usage.
 
 ### Usage
 
