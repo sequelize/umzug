@@ -50,7 +50,7 @@
 	"scripts": {
 		"build": "del-cli lib && tsc",
 		"lint": "eslint --ext .ts .",
-		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js",
+		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js --timeout 10000",
 		"prepare": "npm run build",
 		"release": "np --no-2fa",
 		"test": "jest && npm run mocha"
