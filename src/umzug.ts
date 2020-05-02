@@ -58,7 +58,7 @@ export class Umzug extends EventEmitter {
 			storageOptions: options.storageOptions ?? {},
 			logging: options.logging ?? false,
 			migrationSorting: options.migrationSorting ?? defaultSorting,
-			migrations
+			migrations,
 		};
 
 		this.storage = Umzug.resolveStorageOption(this.options.storage, this.options.storageOptions);
@@ -561,5 +561,13 @@ export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
 			const resolved = { up: migration.up, down: migration.down || Promise.resolve };
 			return new Migration(name, { migrations: { customResolver: () => resolved } });
 		}),
+		// todo: disable migration sorting when passing in a list directly - users can sort it themselves if they want to.
+		// or, remove it completely in favour of this API in v3 RC.
+		// For now, this hack passes a custom sorting function that respects the order of the resolved list
+		// If we do want to keep the hack, we should probably store a name -> index mapping rather than using an n^2 findIndex method.
+		migrationSorting: (...args) => {
+			const indexes = args.map(a => migrationList.findIndex(m => m.name === a));
+			return indexes[0] - indexes[1];
+		},
 	});
 };

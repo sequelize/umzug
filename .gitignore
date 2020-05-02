@@ -3,3 +3,4 @@ legacy-tests/tmp
 lib
 umzug.json
 .vscode
+test/generated

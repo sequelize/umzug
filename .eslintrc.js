@@ -51,6 +51,11 @@ module.exports = {
       args: 'after-used',
     }],
 
+    'capitalized-comments': ['warn', 'always', {
+      ignorePattern: 'todo',
+      ignoreConsecutiveComments: true
+    }],
+
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/prefer-readonly-parameter-types': 'off',	

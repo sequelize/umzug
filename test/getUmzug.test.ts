@@ -1,14 +1,12 @@
-import test from 'ava';
 import { getUmzug, resolveMigrations } from '../src/umzug';
 import { JSONStorage } from '../src/storages/JSONStorage';
 import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
-import * as sinon from 'sinon';
 import { expectTypeOf } from 'expect-type';
 import { UmzugStorage } from '../src/storages/type-helpers/umzug-storage';
 
-test('getUmzug with migrations array', async t => {
-	const spy = sinon.spy();
+test('getUmzug with migrations array', async () => {
+	const spy = jest.fn();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/migrationsArray'), {});
 	syncer.sync();
@@ -25,13 +23,13 @@ test('getUmzug with migrations array', async t => {
 
 	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
 
-	t.deepEqual(names(await umzug.executed()), ['migration1', 'migration2']);
-	t.true(spy.calledTwice);
-	t.deepEqual(spy.firstCall.args, ['migration1-up']);
+	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2']);
+	expect(spy).toHaveBeenCalledTimes(2);
+	expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up');
 });
 
-test('getUmzug with function returning migrations array', async t => {
-	const spy = sinon.spy();
+test('getUmzug with function returning migrations array', async () => {
+	const spy = jest.fn();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/functionMigrationsArray'), {});
 	syncer.sync();
@@ -52,13 +50,13 @@ test('getUmzug with function returning migrations array', async t => {
 
 	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
 
-	t.deepEqual(names(await umzug.executed()), ['migration1', 'migration2']);
-	t.true(spy.calledTwice);
-	t.deepEqual(spy.firstCall.args, ['migration1-up', umzug.storage]);
+	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2']);
+	expect(spy).toHaveBeenCalledTimes(2);
+	expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up', umzug.storage);
 });
 
-test('getUmzug with file globbing', async t => {
-	const spy = sinon.spy();
+test('getUmzug with file globbing', async () => {
+	const spy = jest.fn();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/glob'), {
 		'migration1.sql': 'select true',
@@ -83,19 +81,17 @@ test('getUmzug with file globbing', async t => {
 
 	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
 
-	t.deepEqual(names(await umzug.executed()), ['migration1', 'migration2', 'migration3']);
-	t.true(spy.calledThrice);
-	t.deepEqual(spy.firstCall.args, [
-		{
-			storage: umzug.storage,
-			name: 'migration1',
-			path: 'migration1.sql',
-		},
-	]);
+	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
+	expect(spy).toHaveBeenCalledTimes(3);
+	expect(spy).toHaveBeenNthCalledWith(1, {
+		storage: umzug.storage,
+		name: 'migration1',
+		path: 'migration1.sql',
+	});
 });
 
-test('getUmzug with custom file globbing options', async t => {
-	const spy = sinon.spy();
+test('getUmzug with custom file globbing options', async () => {
+	const spy = jest.fn();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/glob'), {
 		'migration1.sql': 'select true',
@@ -122,19 +118,17 @@ test('getUmzug with custom file globbing options', async t => {
 
 	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
 
-	t.deepEqual(names(await umzug.executed()), ['migration1', 'migration2', 'migration3']);
-	t.true(spy.calledThrice);
-	t.deepEqual(spy.firstCall.args, [
-		{
-			storage: umzug.storage,
-			name: 'migration1',
-			path: 'migration1.sql',
-		},
-	]);
+	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
+	expect(spy).toHaveBeenCalledTimes(3);
+	expect(spy).toHaveBeenNthCalledWith(1, {
+		storage: umzug.storage,
+		name: 'migration1',
+		path: 'migration1.sql',
+	});
 });
 
-test('getUmzug allows customization via resolveMigrations', async t => {
-	const spy = sinon.spy();
+test('getUmzug allows customization via resolveMigrations', async () => {
+	const spy = jest.fn();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/customOrdering'), {
 		'migration1.sql': 'select true',
@@ -165,13 +159,11 @@ test('getUmzug allows customization via resolveMigrations', async t => {
 
 	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
 
-	t.deepEqual(names(await umzug.executed()), ['migration3', 'migration2', 'migration1']);
-	t.true(spy.calledThrice);
-	t.deepEqual(spy.firstCall.args, [
-		{
-			storage: umzug.storage,
-			name: 'migration3',
-			path: 'migration3.sql',
-		},
-	]);
+	expect(names(await umzug.executed())).toEqual(['migration3', 'migration2', 'migration1']);
+	expect(spy).toHaveBeenCalledTimes(3);
+	expect(spy).toHaveBeenNthCalledWith(1, {
+		storage: umzug.storage,
+		name: 'migration3',
+		path: 'migration3.sql',
+	});
 });
