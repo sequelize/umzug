@@ -41,11 +41,24 @@ export class Umzug extends EventEmitter {
 			};
 		}
 
+		const defaultSorting = (a, b) => {
+			if (a > b) {
+				return 1;
+			}
+
+			if (a < b) {
+				return -1;
+			}
+
+			return 0;
+		};
+
 		this.options = {
 			storage: options.storage ?? 'json',
 			storageOptions: options.storageOptions ?? {},
 			logging: options.logging ?? false,
-			migrations,
+			migrationSorting: options.migrationSorting ?? defaultSorting,
+			migrations
 		};
 
 		this.storage = Umzug.resolveStorageOption(this.options.storage, this.options.storageOptions);
@@ -370,7 +383,7 @@ export class Umzug extends EventEmitter {
 	*/
 	private async _findMigrations(): Promise<Migration[]> {
 		if (Array.isArray(this.options.migrations)) {
-			return this.options.migrations;
+			return this.options.migrations.slice().sort((a, b) => this.options.migrationSorting(a.file, b.file));
 		}
 
 		const migrationOptions = this.options.migrations;
@@ -387,17 +400,7 @@ export class Umzug extends EventEmitter {
 
 		const migrations = migrationFiles.map(file => new Migration(file.absolutePath, this.options as any));
 
-		migrations.sort((a, b) => {
-			if (a.file > b.file) {
-				return 1;
-			}
-
-			if (a.file < b.file) {
-				return -1;
-			}
-
-			return 0;
-		});
+		migrations.sort((a, b) => this.options.migrationSorting(a.file, b.file));
 
 		return migrations;
 	}
