@@ -46,14 +46,14 @@ describe('sequelize', () => {
 				.then(model => model.describe())
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
-            Object {
-              "name": Object {
-                "allowNull": false,
-                "defaultValue": undefined,
-                "primaryKey": true,
-                "type": "VARCHAR(255)",
-              },
-            }
+						Object {
+						  "name": Object {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "VARCHAR(255)",
+						  },
+						}
           `);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					// Expect(description.name.defaultValue).to.be.oneOf([null, undefined])
@@ -93,14 +93,14 @@ describe('sequelize', () => {
 				.then(model => model.describe())
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
-            Object {
-              "customColumn": Object {
-                "allowNull": false,
-                "defaultValue": undefined,
-                "primaryKey": true,
-                "type": "VARCHAR(255)",
-              },
-            }
+						Object {
+						  "customColumn": Object {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "VARCHAR(255)",
+						  },
+						}
           `);
 				});
 		});
@@ -115,26 +115,26 @@ describe('sequelize', () => {
 				.then(model => model.describe())
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
-            Object {
-              "createdAt": Object {
-                "allowNull": false,
-                "defaultValue": undefined,
-                "primaryKey": false,
-                "type": "DATETIME",
-              },
-              "name": Object {
-                "allowNull": false,
-                "defaultValue": undefined,
-                "primaryKey": true,
-                "type": "VARCHAR(255)",
-              },
-              "updatedAt": Object {
-                "allowNull": false,
-                "defaultValue": undefined,
-                "primaryKey": false,
-                "type": "DATETIME",
-              },
-            }
+						Object {
+						  "createdAt": Object {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "DATETIME",
+						  },
+						  "name": Object {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "VARCHAR(255)",
+						  },
+						  "updatedAt": Object {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "DATETIME",
+						  },
+						}
           `);
 				});
 		});
