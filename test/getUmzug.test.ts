@@ -167,3 +167,59 @@ test('getUmzug allows customization via resolveMigrations', async () => {
 		path: 'migration3.sql',
 	});
 });
+
+test('getUmzug supports nested directories via resolveMigrations', async () => {
+	const spy = jest.fn();
+
+	// folder structure splitting migrations into separate directories, with the filename determining the order:
+	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/customOrdering'), {
+		directory1: {
+			'm1.sql': 'select true',
+			'm1.down.sql': 'select false',
+			'm4.sql': 'select true',
+		},
+		deeply: {
+			nested: {
+				directory2: {
+					'm2.sql': 'select true',
+					'm3.sql': 'select true',
+				},
+			},
+		},
+	});
+	syncer.sync();
+
+	const storage = new JSONStorage({
+		path: join(syncer.baseDir, 'storage.json'),
+	});
+
+	const migrationsWithStandardOrdering = resolveMigrations(
+		{
+			glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
+			resolve: params => ({ up: spy.bind(null, params) }),
+		},
+		storage
+	);
+
+	const umzug = getUmzug({
+		migrations: migrationsWithStandardOrdering.slice().sort((a, b) => a.name.localeCompare(b.name)),
+		storage,
+	});
+
+	await umzug.up();
+
+	const names = (migrations: Array<{ file: string }>) => migrations.map(m => m.file);
+
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
+	expect(spy).toHaveBeenCalledTimes(4);
+	expect(spy).toHaveBeenNthCalledWith(1, {
+		storage: umzug.storage,
+		name: 'm1',
+		path: 'directory1/m1.sql',
+	});
+	expect(spy).toHaveBeenNthCalledWith(2, {
+		storage: umzug.storage,
+		name: 'm2',
+		path: 'deeply/nested/directory2/m2.sql',
+	});
+});
