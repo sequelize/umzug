@@ -41,24 +41,14 @@ export class Umzug extends EventEmitter {
 			};
 		}
 
-		const defaultSorting = (a, b) => {
-			if (a > b) {
-				return 1;
-			}
-
-			if (a < b) {
-				return -1;
-			}
-
-			return 0;
-		};
+		const defaultSorting = (a: string, b: string) => a.localeCompare(b);
 
 		this.options = {
 			storage: options.storage ?? 'json',
 			storageOptions: options.storageOptions ?? {},
 			logging: options.logging ?? false,
 			migrationSorting: options.migrationSorting ?? defaultSorting,
-			migrations
+			migrations,
 		};
 
 		this.storage = Umzug.resolveStorageOption(this.options.storage, this.options.storageOptions);
