@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const helper = require('../helper');
-const { Umzug } = require('../../lib/src/index');
+const { Umzug, JSONStorage } = require('../../lib/src');
 const sinon = require('sinon');
 const { join } = require('path');
 
@@ -18,7 +18,7 @@ describe('execute', () => {
         this.logSpy = sinon.spy();
         this.umzug = new Umzug({
           migrations: { path: join(__dirname, '/../tmp/') },
-          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+          storage: new JSONStorage({ path: join(__dirname, '/../tmp/umzug.json') }),
           logging: this.logSpy,
         });
         this.migrate = (method) => this.umzug.execute({
@@ -48,7 +48,7 @@ describe('execute', () => {
         this.logSpy = sinon.spy();
         this.umzug = new Umzug({
           migrations: { path: join(__dirname, '/../tmp/') },
-          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+          storage: new JSONStorage({ path: join(__dirname, '/../tmp/umzug.json') }),
           logging: this.logSpy,
         });
         return this.umzug.execute({
@@ -101,7 +101,7 @@ describe('execute', () => {
 
   it('does not add an executed entry to the storage.json', function () {
     return this.migrate('up').then(() => this.migrate('up')).then(() => {
-      const storage = require(this.umzug.options.storageOptions.path);
+      const storage = require(this.umzug.options.storage.path);
       expect(storage).to.eql(['123-migration.js']);
     });
   });
@@ -177,7 +177,7 @@ describe('migrations.wrap', () => {
           }
         },
       },
-      storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+      storage: new JSONStorage({ path: join(__dirname, '/../tmp/umzug.json') }),
     });
 
     return umzug.execute({

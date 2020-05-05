@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import { SequelizeStorage as Storage } from '../../src/storages/SequelizeStorage';
+import { SequelizeStorage as Storage } from '../../src';
 
 import * as sequelize from 'sequelize';
 import { join } from 'path';

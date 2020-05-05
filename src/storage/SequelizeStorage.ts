@@ -1,4 +1,4 @@
-import { UmzugStorage } from './type-helpers/umzug-storage';
+import { UmzugStorage } from './contract';
 import { SequelizeType, ModelClassType } from './type-helpers/sequelize-type-helpers';
 import { SetRequired } from 'type-fest';
 

@@ -7,6 +7,7 @@ module.exports = {
     'unicorn',
     'jest',
     'import',
+    'codegen',
   ],
   env: { 'jest/globals': true },
   extends: [
@@ -22,6 +23,7 @@ module.exports = {
   ignorePatterns: ['lib', 'node_modules'],
   globals: { __dirname: true, process: true },
   rules: {
+    'codegen/codegen': 'warn',
     'prettier/prettier': [
       'warn',
       {

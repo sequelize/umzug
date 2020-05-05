@@ -25,7 +25,7 @@ The following example uses a Sqlite database through sequelize and persists the 
 
 ```js
 const { Sequelize } = require('sequelize');
-const { Umzug } = require('umzug');
+const { Umzug, SequelizeStorage } = require('umzug');
 
 const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
 
@@ -36,8 +36,7 @@ const umzug = new Umzug({
       sequelize.getQueryInterface()
     ]
   },
-  storage: 'sequelize',
-  storageOptions: { sequelize }
+  storage: new SequelizeStorage({ sequelize })
 });
 
 (async () => {
@@ -272,19 +271,19 @@ Storages define where the migration data is stored.
 
 Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
 
-Detailed documentation for the options it can take are in the `JSONStorageConstructorOptions` TypeScript interface, which can be found in [src/storages/JSONStorage.ts](./src/storages/JSONStorage.ts).
+Detailed documentation for the options it can take are in the `JSONStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/JSONStorage.ts](./src/storage/JSONStorage.ts).
 
 #### Sequelize Storage
 
 Using the `sequelize` storage will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
 
-Detailed documentation for the options it can take are in the `_SequelizeStorageConstructorOptions` TypeScript interface, which can be found in [src/storages/SequelizeStorage.ts](./src/storages/SequelizeStorage.ts).
+Detailed documentation for the options it can take are in the `_SequelizeStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/SequelizeStorage.ts](./src/storage/SequelizeStorage.ts).
 
 #### MongoDB Storage
 
 Using the `mongodb` storage will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
 
-Detailed documentation for the options it can take are in the `MongoDBStorageConstructorOptions` TypeScript interface, which can be found in [src/storages/MongoDBStorage.ts](./src/storages/MongoDBStorage.ts).
+Detailed documentation for the options it can take are in the `MongoDBStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/MongoDBStorage.ts](./src/storage/MongoDBStorage.ts).
 
 #### Custom
 
@@ -304,18 +303,18 @@ class CustomStorage {
 let umzug = new Umzug({ storage: new CustomStorage(...) })
 ```
 
-Your instance must adhere to the [UmzugStorage](./src/storages/type-helpers/umzug-storage.ts) interface.
+Your instance must adhere to the [UmzugStorage](./src/storage/contract.ts) interface.
 
 ##### Method 2: Pass module name to be required
 
 Create a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. 
 
-The module must export a class that implements the [UmzugStorage](./src/storages/type-helpers/umzug-storage.ts) interface.
+The module must export a class that implements the [UmzugStorage](./src/storage/contract.ts) interface.
 
 For example, if you're using TypeScript:
 
 ```js
-import { UmzugStorage } from 'umzug/lib/src/storages/type-helpers'
+import { UmzugStorage } from 'umzug'
 
 class MyStorage implements UmzugStorage {
   /* ... */

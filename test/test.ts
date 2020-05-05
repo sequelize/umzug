@@ -1,5 +1,4 @@
-import jetpack = require('fs-jetpack');
-import { Umzug, Migration, migrationsList } from '../src';
+import { Umzug, Migration, migrationsList, memoryStorage } from '../src';
 import pkgDir = require('pkg-dir');
 
 test('Compiles & exports correctly', async () => {
@@ -19,9 +18,8 @@ test('Compiles & exports correctly', async () => {
 test('migrationsList() works', async () => {
 	const executed = [];
 
-	await jetpack.removeAsync('umzug.json');
-
 	const umzug = new Umzug({
+		storage: memoryStorage(),
 		migrations: migrationsList([
 			{
 				name: '00-first-migration',
@@ -72,16 +70,13 @@ test('migrationsList() works', async () => {
 	]);
 	expect(names(await umzug.executed())).toEqual([]);
 	expect(names(await umzug.pending())).toEqual(['00-first-migration', '01-second-migration']);
-
-	await jetpack.removeAsync('umzug.json');
 });
 
 test('migration sort', async () => {
 	const executed = [];
 
-	await jetpack.removeAsync('umzug.json');
-
 	const umzug = new Umzug({
+		storage: memoryStorage(),
 		migrations: migrationsList([
 			{
 				name: '00-first-migration',
@@ -142,6 +137,4 @@ test('migration sort', async () => {
 	]);
 	expect(names(await umzug.executed())).toEqual([]);
 	expect(names(await umzug.pending())).toEqual(['01-second-migration', '00-first-migration']);
-
-	await jetpack.removeAsync('umzug.json');
 });

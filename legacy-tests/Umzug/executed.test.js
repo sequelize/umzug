@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const helper = require('../helper');
-const { Umzug } = require('../../lib/src/index');
+const { Umzug, JSONStorage } = require('../../lib/src');
 const { join } = require('path');
 
 const executedTestSuite = function executedTestSuite () {
@@ -97,7 +97,7 @@ describe('executed', () => {
         this.migrationNames = migrationNames;
         this.umzug = new Umzug({
           migrations: { path: join(__dirname, '/../tmp/') },
-          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+          storage: new JSONStorage({ path: join(__dirname, '/../tmp/umzug.json') }),
         });
       });
   });
@@ -114,7 +114,7 @@ describe('executed-directories', () => {
         this.migrationNames = migrationNames;
         this.umzug = new Umzug({
           migrations: { path: join(__dirname, '/../tmp/'), traverseDirectories: true },
-          storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+          storage: new JSONStorage({ path: join(__dirname, '/../tmp/umzug.json') }),
         });
       });
   });
