@@ -11,10 +11,10 @@ export * from './storage';
 
 export default { Migration, migrationsList, Umzug };
 
+import * as storage from './storage';
+
 // For CommonJS default export support
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const storages = require('./storage');
-module.exports = { Migration, migrationsList, Umzug, ...storages };
-module.exports.default = { Migration, migrationsList, Umzug, ...storages };
+module.exports = { Migration, migrationsList, Umzug, ...storage };
+module.exports.default = { Migration, migrationsList, Umzug, ...storage };
 
 // TODO remove all eslint-disable comments around the code
