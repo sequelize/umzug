@@ -1,7 +1,7 @@
 // codegen:start {preset: barrel}
 export * from './contract';
-export * from './JSONStorage';
+export * from './json';
 export * from './memory';
-export * from './MongoDBStorage';
-export * from './SequelizeStorage';
+export * from './mongodb';
+export * from './sequelize';
 // codegen:end

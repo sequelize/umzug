@@ -82,9 +82,5 @@ module.exports = {
 
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/consistent-function-scoping': 'off',
-
-    // for backwards compatibility, allow legacy filenames to survive.
-    // consider forcing a change for next major version though.
-    'unicorn/filename-case': 'off',
   },
 };
