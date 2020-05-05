@@ -54,7 +54,7 @@ describe('sequelize', () => {
 						    "type": "VARCHAR(255)",
 						  },
 						}
-          `);
+					`);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					// Expect(description.name.defaultValue).to.be.oneOf([null, undefined])
 					if (description.name.defaultValue !== undefined) {
@@ -101,7 +101,7 @@ describe('sequelize', () => {
 						    "type": "VARCHAR(255)",
 						  },
 						}
-          `);
+					`);
 				});
 		});
 
@@ -135,7 +135,7 @@ describe('sequelize', () => {
 						    "type": "DATETIME",
 						  },
 						}
-          `);
+					`);
 				});
 		});
 
