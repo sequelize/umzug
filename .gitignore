@@ -3,4 +3,5 @@ legacy-tests/tmp
 lib
 umzug.json
 .vscode
+coverage
 test/generated

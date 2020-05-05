@@ -39,7 +39,12 @@ module.exports = {
     'prefer-arrow-callback': 'error',
     'prefer-const': 'error',
     'no-var': 'error',
-    strict: ['error', 'never'],
+    'strict': ['error', 'never'],
+
+    'jest/expect-expect': [
+      'error',
+      {assertFunctionNames: ['expect', 'expectTypeOf']}
+    ],
 
     '@typescript-eslint/prefer-function-type': 'error',
     '@typescript-eslint/restrict-template-expressions': 'error',
@@ -70,12 +75,14 @@ module.exports = {
     'no-mixed-spaces-and-tabs': 'off',
     '@typescript-eslint/indent': 'off',
     '@typescript-eslint/member-delimiter-style': 'off',
+    '@typescript-eslint/quotes': 'off',
 
     // covered by `@typescript-eslint/no-unsued-vars`
     'no-unused-vars': 'off',
 
     'no-warning-comments': 'off',
     'no-dupe-class-members': 'off',
+    'capitalized-comments': 'off',
 
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/consistent-function-scoping': 'off',

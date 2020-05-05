@@ -1,6 +1,6 @@
 {
 	"name": "umzug",
-	"version": "3.0.0-beta.3",
+	"version": "3.0.0-beta.4",
 	"description": "Framework-agnostic migration tool for Node",
 	"keywords": [
 		"migrate",
@@ -33,8 +33,8 @@
 		"eslint-plugin-mocha": "^6.3.0",
 		"eslint-plugin-prettier": "^3.1.3",
 		"eslint-plugin-unicorn": "^18.0.1",
-		"expect-type": "^0.5.4",
-		"fs-syncer": "^0.1.2",
+		"expect-type": "^0.7.0",
+		"fs-syncer": "^0.2.0",
 		"jest": "^25.4.0",
 		"lodash": "^4.17.15",
 		"mocha": "^6.2.2",
@@ -53,7 +53,7 @@
 	"scripts": {
 		"build": "del-cli lib && tsc",
 		"lint": "eslint --ext .ts .",
-		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js",
+		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js --timeout 10000",
 		"prepare": "npm run build",
 		"release": "np --no-2fa",
 		"test": "jest && npm run mocha"
@@ -90,6 +90,9 @@
 		"testEnvironment": "node",
 		"testMatch": [
 			"**/*test.ts"
+		],
+		"collectCoverageFrom": [
+			"src/**"
 		]
 	}
 }
