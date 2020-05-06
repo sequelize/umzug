@@ -32,4 +32,13 @@ describe('memoryStorage', () => {
 
 		expect(await storage.executed()).toEqual([]);
 	});
+
+	test(`executed isn't affected by side-effects`, async () => {
+		const storage = memoryStorage();
+
+		const executed = await storage.executed();
+		executed.push('abc');
+
+		expect(await storage.executed()).toEqual([]);
+	});
 });

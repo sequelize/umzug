@@ -35,8 +35,7 @@ describe('custom resolver', () => {
         storage: new SequelizeStorage({
           path: this.storagePath,
             sequelize: this.sequelize,
-          },
-          ),
+          }),
       });
     };
 
