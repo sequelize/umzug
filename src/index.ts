@@ -7,11 +7,10 @@ export { Migration } from './migration';
 import { migrationsList } from './migrationsList';
 export { migrationsList } from './migrationsList';
 
+import * as storage from './storage';
 export * from './storage';
 
 export default { Migration, migrationsList, Umzug };
-
-import * as storage from './storage';
 
 // For CommonJS default export support
 module.exports = { Migration, migrationsList, Umzug, ...storage };
