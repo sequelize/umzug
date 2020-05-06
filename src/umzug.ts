@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-ordering */
 import { Migration } from './migration';
 import path = require('path');
 import { EventEmitter } from 'events';
@@ -71,17 +72,14 @@ export class Umzug extends EventEmitter {
 
 	// #region EventEmitter explicit implementation typings
 
-	on(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
-		return super.on(eventName, cb);
-	}
+	on: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
+	// {
+	// 	return super.on(eventName, cb);
+	// }
 
-	addListener(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
-		return super.addListener(eventName, cb);
-	}
+	addListener: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
 
-	removeListener(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
-		return super.removeListener(eventName, cb);
-	}
+	removeListener: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
 
 	// #endregion
 
@@ -390,15 +388,15 @@ export class Umzug extends EventEmitter {
 		}
 	}
 
-	private async _checkPending(arg: Migration | Migration[]): Promise<boolean> {
-		if (Array.isArray(arg)) {
-			return (await pMap(arg, async m => this._checkPending(m))).every(x => x);
-		}
+	// private async _checkPending(arg: Migration | Migration[]): Promise<boolean> {
+	// 	if (Array.isArray(arg)) {
+	// 		return (await pMap(arg, async m => this._checkPending(m))).every(x => x);
+	// 	}
 
-		const pendingMigrations = await this.pending();
-		const found = pendingMigrations.find(m => m.testFileName(arg.file));
-		return Boolean(found);
-	}
+	// 	const pendingMigrations = await this.pending();
+	// 	const found = pendingMigrations.find(m => m.testFileName(arg.file));
+	// 	return Boolean(found);
+	// }
 
 	private async _assertPending(arg: Migration | Migration[]): Promise<void> {
 		if (Array.isArray(arg)) {

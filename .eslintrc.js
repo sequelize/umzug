@@ -20,7 +20,7 @@ module.exports = {
     'xo',
     'xo-typescript',
   ],
-  ignorePatterns: ['lib', 'node_modules'],
+  ignorePatterns: ['lib', 'node_modules', 'test/tmp', 'test/generated', 'test/fixtures/javascript', 'coverage'],
   globals: { __dirname: true, process: true },
   rules: {
     'codegen/codegen': 'warn',
@@ -45,7 +45,7 @@ module.exports = {
 
     'jest/expect-expect': [
       'error',
-      {assertFunctionNames: ['expect', 'expectTypeOf']}
+      {assertFunctionNames: ['expect', 'expectTypeOf', 'verify']}
     ],
 
     '@typescript-eslint/prefer-function-type': 'error',

@@ -52,11 +52,11 @@
 	},
 	"scripts": {
 		"build": "del-cli lib && tsc",
-		"lint": "eslint --ext .ts .",
-		"mocha": "node legacy-tests/clear-tmp.js && mocha --check-leaks legacy-tests/index.js --timeout 10000",
+		"lint": "eslint --ext .js,.ts .",
 		"prepare": "npm run build",
 		"release": "np --no-2fa",
-		"test": "jest && npm run mocha"
+		"pretest": "rm -rf test/generated",
+		"test": "jest"
 	},
 	"repository": {
 		"type": "git",
@@ -89,7 +89,8 @@
 		"preset": "ts-jest",
 		"testEnvironment": "node",
 		"testMatch": [
-			"**/*test.ts"
+			"**/*test.ts",
+			"**/*test.js"
 		],
 		"collectCoverageFrom": [
 			"src/**"
