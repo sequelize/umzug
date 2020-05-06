@@ -269,29 +269,31 @@ Storages define where the migration data is stored.
 
 #### JSON Storage
 
-Using the `json` storage will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
+Using `JSONStorage` will create a JSON file which will contain an array with all the executed migrations. You can specify the path to the file. The default for that is `umzug.json` in the working directory of the process.
 
-Detailed documentation for the options it can take are in the `JSONStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/JSONStorage.ts](./src/storage/JSONStorage.ts).
+Detailed documentation for the options it can take are in the `JSONStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/json.ts](./src/storage/json.ts).
+
+#### Memory Storage
+
+Using `memoryStorage` will store migrations with an in-memory array. This can be useful for proof-of-concepts or tests, since it doesn't interact with databases or filesystems.
+
+It doesn't take any options, just import the `memoryStorage` function and call it to return a storage instance.
 
 #### Sequelize Storage
 
-Using the `sequelize` storage will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
+Using `SequelizeStorage` will create a table in your SQL database called `SequelizeMeta` containing an entry for each executed migration. You will have to pass a configured instance of Sequelize or an existing Sequelize model. Optionally you can specify the model name, table name, or column name. All major Sequelize versions are supported.
 
-Detailed documentation for the options it can take are in the `_SequelizeStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/SequelizeStorage.ts](./src/storage/SequelizeStorage.ts).
+Detailed documentation for the options it can take are in the `_SequelizeStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/sequelize.ts](./src/storage/sequelize.ts).
 
 #### MongoDB Storage
 
-Using the `mongodb` storage will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
+Using `MongoDBStorage` will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.
 
-Detailed documentation for the options it can take are in the `MongoDBStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/MongoDBStorage.ts](./src/storage/MongoDBStorage.ts).
+Detailed documentation for the options it can take are in the `MongoDBStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/mongodb.ts](./src/storage/mongodb.ts).
 
 #### Custom
 
-In order to use custom storage, you have two options:
-
-##### Method 1: Pass instance to constructor
-
-You can pass your storage instance to Umzug constructor.
+In order to use a custom storage, you can pass your storage instance to Umzug constructor.
 
 ```js
 class CustomStorage {
@@ -300,27 +302,18 @@ class CustomStorage {
   unlogMigration(...) {...}
   executed(...) {...}
 }
-let umzug = new Umzug({ storage: new CustomStorage(...) })
+
+const umzug = new Umzug({ storage: new CustomStorage(...) })
 ```
 
-Your instance must adhere to the [UmzugStorage](./src/storage/contract.ts) interface.
+If you're using TypeScript:
 
-##### Method 2: Pass module name to be required
-
-Create a module which has to fulfill the following API. You can just pass the name of the module to the configuration and *umzug* will require it accordingly. 
-
-The module must export a class that implements the [UmzugStorage](./src/storage/contract.ts) interface.
-
-For example, if you're using TypeScript:
-
-```js
+```typescript
 import { UmzugStorage } from 'umzug'
 
-class MyStorage implements UmzugStorage {
+class CustomStorage implements UmzugStorage {
   /* ... */
 }
-
-module.exports = MyStorage;
 ```
 
 ### Events
