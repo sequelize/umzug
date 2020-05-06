@@ -388,16 +388,6 @@ export class Umzug extends EventEmitter {
 		}
 	}
 
-	// private async _checkPending(arg: Migration | Migration[]): Promise<boolean> {
-	// 	if (Array.isArray(arg)) {
-	// 		return (await pMap(arg, async m => this._checkPending(m))).every(x => x);
-	// 	}
-
-	// 	const pendingMigrations = await this.pending();
-	// 	const found = pendingMigrations.find(m => m.testFileName(arg.file));
-	// 	return Boolean(found);
-	// }
-
 	private async _assertPending(arg: Migration | Migration[]): Promise<void> {
 		if (Array.isArray(arg)) {
 			await pMap(arg, async m => this._assertPending(m));
