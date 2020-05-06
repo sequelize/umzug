@@ -315,7 +315,7 @@ class CustomStorage {
 const umzug = new Umzug({ storage: new CustomStorage(...) })
 ```
 
-If you're using TypeScript:
+Your instance must adhere to the [UmzugStorage](./src/storages/type-helpers/umzug-storage.ts) interface. If you're using TypeScript you can ensure this at compile time, and get IDE type hints by importing the `UmzugStorage` interface:
 
 ```typescript
 import { UmzugStorage } from 'umzug'
