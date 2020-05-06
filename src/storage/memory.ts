@@ -1,7 +1,7 @@
 import { UmzugStorage } from './contract';
 
 export const memoryStorage = (): UmzugStorage => {
-	let executed = [] as string[];
+	let executed: string[] = [];
 	return {
 		logMigration: async name => {
 			executed.push(name);
