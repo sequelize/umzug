@@ -49,22 +49,22 @@ export class Umzug extends EventEmitter {
 		};
 
 		this.options = {
-			storage: Umzug.checkStorage(options.storage ?? new JSONStorage()),
+			storage: options.storage ?? new JSONStorage(),
 			logging: options.logging ?? false,
 			migrationSorting: options.migrationSorting ?? defaultSorting,
 			migrations,
 		};
 
 		this.storage = this.options.storage;
+
+		Umzug.checkStorage(this.storage);
 	}
 
-	private static checkStorage(storage: UmzugStorage): UmzugStorage {
+	private static checkStorage(storage: UmzugStorage) {
 		if (!isUmzugStorage(storage)) {
 			const value = typeof storage === 'string' ? storage : typeof storage;
 			throw new Error(`Invalid storage option received: ${value}`);
 		}
-
-		return storage;
 	}
 
 	// #endregion
