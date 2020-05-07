@@ -20,7 +20,7 @@ module.exports = {
     'xo',
     'xo-typescript',
   ],
-  ignorePatterns: ['lib', 'node_modules', 'test/tmp', 'test/generated', 'test/fixtures/javascript', 'coverage'],
+  ignorePatterns: ['lib', 'node_modules', 'test/generated', 'test/fixtures/javascript', 'coverage'],
   globals: { __dirname: true, process: true },
   rules: {
     'codegen/codegen': 'warn',
