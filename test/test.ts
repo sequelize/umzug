@@ -97,17 +97,7 @@ test('migration sort', async () => {
 				},
 			},
 		]),
-		migrationSorting: (a, b) => {
-			if (a > b) {
-				return -1;
-			}
-
-			if (a < b) {
-				return 1;
-			}
-
-			return 0;
-		},
+		migrationSorting: (a, b) => b.localeCompare(a),
 	});
 	const names = (migrations: Migration[]) => migrations.map(m => m.file);
 

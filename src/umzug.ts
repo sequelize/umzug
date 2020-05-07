@@ -37,35 +37,25 @@ export class Umzug extends EventEmitter {
 			};
 		}
 
-		const defaultSorting = (a, b) => {
-			if (a > b) {
-				return 1;
-			}
-
-			if (a < b) {
-				return -1;
-			}
-
-			return 0;
-		};
+		const defaultSorting = (a: string, b: string) => a.localeCompare(b);
 
 		this.options = {
-			storage: Umzug.checkStorage(options.storage ?? new JSONStorage()),
+			storage: options.storage ?? new JSONStorage(),
 			logging: options.logging ?? false,
 			migrationSorting: options.migrationSorting ?? defaultSorting,
 			migrations,
 		};
 
 		this.storage = this.options.storage;
+
+		Umzug.checkStorage(this.storage);
 	}
 
-	private static checkStorage(storage: UmzugStorage): UmzugStorage {
+	private static checkStorage(storage: UmzugStorage) {
 		if (!isUmzugStorage(storage)) {
 			const value = typeof storage === 'string' ? storage : typeof storage;
 			throw new Error(`Invalid storage option received: ${value}`);
 		}
-
-		return storage;
 	}
 
 	// #endregion

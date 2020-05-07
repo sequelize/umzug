@@ -277,7 +277,16 @@ Detailed documentation for the options it can take are in the `JSONStorageConstr
 
 Using `memoryStorage` will store migrations with an in-memory array. This can be useful for proof-of-concepts or tests, since it doesn't interact with databases or filesystems.
 
-It doesn't take any options, just import the `memoryStorage` function and call it to return a storage instance.
+It doesn't take any options, just import the `memoryStorage` function and call it to return a storage instance:
+
+```typescript
+import { Umzug, memoryStorage } from 'umzug'
+
+const umzug = new Umzug({
+  migrations: ...,
+  storage: memoryStorage(),
+})
+```
 
 #### Sequelize Storage
 
@@ -306,7 +315,7 @@ class CustomStorage {
 const umzug = new Umzug({ storage: new CustomStorage(...) })
 ```
 
-If you're using TypeScript:
+Your instance must adhere to the [UmzugStorage](./src/storage/contract.ts) interface. If you're using TypeScript you can ensure this at compile time, and get IDE type hints by importing it:
 
 ```typescript
 import { UmzugStorage } from 'umzug'
