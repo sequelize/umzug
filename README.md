@@ -282,7 +282,7 @@ It doesn't take any options, just import the `memoryStorage` function and call i
 ```typescript
 import { Umzug, memoryStorage } from 'umzug'
 
-const umguz = new Umzug({
+const umzug = new Umzug({
   migrations: ...,
   storage: memoryStorage(),
 })
