@@ -1,6 +1,5 @@
-import { MongoDBStorage } from '../../src/storages/MongoDBStorage';
+import { MongoDBStorage, UmzugStorage } from '../../src';
 import { expectTypeOf } from 'expect-type';
-import { UmzugStorage } from '../../src/storages/type-helpers/umzug-storage';
 
 describe('MongoDBStorage', () => {
 	const mockCollection = {

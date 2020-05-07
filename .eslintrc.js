@@ -7,6 +7,7 @@ module.exports = {
     'unicorn',
     'jest',
     'import',
+    'codegen',
   ],
   env: { 'jest/globals': true },
   extends: [
@@ -22,6 +23,7 @@ module.exports = {
   ignorePatterns: ['lib', 'node_modules'],
   globals: { __dirname: true, process: true },
   rules: {
+    'codegen/codegen': 'warn',
     'prettier/prettier': [
       'warn',
       {
@@ -80,9 +82,5 @@ module.exports = {
 
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/consistent-function-scoping': 'off',
-
-    // for backwards compatibility, allow legacy filenames to survive.
-    // consider forcing a change for next major version though.
-    'unicorn/filename-case': 'off',
   },
 };

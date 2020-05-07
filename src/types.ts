@@ -1,5 +1,5 @@
 import { Migration } from './migration';
-import { UmzugStorage } from './storages/type-helpers/umzug-storage';
+import { UmzugStorage } from './storage';
 
 export interface MigrationDefinition {
 	/**
@@ -99,15 +99,9 @@ export type UmzugConstructorMigrationOptions = UmzugConstructorMigrationOptionsA
 
 export interface UmzugConstructorOptions {
 	/**
-	The storage.
-
-	Possible values for built-in storages: 'none', 'json', 'mongodb', 'sequelize'.
-
-	You can also provide your own custom storage object. It must adhere to the UmzugStorage interface.
-
-	You can also provide a string which will be used as an argument for `require()`, which should require a class which implements the UmzugStorage interface.
-	*/
-	readonly storage?: string | UmzugStorage;
+	 * An object implementing the UmzugStorage interface. Defaults to a `JSONStorage` instance
+	 */
+	readonly storage?: UmzugStorage;
 
 	/**
 	The logging function.
@@ -124,11 +118,6 @@ export interface UmzugConstructorOptions {
 	A function that sorts migrations.
 	*/
 	readonly migrationSorting?: (a: string, b: string) => number;
-
-	/**
-	The options for instantiating the storage. Check the available storages for further details.
-	*/
-	readonly storageOptions?: any;
 
 	/**
 	The options that will setup the detection of migrations.

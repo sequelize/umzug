@@ -23,11 +23,6 @@ describe('constructor', () => {
     expect(umzug).to.have.property('storage');
   });
 
-  it('loads the specified storage module', () => {
-    const umzug = new Umzug({ storage: 'lodash' });
-    expect(umzug).to.have.property('storage');
-  });
-
   it('uses passed storage object', () => {
     class CustomStorage {
       logMigration () {}
@@ -45,7 +40,7 @@ describe('constructor', () => {
     expect(() => {
       new Umzug({ storage: 'nomnom' });
     }).to.throw(
-      'Unable to resolve the storage: nomnom, Error: Cannot find module \'nomnom\''
+      'Invalid storage option received: nomnom'
     );
   });
 

@@ -3,7 +3,7 @@ const { resolve, join, parse } = require('path');
 const { expect } = require('chai');
 const Sequelize = require('sequelize');
 const helper = require('../helper');
-const { Umzug } = require('../../lib/src');
+const { Umzug, SequelizeStorage } = require('../../lib/src');
 const { v4: uuid } = require('uuid');
 const { Migration } = require('../../lib/src/migration');
 
@@ -32,11 +32,10 @@ describe('custom resolver', () => {
           customResolver: this.customResolver,
           nameFormatter: (path) => parse(path).name,
         },
-        storage: 'sequelize',
-        storageOptions: {
+        storage: new SequelizeStorage({
           path: this.storagePath,
           sequelize: this.sequelize,
-        },
+        }),
       });
     };
 
@@ -82,11 +81,10 @@ describe('custom resolver', () => {
           },
         }),
       ],
-      storage: 'sequelize',
-      storageOptions: {
+      storage: new SequelizeStorage({
         path: this.storagePath,
         sequelize: this.sequelize,
-      },
+      }),
     });
 
     await umzug.up();

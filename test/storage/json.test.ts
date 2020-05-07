@@ -1,8 +1,7 @@
 import { expectTypeOf } from 'expect-type';
-import { JSONStorage } from '../../src/storages/JSONStorage';
+import { JSONStorage, UmzugStorage } from '../../src';
 import { fsSyncer } from 'fs-syncer';
 import * as path from 'path';
-import { UmzugStorage } from '../../src/storages/type-helpers/umzug-storage';
 
 describe('JSONStorage', () => {
 	describe('constructor', () => {
@@ -51,12 +50,10 @@ describe('JSONStorage', () => {
 			'umzug.json': `["m1.txt"]`,
 		});
 		beforeEach(syncer.sync); // Wipes out the directory
-
 		const storage = new JSONStorage({ path: path.join(syncer.baseDir, 'umzug.json') });
 
 		test('removes entry', async () => {
 			await storage.unlogMigration('m1.txt');
-
 			expect(syncer.read()).toEqual({
 				'umzug.json': '[]',
 			});
@@ -83,7 +80,6 @@ describe('JSONStorage', () => {
 
 		test('returns logged migration', async () => {
 			await storage.logMigration('m1.txt');
-
 			expect(await storage.executed()).toEqual(['m1.txt']);
 		});
 	});

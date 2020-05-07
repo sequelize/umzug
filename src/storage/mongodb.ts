@@ -1,4 +1,4 @@
-import { UmzugStorage } from './type-helpers/umzug-storage';
+import { UmzugStorage } from './contract';
 
 type AnyObject = { [key: string]: any };
 

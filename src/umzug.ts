@@ -5,12 +5,7 @@ import pMap = require('p-map');
 import pEachSeries = require('p-each-series');
 import { ToryFolder } from 'tory';
 
-import { NoneStorage } from './storages/NoneStorage';
-import { JSONStorage } from './storages/JSONStorage';
-import { MongoDBStorage } from './storages/MongoDBStorage';
-import { SequelizeStorage } from './storages/SequelizeStorage';
-
-import { UmzugStorage, isUmzugStorage } from './storages/type-helpers/umzug-storage';
+import { JSONStorage, UmzugStorage, isUmzugStorage } from './storage';
 import { UmzugExecuteOptions, UmzugConstructorOptions, UmzugEventNames, UmzugRunOptions } from './types';
 
 export class Umzug extends EventEmitter {
@@ -44,68 +39,22 @@ export class Umzug extends EventEmitter {
 		const defaultSorting = (a: string, b: string) => a.localeCompare(b);
 
 		this.options = {
-			storage: options.storage ?? 'json',
-			storageOptions: options.storageOptions ?? {},
+			storage: options.storage ?? new JSONStorage(),
 			logging: options.logging ?? false,
 			migrationSorting: options.migrationSorting ?? defaultSorting,
 			migrations,
 		};
 
-		this.storage = Umzug.resolveStorageOption(this.options.storage, this.options.storageOptions);
+		this.storage = this.options.storage;
+
+		Umzug.checkStorage(this.storage);
 	}
 
-	/**
-	Try to require and initialize storage.
-	*/
-	private static resolveStorageOption(storage: UmzugStorage | string, storageOptions: any): UmzugStorage {
-		if (isUmzugStorage(storage)) {
-			return storage;
+	private static checkStorage(storage: UmzugStorage) {
+		if (!isUmzugStorage(storage)) {
+			const value = typeof storage === 'string' ? storage : typeof storage;
+			throw new Error(`Invalid storage option received: ${value}`);
 		}
-
-		if (typeof storage !== 'string') {
-			// TODO
-			// throw new Error('Unexpected options.storage type.');
-			return storage;
-		}
-
-		if (storage === 'none') {
-			return new NoneStorage();
-		}
-
-		if (storage === 'json') {
-			return new JSONStorage(storageOptions);
-		}
-
-		if (storage === 'mongodb') {
-			return new MongoDBStorage(storageOptions);
-		}
-
-		if (storage === 'sequelize') {
-			return new SequelizeStorage(storageOptions);
-		}
-
-		let StorageClass;
-		try {
-			StorageClass = require(storage);
-		} catch (error) {
-			const errorDescription = `${error}`; // eslint-disable-line @typescript-eslint/restrict-template-expressions
-			const error2 = new Error(`Unable to resolve the storage: ${storage}, ${errorDescription}`);
-			(error2 as any).parent = error;
-			throw error2;
-		}
-
-		const storageInstance = new StorageClass(storageOptions);
-
-		/*
-		// TODO uncomment this
-		if (!isUmzugStorage(storageInstance)) {
-			throw new Error(`Invalid custom storage instance obtained from \`new require('${storage}')\``);
-		}
-
-		return storageInstance;
-		*/
-
-		return storageInstance as UmzugStorage;
 	}
 
 	// #endregion
