@@ -63,9 +63,6 @@ export class Umzug extends EventEmitter {
 	// #region EventEmitter explicit implementation typings
 
 	on: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
-	// {
-	// 	return super.on(eventName, cb);
-	// }
 
 	addListener: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
 
