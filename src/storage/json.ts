@@ -1,5 +1,5 @@
 import jetpack = require('fs-jetpack');
-import { UmzugStorage } from './type-helpers/umzug-storage';
+import { UmzugStorage } from './contract';
 
 export interface JSONStorageConstructorOptions {
 	/**
@@ -11,7 +11,7 @@ export interface JSONStorageConstructorOptions {
 }
 
 export class JSONStorage implements UmzugStorage {
-	public readonly path?: string;
+	public readonly path: string;
 
 	constructor(options?: JSONStorageConstructorOptions) {
 		this.path = options?.path ?? jetpack.path(process.cwd(), 'umzug.json');

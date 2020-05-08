@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case */
 import { MigrationDefinition, UmzugConstructorMigrationOptionsB } from './types';
 
 export interface MigrationDefinitionWithName extends MigrationDefinition {

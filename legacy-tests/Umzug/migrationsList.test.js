@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { Umzug } = require('../../lib/src');
+const { Umzug, JSONStorage } = require('../../lib/src');
 const { join } = require('path');
 const { migrationsList } = require('../../lib/src/migrationsList');
 const helper = require('../helper');
@@ -25,7 +25,7 @@ describe('migrationsList', () => {
     }], ['hello']);
     const umzug = new Umzug({
       migrations,
-      storageOptions: { path: join(__dirname, '/../tmp/umzug.json') },
+      storage: new JSONStorage({ path: join(__dirname, '/../tmp/umzug.json') }),
     });
 
     expect((await umzug.pending())[0].file).to.equal('00');
