@@ -1,7 +1,6 @@
 {
 	"include": [
-		"src",
-		"test"
+		"src"
 	],
 	"compilerOptions": {
 		"outDir": "lib",

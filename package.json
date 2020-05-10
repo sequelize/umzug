@@ -8,7 +8,7 @@
 		"migrations",
 		"sequelize"
 	],
-	"main": "lib/src/index.js",
+	"main": "lib/index.js",
 	"files": [
 		"lib"
 	],

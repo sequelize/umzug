@@ -1,6 +1,10 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', project: './tsconfig.json' },
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    project: ['./tsconfig.json', 'test/tsconfig.json'],
+  },
   plugins: [
     '@typescript-eslint/eslint-plugin',
     'prettier',
