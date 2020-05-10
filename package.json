@@ -47,7 +47,7 @@
 		"uuid": "^7.0.2"
 	},
 	"scripts": {
-		"build": "del-cli lib && tsc",
+		"build": "rm -rf lib && tsc",
 		"lint": "eslint --ext .js,.ts .",
 		"prepare": "npm run build",
 		"release": "np --no-2fa",
