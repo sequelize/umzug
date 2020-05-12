@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { Migration } from './migration';
 import path = require('path');
 import { EventEmitter } from 'events';
@@ -62,11 +61,17 @@ export class Umzug extends EventEmitter {
 
 	// #region EventEmitter explicit implementation typings
 
-	on: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
+	on(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
+		return super.on(eventName, cb);
+	}
 
-	addListener: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
+	addListener(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
+		return super.addListener(eventName, cb);
+	}
 
-	removeListener: (eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void) => this;
+	removeListener(eventName: UmzugEventNames, cb?: (name: string, migration: Migration) => void): this {
+		return super.removeListener(eventName, cb);
+	}
 
 	// #endregion
 
