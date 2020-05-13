@@ -1,2 +1,0 @@
-require('./Umzug');
-require('./fixtures');
