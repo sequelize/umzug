@@ -1,5 +1,4 @@
 node_modules
-legacy-tests/tmp
 lib
 umzug.json
 .vscode

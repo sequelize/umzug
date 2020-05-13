@@ -1,6 +1,10 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', project: './tsconfig.json' },
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    project: ['./tsconfig.json', 'test/tsconfig.json'],
+  },
   plugins: [
     '@typescript-eslint/eslint-plugin',
     'prettier',
@@ -20,7 +24,7 @@ module.exports = {
     'xo',
     'xo-typescript',
   ],
-  ignorePatterns: ['lib', 'node_modules'],
+  ignorePatterns: ['lib', 'node_modules', 'test/generated', 'test/fixtures/javascript', 'coverage'],
   globals: { __dirname: true, process: true },
   rules: {
     'codegen/codegen': 'warn',
@@ -45,7 +49,7 @@ module.exports = {
 
     'jest/expect-expect': [
       'error',
-      {assertFunctionNames: ['expect', 'expectTypeOf']}
+      {assertFunctionNames: ['expect', 'expectTypeOf', 'verify']}
     ],
 
     '@typescript-eslint/prefer-function-type': 'error',
