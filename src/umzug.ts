@@ -177,7 +177,7 @@ export class Umzug extends EventEmitter {
 	If `from` is omitted, takes from the beginning.
 	If `to` is omitted, takes to the end.
 	*/
-	async up(options: { from?: string; to?: string }): Promise<Migration[]>;
+	async up(options: { from?: string; to?: string | 0 }): Promise<Migration[]>;
 
 	async up(options?: UmzugRunOptions): Promise<Migration[]> {
 		return this._run('up', options, this.pending.bind(this));
@@ -204,7 +204,7 @@ export class Umzug extends EventEmitter {
 	If `from` is omitted, takes from the beginning.
 	If `to` is omitted, takes to the end.
 	*/
-	async down(options: { from?: string; to?: string }): Promise<Migration[]>;
+	async down(options: { from?: string; to?: string | 0 }): Promise<Migration[]>;
 
 	async down(options?: UmzugRunOptions): Promise<Migration[]> {
 		const getReversedExecuted = async () => {
@@ -396,7 +396,7 @@ export class Umzug extends EventEmitter {
 	/**
 	Skip migrations in a given migration list after `to` migration.
 	*/
-	private async _findMigrationsUntilMatch(to?: string, migrations?: Migration[]): Promise<string[]> {
+	private async _findMigrationsUntilMatch(to?: string | 0, migrations?: Migration[]): Promise<string[]> {
 		if (!Array.isArray(migrations)) {
 			migrations = [migrations];
 		}

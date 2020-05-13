@@ -1,5 +1,6 @@
 import { Umzug, Migration, migrationsList, memoryStorage } from '../src';
 import pkgDir = require('pkg-dir');
+import { expectTypeOf } from 'expect-type';
 
 test('Compiles & exports correctly', async () => {
 	const dir = await pkgDir(__dirname);
@@ -13,6 +14,29 @@ test('Compiles & exports correctly', async () => {
 	expect(requiredJS.Umzug).toBeTruthy();
 	expect(requiredJS.Migration).toBeTruthy();
 	expect(requiredJS.migrationsList).toBeTruthy();
+});
+
+test('type', () => {
+	expectTypeOf(Umzug).toBeConstructibleWith();
+	expectTypeOf(Umzug).toBeConstructibleWith({ storage: memoryStorage() });
+	expectTypeOf(Umzug).toBeConstructibleWith({ logging: false });
+	expectTypeOf(Umzug).toBeConstructibleWith({ logging: console.log });
+	expectTypeOf(Umzug).toBeConstructibleWith({ migrationSorting: (a, b) => a.localeCompare(b) });
+	expectTypeOf(Umzug).toBeConstructibleWith({ migrations: { path: 'test/abc' } });
+
+	expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 'migration123' });
+	expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 0 });
+
+	expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 'migration123' });
+	expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 0 });
+
+	// `{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed:
+
+	// @ts-expect-error
+	expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 1 });
+
+	// @ts-expect-error
+	expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 1 });
 });
 
 test('migrationsList() works', async () => {
