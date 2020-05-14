@@ -485,7 +485,6 @@ export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
 	return new Umzug({
 		logging: params.logging,
 		storage: params.storage,
-		storageOptions: params.storageOptions,
 		migrations: migrationList.map(({ name, migration }) => {
 			const resolved = { up: migration.up, down: migration.down || Promise.resolve };
 			return new Migration(name, { migrations: { customResolver: () => resolved } });
