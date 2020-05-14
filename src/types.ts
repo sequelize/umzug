@@ -145,5 +145,5 @@ export type UmzugRunOptions =
 			from?: string;
 
 			/** The last migration to execute (included). */
-			to?: string;
+			to?: string | 0;
 	  };
