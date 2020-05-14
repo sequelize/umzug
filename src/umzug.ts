@@ -447,10 +447,7 @@ export interface GetUmzugParams<Storage extends UmzugStorage> {
 	migrations: InputMigrations<Storage>;
 }
 
-export const resolveMigrations = <Storage extends UmzugStorage>(
-	inputMigrations: InputMigrations<Storage>,
-	storage: Storage
-) => {
+export const getMigrations = <S extends UmzugStorage>(inputMigrations: InputMigrations<S>, storage: S) => {
 	if (Array.isArray(inputMigrations)) {
 		return inputMigrations;
 	}
@@ -480,7 +477,7 @@ export const resolveMigrations = <Storage extends UmzugStorage>(
 };
 
 export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
-	const migrationList = resolveMigrations(params.migrations, params.storage);
+	const migrationList = getMigrations(params.migrations, params.storage);
 
 	return new Umzug({
 		logging: params.logging,
@@ -492,10 +489,10 @@ export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
 		// todo: disable migration sorting when passing in a list directly - users can sort it themselves if they want to.
 		// or, remove it completely in favour of this API in v3 RC.
 		// For now, this hack passes a custom sorting function that respects the order of the resolved list
-		// If we do want to keep the hack, we should probably store a name -> index mapping rather than using an n^2 findIndex method.
-		migrationSorting: (...args) => {
-			const indexes = args.map(a => migrationList.findIndex(m => m.name === a));
-			return indexes[0] - indexes[1];
-		},
+		migrationSorting: (() => {
+			const indexes = new Map(migrationList.map((m, i) => [m.name, i]));
+			const indexOf = (name: string) => indexes.get(name) ?? -1;
+			return (a: string, b: string) => indexOf(a) - indexOf(b);
+		})(),
 	});
 };

@@ -1,9 +1,8 @@
-import { getUmzug, resolveMigrations } from '../src/umzug';
-import { JSONStorage } from '../src/storages/JSONStorage';
+import { getUmzug, getMigrations } from '../src/umzug';
+import { JSONStorage, UmzugStorage } from '../src';
 import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
-import { UmzugStorage } from '../src/storages/type-helpers/umzug-storage';
 
 test('getUmzug with migrations array', async () => {
 	const spy = jest.fn();
@@ -127,7 +126,7 @@ test('getUmzug with custom file globbing options', async () => {
 	});
 });
 
-test('getUmzug allows customization via resolveMigrations', async () => {
+test('getUmzug allows customization via getMigrations', async () => {
 	const spy = jest.fn();
 
 	const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/customOrdering'), {
@@ -140,7 +139,7 @@ test('getUmzug allows customization via resolveMigrations', async () => {
 
 	const storage = new JSONStorage({ path: join(syncer.baseDir, 'storage.json') });
 
-	const migrationsWithStandardOrdering = resolveMigrations(
+	const migrationsWithStandardOrdering = getMigrations(
 		{
 			glob: ['*.sql', { cwd: syncer.baseDir }],
 			resolve: params => ({
@@ -168,7 +167,7 @@ test('getUmzug allows customization via resolveMigrations', async () => {
 	});
 });
 
-test('getUmzug supports nested directories via resolveMigrations', async () => {
+test('getUmzug supports nested directories via getMigrations', async () => {
 	const spy = jest.fn();
 
 	// folder structure splitting migrations into separate directories, with the filename determining the order:
@@ -193,7 +192,7 @@ test('getUmzug supports nested directories via resolveMigrations', async () => {
 		path: join(syncer.baseDir, 'storage.json'),
 	});
 
-	const migrationsWithStandardOrdering = resolveMigrations(
+	const migrationsWithStandardOrdering = getMigrations(
 		{
 			glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
 			resolve: params => ({ up: spy.bind(null, params) }),
