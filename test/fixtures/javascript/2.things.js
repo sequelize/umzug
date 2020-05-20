@@ -1,7 +1,7 @@
-const { readFileSync } = require('fs');
-const { resolve } = require('path');
-
-const sql = readFileSync(resolve(__dirname, '../sql/2.things.sql'), 'utf8');
-const up = ({ sequelize }) => sequelize.query(sql);
-
-module.exports = { up };
+exports.up = ({ sequelize }) => sequelize.query(`
+  CREATE TABLE thing (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR,
+    ownerId INTEGER REFERENCES user(id)
+  );
+`);

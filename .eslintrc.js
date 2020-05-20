@@ -28,19 +28,7 @@ module.exports = {
   globals: { __dirname: true, process: true },
   rules: {
     'codegen/codegen': 'warn',
-    'prettier/prettier': [
-      'warn',
-      {
-        singleQuote: true,
-        semi: true,
-        arrowParens: 'avoid',
-        trailingComma: 'es5',
-        bracketSpacing: true,
-        endOfLine: 'auto',
-        printWidth: 120,
-        useTabs: true,
-      },
-    ],
+    'prettier/prettier': ['error',require('./.prettierrc')],
 
     'prefer-arrow-callback': 'error',
     'prefer-const': 'error',

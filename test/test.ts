@@ -152,3 +152,45 @@ test('migration sort', async () => {
 	expect(names(await umzug.executed())).toEqual([]);
 	expect(names(await umzug.pending())).toEqual(['01-second-migration', '00-first-migration']);
 });
+
+test('events', async () => {
+	const mock = jest.fn();
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+	const spy = (label: string) => (...args) => mock([label, ...args]);
+
+	const umzug = new Umzug({
+		storage: memoryStorage(),
+		migrations: migrationsList([
+			{ name: 'm1', up: spy('up'), down: spy('down') },
+			{ name: 'm2', up: spy('up'), down: spy('down') },
+		]).map(m => {
+			m.toString = () => `{migration: ${m.file}}`;
+			return m;
+		}),
+	});
+	umzug.addListener('migrating', spy('migrating'));
+	umzug.on('migrated', spy('migrated'));
+	umzug.on('reverting', spy('reverting'));
+	umzug.on('reverted', spy('reverted'));
+
+	await umzug.up();
+
+	expect(mock.mock.calls.join('\n')).toMatchInlineSnapshot(`
+		"migrating,m1,{migration: m1}
+		up
+		migrated,m1,{migration: m1}
+		migrating,m2,{migration: m2}
+		up
+		migrated,m2,{migration: m2}"
+	`);
+
+	mock.mockClear();
+
+	await umzug.down();
+
+	expect(mock.mock.calls.join('\n')).toMatchInlineSnapshot(`
+		"reverting,m2,{migration: m2}
+		down
+		reverted,m2,{migration: m2}"
+	`);
+});
