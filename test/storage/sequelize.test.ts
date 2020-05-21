@@ -8,6 +8,12 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import jetpack = require('fs-jetpack');
 
+// TODO [sequelize@>6.0.0] remove when sequelize fixes the types bug
+// a change in the types of sequelize@next makes `describe` a static function
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+const describeModel = (model: sequelize.Model) => model.describe();
+
 describe('sequelize', () => {
 	jetpack.cwd(__dirname).dir('tmp', { empty: true });
 
@@ -43,7 +49,7 @@ describe('sequelize', () => {
 			expect(storage.model.getTableName()).toBe('SequelizeMeta');
 			return storage.model
 				.sync()
-				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
+				.then(describeModel)
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
@@ -90,7 +96,7 @@ describe('sequelize', () => {
 			});
 			return storage.model
 				.sync()
-				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
+				.then(describeModel)
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
@@ -112,7 +118,7 @@ describe('sequelize', () => {
 			});
 			return storage.model
 				.sync()
-				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
+				.then(describeModel)
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
@@ -146,7 +152,7 @@ describe('sequelize', () => {
 			});
 			return storage.model
 				.sync()
-				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
+				.then(describeModel)
 				.then(description => {
 					expect(description.name.type).toBe('VARCHAR(190)');
 					// Expect(description.name.defaultValue).to.be.oneOf([null, undefined])
