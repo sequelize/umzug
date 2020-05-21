@@ -8,7 +8,7 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import jetpack = require('fs-jetpack');
 
-// TODO [sequelize@>6.0.0] remove when sequelize fixes the types bug
+// TODO [sequelize@>=6.0.0] remove when sequelize fixes the types bug
 // a change in the types of sequelize@next makes `describe` a static function
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
