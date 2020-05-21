@@ -43,7 +43,7 @@ describe('sequelize', () => {
 			expect(storage.model.getTableName()).toBe('SequelizeMeta');
 			return storage.model
 				.sync()
-				.then(model => model.describe())
+				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
@@ -90,7 +90,7 @@ describe('sequelize', () => {
 			});
 			return storage.model
 				.sync()
-				.then(model => model.describe())
+				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
@@ -112,7 +112,7 @@ describe('sequelize', () => {
 			});
 			return storage.model
 				.sync()
-				.then(model => model.describe())
+				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
 				.then(description => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
@@ -146,7 +146,7 @@ describe('sequelize', () => {
 			});
 			return storage.model
 				.sync()
-				.then(model => model.describe())
+				.then(model => model.describe()) // a change in the types of sequelize@next makes `describe` a static function
 				.then(description => {
 					expect(description.name.type).toBe('VARCHAR(190)');
 					// Expect(description.name.defaultValue).to.be.oneOf([null, undefined])
