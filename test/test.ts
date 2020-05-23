@@ -161,36 +161,35 @@ test('events', async () => {
 	const umzug = new Umzug({
 		storage: memoryStorage(),
 		migrations: migrationsList([
-			{ name: 'm1', up: spy('up'), down: spy('down') },
-			{ name: 'm2', up: spy('up'), down: spy('down') },
-		]).map(m => {
-			m.toString = () => `{migration: ${m.file}}`;
-			return m;
-		}),
+			{ name: 'm1', up: spy('up-m1'), down: spy('down-m1') },
+			{ name: 'm2', up: spy('up-m2'), down: spy('down-m2') },
+		]),
 	});
+
+	// `.addListener` and `.on` are aliases -us both to make sure they're wired up properly
 	umzug.addListener('migrating', spy('migrating'));
 	umzug.on('migrated', spy('migrated'));
-	umzug.on('reverting', spy('reverting'));
+	umzug.addListener('reverting', spy('reverting'));
 	umzug.on('reverted', spy('reverted'));
 
 	await umzug.up();
 
-	expect(mock.mock.calls.join('\n')).toMatchInlineSnapshot(`
-		"migrating,m1,{migration: m1}
-		up
-		migrated,m1,{migration: m1}
-		migrating,m2,{migration: m2}
-		up
-		migrated,m2,{migration: m2}"
-	`);
+	expect(mock.mock.calls).toMatchObject([
+		[['migrating', 'm1', { file: 'm1' }]],
+		[['up-m1']],
+		[['migrated', 'm1', { file: 'm1' }]],
+		[['migrating', 'm2', { file: 'm2' }]],
+		[['up-m2']],
+		[['migrated', 'm2', { file: 'm2' }]],
+	]);
 
 	mock.mockClear();
 
 	await umzug.down();
 
-	expect(mock.mock.calls.join('\n')).toMatchInlineSnapshot(`
-		"reverting,m2,{migration: m2}
-		down
-		reverted,m2,{migration: m2}"
-	`);
+	expect(mock.mock.calls).toMatchObject([
+		[['reverting', 'm2', { file: 'm2' }]],
+		[['down-m2']],
+		[['reverted', 'm2', { file: 'm2' }]],
+	]);
 });
