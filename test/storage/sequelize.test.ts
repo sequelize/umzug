@@ -8,11 +8,9 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import jetpack = require('fs-jetpack');
 
-// TODO [sequelize@>=6.0.0] remove when sequelize fixes the types bug
-// a change in the types of sequelize@next makes `describe` a static function - see https://github.com/sequelize/sequelize/issues/12296
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore
-const describeModel = (model: sequelize.Model) => model.describe();
+// TODO [>=3.0.0]: Investigate whether we are mis-using `model.describe()` here, and get rid of `any`.
+// See https://github.com/sequelize/umzug/pull/226 and https://github.com/sequelize/sequelize/issues/12296 for details
+const describeModel = (model: any) => model.describe();
 
 describe('sequelize', () => {
 	jetpack.cwd(__dirname).dir('tmp', { empty: true });
