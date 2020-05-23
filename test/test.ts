@@ -166,7 +166,7 @@ test('events', async () => {
 		]),
 	});
 
-	// `.addListener` and `.on` are aliases -us both to make sure they're wired up properly
+	// `.addListener` and `.on` are aliases - use both to make sure they're wired up properly
 	umzug.addListener('migrating', spy('migrating'));
 	umzug.on('migrated', spy('migrated'));
 	umzug.addListener('reverting', spy('reverting'));
