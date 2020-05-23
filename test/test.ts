@@ -156,7 +156,7 @@ test('migration sort', async () => {
 test('events', async () => {
 	const mock = jest.fn();
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-	const spy = (label: string) => (...args) => mock([label, ...args]);
+	const spy = (label: string) => (...args) => mock(label, ...args);
 
 	const umzug = new Umzug({
 		storage: memoryStorage(),
@@ -175,12 +175,12 @@ test('events', async () => {
 	await umzug.up();
 
 	expect(mock.mock.calls).toMatchObject([
-		[['migrating', 'm1', { file: 'm1' }]],
-		[['up-m1']],
-		[['migrated', 'm1', { file: 'm1' }]],
-		[['migrating', 'm2', { file: 'm2' }]],
-		[['up-m2']],
-		[['migrated', 'm2', { file: 'm2' }]],
+		['migrating', 'm1', { file: 'm1' }],
+		['up-m1'],
+		['migrated', 'm1', { file: 'm1' }],
+		['migrating', 'm2', { file: 'm2' }],
+		['up-m2'],
+		['migrated', 'm2', { file: 'm2' }],
 	]);
 
 	mock.mockClear();
@@ -188,8 +188,8 @@ test('events', async () => {
 	await umzug.down();
 
 	expect(mock.mock.calls).toMatchObject([
-		[['reverting', 'm2', { file: 'm2' }]],
-		[['down-m2']],
-		[['reverted', 'm2', { file: 'm2' }]],
+		['reverting', 'm2', { file: 'm2' }],
+		['down-m2'],
+		['reverted', 'm2', { file: 'm2' }],
 	]);
 });
