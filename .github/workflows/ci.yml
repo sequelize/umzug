@@ -1,0 +1,27 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x, 10.x]
+        sequelize-version: ['5', 'next']
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: run ci
+      run: |
+        npm i sequelize@$(echo $SEQUELIZE)
+        npm install
+        npm run build
+        npm run lint
+        npm run test -- --coverage
+      env:
+        CI: true
+    - name: Coverage
+      uses: codecov/codecov-action@v1
+      if: matrix.node-version == '12.x' && matrix.sequelize-version == '5'
