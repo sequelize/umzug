@@ -16,7 +16,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: run ci
       run: |
-        npm i sequelize@$(echo $SEQUELIZE)
+        npm i sequelize@${{ matrix.sequelize-version }}
         npm install
         npm run build
         npm run lint
