@@ -25,4 +25,4 @@ jobs:
         CI: true
     - name: Coverage
       uses: codecov/codecov-action@v1
-      if: matrix.node-version == '12.x' && matrix.sequelize-version == '5'
+      if: matrix.node-version == '12.x' && matrix.sequelize-version == null
