@@ -7,18 +7,18 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 10.x]
-        sequelize-version: ['5', 'next']
+        sequelize-version: [null, next]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - run: npm install sequelize@${{ matrix.sequelize-version }}
+      if: matrix.sequelize-version != null
     - name: run ci
       run: |
-        npm i sequelize@${{ matrix.sequelize-version }}
         npm install
-        npm run build
         npm run lint
         npm run test -- --coverage
       env:
