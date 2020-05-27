@@ -54,9 +54,6 @@ describe('sequelize', () => {
 			expect(defineModelSpy).toHaveBeenCalledTimes(1);
 			expect(getModelSpy).toHaveBeenCalledTimes(1);
 
-			defineModelSpy.mockClear();
-			getModelSpy.mockClear();
-
 			expect(storage2).toEqual(storage1);
 		});
 
