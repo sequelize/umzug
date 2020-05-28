@@ -1,5 +1,5 @@
 import { getUmzug, getMigrations } from '../src/umzug';
-import { JSONStorage, UmzugStorage } from '../src';
+import { UmzugStorage, memoryStorage } from '../src';
 import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
@@ -15,7 +15,7 @@ test('getUmzug with migrations array', async () => {
 			{ name: 'migration1', migration: { up: spy.bind(null, 'migration1-up') } },
 			{ name: 'migration2', migration: { up: spy.bind(null, 'migration2-up') } },
 		],
-		storage: new JSONStorage({ path: join(syncer.baseDir, 'storage.json') }),
+		storage: memoryStorage(),
 	});
 
 	await umzug.up();
@@ -36,13 +36,13 @@ test('getUmzug with function returning migrations array', async () => {
 	const umzug = getUmzug({
 		migrations: storage => {
 			expectTypeOf(storage).not.toEqualTypeOf<UmzugStorage>();
-			expectTypeOf(storage).toEqualTypeOf<JSONStorage>();
+			expectTypeOf(storage).toEqualTypeOf<UmzugStorage & { customized: boolean }>();
 			return [
 				{ name: 'migration1', migration: { up: spy.bind(null, 'migration1-up', storage) } },
 				{ name: 'migration2', migration: { up: spy.bind(null, 'migration2-up', storage) } },
 			];
 		},
-		storage: new JSONStorage({ path: join(syncer.baseDir, 'storage.json') }),
+		storage: Object.assign(memoryStorage(), { customized: true }),
 	});
 
 	await umzug.up();
@@ -65,7 +65,6 @@ test('getUmzug with file globbing', async () => {
 	});
 	syncer.sync();
 
-	const storagePath = join(syncer.baseDir, 'storage.json');
 	const umzug = getUmzug({
 		migrations: {
 			glob: ['*.sql', { cwd: syncer.baseDir }],
@@ -73,7 +72,7 @@ test('getUmzug with file globbing', async () => {
 				up: spy.bind(null, params),
 			}),
 		},
-		storage: new JSONStorage({ path: storagePath }),
+		storage: memoryStorage(),
 	});
 
 	await umzug.up();
@@ -102,7 +101,6 @@ test('getUmzug with custom file globbing options', async () => {
 	});
 	syncer.sync();
 
-	const storagePath = join(syncer.baseDir, 'storage.json');
 	const umzug = getUmzug({
 		migrations: {
 			glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
@@ -110,7 +108,7 @@ test('getUmzug with custom file globbing options', async () => {
 				up: spy.bind(null, params),
 			}),
 		},
-		storage: new JSONStorage({ path: storagePath }),
+		storage: memoryStorage(),
 	});
 
 	await umzug.up();
@@ -137,7 +135,7 @@ test('getUmzug allows customization via getMigrations', async () => {
 	});
 	syncer.sync();
 
-	const storage = new JSONStorage({ path: join(syncer.baseDir, 'storage.json') });
+	const storage = memoryStorage();
 
 	const migrationsWithStandardOrdering = getMigrations(
 		{
@@ -188,9 +186,7 @@ test('getUmzug supports nested directories via getMigrations', async () => {
 	});
 	syncer.sync();
 
-	const storage = new JSONStorage({
-		path: join(syncer.baseDir, 'storage.json'),
-	});
+	const storage = memoryStorage();
 
 	const migrationsWithStandardOrdering = getMigrations(
 		{
