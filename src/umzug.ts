@@ -443,7 +443,6 @@ export type InputMigrations<Storage extends UmzugStorage> =
 export interface GetUmzugParams<Storage extends UmzugStorage> {
 	storage: Storage;
 	logging?: ((...args: any[]) => void) | false;
-	storageOptions?: any;
 	migrations: InputMigrations<Storage>;
 }
 
