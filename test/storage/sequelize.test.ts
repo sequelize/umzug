@@ -41,6 +41,22 @@ describe('sequelize', () => {
 			expect(storage).toHaveProperty('columnName');
 		});
 
+		it('lazy-initializes model', () => {
+			const defineModelSpy = jest.spyOn(helper.sequelize, 'define');
+			const getModelSpy = jest.spyOn(helper.sequelize, 'model');
+			const storage1 = new Storage({ sequelize: helper.sequelize });
+
+			expect(defineModelSpy).toHaveBeenCalledTimes(1);
+			expect(getModelSpy).toHaveBeenCalledTimes(0);
+
+			const storage2 = new Storage({ sequelize: helper.sequelize });
+
+			expect(defineModelSpy).toHaveBeenCalledTimes(1);
+			expect(getModelSpy).toHaveBeenCalledTimes(1);
+
+			expect(storage2).toEqual(storage1);
+		});
+
 		it('accepts a "sequelize" option and creates a model', () => {
 			const storage = new Storage({ sequelize: helper.sequelize });
 			expect(storage.model).toBe(helper.sequelize.model('SequelizeMeta'));
@@ -340,6 +356,16 @@ describe('sequelize', () => {
 	});
 
 	describe('executed', () => {
+		it('validates migration types', async () => {
+			const storage = new Storage({ sequelize: helper.sequelize });
+
+			jest.spyOn(storage.model, 'findAll').mockResolvedValueOnce([{ name: 123 } as any]);
+
+			await expect(storage.executed()).rejects.toThrowErrorMatchingInlineSnapshot(
+				`"Unexpected migration name type: expected string, got number"`
+			);
+		});
+
 		it("creates the table if it doesn't exist yet", () => {
 			const storage = new Storage({
 				sequelize: helper.sequelize,

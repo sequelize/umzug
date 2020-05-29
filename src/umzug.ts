@@ -357,11 +357,7 @@ export class Umzug extends EventEmitter {
 		throw new Error(`Unable to find migration: ${name}`);
 	}
 
-	private async _checkExecuted(arg: Migration | Migration[]): Promise<boolean> {
-		if (Array.isArray(arg)) {
-			return (await pMap(arg, async m => this._checkExecuted(m))).every(x => x);
-		}
-
+	private async _checkExecuted(arg: Migration): Promise<boolean> {
 		const executedMigrations = await this.executed();
 		const found = executedMigrations.find(m => m.testFileName(arg.file));
 		return Boolean(found);
@@ -396,11 +392,7 @@ export class Umzug extends EventEmitter {
 	/**
 	Skip migrations in a given migration list after `to` migration.
 	*/
-	private async _findMigrationsUntilMatch(to?: string | 0, migrations?: Migration[]): Promise<string[]> {
-		if (!Array.isArray(migrations)) {
-			migrations = [migrations];
-		}
-
+	private async _findMigrationsUntilMatch(to: string | 0, migrations: Migration[]): Promise<string[]> {
 		const files = migrations.map(migration => migration.file);
 
 		if (!to) {

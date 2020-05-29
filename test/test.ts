@@ -169,7 +169,9 @@ test('events', async () => {
 	// `.addListener` and `.on` are aliases - use both to make sure they're wired up properly
 	umzug.addListener('migrating', spy('migrating'));
 	umzug.on('migrated', spy('migrated'));
-	umzug.addListener('reverting', spy('reverting'));
+
+	const revertingSpy = spy('reverting');
+	umzug.addListener('reverting', revertingSpy);
 	umzug.on('reverted', spy('reverted'));
 
 	await umzug.up();
@@ -192,4 +194,23 @@ test('events', async () => {
 		['down-m2'],
 		['reverted', 'm2', { file: 'm2' }],
 	]);
+
+	mock.mockClear();
+
+	umzug.removeListener('reverting', revertingSpy);
+
+	await umzug.down();
+
+	expect(mock.mock.calls).toMatchObject([
+		// `reverting` shouldn't be here because the listener was removed
+		['down-m1'],
+		['reverted', 'm1', { file: 'm1' }],
+	]);
+});
+
+test('validates logging function', () => {
+	// @ts-expect-error
+	expect(() => new Umzug({ logging: 1 })).toThrowErrorMatchingInlineSnapshot(
+		`"The logging-option should be either a function or false"`
+	);
 });
