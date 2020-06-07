@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-new */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { Umzug } = require('../../src');

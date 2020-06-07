@@ -49,7 +49,7 @@
 	},
 	"scripts": {
 		"build": "del-cli lib && tsc",
-		"lint": "eslint --ext .js,.ts .",
+		"lint": "eslint --ext .js,.ts . --max-warnings 0",
 		"prepare": "npm run build",
 		"release": "np --no-2fa",
 		"pretest": "del-cli test/generated",
