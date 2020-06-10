@@ -153,6 +153,40 @@ test('migration sort', async () => {
 	expect(names(await umzug.pending())).toEqual(['01-second-migration', '00-first-migration']);
 });
 
+test('to', async () => {
+	const noop = async () => {};
+	const umzug = new Umzug({
+		storage: memoryStorage(),
+		migrations: migrationsList([
+			{ name: 'm1', up: noop, down: noop },
+			{ name: 'm2', up: noop, down: noop },
+			{ name: 'm3', up: noop, down: noop },
+			{ name: 'm4', up: noop, down: noop },
+			{ name: 'm5', up: noop, down: noop },
+			{ name: 'm6', up: noop, down: noop },
+			{ name: 'm7', up: noop, down: noop },
+		]),
+	});
+
+	await umzug.up();
+
+	const names = (migrations: Migration[]) => migrations.map(m => m.file);
+
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']);
+
+	await umzug.down({});
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6']);
+
+	await umzug.down({ to: undefined });
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5']);
+
+	await umzug.down({ to: 'm3' });
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
+
+	await umzug.down({ to: 0 });
+	expect(names(await umzug.executed())).toEqual([]);
+});
+
 test('events', async () => {
 	const mock = jest.fn();
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-return

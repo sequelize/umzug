@@ -211,7 +211,10 @@ export class Umzug extends EventEmitter {
 			return (await this.executed()).reverse();
 		};
 
-		if (!options || Object.keys(options).length === 0) {
+		// todo [>=3.0.0] restrict what _run receives, this check is brittle
+		// it's ok for this method to have pretty ambiguous inputs since it's public
+		// but _run is private so we should be more precise about what we pass to it.
+		if (!options || Object.keys(options).every(k => typeof options[k] === 'undefined')) {
 			const migrations = await getReversedExecuted();
 			if (migrations[0]) {
 				return this.down(migrations[0].file);
