@@ -153,6 +153,40 @@ test('migration sort', async () => {
 	expect(names(await umzug.pending())).toEqual(['01-second-migration', '00-first-migration']);
 });
 
+test('to', async () => {
+	const noop = async () => {};
+	const umzug = new Umzug({
+		storage: memoryStorage(),
+		migrations: migrationsList([
+			{ name: 'm1', up: noop, down: noop },
+			{ name: 'm2', up: noop, down: noop },
+			{ name: 'm3', up: noop, down: noop },
+			{ name: 'm4', up: noop, down: noop },
+			{ name: 'm5', up: noop, down: noop },
+			{ name: 'm6', up: noop, down: noop },
+			{ name: 'm7', up: noop, down: noop },
+		]),
+	});
+
+	await umzug.up();
+
+	const names = (migrations: Migration[]) => migrations.map(m => m.file);
+
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']);
+
+	await umzug.down({});
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6']);
+
+	await umzug.down({ to: undefined });
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5']);
+
+	await umzug.down({ to: 'm3' });
+	expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
+
+	await umzug.down({ to: 0 });
+	expect(names(await umzug.executed())).toEqual([]);
+});
+
 test('events', async () => {
 	const mock = jest.fn();
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -169,7 +203,9 @@ test('events', async () => {
 	// `.addListener` and `.on` are aliases - use both to make sure they're wired up properly
 	umzug.addListener('migrating', spy('migrating'));
 	umzug.on('migrated', spy('migrated'));
-	umzug.addListener('reverting', spy('reverting'));
+
+	const revertingSpy = spy('reverting');
+	umzug.addListener('reverting', revertingSpy);
 	umzug.on('reverted', spy('reverted'));
 
 	await umzug.up();
@@ -192,4 +228,23 @@ test('events', async () => {
 		['down-m2'],
 		['reverted', 'm2', { file: 'm2' }],
 	]);
+
+	mock.mockClear();
+
+	umzug.removeListener('reverting', revertingSpy);
+
+	await umzug.down();
+
+	expect(mock.mock.calls).toMatchObject([
+		// `reverting` shouldn't be here because the listener was removed
+		['down-m1'],
+		['reverted', 'm1', { file: 'm1' }],
+	]);
+});
+
+test('validates logging function', () => {
+	// @ts-expect-error
+	expect(() => new Umzug({ logging: 1 })).toThrowErrorMatchingInlineSnapshot(
+		`"The logging-option should be either a function or false"`
+	);
 });

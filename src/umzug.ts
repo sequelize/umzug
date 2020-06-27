@@ -211,7 +211,10 @@ export class Umzug extends EventEmitter {
 			return (await this.executed()).reverse();
 		};
 
-		if (!options || Object.keys(options).length === 0) {
+		// todo [>=3.0.0] restrict what _run receives, this check is brittle
+		// it's ok for this method to have pretty ambiguous inputs since it's public
+		// but _run is private so we should be more precise about what we pass to it.
+		if (!options || Object.keys(options).every(k => typeof options[k] === 'undefined')) {
 			const migrations = await getReversedExecuted();
 			if (migrations[0]) {
 				return this.down(migrations[0].file);
@@ -357,11 +360,7 @@ export class Umzug extends EventEmitter {
 		throw new Error(`Unable to find migration: ${name}`);
 	}
 
-	private async _checkExecuted(arg: Migration | Migration[]): Promise<boolean> {
-		if (Array.isArray(arg)) {
-			return (await pMap(arg, async m => this._checkExecuted(m))).every(x => x);
-		}
-
+	private async _checkExecuted(arg: Migration): Promise<boolean> {
 		const executedMigrations = await this.executed();
 		const found = executedMigrations.find(m => m.testFileName(arg.file));
 		return Boolean(found);
@@ -396,11 +395,7 @@ export class Umzug extends EventEmitter {
 	/**
 	Skip migrations in a given migration list after `to` migration.
 	*/
-	private async _findMigrationsUntilMatch(to?: string | 0, migrations?: Migration[]): Promise<string[]> {
-		if (!Array.isArray(migrations)) {
-			migrations = [migrations];
-		}
-
+	private async _findMigrationsUntilMatch(to: string | 0, migrations: Migration[]): Promise<string[]> {
 		const files = migrations.map(migration => migration.file);
 
 		if (!to) {

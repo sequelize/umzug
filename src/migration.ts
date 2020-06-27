@@ -1,7 +1,7 @@
 import _path = require('path');
 import { MigrationDefinition, ShortMigrationOptions } from './types';
 
-// TODO remove this, use `ShortMigrationOptions` directly in place of `MigrationConstructorOptions`
+// TODO [>=3.0.0] remove this, use `ShortMigrationOptions` directly in place of `MigrationConstructorOptions`
 export interface MigrationConstructorOptions {
 	readonly migrations?: ShortMigrationOptions;
 }
