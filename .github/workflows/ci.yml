@@ -14,15 +14,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - run: npm install
     - run: npm install sequelize@${{ matrix.sequelize-version }}
       if: matrix.sequelize-version != null
-    - name: run ci
-      run: |
-        npm install
-        npm run lint
-        npm run test -- --coverage
-      env:
-        CI: true
+    - run: npm run lint
+      if: matrix.sequelize-version == null
+    - run: npm run test -- --coverage
     - name: Coverage
       uses: codecov/codecov-action@v1
       if: matrix.node-version == '12.x' && matrix.sequelize-version == null
