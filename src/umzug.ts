@@ -425,11 +425,9 @@ export interface MigrationContainer {
 
 export type MigrationList = Array<{ name: string; path?: string; migration: MigrationContainer }>;
 
-export type GlobParams = Parameters<typeof glob.sync>;
-
 export type InputMigrations<T> =
 	| {
-			glob: string | [string, Pick<glob.IOptions, 'cwd' | 'ignore'>];
+			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
 			context?: T;
 			resolve?: Resolver<T>;
 	  }
@@ -473,7 +471,7 @@ export const getMigrations = <T>(inputMigrations: InputMigrations<T>, context?: 
 	}
 
 	const fileGlob = inputMigrations.glob;
-	const [globString, globOptions]: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
+	const [globString, globOptions]: Parameters<typeof glob.sync> = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
 	const resolver: Resolver<T> = inputMigrations.resolve || defaultResolver;
 
