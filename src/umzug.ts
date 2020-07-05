@@ -429,7 +429,7 @@ export type GlobParams = Parameters<typeof glob.sync>;
 
 export type InputMigrations<T> =
 	| {
-			glob: string | GlobParams;
+			glob: string | [string, Pick<glob.IOptions, 'cwd' | 'ignore'>];
 			context?: T;
 			resolve?: Resolver<T>;
 	  }
@@ -438,12 +438,14 @@ export type InputMigrations<T> =
 
 export interface GetUmzugParams<Storage extends UmzugStorage, T = never> {
 	migrations: InputMigrations<T>;
-	storage: Storage;
+	storage?: Storage;
 	context?: T;
 	logging?: ((...args: any[]) => void) | false;
 }
 
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => MigrationContainer;
+
+// todo [>=3.0.0] document how to migrate to v3, which has a breaking change - it passes in path, name, context where v2 passed in context only.
 export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, context }) => {
 	const ext = path.extname(filepath);
 	const canRequire = ext === '.js' || ext in require.extensions;
@@ -475,6 +477,9 @@ export const getMigrations = <T>(inputMigrations: InputMigrations<T>, context?: 
 
 	const resolver: Resolver<T> = inputMigrations.resolve || defaultResolver;
 
+	// todo [>=3.0.0] deprecate the old `new Umzug(...)` usage and make this "lazier". It'd be good if
+	// we could hold off on actually querying the filesystem via glob.sync. Will require a refactor of
+	// the main `Umzug` class though, so should wait until this API has been proven out.
 	const files = glob.sync(globString, { ...globOptions, absolute: true }).map(p => path.resolve(p));
 	return files.map(filepath => {
 		const name = basename(filepath, extname(filepath));

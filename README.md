@@ -21,38 +21,31 @@ _Note: master represents the next major version of umzug - v3 - which is current
 
 The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage.
 
-* **`index.js`**:
-
 ```js
+// index.js
 const { Sequelize } = require('sequelize');
-const { Umzug, SequelizeStorage } = require('umzug');
+const { getUmzug, SequelizeStorage } = require('umzug');
 
 const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
 
-const umzug = new Umzug({
-  migrations: {
-    path: './migrations',
-    params: [
-      sequelize.getQueryInterface()
-    ]
-  },
-  storage: new SequelizeStorage({ sequelize })
+const umzug = getUmzug({
+  migrations: { glob: 'migrations/*.js' },
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize }),
 });
 
-(async () => {
-  // Checks migrations and run them if they are not already applied. To keep
-  // track of the executed migrations, a table (and sequelize model) called SequelizeMeta
-  // will be automatically created (if it doesn't exist already) and parsed.
-  await umzug.up();
-})();
+// Checks migrations and run them if they are not already applied. To keep
+// track of the executed migrations, a table (and sequelize model) called SequelizeMeta
+// will be automatically created (if it doesn't exist already) and parsed.
+umzug.up();
 ```
 
-* **`migrations/00_initial.js`**:
-
 ```js
+// migrations/00_initial.js
+
 const { Sequelize } = require('sequelize');
 
-async function up(queryInterface) {
+async function up({ context: queryInterface }) {
 	await queryInterface.createTable('users', {
 		id: {
 			type: Sequelize.INTEGER,
@@ -74,14 +67,55 @@ async function up(queryInterface) {
 	});
 }
 
-async function down(queryInterface) {
+async function down({ context: queryInterface }) {
 	await queryInterface.dropTable('users');
 }
 
 module.exports = { up, down };
 ```
 
-See [this test](./test/test.ts) for another example of Umzug usage.
+<details>
+<summary>You can also write your migrations in typescript by using `ts-node`:</summary>
+
+```typescript
+// index.ts
+require('ts-node/register')
+
+import { Sequelize } from 'sequelize';
+import { getUmzug, SequelizeStorage } from 'umzug';
+
+const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
+
+const umzug = getUmzug({
+  migrations: { glob: 'migrations/*.ts' },
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize }),
+});
+
+// export the type helper exposed by umzug, which will have the `context` variable inferred
+export type Migration = typeof umzug._types.migration;
+
+// Checks migrations and run them if they are not already applied. To keep
+// track of the executed migrations, a table (and sequelize model) called SequelizeMeta
+// will be automatically created (if it doesn't exist already) and parsed.
+umzug.up();
+```
+
+```typescript
+// migrations/00_initial.ts
+import type { Migration } from '..';
+
+// types will now be available for `queryInterface`
+export const up: Migration = ({ context: queryInterface }) => queryInterface.createTable(...)
+```
+</details>
+
+See [these tests](./test/umzug.test.ts) for more examples of Umzug usage, including:
+
+- passing `ignore` and `cwd` parameters to the glob instructions
+- customising migrations ordering
+- finding migrations from multiple different directories
+- using non-js file extensions via a custom resolver, e.g. `.sql`
 
 ### Usage
 

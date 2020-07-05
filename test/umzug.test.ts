@@ -35,54 +35,6 @@ describe('basic usage', () => {
 	});
 });
 
-describe('types', () => {
-	test('constructor function', () => {
-		expectTypeOf(getUmzug).parameters.toMatchTypeOf<{ length: 1 }>();
-
-		expectTypeOf(getUmzug).toBeCallableWith({ migrations: { glob: '*/*.js' }, storage: memoryStorage() });
-		expectTypeOf(getUmzug).toBeCallableWith({
-			migrations: { glob: ['*/*.js', { cwd: 'x/y/z' }] },
-			storage: memoryStorage(),
-		});
-		expectTypeOf(getUmzug).toBeCallableWith({
-			migrations: { glob: ['*/*.js', { ignore: ['**/*ignoreme*.js'] }] },
-			storage: memoryStorage(),
-		});
-	});
-
-	test('migration type', () => {
-		// use lazy getter to avoid actually hitting disk
-		const get = () =>
-			getUmzug({
-				migrations: { glob: '*/*.ts' },
-				context: { someCustomSqlClient: {} },
-				storage: memoryStorage(),
-			});
-
-		type Migration = ReturnType<typeof get>['_types']['migration'];
-
-		expectTypeOf<Migration>()
-			.parameter(0)
-			.toEqualTypeOf<{ name: string; path: string; context: { someCustomSqlClient: {} } }>();
-
-		expectTypeOf<Migration>().returns.resolves.toBeUnknown();
-	});
-
-	test('custom resolver type', () => {
-		getUmzug({
-			migrations: {
-				glob: '*/*.ts',
-				resolve: params => {
-					expectTypeOf(params).toEqualTypeOf<{ name: string; path: string; context: { someCustomSqlClient: {} } }>();
-					return { up: async () => {} };
-				},
-			},
-			storage: memoryStorage(),
-			context: { someCustomSqlClient: {} },
-		});
-	});
-});
-
 describe('alternate migration inputs', () => {
 	test('getUmzug with file globbing', async () => {
 		const spy = jest.fn();
@@ -283,6 +235,54 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(2, {
 			name: 'm2',
 			path: join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
+		});
+	});
+});
+
+describe('types', () => {
+	test('constructor function', () => {
+		expectTypeOf(getUmzug).parameters.toMatchTypeOf<{ length: 1 }>();
+
+		expectTypeOf(getUmzug).toBeCallableWith({ migrations: { glob: '*/*.js' }, storage: memoryStorage() });
+		expectTypeOf(getUmzug).toBeCallableWith({
+			migrations: { glob: ['*/*.js', { cwd: 'x/y/z' }] },
+			storage: memoryStorage(),
+		});
+		expectTypeOf(getUmzug).toBeCallableWith({
+			migrations: { glob: ['*/*.js', { ignore: ['**/*ignoreme*.js'] }] },
+			storage: memoryStorage(),
+		});
+	});
+
+	test('migration type', () => {
+		// use lazy getter to avoid actually hitting disk
+		const get = () =>
+			getUmzug({
+				migrations: { glob: '*/*.ts' },
+				context: { someCustomSqlClient: {} },
+				storage: memoryStorage(),
+			});
+
+		type Migration = ReturnType<typeof get>['_types']['migration'];
+
+		expectTypeOf<Migration>()
+			.parameter(0)
+			.toEqualTypeOf<{ name: string; path: string; context: { someCustomSqlClient: {} } }>();
+
+		expectTypeOf<Migration>().returns.resolves.toBeUnknown();
+	});
+
+	test('custom resolver type', () => {
+		getUmzug({
+			migrations: {
+				glob: '*/*.ts',
+				resolve: params => {
+					expectTypeOf(params).toEqualTypeOf<{ name: string; path: string; context: { someCustomSqlClient: {} } }>();
+					return { up: async () => {} };
+				},
+			},
+			storage: memoryStorage(),
+			context: { someCustomSqlClient: {} },
 		});
 	});
 });
