@@ -32,6 +32,7 @@ module.exports = {
 
     'prefer-arrow-callback': 'error',
     'prefer-const': 'error',
+    'no-console': 'warn',
     'no-var': 'error',
     'strict': ['error', 'never'],
 

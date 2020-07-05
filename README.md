@@ -264,36 +264,92 @@ module.exports = {
 };
 ```
 
-Migration files should be located in the same directory, according to the info you gave to the `Umzug` constructor.
+Migration files can be located anywhere - they will typically be loaded according to a glob pattern provided to the `getUmzug` constructor constructor.
 
 #### Direct migrations list
 
-You can also specify directly a list of migrations to the `Umzug` constructor. We recommend the usage of the `Umzug.migrationsList()` function
-as bellow:
+You can also specify directly a list of migrations to the `getUmzug` constructor:
 
 ```js
-const { Umzug, migrationsList } = require('umzug');
+const { getUmzug } = require('umzug');
 
-const umzug = new Umzug({
-  migrations: migrationsList(
-    [
-      {
-        // the name of the migration is mandatory
-        name: '00-first-migration',
-        async up(queryInterface) { /* ... */ },
-        async down(queryInterface) { /* ... */ }
+const umzug = getUmzug({
+  migrations: [
+    {
+      // the name of the migration is mandatory
+      name: '00-first-migration',
+      async up({ context }) { /* ... */ },
+      async down({ context }) { /* ... */ }
+    },
+    {
+      name: '01-foo-bar-migration',
+      async up({ context }) { /* ... */ },
+      async down({ context }) { /* ... */ }
+    }
+  ],
+  context: sequelize.getQueryInterface(),
+});
+```
+
+To load migrations in another format, you can use the `resolve` function:
+
+```js
+const { getUmzug } = require('umzug');
+const fs = require('fs')
+
+const umzug = getUmzug({
+  migrations: {
+    glob: 'migrations/*.sql',
+    resolve: ({name, path, context}) => ({
+      up: async () => {
+        const sql = fs.readFileSync(path)
+        return context.sequelize.query(sql)
       },
-      {
-        name: '01-foo-bar-migration',
-        async up(queryInterface) { /* ... */ },
-        async down(queryInterface) { /* ... */ }
+      down: async () => {
+        const sql = fs.readFileSync(path.replace('.sql', '.down.sql'))
+        return context.sequelize.query(sql)
       }
-    ],
-    // an optional list of parameters that will be sent to the `up` and `down` functions
-    [
-      sequelize.getQueryInterface()
-    ]
-  )
+    })
+  },
+  context: sequelize.getQueryInterface(),
+});
+```
+
+### Upgrading from v2.x
+
+The `migrations.glob` parameter replaces `path`, `pattern` and `traverseDirectories`.
+
+The `migrations.resolve` parameter replaces `customResolver` - and explicit support for `wrap` and `nameFormatter` has been removed - these can be easily implemented in a `resolve` function.
+
+The `context` parameter replaces `params`, and it is passed in as a property to migration functions as an options object, alongs side `name` and `path`. The signature for migrations in v2 was `(context) => Promise<void>`. In v3 it has changed slightly, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to gradually upgrade your umzug version to v3 when you have existing v2-compatible migrations:
+
+```js
+const { getUmzug } = require('umzug');
+const fs = require('fs')
+
+const umzug = getUmzug({
+  migrations: {
+    glob: 'migrations/umzug-v2-format/*.js',
+    resolve: ({name, path, context}) => {
+      const migration = require(path)
+      return { up: async () => migration.up(context), down: async () => migration.down(context) }
+    }
+  },
+  context: sequelize.getQueryInterface(),
+});
+```
+
+Similarly, you no longer need `migrationSorting`, you can retrieve and manipulate migration lists directly:
+
+```js
+const { getMigrations, getUmzug } = require('umzug');
+const fs = require('fs')
+
+const unsortedMigrations = getMigrations({ glob: 'migrations/**/*.js' })
+
+const umzug = getUmzug({
+  migrations: unsortedMigrations.sort((a, b) => b.path.localeCompare(a.path)),
+  context: sequelize.getQueryInterface(),
 });
 ```
 

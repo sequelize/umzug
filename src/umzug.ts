@@ -427,8 +427,14 @@ export type MigrationList = Array<{ name: string; path?: string; migration: Migr
 
 export type InputMigrations<T> =
 	| {
+			/**
+			 * A glob string for migration files. Can also be in the format `[path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
+			 * See https://npmjs.com/package/glob for more details on the glob format - this package is used internally.
+			 */
 			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
+			/** Will be supplied to every migration function. Can be a database client, for example */
 			context?: T;
+			/** A function which returns `up` and `down` function, from a migration name, path and context. */
 			resolve?: Resolver<T>;
 	  }
 	| MigrationList
@@ -441,6 +447,7 @@ export interface GetUmzugParams<Storage extends UmzugStorage, T = never> {
 	logging?: ((...args: any[]) => void) | false;
 }
 
+/** A function which returns `up` and `down` function, from a migration name, path and context. */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => MigrationContainer;
 
 // todo [>=3.0.0] document how to migrate to v3, which has a breaking change - it passes in path, name, context where v2 passed in context only.
@@ -448,11 +455,13 @@ export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, conte
 	const ext = path.extname(filepath);
 	const canRequire = ext === '.js' || ext in require.extensions;
 	if (!canRequire) {
-		const hints: Record<string, string> = {
-			'.ts': "Adding `require('ts-node/register')` will allow usage of the default resolver",
-			'.sql': 'See docs for guidance on how to write a custom resolver',
-		};
-		throw new Error(`No resolver specified for file ${filepath}. ${hints[ext] || ''}`.trim());
+		const errorParts = [
+			`No resolver specified for file ${filepath}.`,
+			ext === '.ts' &&
+				"Calling `require('ts-node/register')` will allow usage of the default resolver for typescript files.",
+			`See docs for guidance on how to write a custom resolver.`,
+		];
+		throw new Error(errorParts.filter(Boolean).join(' '));
 	}
 
 	return {

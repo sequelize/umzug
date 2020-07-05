@@ -20,6 +20,7 @@ test('type', () => {
 	expectTypeOf(Umzug).toBeConstructibleWith();
 	expectTypeOf(Umzug).toBeConstructibleWith({ storage: memoryStorage() });
 	expectTypeOf(Umzug).toBeConstructibleWith({ logging: false });
+	// eslint-disable-next-line no-console
 	expectTypeOf(Umzug).toBeConstructibleWith({ logging: console.log });
 	expectTypeOf(Umzug).toBeConstructibleWith({ migrationSorting: (a, b) => a.localeCompare(b) });
 	expectTypeOf(Umzug).toBeConstructibleWith({ migrations: { path: 'test/abc' } });
@@ -189,7 +190,6 @@ test('to', async () => {
 
 test('events', async () => {
 	const mock = jest.fn();
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 	const spy = (label: string) => (...args) => mock(label, ...args);
 
 	const umzug = new Umzug({
