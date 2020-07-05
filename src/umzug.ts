@@ -423,30 +423,30 @@ export interface MigrationContainer {
 	down?: () => Promise<unknown>;
 }
 
-export type MigrationList = Array<{ name: string; migration: MigrationContainer }>;
+export type MigrationList = Array<{ name: string; path?: string; migration: MigrationContainer }>;
 
 export type GlobParams = Parameters<typeof glob.sync>;
 
 export type InputMigrations<T> =
 	| {
 			glob: string | GlobParams;
-			params?: T;
+			context?: T;
 			resolve?: Resolver<T>;
 	  }
 	| MigrationList
-	| ((params: T) => MigrationList);
+	| ((context: T) => MigrationList);
 
 export interface GetUmzugParams<Storage extends UmzugStorage, T = never> {
 	migrations: InputMigrations<T>;
 	storage: Storage;
-	params?: T;
+	context?: T;
 	logging?: ((...args: any[]) => void) | false;
 }
 
-export type Resolver<T> = (params: { path: string; name: string; params: T }) => MigrationContainer;
-export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, params }) => {
+export type Resolver<T> = (params: { path: string; name: string; context: T }) => MigrationContainer;
+export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, context }) => {
 	const ext = path.extname(filepath);
-	const canRequire = ext in require.extensions;
+	const canRequire = ext === '.js' || ext in require.extensions;
 	if (!canRequire) {
 		const hints: Record<string, string> = {
 			'.ts': "Adding `require('ts-node/register')` will allow usage of the default resolver",
@@ -456,40 +456,40 @@ export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, param
 	}
 
 	return {
-		up: async () => require(filepath).up({ path: filepath, name, params }) as unknown,
-		down: async () => require(filepath).up({ path: filepath, name, params }) as unknown,
+		up: async () => require(filepath).up({ path: filepath, name, context }) as unknown,
+		down: async () => require(filepath).up({ path: filepath, name, context }) as unknown,
 	};
 };
 
-export const getMigrations = <T>(inputMigrations: InputMigrations<T>, params?: T): MigrationList => {
+export const getMigrations = <T>(inputMigrations: InputMigrations<T>, context?: T): MigrationList => {
 	if (Array.isArray(inputMigrations)) {
 		return inputMigrations;
 	}
 
 	if (typeof inputMigrations === 'function') {
-		// throw new TypeError('foij');
-		return inputMigrations(params);
+		return inputMigrations(context);
 	}
 
 	const fileGlob = inputMigrations.glob;
-	const globParams: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
+	const [globString, globOptions]: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
 	const resolver: Resolver<T> = inputMigrations.resolve || defaultResolver;
 
-	const files = glob.sync(...globParams);
-	return files.map(path => {
-		const name = basename(path, extname(path));
+	const files = glob.sync(globString, { ...globOptions, absolute: true }).map(p => path.resolve(p));
+	return files.map(filepath => {
+		const name = basename(filepath, extname(filepath));
 		return {
 			name,
-			migration: resolver({ params, path, name }),
+			path: filepath,
+			migration: resolver({ context, path: filepath, name }),
 		};
 	});
 };
 
 export const getUmzug = <S extends UmzugStorage, T>(params: GetUmzugParams<S, T>) => {
-	const migrationList = getMigrations(params.migrations, params.params);
+	const migrationList = getMigrations(params.migrations, params.context);
 
-	return new Umzug({
+	const umzugInstance = new Umzug({
 		logging: params.logging,
 		storage: params.storage,
 		migrations: migrationList.map(({ name, migration }) => {
@@ -505,4 +505,8 @@ export const getUmzug = <S extends UmzugStorage, T>(params: GetUmzugParams<S, T>
 			return (a: string, b: string) => indexOf(a) - indexOf(b);
 		})(),
 	});
+	return Object.assign(
+		umzugInstance,
+		{} as { _types: { migration: (params: { name: string; path: string; context: T }) => Promise<unknown> } }
+	);
 };
