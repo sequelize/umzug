@@ -6,10 +6,6 @@ export interface MigrationConstructorOptions {
 	readonly migrations?: ShortMigrationOptions;
 }
 
-function isPromise(arg?: any): arg is Promise<any> {
-	return arg && typeof arg.then === 'function';
-}
-
 export class Migration {
 	public readonly file: string;
 
@@ -88,12 +84,6 @@ export class Migration {
 
 		const wrapped = this.options.migrations.wrap ? this.options.migrations.wrap(fn) : fn;
 
-		const result = wrapped.apply(migration, args);
-
-		if (!isPromise(result)) {
-			// Throw new Error(`Migration ${this.file} (or wrapper) didn't return a promise`);
-		}
-
-		await result;
+		await wrapped.apply(migration, args);
 	}
 }

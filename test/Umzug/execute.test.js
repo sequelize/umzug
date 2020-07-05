@@ -43,41 +43,6 @@ describe('execute', () => {
 		state.migration.down.restore();
 	});
 
-	it('requires migration methods to return a promise', () => {
-		helper.clearTmp();
-		return helper
-			.prepareMigrations(1, { names: ['123-migration'], returnUndefined: true })
-			.then(() => {
-				state.migration = require(helper.tmpDir + '/123-migration.js');
-				if (state.migration.up.restore) {
-					state.migration.up.restore();
-				}
-
-				if (state.migration.down.restore) {
-					state.migration.down.restore();
-				}
-
-				state.upStub = sinon.stub(state.migration, 'up').callsFake(() => ({}));
-				state.downStub = sinon.stub(state.migration, 'down').callsFake(resolveStub);
-				state.logSpy = sinon.spy();
-				state.umzug = new Umzug({
-					migrations: { path: helper.tmpDir },
-					storage: memoryStorage(),
-					logging: state.logSpy,
-				});
-				return state.umzug.execute({
-					migrations: ['123-migration'],
-					method: 'up',
-				});
-			})
-			.then(() => {
-				throw new Error('expected migration to fail');
-			})
-			.catch(error => {
-				expect(error.message).toMatch(/migration 123-migration.js \(or wrapper\) didn't return a promise/i);
-			});
-	});
-
 	it('runs the up method of the migration', () => {
 		return state.migrate('up').then(() => {
 			expect(state.upStub.callCount).toBe(1);
