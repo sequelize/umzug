@@ -1,8 +1,7 @@
 import { getUmzug, getMigrations } from '../src/umzug';
-import { UmzugStorage, memoryStorage } from '../src';
+import { memoryStorage } from '../src';
 import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
-import { expectTypeOf } from 'expect-type';
 
 test('getUmzug with migrations array', async () => {
 	const spy = jest.fn();
@@ -34,15 +33,15 @@ test('getUmzug with function returning migrations array', async () => {
 	syncer.sync();
 
 	const umzug = getUmzug({
-		migrations: storage => {
-			expectTypeOf(storage).not.toEqualTypeOf<UmzugStorage>();
-			expectTypeOf(storage).toEqualTypeOf<UmzugStorage & { customized: boolean }>();
+		migrations: params => {
+			expect(params).toEqual({ someCustomSqlClient: {} });
 			return [
-				{ name: 'migration1', migration: { up: spy.bind(null, 'migration1-up', storage) } },
-				{ name: 'migration2', migration: { up: spy.bind(null, 'migration2-up', storage) } },
+				{ name: 'migration1', migration: { up: spy.bind(null, 'migration1-up') } },
+				{ name: 'migration2', migration: { up: spy.bind(null, 'migration2-up') } },
 			];
 		},
-		storage: Object.assign(memoryStorage(), { customized: true }),
+		params: { someCustomSqlClient: {} },
+		storage: memoryStorage(),
 	});
 
 	await umzug.up();
@@ -51,7 +50,7 @@ test('getUmzug with function returning migrations array', async () => {
 
 	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2']);
 	expect(spy).toHaveBeenCalledTimes(2);
-	expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up', umzug.storage);
+	expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up');
 });
 
 test('getUmzug with file globbing', async () => {
@@ -68,11 +67,10 @@ test('getUmzug with file globbing', async () => {
 	const umzug = getUmzug({
 		migrations: {
 			glob: ['*.sql', { cwd: syncer.baseDir }],
-			resolve: params => ({
-				up: spy.bind(null, params),
-			}),
+			resolve: params => ({ up: spy.bind(null, params) }),
 		},
 		storage: memoryStorage(),
+		params: { someCustomSqlClient: {} },
 	});
 
 	await umzug.up();
@@ -82,7 +80,7 @@ test('getUmzug with file globbing', async () => {
 	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
 	expect(spy).toHaveBeenCalledTimes(3);
 	expect(spy).toHaveBeenNthCalledWith(1, {
-		storage: umzug.storage,
+		params: { someCustomSqlClient: {} },
 		name: 'migration1',
 		path: 'migration1.sql',
 	});
@@ -104,11 +102,10 @@ test('getUmzug with custom file globbing options', async () => {
 	const umzug = getUmzug({
 		migrations: {
 			glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
-			resolve: params => ({
-				up: spy.bind(null, params),
-			}),
+			resolve: params => ({ up: spy.bind(null, params) }),
 		},
 		storage: memoryStorage(),
+		params: { someCustomSqlClient: {} },
 	});
 
 	await umzug.up();
@@ -118,7 +115,7 @@ test('getUmzug with custom file globbing options', async () => {
 	expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
 	expect(spy).toHaveBeenCalledTimes(3);
 	expect(spy).toHaveBeenNthCalledWith(1, {
-		storage: umzug.storage,
+		params: { someCustomSqlClient: {} },
 		name: 'migration1',
 		path: 'migration1.sql',
 	});
@@ -137,15 +134,10 @@ test('getUmzug allows customization via getMigrations', async () => {
 
 	const storage = memoryStorage();
 
-	const migrationsWithStandardOrdering = getMigrations(
-		{
-			glob: ['*.sql', { cwd: syncer.baseDir }],
-			resolve: params => ({
-				up: spy.bind(null, params),
-			}),
-		},
-		storage
-	);
+	const migrationsWithStandardOrdering = getMigrations({
+		glob: ['*.sql', { cwd: syncer.baseDir }],
+		resolve: params => ({ up: spy.bind(null, params) }),
+	});
 	const umzug = getUmzug({
 		// This example reverses migrations, but you could order them however you like
 		migrations: migrationsWithStandardOrdering.slice().reverse(),
@@ -159,7 +151,6 @@ test('getUmzug allows customization via getMigrations', async () => {
 	expect(names(await umzug.executed())).toEqual(['migration3', 'migration2', 'migration1']);
 	expect(spy).toHaveBeenCalledTimes(3);
 	expect(spy).toHaveBeenNthCalledWith(1, {
-		storage: umzug.storage,
 		name: 'migration3',
 		path: 'migration3.sql',
 	});
@@ -188,13 +179,10 @@ test('getUmzug supports nested directories via getMigrations', async () => {
 
 	const storage = memoryStorage();
 
-	const migrationsWithStandardOrdering = getMigrations(
-		{
-			glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
-			resolve: params => ({ up: spy.bind(null, params) }),
-		},
-		storage
-	);
+	const migrationsWithStandardOrdering = getMigrations({
+		glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
+		resolve: params => ({ up: spy.bind(null, params) }),
+	});
 
 	const umzug = getUmzug({
 		migrations: migrationsWithStandardOrdering.slice().sort((a, b) => a.name.localeCompare(b.name)),
@@ -208,12 +196,10 @@ test('getUmzug supports nested directories via getMigrations', async () => {
 	expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
 	expect(spy).toHaveBeenCalledTimes(4);
 	expect(spy).toHaveBeenNthCalledWith(1, {
-		storage: umzug.storage,
 		name: 'm1',
 		path: 'directory1/m1.sql',
 	});
 	expect(spy).toHaveBeenNthCalledWith(2, {
-		storage: umzug.storage,
 		name: 'm2',
 		path: 'deeply/nested/directory2/m2.sql',
 	});

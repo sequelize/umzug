@@ -427,51 +427,67 @@ export type MigrationList = Array<{ name: string; migration: MigrationContainer 
 
 export type GlobParams = Parameters<typeof glob.sync>;
 
-export type InputMigrations<Storage extends UmzugStorage> =
+export type InputMigrations<T> =
 	| {
 			glob: string | GlobParams;
-			resolve?: (params: { path: string; name: string; storage: Storage }) => MigrationContainer;
+			params?: T;
+			resolve?: Resolver<T>;
 	  }
 	| MigrationList
-	| ((storage: Storage) => MigrationList);
+	| ((params: T) => MigrationList);
 
-export interface GetUmzugParams<Storage extends UmzugStorage> {
+export interface GetUmzugParams<Storage extends UmzugStorage, T = never> {
+	migrations: InputMigrations<T>;
 	storage: Storage;
+	params?: T;
 	logging?: ((...args: any[]) => void) | false;
-	migrations: InputMigrations<Storage>;
 }
 
-export const getMigrations = <S extends UmzugStorage>(inputMigrations: InputMigrations<S>, storage: S) => {
+export type Resolver<T> = (params: { path: string; name: string; params: T }) => MigrationContainer;
+export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, params }) => {
+	const ext = path.extname(filepath);
+	const canRequire = ext in require.extensions;
+	if (!canRequire) {
+		const hints: Record<string, string> = {
+			'.ts': "Adding `require('ts-node/register')` will allow usage of the default resolver",
+			'.sql': 'See docs for guidance on how to write a custom resolver',
+		};
+		throw new Error(`No resolver specified for file ${filepath}. ${hints[ext] || ''}`.trim());
+	}
+
+	return {
+		up: async () => require(filepath).up({ path: filepath, name, params }) as unknown,
+		down: async () => require(filepath).up({ path: filepath, name, params }) as unknown,
+	};
+};
+
+export const getMigrations = <T>(inputMigrations: InputMigrations<T>, params?: T): MigrationList => {
 	if (Array.isArray(inputMigrations)) {
 		return inputMigrations;
 	}
 
 	if (typeof inputMigrations === 'function') {
-		return inputMigrations(storage);
+		// throw new TypeError('foij');
+		return inputMigrations(params);
 	}
 
 	const fileGlob = inputMigrations.glob;
 	const globParams: GlobParams = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
-	const resolver =
-		inputMigrations.resolve ||
-		(({ name, storage }) => ({
-			up: async () => storage.logMigration(name),
-			down: async () => storage.unlogMigration(name),
-		}));
+	const resolver: Resolver<T> = inputMigrations.resolve || defaultResolver;
 
 	const files = glob.sync(...globParams);
 	return files.map(path => {
 		const name = basename(path, extname(path));
 		return {
 			name,
-			migration: resolver({ storage, path, name }),
+			migration: resolver({ params, path, name }),
 		};
 	});
 };
 
-export const getUmzug = <S extends UmzugStorage>(params: GetUmzugParams<S>) => {
-	const migrationList = getMigrations(params.migrations, params.storage);
+export const getUmzug = <S extends UmzugStorage, T>(params: GetUmzugParams<S, T>) => {
+	const migrationList = getMigrations(params.migrations, params.params);
 
 	return new Umzug({
 		logging: params.logging,
