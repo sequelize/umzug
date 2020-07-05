@@ -1,5 +1,5 @@
 import { Umzug } from './umzug';
-export { Umzug } from './umzug';
+export { getUmzug, Umzug } from './umzug';
 
 import { Migration } from './migration';
 export { Migration } from './migration';
