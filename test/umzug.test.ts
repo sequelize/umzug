@@ -4,6 +4,17 @@ import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
 
+jest.mock('../src/storage', () => {
+	const storage = jest.requireActual('../src/storage');
+	// to simplify test setup, override JSONStorage with memoryStorage to use the default storage but avoid hitting the disk
+	return {
+		...storage,
+		JSONStorage: function () {
+			Object.assign(this, memoryStorage());
+		},
+	};
+});
+
 describe('basic usage', () => {
 	test('getUmzug requires script files', async () => {
 		const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -17,7 +28,6 @@ describe('basic usage', () => {
 			migrations: {
 				glob: ['*.js', { cwd: syncer.baseDir }],
 			},
-			storage: memoryStorage(),
 			context: { someCustomSqlClient: {} },
 		});
 
@@ -52,7 +62,6 @@ describe('alternate migration inputs', () => {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
 				resolve: context => ({ up: spy.bind(null, context) }),
 			},
-			storage: memoryStorage(),
 			context: { someCustomSqlClient: {} },
 		});
 
@@ -80,7 +89,6 @@ describe('alternate migration inputs', () => {
 				{ name: 'migration1', migration: { up: spy.bind(null, 'migration1-up') } },
 				{ name: 'migration2', migration: { up: spy.bind(null, 'migration2-up') } },
 			],
-			storage: memoryStorage(),
 		});
 
 		await umzug.up();
@@ -107,7 +115,6 @@ describe('alternate migration inputs', () => {
 				];
 			},
 			context: { someCustomSqlClient: {} },
-			storage: memoryStorage(),
 		});
 
 		await umzug.up();
@@ -137,7 +144,6 @@ describe('alternate migration inputs', () => {
 				glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
 				resolve: params => ({ up: spy.bind(null, params) }),
 			},
-			storage: memoryStorage(),
 			context: { someCustomSqlClient: {} },
 		});
 
@@ -246,11 +252,9 @@ describe('types', () => {
 		expectTypeOf(getUmzug).toBeCallableWith({ migrations: { glob: '*/*.js' }, storage: memoryStorage() });
 		expectTypeOf(getUmzug).toBeCallableWith({
 			migrations: { glob: ['*/*.js', { cwd: 'x/y/z' }] },
-			storage: memoryStorage(),
 		});
 		expectTypeOf(getUmzug).toBeCallableWith({
 			migrations: { glob: ['*/*.js', { ignore: ['**/*ignoreme*.js'] }] },
-			storage: memoryStorage(),
 		});
 	});
 
@@ -260,7 +264,6 @@ describe('types', () => {
 			getUmzug({
 				migrations: { glob: '*/*.ts' },
 				context: { someCustomSqlClient: {} },
-				storage: memoryStorage(),
 			});
 
 		type Migration = ReturnType<typeof get>['_types']['migration'];
@@ -281,7 +284,6 @@ describe('types', () => {
 					return { up: async () => {} };
 				},
 			},
-			storage: memoryStorage(),
 			context: { someCustomSqlClient: {} },
 		});
 	});
