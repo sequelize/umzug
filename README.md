@@ -107,6 +107,7 @@ import type { Migration } from '..';
 
 // types will now be available for `queryInterface`
 export const up: Migration = ({ context: queryInterface }) => queryInterface.createTable(...)
+export const down: Migration = ({ context: queryInterface }) => queryInterface.dropTable(...)
 ```
 </details>
 
@@ -300,12 +301,12 @@ const fs = require('fs')
 const umzug = getUmzug({
   migrations: {
     glob: 'migrations/*.sql',
-    resolve: ({name, path, context}) => ({
+    resolve: ({ name, path, context }) => ({
       up: async () => {
         const sql = fs.readFileSync(path)
         return context.sequelize.query(sql)
       },
-      down: async () => {
+      down: async (({ name, path, context })) => {
         const sql = fs.readFileSync(path.replace('.sql', '.down.sql'))
         return context.sequelize.query(sql)
       }
@@ -317,11 +318,11 @@ const umzug = getUmzug({
 
 ### Upgrading from v2.x
 
-The `migrations.glob` parameter replaces `path`, `pattern` and `traverseDirectories`.
+The `migrations.glob` parameter replaces `path`, `pattern` and `traverseDirectories`. It can be used, in combination with `cwd` and `ignore` to do much more flexible file lookups. See https://npmjs.com/package/glob for more information on the syntax.
 
-The `migrations.resolve` parameter replaces `customResolver` - and explicit support for `wrap` and `nameFormatter` has been removed - these can be easily implemented in a `resolve` function.
+The `migrations.resolve` parameter replaces `customResolver`. Explicit support for `wrap` and `nameFormatter` has been removed - these can be easily implemented in a `resolve` function.
 
-The `context` parameter replaces `params`, and it is passed in as a property to migration functions as an options object, alongs side `name` and `path`. The signature for migrations in v2 was `(context) => Promise<void>`. In v3 it has changed slightly, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to gradually upgrade your umzug version to v3 when you have existing v2-compatible migrations:
+The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to gradually upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 
 ```js
 const { getUmzug } = require('umzug');
