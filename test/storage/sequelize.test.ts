@@ -10,7 +10,12 @@ import jetpack = require('fs-jetpack');
 
 // TODO [>=3.0.0]: Investigate whether we are mis-using `model.describe()` here, and get rid of `any`.
 // See https://github.com/sequelize/umzug/pull/226 and https://github.com/sequelize/sequelize/issues/12296 for details
-const describeModel = (model: any) => model.describe();
+const describeModel = (model: any) =>
+	model.describe().then(d => {
+		// FIXME [sequelize@>=6] remove this hack when only sequelize>=6 is supported
+		Object.keys(d).forEach(k => delete d[k].unique);
+		return d;
+	});
 
 describe('sequelize', () => {
 	jetpack.cwd(__dirname).dir('tmp', { empty: true });
