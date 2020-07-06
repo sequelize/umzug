@@ -29,57 +29,57 @@ describe('v2 parity', () => {
 
 		const syncer = fsSyncer(path.join(baseDir, 'migrations'), {
 			'00_initial.js': `
-        const { Sequelize } = require('sequelize');
+				const { Sequelize } = require('sequelize');
 
-        async function up(queryInterface) {
-          await queryInterface.createTable('users', {
-            id: {
-              type: Sequelize.INTEGER,
-              allowNull: false,
-              primaryKey: true
-            },
-            name: {
-              type: Sequelize.STRING,
-              allowNull: false
-            },
-            createdAt: {
-              type: Sequelize.DATE,
-              allowNull: false
-            },
-            updatedAt: {
-              type: Sequelize.DATE,
-              allowNull: false
-            }
-          });
-        }
-        
-        async function down(queryInterface) {
-          await queryInterface.dropTable('users');
-        }
-        
-        module.exports = { up, down };
-      `,
+				async function up(queryInterface) {
+					await queryInterface.createTable('users', {
+						id: {
+							type: Sequelize.INTEGER,
+							allowNull: false,
+							primaryKey: true
+						},
+						name: {
+							type: Sequelize.STRING,
+							allowNull: false
+						},
+						createdAt: {
+							type: Sequelize.DATE,
+							allowNull: false
+						},
+						updatedAt: {
+							type: Sequelize.DATE,
+							allowNull: false
+						}
+					});
+				}
+				
+				async function down(queryInterface) {
+					await queryInterface.dropTable('users');
+				}
+				
+				module.exports = { up, down };
+			`,
 		});
 		syncer.sync();
 
 		await umzug.up();
 
 		const [upResults] = await context.sequelize.query(`
-      SELECT count(*) as count
-      FROM sqlite_master
-      WHERE type='table'
-      AND name='users'
-    `);
+			SELECT count(*) as count
+			FROM sqlite_master
+			WHERE type='table'
+			AND name='users'
+		`);
 		expect(upResults[0]).toEqual({ count: 1 });
 
 		await umzug.down();
 
 		const [downResults] = await context.sequelize.query(`
-      SELECT count(*) as count
-      FROM sqlite_master
-      WHERE type='table'
-      AND name='users'
-    `);
+			SELECT count(*) as count
+			FROM sqlite_master
+			WHERE type='table'
+			AND name='users'
+		`);
 		expect(downResults[0]).toEqual({ count: 0 });
 	});
 });
