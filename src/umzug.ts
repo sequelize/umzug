@@ -428,7 +428,7 @@ export type MigrationList = Array<{ name: string; path?: string; migration: Migr
 export type InputMigrations<T> =
 	| {
 			/**
-			 * A glob string for migration files. Can also be in the format `[path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
+			 * A glob string for migration files. Can also be in the format `['path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
 			 * See https://npmjs.com/package/glob for more details on the glob format - this package is used internally.
 			 */
 			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
