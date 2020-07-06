@@ -517,8 +517,7 @@ export const getUmzug = <S extends UmzugStorage, T>(params: GetUmzugParams<S, T>
 			return (a: string, b: string) => indexOf(a) - indexOf(b);
 		})(),
 	});
-	return Object.assign(
-		umzugInstance,
-		{} as { _types: { migration: (params: { name: string; path: string; context: T }) => Promise<unknown> } }
-	);
+	return umzugInstance as typeof umzugInstance & {
+		_types: { migration: (params: { name: string; path: string; context: T }) => Promise<unknown> };
+	};
 };
