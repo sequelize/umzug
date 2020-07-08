@@ -39,7 +39,7 @@
 		"np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
 		"prettier": "2.0.4",
 		"sequelize": "5.21.6",
-		"sinon": "7.5.0",
+		"sinon": "9.0.2",
 		"source-map-support": "0.5.19",
 		"sqlite3": "4.1.1",
 		"ts-jest": "25.4.0",
