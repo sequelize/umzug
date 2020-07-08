@@ -43,7 +43,7 @@
 		"source-map-support": "0.5.19",
 		"sqlite3": "4.1.1",
 		"ts-jest": "25.4.0",
-		"type-fest": "0.13.0",
+		"type-fest": "0.16.0",
 		"typescript": "3.9.2",
 		"uuid": "7.0.3"
 	},
