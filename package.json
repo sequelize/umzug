@@ -45,7 +45,7 @@
 		"ts-jest": "25.4.0",
 		"type-fest": "0.16.0",
 		"typescript": "3.9.6",
-		"uuid": "7.0.3"
+		"uuid": "8.2.0"
 	},
 	"scripts": {
 		"build": "del-cli lib && tsc",
