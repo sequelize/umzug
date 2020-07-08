@@ -41,7 +41,7 @@
 		"sequelize": "5.21.6",
 		"sinon": "9.0.2",
 		"source-map-support": "0.5.19",
-		"sqlite3": "4.1.1",
+		"sqlite3": "5.0.0",
 		"ts-jest": "25.4.0",
 		"type-fest": "0.16.0",
 		"typescript": "3.9.2",
