@@ -15,7 +15,7 @@ export interface UmzugStorage {
 	executed(): Promise<string[]>;
 }
 
-export function isUmzugStorage(arg: any): arg is UmzugStorage {
+export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage {
 	return (
 		arg &&
 		typeof arg.logMigration === 'function' &&

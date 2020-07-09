@@ -18,7 +18,7 @@ const getHelper = subdir => {
 			for (const file of tmpFolder.toDFSFilesRecursiveIterable()) {
 				try {
 					jetpack.remove(file.absolutePath);
-				} catch (_) {}
+				} catch {}
 			}
 		},
 
