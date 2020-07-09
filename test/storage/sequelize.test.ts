@@ -34,8 +34,7 @@ describe('sequelize', () => {
 
 	describe('constructor', () => {
 		it('requires a "sequelize" or "model" storage option', () => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-			// @ts-ignore
+			// @ts-expect-error
 			expect(() => new Storage()).toThrowError('One of "sequelize" or "model" storage option is required');
 		});
 
