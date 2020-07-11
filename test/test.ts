@@ -189,7 +189,6 @@ test('to', async () => {
 
 test('events', async () => {
 	const mock = jest.fn();
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 	const spy = (label: string) => (...args) => mock(label, ...args);
 
 	const umzug = new Umzug({

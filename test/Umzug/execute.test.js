@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/promise-function-async */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 const helper = require('../helper')('execute');
 const { Umzug, memoryStorage } = require('../../src');
 const sinon = require('sinon');
