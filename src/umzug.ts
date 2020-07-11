@@ -440,6 +440,12 @@ export type InputMigrations<T> =
 	| MigrationList
 	| ((context: T) => MigrationList);
 
+export type MigrationFunction<Context> = (params: {
+	name: string;
+	path?: string;
+	context: Context;
+}) => Promise<unknown>;
+
 export interface GetUmzugParams<Storage extends UmzugStorage, T = never> {
 	migrations: InputMigrations<T>;
 	storage?: Storage;
