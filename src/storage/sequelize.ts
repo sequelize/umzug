@@ -8,7 +8,6 @@ interface ModelTempInterface extends ModelClass {
 
 type ModelClassType = typeof ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
 
-// eslint-disable-next-line @typescript-eslint/class-name-casing
 interface _SequelizeStorageConstructorOptions {
 	/**
 	The configured instance of Sequelize. If omitted, it is inferred from the `model` option.
