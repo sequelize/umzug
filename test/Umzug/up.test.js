@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/promise-function-async */
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 const helper = require('../helper')('up');
 const { Migration } = require('../../src/migration');
 const { Umzug, memoryStorage } = require('../../src');

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { SequelizeStorage as Storage } from '../../src';
 
@@ -34,8 +33,7 @@ describe('sequelize', () => {
 
 	describe('constructor', () => {
 		it('requires a "sequelize" or "model" storage option', () => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-			// @ts-ignore
+			// @ts-expect-error
 			expect(() => new Storage()).toThrowError('One of "sequelize" or "model" storage option is required');
 		});
 

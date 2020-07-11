@@ -2,20 +2,20 @@ export interface UmzugStorage {
 	/**
 	 * Logs migration to be considered as executed.
 	 */
-	logMigration(migrationName: string): Promise<void>;
+	logMigration: (migrationName: string) => Promise<void>;
 
 	/**
 	 * Unlogs migration (makes it to be considered as pending).
 	 */
-	unlogMigration(migrationName: string): Promise<void>;
+	unlogMigration: (migrationName: string) => Promise<void>;
 
 	/**
 	 * Gets list of executed migrations.
 	 */
-	executed(): Promise<string[]>;
+	executed: () => Promise<string[]>;
 }
 
-export function isUmzugStorage(arg: any): arg is UmzugStorage {
+export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage {
 	return (
 		arg &&
 		typeof arg.logMigration === 'function' &&

@@ -151,9 +151,9 @@ export class Umzug extends EventEmitter {
 		const all = await this._findMigrations();
 		const executed = await this.executed();
 
-		const executedFiles = executed.map(migration => migration.file);
+		const executedFiles = new Set(executed.map(migration => migration.file));
 
-		return all.filter(migration => !executedFiles.includes(migration.file));
+		return all.filter(migration => !executedFiles.has(migration.file));
 	}
 
 	/**
@@ -229,7 +229,7 @@ export class Umzug extends EventEmitter {
 	/**
 	Pass message to logger if logging is enabled.
 	*/
-	log(message: any): void {
+	log(message: unknown): void {
 		if (this.options.logging) {
 			this.options.logging(message);
 		}

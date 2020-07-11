@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable @typescript-eslint/promise-function-async */
 const _ = require('lodash');
@@ -18,7 +17,7 @@ const getHelper = subdir => {
 			for (const file of tmpFolder.toDFSFilesRecursiveIterable()) {
 				try {
 					jetpack.remove(file.absolutePath);
-				} catch (_) {}
+				} catch {}
 			}
 		},
 
