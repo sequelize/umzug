@@ -10,12 +10,12 @@ export interface MigrationDefinition {
 	/**
 	An async function that performs the task represented by this migration.
 	*/
-	up(): Promise<any>;
+	up: () => Promise<any>;
 
 	/**
 	An async function that undoes the task represented by this migration.
 	*/
-	down(): Promise<any>;
+	down: () => Promise<any>;
 }
 
 export interface ShortMigrationOptions {
@@ -24,14 +24,14 @@ export interface ShortMigrationOptions {
 
 	This can be used to modify the behavior of the migration function if necessary.
 	*/
-	wrap?(fn: () => Promise<any>): () => Promise<any>;
+	wrap?: (fn: () => Promise<any>) => () => Promise<any>;
 
 	/**
 	A function that specifies how to get a migration object from a file path. It must return an object with `up` and `down` methods.
 
 	@default require
 	*/
-	customResolver?(path: string): MigrationDefinition;
+	customResolver?: (path: string) => MigrationDefinition;
 
 	/**
 	A function that receives the file path of the migration and returns the name of the migration
@@ -42,7 +42,7 @@ export interface ShortMigrationOptions {
 
 	@example filePath => path.parse(filePath).name
 	*/
-	nameFormatter?(path: string): string;
+	nameFormatter?: (path: string) => string;
 }
 
 export interface UmzugExecuteOptions {
