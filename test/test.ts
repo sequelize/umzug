@@ -1,4 +1,4 @@
-import { Umzug, Migration, migrationsList, memoryStorage } from '../src';
+import { UmzugLegacy as Umzug, Migration, migrationsList, memoryStorage } from '../src';
 import pkgDir = require('pkg-dir');
 import { expectTypeOf } from 'expect-type';
 

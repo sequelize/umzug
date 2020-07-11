@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 const helper = require('../helper')('executed');
-const { Umzug, memoryStorage } = require('../../src');
+const { UmzugLegacy: Umzug, memoryStorage } = require('../../src');
 
 const state = {};
 

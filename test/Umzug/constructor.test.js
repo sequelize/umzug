@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { Umzug } = require('../../src');
+const { UmzugLegacy: Umzug } = require('../../src');
 
 describe('constructor', () => {
 	it('exposes some methods', () => {

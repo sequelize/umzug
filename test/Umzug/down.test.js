@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 /* eslint-disable max-nested-callbacks */
 const helper = require('../helper')('down');
-const { Umzug, memoryStorage } = require('../../src');
+const { UmzugLegacy: Umzug, memoryStorage } = require('../../src');
 
 const state = {};
 

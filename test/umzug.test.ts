@@ -1,4 +1,4 @@
-import { getUmzug, getMigrations } from '../src/umzug';
+import { Umzug2, getMigrations, MigrationType } from '../src/umzug';
 import { memoryStorage } from '../src';
 import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
@@ -16,15 +16,15 @@ jest.mock('../src/storage', () => {
 });
 
 describe('basic usage', () => {
-	test('getUmzug requires script files', async () => {
+	test('new Umzug2 requires script files', async () => {
 		const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/globjs'), {
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/globjs'), {
 			'm1.js': `exports.up = async params => console.log('up1', params)`,
 		});
 		syncer.sync();
 
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: {
 				glob: ['*.js', { cwd: syncer.baseDir }],
 			},
@@ -46,10 +46,10 @@ describe('basic usage', () => {
 });
 
 describe('alternate migration inputs', () => {
-	test('getUmzug with file globbing', async () => {
+	test('new Umzug2 with file globbing', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/glob'), {
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/glob'), {
 			'migration1.sql': 'select true',
 			'migration2.sql': 'select true',
 			'should-be-ignored.txt': 'abc',
@@ -57,7 +57,7 @@ describe('alternate migration inputs', () => {
 		});
 		syncer.sync();
 
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
 				resolve: context => ({ up: spy.bind(null, context) }),
@@ -78,13 +78,13 @@ describe('alternate migration inputs', () => {
 		});
 	});
 
-	test('getUmzug with migrations array', async () => {
+	test('new Umzug2 with migrations array', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/migrationsArray'), {});
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/migrationsArray'), {});
 		syncer.sync();
 
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: [
 				{ name: 'migration1', migration: { up: spy.bind(null, 'migration1-up') } },
 				{ name: 'migration2', migration: { up: spy.bind(null, 'migration2-up') } },
@@ -100,13 +100,13 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up');
 	});
 
-	test('getUmzug with function returning migrations array', async () => {
+	test('new Umzug2 with function returning migrations array', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/functionMigrationsArray'), {});
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/functionMigrationsArray'), {});
 		syncer.sync();
 
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: context => {
 				expect(context).toEqual({ someCustomSqlClient: {} });
 				return [
@@ -126,10 +126,10 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up');
 	});
 
-	test('getUmzug with custom file globbing options', async () => {
+	test('new Umzug2 with custom file globbing options', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/glob'), {
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/glob'), {
 			'migration1.sql': 'select true',
 			'migration2.sql': 'select true',
 			'should-be-ignored.txt': 'abc',
@@ -139,7 +139,7 @@ describe('alternate migration inputs', () => {
 		});
 		syncer.sync();
 
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
 				resolve: params => ({ up: spy.bind(null, params) }),
@@ -160,10 +160,10 @@ describe('alternate migration inputs', () => {
 		});
 	});
 
-	test('getUmzug allows customization via getMigrations', async () => {
+	test('new Umzug2 allows customization via getMigrations', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/customOrdering'), {
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/customOrdering'), {
 			'migration1.sql': 'select true',
 			'migration2.sql': 'select true',
 			'should-be-ignored.txt': 'abc',
@@ -177,7 +177,7 @@ describe('alternate migration inputs', () => {
 			glob: ['*.sql', { cwd: syncer.baseDir }],
 			resolve: params => ({ up: spy.bind(null, params) }),
 		});
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			// This example reverses migrations, but you could order them however you like
 			migrations: migrationsWithStandardOrdering.slice().reverse(),
 			storage,
@@ -195,11 +195,11 @@ describe('alternate migration inputs', () => {
 		});
 	});
 
-	test('getUmzug supports nested directories via getMigrations', async () => {
+	test('new Umzug2 supports nested directories via getMigrations', async () => {
 		const spy = jest.fn();
 
 		// folder structure splitting migrations into separate directories, with the filename determining the order:
-		const syncer = fsSyncer(join(__dirname, 'generated/getUmzug/customOrdering'), {
+		const syncer = fsSyncer(join(__dirname, 'generated/new Umzug2/customOrdering'), {
 			directory1: {
 				'm1.sql': 'select true',
 				'm1.down.sql': 'select false',
@@ -223,7 +223,7 @@ describe('alternate migration inputs', () => {
 			resolve: params => ({ up: spy.bind(null, params) }),
 		});
 
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: migrationsWithStandardOrdering.slice().sort((a, b) => a.name.localeCompare(b.name)),
 			storage,
 		});
@@ -247,26 +247,26 @@ describe('alternate migration inputs', () => {
 
 describe('types', () => {
 	test('constructor function', () => {
-		expectTypeOf(getUmzug).parameters.toMatchTypeOf<{ length: 1 }>();
+		expectTypeOf(Umzug2).constructorParameters.toMatchTypeOf<{ length: 1 }>();
 
-		expectTypeOf(getUmzug).toBeCallableWith({ migrations: { glob: '*/*.js' }, storage: memoryStorage() });
-		expectTypeOf(getUmzug).toBeCallableWith({
+		expectTypeOf(Umzug2).toBeConstructibleWith({ migrations: { glob: '*/*.js' }, storage: memoryStorage() });
+		expectTypeOf(Umzug2).toBeConstructibleWith({
 			migrations: { glob: ['*/*.js', { cwd: 'x/y/z' }] },
 		});
-		expectTypeOf(getUmzug).toBeCallableWith({
+		expectTypeOf(Umzug2).toBeConstructibleWith({
 			migrations: { glob: ['*/*.js', { ignore: ['**/*ignoreme*.js'] }] },
 		});
 	});
 
 	test('migration type', () => {
-		// use lazy getter to avoid actually hitting disk
-		const get = () =>
-			getUmzug({
+		// todo [>=3.0.0] un-lazify this. the migrations globbing should be lazy inside the class
+		const umzug = () =>
+			new Umzug2({
 				migrations: { glob: '*/*.ts' },
 				context: { someCustomSqlClient: {} },
 			});
 
-		type Migration = ReturnType<typeof get>['_types']['migration'];
+		type Migration = MigrationType<ReturnType<typeof umzug>>;
 
 		expectTypeOf<Migration>()
 			.parameter(0)
@@ -276,7 +276,8 @@ describe('types', () => {
 	});
 
 	test('custom resolver type', () => {
-		getUmzug({
+		// eslint-disable-next-line no-new
+		new Umzug2({
 			migrations: {
 				glob: '*/*.ts',
 				resolve: params => {

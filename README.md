@@ -24,11 +24,11 @@ The following example uses a Sqlite database through sequelize and persists the 
 ```js
 // index.js
 const { Sequelize } = require('sequelize');
-const { getUmzug, SequelizeStorage } = require('umzug');
+const { Umzug2, SequelizeStorage } = require('umzug');
 
 const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
 
-const umzug = getUmzug({
+const umzug = new Umzug2({
   migrations: { glob: 'migrations/*.js' },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
@@ -82,11 +82,11 @@ module.exports = { up, down };
 require('ts-node/register')
 
 import { Sequelize } from 'sequelize';
-import { getUmzug, SequelizeStorage } from 'umzug';
+import { Umzug2, SequelizeStorage } from 'umzug';
 
 const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
 
-const umzug = getUmzug({
+const umzug = new Umzug2({
   migrations: { glob: 'migrations/*.ts' },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
@@ -262,16 +262,16 @@ module.exports = {
 };
 ```
 
-Migration files can be located anywhere - they will typically be loaded according to a glob pattern provided to the `getUmzug` constructor constructor.
+Migration files can be located anywhere - they will typically be loaded according to a glob pattern provided to the `Umzug2` constructor.
 
 #### Direct migrations list
 
-You can also specify directly a list of migrations to the `getUmzug` constructor:
+You can also specify directly a list of migrations to the `Umzug2` constructor:
 
 ```js
-const { getUmzug } = require('umzug');
+const { Umzug2 } = require('umzug');
 
-const umzug = getUmzug({
+const umzug = new Umzug2({
   migrations: [
     {
       // the name of the migration is mandatory
@@ -292,19 +292,19 @@ const umzug = getUmzug({
 To load migrations in another format, you can use the `resolve` function:
 
 ```js
-const { getUmzug } = require('umzug');
+const { Umzug2 } = require('umzug');
 const fs = require('fs')
 
-const umzug = getUmzug({
+const umzug = new Umzug2({
   migrations: {
     glob: 'migrations/*.sql',
     resolve: ({ name, path, context }) => ({
       up: async () => {
-        const sql = fs.readFileSync(path)
+        const sql = fs.readFileSync(path).toString()
         return context.sequelize.query(sql)
       },
       down: async (({ name, path, context })) => {
-        const sql = fs.readFileSync(path.replace('.sql', '.down.sql'))
+        const sql = fs.readFileSync(path.replace('.sql', '.down.sql')).toString()
         return context.sequelize.query(sql)
       }
     })
@@ -322,10 +322,10 @@ The `migrations.resolve` parameter replaces `customResolver`. Explicit support f
 The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to gradually upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 
 ```js
-const { getUmzug } = require('umzug');
+const { Umzug2 } = require('umzug');
 const fs = require('fs')
 
-const umzug = getUmzug({
+const umzug = new Umzug2({
   migrations: {
     glob: 'migrations/umzug-v2-format/*.js',
     resolve: ({name, path, context}) => {
@@ -340,12 +340,12 @@ const umzug = getUmzug({
 Similarly, you no longer need `migrationSorting`, you can retrieve and manipulate migration lists directly:
 
 ```js
-const { getMigrations, getUmzug } = require('umzug');
+const { getMigrations, Umzug2 } = require('umzug');
 const fs = require('fs')
 
 const unsortedMigrations = getMigrations({ glob: 'migrations/**/*.js' })
 
-const umzug = getUmzug({
+const umzug = new Umzug2({
   migrations: unsortedMigrations.sort((a, b) => b.path.localeCompare(a.path)),
   context: sequelize.getQueryInterface(),
 });

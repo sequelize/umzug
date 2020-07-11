@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable unicorn/filename-case */
-const { Umzug, memoryStorage } = require('../../src');
+const { UmzugLegacy: Umzug, memoryStorage } = require('../../src');
 const { migrationsList } = require('../../src/migrationsList');
 const helper = require('../helper')('migrationsList');
 

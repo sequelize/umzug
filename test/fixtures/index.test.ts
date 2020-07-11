@@ -4,7 +4,7 @@
 const { readFileSync, mkdirSync } = require('fs');
 const { resolve, join, parse, dirname } = require('path');
 const Sequelize = require('sequelize');
-const { Umzug, SequelizeStorage } = require('../../src');
+const { UmzugLegacy: Umzug, SequelizeStorage } = require('../../src');
 const { v4: uuid } = require('uuid');
 const { Migration } = require('../../src/migration');
 

@@ -8,7 +8,7 @@ import { ToryFolder } from 'tory';
 import { JSONStorage, UmzugStorage, isUmzugStorage } from './storage';
 import { UmzugExecuteOptions, UmzugConstructorOptions, UmzugEventNames, UmzugRunOptions } from './types';
 
-export class Umzug extends EventEmitter {
+export class UmzugLegacy extends EventEmitter {
 	public readonly options: Required<UmzugConstructorOptions>;
 	public storage: UmzugStorage;
 
@@ -47,7 +47,7 @@ export class Umzug extends EventEmitter {
 
 		this.storage = this.options.storage;
 
-		Umzug.checkStorage(this.storage);
+		UmzugLegacy.checkStorage(this.storage);
 	}
 
 	private static checkStorage(storage: UmzugStorage) {
@@ -464,11 +464,46 @@ export const defaultResolver: Resolver<unknown> = ({ path: filepath, name, conte
 		throw new Error(errorParts.filter(Boolean).join(' '));
 	}
 
+	const getMigration = () => require(filepath);
+
 	return {
-		up: async () => require(filepath).up({ path: filepath, name, context }) as unknown,
-		down: async () => require(filepath).up({ path: filepath, name, context }) as unknown,
+		up: async () => getMigration().up({ path: filepath, name, context }) as unknown,
+		down: async () => getMigration().up({ path: filepath, name, context }) as unknown,
 	};
 };
+
+export type MigrationType<U extends Umzug2<any>> = (params: {
+	name: string;
+	path: string;
+	context: U extends Umzug2<infer C> ? C : never;
+}) => Promise<unknown>;
+
+export class Umzug2<Context> extends UmzugLegacy {
+	migrations: () => Promise<MigrationList>;
+
+	constructor(params: GetUmzugParams<UmzugStorage, Context>) {
+		const migrationList = getMigrations(params.migrations, params.context);
+
+		super({
+			logging: params.logging,
+			storage: params.storage,
+			migrations: migrationList.map(({ name, migration }) => {
+				const resolved = { up: migration.up, down: migration.down || Promise.resolve };
+				return new Migration(name, { migrations: { customResolver: () => resolved } });
+			}),
+			// todo: disable migration sorting when passing in a list directly - users can sort it themselves if they want to.
+			// or, remove it completely in favour of this API in v3 RC.
+			// For now, this hack passes a custom sorting function that respects the order of the resolved list
+			migrationSorting: (() => {
+				const indexes = new Map(migrationList.map((m, i) => [m.name, i]));
+				const indexOf = (name: string) => indexes.get(name) ?? -1;
+				return (a: string, b: string) => indexOf(a) - indexOf(b);
+			})(),
+		});
+
+		this.migrations = async () => migrationList;
+	}
+}
 
 export const getMigrations = <T>(inputMigrations: InputMigrations<T>, context?: T): MigrationList => {
 	if (Array.isArray(inputMigrations)) {
@@ -496,28 +531,4 @@ export const getMigrations = <T>(inputMigrations: InputMigrations<T>, context?: 
 			migration: resolver({ context, path: filepath, name }),
 		};
 	});
-};
-
-export const getUmzug = <S extends UmzugStorage, T>(params: GetUmzugParams<S, T>) => {
-	const migrationList = getMigrations(params.migrations, params.context);
-
-	const umzugInstance = new Umzug({
-		logging: params.logging,
-		storage: params.storage,
-		migrations: migrationList.map(({ name, migration }) => {
-			const resolved = { up: migration.up, down: migration.down || Promise.resolve };
-			return new Migration(name, { migrations: { customResolver: () => resolved } });
-		}),
-		// todo: disable migration sorting when passing in a list directly - users can sort it themselves if they want to.
-		// or, remove it completely in favour of this API in v3 RC.
-		// For now, this hack passes a custom sorting function that respects the order of the resolved list
-		migrationSorting: (() => {
-			const indexes = new Map(migrationList.map((m, i) => [m.name, i]));
-			const indexOf = (name: string) => indexes.get(name) ?? -1;
-			return (a: string, b: string) => indexOf(a) - indexOf(b);
-		})(),
-	});
-	return umzugInstance as typeof umzugInstance & {
-		_types: { migration: (params: { name: string; path: string; context: T }) => Promise<unknown> };
-	};
 };

@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SequelizeStorage } from '../src';
-import { getUmzug } from '../src/umzug';
+import { Umzug2 } from '../src/umzug';
 import { fsSyncer } from 'fs-syncer';
 import * as path from 'path';
 
@@ -42,7 +42,7 @@ describe('v2 parity', () => {
 		});
 
 		const context = sequelize.getQueryInterface();
-		const umzug = getUmzug({
+		const umzug = new Umzug2({
 			migrations: {
 				glob: ['migrations/*.js', { cwd: baseDir }],
 				resolve: ({ path, context }) => {

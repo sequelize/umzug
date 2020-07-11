@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 const helper = require('../helper')('up');
 const { Migration } = require('../../src/migration');
-const { Umzug, memoryStorage } = require('../../src');
+const { UmzugLegacy: Umzug, memoryStorage } = require('../../src');
 
 const state = {};
 
