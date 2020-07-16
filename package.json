@@ -44,7 +44,7 @@
 		"sqlite3": "5.0.0",
 		"ts-jest": "26.1.2",
 		"type-fest": "0.16.0",
-		"typescript": "3.9.6",
+		"typescript": "3.9.7",
 		"uuid": "8.2.0"
 	},
 	"scripts": {
