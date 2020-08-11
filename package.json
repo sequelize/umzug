@@ -39,7 +39,7 @@
 		"np": "6.4.0",
 		"prettier": "2.0.5",
 		"sequelize": "5.21.6",
-		"sinon": "9.0.2",
+		"sinon": "9.0.3",
 		"source-map-support": "0.5.19",
 		"sqlite3": "5.0.0",
 		"ts-jest": "26.1.4",
