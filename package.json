@@ -19,7 +19,7 @@
 		"tory": "~0.4.3"
 	},
 	"devDependencies": {
-		"@types/jest": "26.0.12",
+		"@types/jest": "26.0.13",
 		"@typescript-eslint/eslint-plugin": "3.10.1",
 		"@typescript-eslint/parser": "3.10.1",
 		"del-cli": "3.0.1",
