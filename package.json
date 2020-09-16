@@ -37,7 +37,7 @@
 		"jest": "26.4.2",
 		"lodash": "4.17.20",
 		"np": "6.5.0",
-		"prettier": "2.1.1",
+		"prettier": "2.1.2",
 		"sequelize": "5.21.6",
 		"sinon": "9.0.3",
 		"source-map-support": "0.5.19",
