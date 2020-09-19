@@ -143,14 +143,18 @@ export class SequelizeStorage implements UmzugStorage {
 	async executed(): Promise<string[]> {
 		await this.model.sync();
 		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
-		return migrations.map(migration => {
+		return migrations.reduce((migrations, migration) => {
 			const name = migration[this.columnName];
+			if (name === null) {
+				return migrations;
+			}
 			if (typeof name !== 'string') {
 				throw new TypeError(`Unexpected migration name type: expected string, got ${typeof name}`);
 			}
 
-			return name;
-		});
+			migrations.push(name);
+			return migrations;
+		}, []);
 	}
 
 	// TODO remove this
