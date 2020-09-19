@@ -87,10 +87,10 @@ See [this test](./test/test.ts) for another example of Umzug usage.
 
 #### Installation
 
-Umzug is available on npm:
+The beta version of Umzug is available on npm by specifying the correct tag:
 
 ```bash
-npm install umzug
+npm install umzug@3.0.0-beta.5
 ```
 
 #### Umzug instance
