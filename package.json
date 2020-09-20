@@ -28,7 +28,7 @@
 		"eslint-config-xo-typescript": "0.32.0",
 		"eslint-plugin-codegen": "0.12.3",
 		"eslint-plugin-import": "2.22.0",
-		"eslint-plugin-jest": "23.20.0",
+		"eslint-plugin-jest": "24.0.2",
 		"eslint-plugin-mocha": "8.0.0",
 		"eslint-plugin-prettier": "3.1.4",
 		"eslint-plugin-unicorn": "21.0.0",
