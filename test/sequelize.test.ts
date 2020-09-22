@@ -57,11 +57,11 @@ describe('recommended usage', () => {
 
 		const tableCount = () => {
 			const sql = `
-        SELECT count(*) as count
-        FROM sqlite_master
-        WHERE type='table'
-        AND name='users'
-      `;
+				SELECT count(*) as count
+				FROM sqlite_master
+				WHERE type='table'
+				AND name='users'
+			`;
 			return context.sequelize.query(sql).then(([results]) => results[0]);
 		};
 
@@ -138,11 +138,11 @@ describe('v2 back compat', () => {
 
 		const tableCount = () => {
 			const sql = `
-        SELECT count(*) as count
-        FROM sqlite_master
-        WHERE type='table'
-        AND name='users'
-      `;
+				SELECT count(*) as count
+				FROM sqlite_master
+				WHERE type='table'
+				AND name='users'
+			`;
 			return context.sequelize.query(sql).then(([results]) => results[0]);
 		};
 
