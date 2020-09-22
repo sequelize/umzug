@@ -301,7 +301,7 @@ const umzug = new Umzug({
 
 ### Upgrading from v2.x
 
-The `Migration` type, which is returned by `umzug.executed()` and `umzug.pending()`, no longer has a `file` property - it has a `name` and *optional* `path` - since migrations are not necessarily bound to files on the file system.
+The `MigrationMeta` type, which is returned by `umzug.executed()` and `umzug.pending()`, no longer has a `file` property - it has a `name` and *optional* `path` - since migrations are not necessarily bound to files on the file system.
 
 The `migrations.glob` parameter replaces `path`, `pattern` and `traverseDirectories`. It can be used, in combination with `cwd` and `ignore` to do much more flexible file lookups. See https://npmjs.com/package/glob for more information on the syntax.
 

@@ -19,6 +19,7 @@ export interface UmzugOptions<Ctx = never> {
 	context?: Ctx;
 }
 
+/** Serializeable metadata for a migration. The structure returned by the external-facing `pending()` and `executed()` methods. */
 export interface MigrationMeta {
 	/** Name - this is used to identify the migration persistently in storage */
 	name: string;
@@ -29,7 +30,7 @@ export interface MigrationMeta {
 /**
  * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments.
  */
-export interface Migration extends MigrationMeta {
+export interface RunnableMigration extends MigrationMeta {
 	/** The effect of applying the migration */
 	up: () => Promise<unknown>;
 	/** The effect of reverting the migration */
@@ -52,8 +53,8 @@ export type InputMigrations<T> =
 			/** A function which returns `up` and `down` function, from a migration name, path and context. */
 			resolve?: Resolver<T>;
 	  }
-	| Migration[]
-	| ((context: T) => Promisable<Migration[]>);
+	| RunnableMigration[]
+	| ((context: T) => Promisable<RunnableMigration[]>);
 
 /**
  * A helper property for type inference.
@@ -62,7 +63,7 @@ export type MigrationFn<U extends Umzug<any>> = U extends Umzug<infer Ctx>
 	: never;
 
 /** A function which returns `up` and `down` function, from a migration name, path and context. */
-export type Resolver<T> = (params: { path: string; name: string; context: T }) => Migration;
+export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration;
 
 export type MigrateUpOptions =
 	| {
@@ -110,7 +111,7 @@ export type MigrateDownOptions =
 
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
-	private readonly migrations: () => Promise<readonly Migration[]>;
+	private readonly migrations: () => Promise<readonly RunnableMigration[]>;
 	private readonly logging: (message: string) => void;
 
 	/**
@@ -178,7 +179,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	 * create a clone of the current Umzug instance, allowing customising the list of migrations.
 	 * For example, this could be used to re-order the list of migrations.
 	 */
-	extend(fn: (migrations: readonly Migration[]) => Promisable<Migration[]>): Umzug<Ctx> {
+	extend(fn: (migrations: readonly RunnableMigration[]) => Promisable<RunnableMigration[]>): Umzug<Ctx> {
 		return new Umzug({
 			...this.options,
 			migrations: async () => {
@@ -195,7 +196,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	}
 
 	/** Get the list of migrations which have already been applied */
-	private async _executed(): Promise<Migration[]> {
+	private async _executed(): Promise<RunnableMigration[]> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => executedSet.has(m.name));
@@ -207,7 +208,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		return list.map(m => ({ name: m.name, path: m.path }));
 	}
 
-	private async _pending(): Promise<Migration[]> {
+	private async _pending(): Promise<RunnableMigration[]> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => !executedSet.has(m.name));
@@ -300,7 +301,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		});
 	}
 
-	private findNameIndex(migrations: Migration[], name: string) {
+	private findNameIndex(migrations: RunnableMigration[], name: string) {
 		const index = migrations.findIndex(m => m.name === name);
 		if (index === -1) {
 			throw new Error(`Couldn't find migration to apply with name ${JSON.stringify(name)}`);
@@ -309,7 +310,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		return index;
 	}
 
-	private findMigrations(migrations: Migration[], names: string[]) {
+	private findMigrations(migrations: RunnableMigration[], names: string[]) {
 		const map = new Map(migrations.map(m => [m.name, m]));
 		return names.map(name => {
 			const migration = map.get(name);
@@ -322,7 +323,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	}
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
-	private getMigrationsResolver(): () => Promise<readonly Migration[]> {
+	private getMigrationsResolver(): () => Promise<readonly RunnableMigration[]> {
 		const { migrations: inputMigrations, context } = this.options;
 		if (Array.isArray(inputMigrations)) {
 			return async () => inputMigrations;
