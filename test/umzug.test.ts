@@ -567,3 +567,25 @@ describe('events', () => {
 		]);
 	});
 });
+
+describe('custom logger', () => {
+	test('uses custom logger', async () => {
+		const spy = jest.fn();
+		const umzug = new Umzug({
+			migrations: [{ name: 'm1', up: async () => {} }],
+			logger: {
+				info: spy,
+				warn: spy,
+				error: spy,
+			},
+		});
+
+		await umzug.up();
+
+		expect(spy).toHaveBeenCalledTimes(2);
+		expect(spy.mock.calls.map(c => c[0].replace(/\d.\d{3}s/, '0.000s'))).toEqual([
+			'== m1: migrating =======',
+			'== m1: migrated (0.000s)\n',
+		]);
+	});
+});
