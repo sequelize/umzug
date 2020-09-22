@@ -299,6 +299,36 @@ const umzug = new Umzug({
 });
 ```
 
+You can support mixed migration file types, by leaning on umzug's default resolver for javascript/typescript:
+
+```js
+const { Umzug } = require('umzug');
+const fs = require('fs')
+
+const umzug = new Umzug({
+  migrations: {
+    glob: 'migrations/*.up.sql',
+    resolve: (params) => ({
+      up: async () => {
+        if (params.path.endsWith('.sql')) {
+          const sql = fs.readFileSync(params.path).toString()
+          return params.context.sequelize.query(sql)
+        }
+        return Umzug.defaultResolver(params)
+      },
+      down: async (params) => {
+        if (params.path.endsWith('.sql')) {
+          const sql = fs.readFileSync(params.path.replace('.up.sql', '.down.sql')).toString()
+          return params.context.sequelize.query(sql)
+        }
+        return Umzug.defaultResolver(params)
+      }
+    })
+  },
+  context: sequelize.getQueryInterface(),
+});
+```
+
 ### Upgrading from v2.x
 
 The `MigrationMeta` type, which is returned by `umzug.executed()` and `umzug.pending()`, no longer has a `file` property - it has a `name` and *optional* `path` - since migrations are not necessarily bound to files on the file system.
