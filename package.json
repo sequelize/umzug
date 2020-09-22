@@ -85,10 +85,14 @@
 	},
 	"jest": {
 		"preset": "ts-jest",
+		"globals": {
+			"ts-jest": {
+				"diagnostics": false
+			}
+		},
 		"testEnvironment": "node",
 		"testMatch": [
-			"**/*test.ts",
-			"**/*test.js"
+			"**/*test.ts"
 		],
 		"collectCoverageFrom": [
 			"src/**"

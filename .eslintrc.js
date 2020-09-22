@@ -72,6 +72,7 @@ module.exports = {
 
 		'unicorn/catch-error-name': 'off',
 		'unicorn/consistent-function-scoping': 'off',
+		'unicorn/expiring-todo-comments': 'warn',
 		'unicorn/no-fn-reference-in-iterator': 'off',
 		'unicorn/no-null': 'off',
 		'unicorn/prevent-abbreviations': 'off',
