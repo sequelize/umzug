@@ -11,28 +11,30 @@ import { Promisable } from 'type-fest';
 export interface UmzugOptions<Ctx = never> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
+	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
+	logger: Pick<Console, 'info' | 'warn' | 'error'> | undefined;
 	/** The storage implementation. By default, `JSONStorage` will be used */
 	storage?: UmzugStorage;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
-	/** A logging function. If not defined, defaults to a no-op function. */
-	logging?: ((...args: any[]) => void) | false;
+}
+
+export interface MigrationMeta {
+	/** Name - this is used to identify the migration persistently in storage */
+	name: string;
+	/** An optional filepath for the migration. Note: this may be undefined, since not all migrations correspond to files on the filesystem */
+	path?: string;
 }
 
 /**
  * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments.
  */
-export type Migration = {
-	/** Name - this is used to identify the migration persistently in storage */
-	name: string;
-	/** An optional filepath for the migration. Note: this may be undefined, since not all migrations correspond to files on the filesystem */
-	path?: string;
-
+export interface Migration extends MigrationMeta {
 	/** The effect of applying the migration */
 	up: () => Promise<unknown>;
 	/** The effect of reverting the migration */
 	down?: () => Promise<unknown>;
-};
+}
 
 /**
  * Allowable inputs for migrations. Can be either glob instructions for migration files, a list of runnable migrations, or a
@@ -62,11 +64,54 @@ export type MigrationFn<U extends Umzug<any>> = U extends Umzug<infer Ctx>
 /** A function which returns `up` and `down` function, from a migration name, path and context. */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => Migration;
 
-export type RunMigrationOptions = { to?: string | 0 } | { migrations?: string[]; force?: boolean };
+export type MigrateUpOptions =
+	| {
+			/** If specified, migrations up to and including this name will be run. Otherwise, all will be run */
+			to?: string;
+
+			/** Should not be specified with `to` */
+			migrations?: never;
+
+			/** Should not be specified with `to` */
+			force?: never;
+	  }
+	| {
+			/** If specified, only these migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
+			migrations?: string[];
+
+			/** Allow re-applying already-executed migrations. Use with caution. */
+			force?: boolean;
+
+			/** Should not be specified with `migrations` */
+			to?: never;
+	  };
+
+export type MigrateDownOptions =
+	| {
+			/** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
+			to?: string | 0;
+
+			/** Should not be specified with `to` */
+			migrations?: never;
+
+			/** Should not be specified with `to` */
+			force?: never;
+	  }
+	| {
+			/** If specified, only these migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations */
+			migrations?: string[];
+
+			/** Allow reverting migrations which have not been run yet. Use with caution. */
+			force?: boolean;
+
+			/** Should not be specified with `migrations` */
+			to?: never;
+	  };
+
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
 	private readonly migrations: () => Promise<readonly Migration[]>;
-	private readonly logging: (...args: unknown[]) => void;
+	private readonly logging: (message: string) => void;
 
 	/**
 	 * Compile-time only property for type inference. After creating an Umzug instance, it can be used as type alias for
@@ -88,7 +133,6 @@ export class Umzug<Ctx> extends EventEmitter {
 	 * export const up: MigrationFn = ({name, context}) => context.query(...)
 	 * export const down: MigrationFn = ({name, context}) => context.query(...)
 	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	readonly _types: {
 		migration: (params: { name: string; path?: string; context: Ctx }) => Promise<unknown>;
 	} = {} as any;
@@ -99,7 +143,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		this.storage = verifyUmzugStorage(options.storage || new JSONStorage());
 		this.migrations = this.getMigrationsResolver();
-		this.logging = options.logging || (() => {});
+		this.logging = options.logger?.info || (() => {});
 	}
 
 	// todo [>=3.0.0] document how to migrate to v3, which has a breaking change - it passes in path, name, context where v2 passed in context only.
@@ -144,25 +188,36 @@ export class Umzug<Ctx> extends EventEmitter {
 		});
 	}
 
-	async executed(): Promise<Migration[]> {
+	/** Get the list of migrations which have already been applied */
+	async executed(): Promise<MigrationMeta[]> {
+		const list = await this._executed();
+		return list.map(m => ({ name: m.name, path: m.path }));
+	}
+
+	/** Get the list of migrations which have already been applied */
+	private async _executed(): Promise<Migration[]> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => executedSet.has(m.name));
 	}
 
-	async pending(): Promise<Migration[]> {
+	/** Get the list of migrations which are yet to be applied */
+	async pending(): Promise<MigrationMeta[]> {
+		const list = await this._pending();
+		return list.map(m => ({ name: m.name, path: m.path }));
+	}
+
+	private async _pending(): Promise<Migration[]> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => !executedSet.has(m.name));
 	}
 
-	async up(
-		options: {
-			to?: string;
-			migrations?: string[];
-			force?: boolean;
-		} = {}
-	): Promise<void> {
+	/**
+	 * Apply migrations. By default, runs all pending migrations.
+	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `force`.
+	 */
+	async up(options: MigrateUpOptions = {}): Promise<void> {
 		const eligibleMigrations = async () => {
 			if (options.migrations && options.force) {
 				// `force` means the specified migrations should be run even if they've run before - so get all migrations, not just pending
@@ -171,10 +226,10 @@ export class Umzug<Ctx> extends EventEmitter {
 			}
 
 			if (options.migrations) {
-				return this.findMigrations(await this.pending(), options.migrations);
+				return this.findMigrations(await this._pending(), options.migrations);
 			}
 
-			const allPending = await this.pending();
+			const allPending = await this._pending();
 
 			let sliceIndex = allPending.length;
 			if (options.to) {
@@ -201,11 +256,11 @@ export class Umzug<Ctx> extends EventEmitter {
 		});
 	}
 
-	async down(
-		options:
-			| { to?: string | 0; migrations?: undefined; force?: undefined }
-			| { to?: undefined; migrations?: string[]; force?: boolean } = {}
-	): Promise<void> {
+	/**
+	 * Revert migrations. By default, the last executed migration is reverted.
+	 * @see MigrateDownOptions for other use cases using `to`, `migrations` and `force`.
+	 */
+	async down(options: MigrateDownOptions = {}): Promise<void> {
 		const eligibleMigrations = async () => {
 			if (options.migrations && options.force) {
 				const list = await this.migrations();
@@ -213,10 +268,10 @@ export class Umzug<Ctx> extends EventEmitter {
 			}
 
 			if (options.migrations) {
-				return this.findMigrations(await this.executed(), options.migrations);
+				return this.findMigrations(await this._executed(), options.migrations);
 			}
 
-			const executedReversed = await this.executed().then(e => e.slice().reverse());
+			const executedReversed = await this._executed().then(e => e.slice().reverse());
 
 			let sliceIndex = 1;
 			if (options.to === 0 || options.migrations) {

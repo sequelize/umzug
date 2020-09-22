@@ -31,6 +31,7 @@ describe('basic usage', () => {
 				glob: ['*.js', { cwd: syncer.baseDir }],
 			},
 			context: { someCustomSqlClient: {} },
+			logger: undefined,
 		});
 
 		await umzug.up();
@@ -63,6 +64,7 @@ describe('alternate migration inputs', () => {
 				resolve: context => ({ ...context, up: spy.bind(null, context) }),
 			},
 			context: { someCustomSqlClient: {} },
+			logger: undefined,
 		});
 
 		await umzug.up();
@@ -88,6 +90,7 @@ describe('alternate migration inputs', () => {
 				{ name: 'm6', up: noop },
 				{ name: 'm7', up: noop },
 			],
+			logger: undefined,
 		});
 
 		await umzug.up();
@@ -126,6 +129,7 @@ describe('alternate migration inputs', () => {
 					up: spy.bind(null, 'up-' + name),
 					down: spy.bind(null, 'down-' + name),
 				})),
+			logger: undefined,
 		});
 
 		await umzug.up({ migrations: ['m2', 'm4'] });
@@ -195,6 +199,7 @@ describe('alternate migration inputs', () => {
 				{ name: 'migration1', up: spy.bind(null, 'migration1-up') },
 				{ name: 'migration2', up: spy.bind(null, 'migration2-up') },
 			],
+			logger: undefined,
 		});
 
 		await umzug.up();
@@ -219,6 +224,7 @@ describe('alternate migration inputs', () => {
 				];
 			},
 			context: { someCustomSqlClient: {} },
+			logger: undefined,
 		});
 
 		await umzug.up();
@@ -247,6 +253,7 @@ describe('alternate migration inputs', () => {
 				resolve: params => ({ ...params, up: spy.bind(null, params) }),
 			},
 			context: { someCustomSqlClient: {} },
+			logger: undefined,
 		});
 
 		await umzug.up();
@@ -277,6 +284,7 @@ describe('alternate migration inputs', () => {
 				resolve: ({ context, ...params }) => ({ ...params, up: context.spy.bind(null, params) }),
 			},
 			context: { spy },
+			logger: undefined,
 		});
 
 		const umzug = parent.extend(migrations => migrations.slice().reverse());
@@ -317,6 +325,7 @@ describe('alternate migration inputs', () => {
 				glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
 				resolve: params => ({ ...params, up: spy.bind(null, params) }),
 			},
+			logger: undefined,
 		});
 
 		const umzug = withDefaultOrdering.extend(standard => {
@@ -345,24 +354,43 @@ describe('types', () => {
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: { glob: '*/*.js' },
 			storage: memoryStorage(),
+			logger: undefined,
 		});
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: { glob: ['*/*.js', { cwd: 'x/y/z' }] },
+			logger: undefined,
 		});
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: { glob: ['*/*.js', { ignore: ['**/*ignoreme*.js'] }] },
+			logger: undefined,
 		});
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: [
 				{ name: 'm1', up: async () => {} },
 				{ name: 'm2', up: async () => {}, down: async () => {} },
 			],
+			logger: undefined,
 		});
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: [],
 			storage: memoryStorage(),
 			context: { foo: 123 },
-			logging: (...args) => expectTypeOf(args).toEqualTypeOf<any[]>(),
+			logger: console,
+		});
+
+		expectTypeOf(Umzug)
+			.constructorParameters.toHaveProperty('0')
+			.toHaveProperty('logger')
+			.toMatchTypeOf<Pick<Console, 'info' | 'warn' | 'error'>>();
+
+		expectTypeOf(Umzug).toBeConstructibleWith({
+			migrations: [],
+			storage: memoryStorage(),
+			context: { foo: 123 },
+			logger: {
+				...console,
+				info: (...args) => expectTypeOf(args).toEqualTypeOf<any[]>(),
+			},
 		});
 	});
 
@@ -390,8 +418,6 @@ describe('types', () => {
 		expectTypeOf(Umzug).instance.toHaveProperty('pending').returns.resolves.items.toEqualTypeOf<{
 			name: string;
 			path?: string;
-			up: () => Promise<unknown>;
-			down?: () => Promise<unknown>;
 		}>();
 	});
 
@@ -399,8 +425,6 @@ describe('types', () => {
 		expectTypeOf(Umzug).instance.toHaveProperty('executed').returns.resolves.items.toEqualTypeOf<{
 			name: string;
 			path?: string;
-			up: () => Promise<unknown>;
-			down?: () => Promise<unknown>;
 		}>();
 	});
 
@@ -408,6 +432,7 @@ describe('types', () => {
 		const umzug = new Umzug({
 			migrations: { glob: '*/*.ts' },
 			context: { someCustomSqlClient: {} },
+			logger: undefined,
 		});
 
 		expectTypeOf(umzug._types.migration)
@@ -428,11 +453,12 @@ describe('types', () => {
 				},
 			},
 			context: { someCustomSqlClient: {} },
+			logger: undefined,
 		});
 	});
 
 	test(`extend function doesn't allow modifying migrations array`, () => {
-		const parent = new Umzug({ migrations: [] });
+		const parent = new Umzug({ migrations: [], logger: undefined });
 		parent.extend(migrations => {
 			expectTypeOf(migrations).not.toHaveProperty('reverse');
 			return migrations.slice();
@@ -447,6 +473,7 @@ describe('error cases', () => {
 				new Umzug({
 					migrations: [],
 					storage: {} as any,
+					logger: undefined,
 				})
 		).toThrowError(/Invalid umzug storage/);
 	});
@@ -460,6 +487,7 @@ describe('error cases', () => {
 			migrations: {
 				glob: ['*.txt', { cwd: syncer.baseDir }],
 			},
+			logger: undefined,
 		});
 
 		await expect(umzug.up()).rejects.toThrowError(
@@ -477,6 +505,7 @@ describe('error cases', () => {
 			migrations: {
 				glob: ['*.txt', { cwd: syncer.baseDir }],
 			},
+			logger: undefined,
 		});
 
 		await expect(umzug.up({ to: 'typo' })).rejects.toThrowError(/Couldn't find migration to apply with name "typo"/);
@@ -493,6 +522,7 @@ describe('events', () => {
 				{ name: 'm1', up: spy('up-m1'), down: spy('down-m1') },
 				{ name: 'm2', up: spy('up-m2'), down: spy('down-m2') },
 			],
+			logger: undefined,
 		});
 
 		// `.addListener` and `.on` are aliases - use both to make sure they're wired up properly

@@ -52,6 +52,7 @@ describe('recommended usage', () => {
 			},
 			context,
 			storage: new SequelizeStorage({ sequelize }),
+			logging: false,
 		});
 
 		const tableCount = () => {
@@ -132,6 +133,7 @@ describe('v2 back compat', () => {
 			},
 			context,
 			storage: new SequelizeStorage({ sequelize }),
+			logging: false,
 		});
 
 		const tableCount = () => {

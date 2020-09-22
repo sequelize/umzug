@@ -301,13 +301,18 @@ const umzug = new Umzug({
 
 ### Upgrading from v2.x
 
+The `Migration` type, which is returned by `umzug.executed()` and `umzug.pending()`, no longer has a `file` property - it has a `name` and *optional* `path` - since migrations are not necessarily bound to files on the file system.
+
 The `migrations.glob` parameter replaces `path`, `pattern` and `traverseDirectories`. It can be used, in combination with `cwd` and `ignore` to do much more flexible file lookups. See https://npmjs.com/package/glob for more information on the syntax.
 
 The `migrations.resolve` parameter replaces `customResolver`. Explicit support for `wrap` and `nameFormatter` has been removed - these can be easily implemented in a `resolve` function.
 
+The constructor option `logging` is replaced by `logger` to allow for `warn` and `error` messages in future. NodeJS's global `console` object can be passed to this. To disable logging, replace `logging: false` with `logger: undefined`.
+
 The options for `Umguz#up` and `Umzug#down` have changed:
-- `umzug.up({ to: 'some-name' })` and `umzug.down({ to: 'some-name' })` are still valid
-- `umzug.down({ to: 0 })` is still valid but `umzug.up({ to: 0 })` is not
+- `umzug.up({ to: 'some-name' })` and `umzug.down({ to: 'some-name' })` are still valid.
+- name matches must be exact. `umzug.up({ 'some-n' })` will no longer match a migration called `some-name`.
+- `umzug.down({ to: 0 })` is still valid but `umzug.up({ to: 0 })` is not.
 - `umzug.up({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.up(['m1', 'm2'])` has been removed.
 - `umzug.down({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.down(['m1', 'm2'])` has been removed.
 - `umzug.up({ migrations: ['m1', 'already-run'] })` will throw an error, if `already-run` is not found in the list of pending migrations.
@@ -316,7 +321,7 @@ The options for `Umguz#up` and `Umzug#down` have changed:
 - `umzug.down({ migrations: ['m1', 'm2'], force: true })` will "revert" migrations `m1` and `m2` even if they've never been run.
 - `umzug.up({ migrations: ['m1', 'does-not-exist', 'm2'] })` will throw an error if the migration name is not found. Note that the error will be thrown and no migrations run unless _all_ migration names are found - whether or not `force: true` is added.
 
-The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to gradually upgrade your umzug version to v3 when you have existing v2-compatible migrations:
+The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 
 ```js
 const { Umzug } = require('umzug');

@@ -50,6 +50,7 @@ module.exports = {
 		'@typescript-eslint/no-explicit-any': 'off',
 		'@typescript-eslint/prefer-readonly-parameter-types': 'off',
 		'@typescript-eslint/no-unsafe-member-access': 'off',
+		'@typescript-eslint/member-ordering': 'off',
 		'@typescript-eslint/no-unsafe-call': 'off',
 		'@typescript-eslint/unified-signatures': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
