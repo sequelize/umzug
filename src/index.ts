@@ -1,2 +1,2 @@
-export * from './umzug';
+export { Umzug } from './umzug';
 export * from './storage';
