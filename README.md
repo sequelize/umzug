@@ -138,18 +138,6 @@ const umzug = new Umzug({ /* ... options ... */ });
 
 Detailed documentation for these options are in the `UmzugConstructorOptions` TypeScript interface, which can be found in [src/types.ts](./src/types.ts).
 
-#### Executing migrations
-
-The `execute` method is a general purpose function that runs for every specified migrations the respective function.
-
-```js
-const migrations = await umzug.execute({
-  migrations: ['some-id', 'some-other-id'],
-  method: 'up'
-});
-// returns an array of all executed/reverted migrations.
-```
-
 #### Getting all pending migrations
 
 You can get a list of pending (i.e. not yet executed) migrations with the `pending()` method:
@@ -183,19 +171,6 @@ It is also possible to pass the name of a migration in order to just run the mig
 await umzug.up({ to: '20141101203500-task' });
 ```
 
-You also have the ability to choose to run migrations *from* a specific migration, excluding it:
-
-```js
-await umzug.up({ from: '20141101203500-task' });
-```
-
-In the above example umzug will execute all the pending migrations found **after** the specified migration. This is particularly useful if you are using migrations on your native desktop application and you don't need to run past migrations on new installs while they need to run on updated installations.
-
-You can combine `from` and `to` options to select a specific subset:
-
-```js
-await umzug.up({ from: '20141101203500-task', to: '20151201103412-items' });
-```
 
 Running specific migrations while ignoring the right order, can be done like this:
 
@@ -288,6 +263,7 @@ const umzug = new Umzug({
   migrations: {
     glob: 'migrations/*.up.sql',
     resolve: ({ name, path, context }) => ({
+      name,
       up: async () => {
         const sql = fs.readFileSync(path).toString()
         return context.sequelize.query(sql)
@@ -303,7 +279,7 @@ const umzug = new Umzug({
 });
 ```
 
-You can support mixed migration file types, by leaning on umzug's default resolver for javascript/typescript:
+You can support mixed migration file types, and use umzug's default resolver for javascript/typescript:
 
 ```js
 const { Umzug } = require('umzug');
@@ -311,23 +287,23 @@ const fs = require('fs')
 
 const umzug = new Umzug({
   migrations: {
-    glob: 'migrations/*.up.sql',
-    resolve: (params) => ({
-      up: async () => {
-        if (params.path.endsWith('.sql')) {
+    glob: 'migrations/*.{js,ts,up.sql}',
+    resolve: (params) => {
+      if (!params.path.endsWith('.sql')) {
+        return Umzug.defaultResolver(params)
+      }
+      return {
+        name: params.name,
+        up: async () => {
           const sql = fs.readFileSync(params.path).toString()
           return params.context.sequelize.query(sql)
-        }
-        return Umzug.defaultResolver(params)
-      },
-      down: async (params) => {
-        if (params.path.endsWith('.sql')) {
+        },
+        down: async (params) => {
           const sql = fs.readFileSync(params.path.replace('.up.sql', '.down.sql')).toString()
           return params.context.sequelize.query(sql)
         }
-        return Umzug.defaultResolver(params)
       }
-    }),
+    },
   },
   logger: console,
   context: sequelize.getQueryInterface(),
@@ -346,9 +322,12 @@ The `migrations.resolve` parameter replaces `customResolver`. Explicit support f
 
 The constructor option `logging` is replaced by `logger` to allow for `warn` and `error` messages in future. NodeJS's global `console` object can be passed to this. To disable logging, replace `logging: false` with `logger: undefined`.
 
+The `Umzug#execute` method is removed. Use `Umzug#up` or `Umzug#down`.
+
 The options for `Umguz#up` and `Umzug#down` have changed:
 - `umzug.up({ to: 'some-name' })` and `umzug.down({ to: 'some-name' })` are still valid.
-- name matches must be exact. `umzug.up({ 'some-n' })` will no longer match a migration called `some-name`.
+- `umzug.up({ from: '...' })` and `umzug.down({ from: '...' })` are no longer supported. To run migrations out-of-order (which is not generally recommended), you can explicitly use `umzug.up({ migrations: ['...'] })` and `umzug.down({ migrations: ['...'] })`.
+- name matches must be exact. `umzug.up({ to: 'some-n' })` will no longer match a migration called `some-name`.
 - `umzug.down({ to: 0 })` is still valid but `umzug.up({ to: 0 })` is not.
 - `umzug.up({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.up(['m1', 'm2'])` has been removed.
 - `umzug.down({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.down(['m1', 'm2'])` has been removed.
