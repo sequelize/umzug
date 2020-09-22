@@ -283,14 +283,14 @@ const fs = require('fs')
 
 const umzug = new Umzug({
   migrations: {
-    glob: 'migrations/*.sql',
+    glob: 'migrations/*.up.sql',
     resolve: ({ name, path, context }) => ({
       up: async () => {
         const sql = fs.readFileSync(path).toString()
         return context.sequelize.query(sql)
       },
       down: async (({ name, path, context })) => {
-        const sql = fs.readFileSync(path.replace('.sql', '.down.sql')).toString()
+        const sql = fs.readFileSync(path.replace('.up.sql', '.down.sql')).toString()
         return context.sequelize.query(sql)
       }
     })
@@ -325,7 +325,6 @@ The `context` parameter replaces `params`, and is passed in as a property to mig
 
 ```js
 const { Umzug } = require('umzug');
-const fs = require('fs')
 
 const umzug = new Umzug({
   migrations: {
@@ -339,11 +338,10 @@ const umzug = new Umzug({
 });
 ```
 
-Similarly, you no longer need `migrationSorting`, you can extend and manipulate migration lists directly:
+Similarly, you no longer need `migrationSorting`, you can use `Umzug#extend` to manipulate migration lists directly:
 
 ```js
 const { Umzug } = require('umzug');
-const fs = require('fs')
 
 const umzug =
   new Umzug({
