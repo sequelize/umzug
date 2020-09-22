@@ -26,7 +26,7 @@ export interface MongoDBCollectionOptions {
 export type MongoDBStorageConstructorOptions = MongoDBConnectionOptions | MongoDBCollectionOptions;
 
 function isMongoDBCollectionOptions(arg: any): arg is MongoDBCollectionOptions {
-	return Boolean(arg?.collection);
+	return Boolean(arg.collection);
 }
 
 export class MongoDBStorage implements UmzugStorage {

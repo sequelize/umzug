@@ -25,6 +25,7 @@ module.exports = {
 
 		'prefer-arrow-callback': 'error',
 		'prefer-const': 'error',
+		'no-console': 'warn',
 		'no-var': 'error',
 		strict: ['error', 'never'],
 
@@ -49,9 +50,11 @@ module.exports = {
 		'@typescript-eslint/no-explicit-any': 'off',
 		'@typescript-eslint/prefer-readonly-parameter-types': 'off',
 		'@typescript-eslint/no-unsafe-member-access': 'off',
+		'@typescript-eslint/member-ordering': 'off',
 		'@typescript-eslint/no-unsafe-call': 'off',
 		'@typescript-eslint/unified-signatures': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
+		// '@typescript-eslint/member-delimiter-style': 'off',
 
 		// xo defaults that overlap with prettier
 		'comma-dangle': 'off',
@@ -70,8 +73,17 @@ module.exports = {
 
 		'unicorn/catch-error-name': 'off',
 		'unicorn/consistent-function-scoping': 'off',
+		'unicorn/expiring-todo-comments': 'warn',
 		'unicorn/no-fn-reference-in-iterator': 'off',
 		'unicorn/no-null': 'off',
 		'unicorn/prevent-abbreviations': 'off',
 	},
+	overrides: [
+		{
+			files: ['test/*.ts'],
+			rules: {
+				'@typescript-eslint/no-unsafe-return': 'off',
+			},
+		},
+	],
 };
