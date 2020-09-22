@@ -201,13 +201,6 @@ Running specific migrations while ignoring the right order, can be done like thi
 await umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
 ```
 
-There are also shorthand version of that:
-
-```js
-await umzug.up('20141101203500-task'); // Runs just the passed migration
-await umzug.up(['20141101203500-task', '20141101203501-task-2']);
-```
-
 #### Reverting executed migration
 
 The `down` method can be used to revert the last executed migration.
@@ -234,13 +227,6 @@ Reverting specific migrations while ignoring the right order, can be done like t
 
 ```js
 await umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
-```
-
-There are also shorthand versions of that:
-
-```js
-await umzug.down('20141101203500-task'); // Runs just the passed migration
-await umzug.down(['20141101203500-task', '20141101203501-task-2']);
 ```
 
 ### Migrations
@@ -319,6 +305,17 @@ The `migrations.glob` parameter replaces `path`, `pattern` and `traverseDirector
 
 The `migrations.resolve` parameter replaces `customResolver`. Explicit support for `wrap` and `nameFormatter` has been removed - these can be easily implemented in a `resolve` function.
 
+The options for `Umguz#up` and `Umzug#down` have changed:
+- `umzug.up({ to: 'some-name' })` and `umzug.down({ to: 'some-name' })` are still valid
+- `umzug.down({ to: 0 })` is still valid but `umzug.up({ to: 0 })` is not
+- `umzug.up({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.up(['m1', 'm2'])` has been removed.
+- `umzug.down({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.down(['m1', 'm2'])` has been removed.
+- `umzug.up({ migrations: ['m1', 'already-run'] })` will throw an error, if `already-run` is not found in the list of pending migrations.
+- `umzug.down({ migrations: ['m1', 'has-not-been-run'] })` will throw an error, if `has-not-been-run` is not found in the list of executed migrations.
+- `umzug.up({ migrations: ['m1', 'm2'], force: true })` will re-apply migrations `m1` and `m2` even if they've already been run.
+- `umzug.down({ migrations: ['m1', 'm2'], force: true })` will "revert" migrations `m1` and `m2` even if they've never been run.
+- `umzug.up({ migrations: ['m1', 'does-not-exist', 'm2'] })` will throw an error if the migration name is not found. Note that the error will be thrown and no migrations run unless _all_ migration names are found - whether or not `force: true` is added.
+
 The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to gradually upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 
 ```js
@@ -337,18 +334,18 @@ const umzug = new Umzug({
 });
 ```
 
-Similarly, you no longer need `migrationSorting`, you can retrieve and manipulate migration lists directly:
+Similarly, you no longer need `migrationSorting`, you can extend and manipulate migration lists directly:
 
 ```js
 const { Umzug } = require('umzug');
 const fs = require('fs')
 
-const unsortedMigrations = getMigrations({ glob: 'migrations/**/*.js' })
-
-const umzug = new Umzug({
-  migrations: unsortedMigrations.sort((a, b) => b.path.localeCompare(a.path)),
-  context: sequelize.getQueryInterface(),
-});
+const umzug =
+  new Umzug({
+    migrations: { glob: 'migrations/**/*.js' },
+    context: sequelize.getQueryInterface(),
+  })
+  .extend(migrations => migrations.sort((a, b) => b.path.localeCompare(a.path)));
 ```
 
 ### Storages

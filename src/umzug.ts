@@ -62,6 +62,7 @@ export type MigrationFn<U extends Umzug<any>> = U extends Umzug<infer Ctx>
 /** A function which returns `up` and `down` function, from a migration name, path and context. */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => Migration;
 
+export type RunMigrationOptions = { to?: string | 0 } | { migrations?: string[]; force?: boolean };
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
 	private readonly migrations: () => Promise<readonly Migration[]>;
@@ -155,15 +156,35 @@ export class Umzug<Ctx> extends EventEmitter {
 		return migrations.filter(m => !executedSet.has(m.name));
 	}
 
-	async up(options: { to?: string } = {}): Promise<void> {
-		const allPending = await this.pending();
+	async up(
+		options: {
+			to?: string;
+			migrations?: string[];
+			force?: boolean;
+		} = {}
+	): Promise<void> {
+		const eligibleMigrations = async () => {
+			if (options.migrations && options.force) {
+				// `force` means the specified migrations should be run even if they've run before - so get all migrations, not just pending
+				const list = await this.migrations();
+				return this.findMigrations(list.slice(), options.migrations);
+			}
 
-		let sliceIndex = allPending.length;
-		if (options.to) {
-			sliceIndex = this.findNameIndex(allPending, options.to) + 1;
-		}
+			if (options.migrations) {
+				return this.findMigrations(await this.pending(), options.migrations);
+			}
 
-		const toBeApplied = allPending.slice(0, sliceIndex);
+			const allPending = await this.pending();
+
+			let sliceIndex = allPending.length;
+			if (options.to) {
+				sliceIndex = this.findNameIndex(allPending, options.to) + 1;
+			}
+
+			return allPending.slice(0, sliceIndex);
+		};
+
+		const toBeApplied = await eligibleMigrations();
 
 		await pEachSeries(toBeApplied, async m => {
 			const start = Date.now();
@@ -180,17 +201,34 @@ export class Umzug<Ctx> extends EventEmitter {
 		});
 	}
 
-	async down(options: { to?: string | 0 } = {}): Promise<void> {
-		const executedReversed = await this.executed().then(e => e.slice().reverse());
+	async down(
+		options:
+			| { to?: string | 0; migrations?: undefined; force?: undefined }
+			| { to?: undefined; migrations?: string[]; force?: boolean } = {}
+	): Promise<void> {
+		const eligibleMigrations = async () => {
+			if (options.migrations && options.force) {
+				const list = await this.migrations();
+				return this.findMigrations(list.slice(), options.migrations);
+			}
 
-		let sliceIndex = 1;
-		if (options.to === 0) {
-			sliceIndex = executedReversed.length;
-		} else if (options.to) {
-			sliceIndex = this.findNameIndex(executedReversed, options.to) + 1;
-		}
+			if (options.migrations) {
+				return this.findMigrations(await this.executed(), options.migrations);
+			}
 
-		const toBeReverted = executedReversed.slice(0, sliceIndex);
+			const executedReversed = await this.executed().then(e => e.slice().reverse());
+
+			let sliceIndex = 1;
+			if (options.to === 0 || options.migrations) {
+				sliceIndex = executedReversed.length;
+			} else if (options.to) {
+				sliceIndex = this.findNameIndex(executedReversed, options.to) + 1;
+			}
+
+			return executedReversed.slice(0, sliceIndex);
+		};
+
+		const toBeReverted = await eligibleMigrations();
 
 		await pEachSeries(toBeReverted, async m => {
 			const start = Date.now();
@@ -210,10 +248,22 @@ export class Umzug<Ctx> extends EventEmitter {
 	private findNameIndex(migrations: Migration[], name: string) {
 		const index = migrations.findIndex(m => m.name === name);
 		if (index === -1) {
-			throw new Error(`Couldn't find migration with name "${name}"`);
+			throw new Error(`Couldn't find migration to apply with name ${JSON.stringify(name)}`);
 		}
 
 		return index;
+	}
+
+	private findMigrations(migrations: Migration[], names: string[]) {
+		const map = new Map(migrations.map(m => [m.name, m]));
+		return names.map(name => {
+			const migration = map.get(name);
+			if (!migration) {
+				throw new Error(`Couldn't find migration to apply with name ${JSON.stringify(name)}`);
+			}
+
+			return migration;
+		});
 	}
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */

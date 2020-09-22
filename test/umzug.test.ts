@@ -76,7 +76,7 @@ describe('alternate migration inputs', () => {
 		});
 	});
 
-	test('to', async () => {
+	test('up and down "to"', async () => {
 		const noop = async () => {};
 		const umzug = new Umzug({
 			migrations: [
@@ -114,6 +114,74 @@ describe('alternate migration inputs', () => {
 		await umzug.up({ to: 'm4' });
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
 		expect(names(await umzug.pending())).toEqual(['m5', 'm6', 'm7']);
+	});
+
+	test('up and down options', async () => {
+		const spy = jest.fn();
+		const umzug = new Umzug({
+			migrations: [...new Array(7)]
+				.map((_, i) => `m${i + 1}`)
+				.map(name => ({
+					name,
+					up: spy.bind(null, 'up-' + name),
+					down: spy.bind(null, 'down-' + name),
+				})),
+		});
+
+		await umzug.up({ migrations: ['m2', 'm4'] });
+
+		expect(names(await umzug.executed())).toEqual(['m2', 'm4']);
+		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4']]);
+
+		await expect(umzug.up({ migrations: ['m2', 'm4'] })).rejects.toThrowError(
+			/Couldn't find migration to apply with name "m2"/
+		);
+
+		await umzug.up({ migrations: ['m2', 'm4'], force: true });
+
+		expect(names(await umzug.executed())).toEqual(['m2', 'm4']);
+		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4'], ['up-m2'], ['up-m4']]);
+
+		// you can use migration names to run migrations in the "wrong" order:
+		await umzug.up({ migrations: ['m5', 'm3'], force: true });
+
+		expect(names(await umzug.executed())).toEqual(['m2', 'm3', 'm4', 'm5']);
+		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4'], ['up-m2'], ['up-m4'], ['up-m5'], ['up-m3']]);
+
+		// invalid migration names result in an error:
+		await expect(umzug.up({ migrations: ['m1', 'typo'], force: true })).rejects.toThrowError(
+			/Couldn't find migration to apply with name "typo"/
+		);
+		// even though m1 _is_ a valid name, it shouldn't have been called - all listed migrations are verified before running any
+		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4'], ['up-m2'], ['up-m4'], ['up-m5'], ['up-m3']]);
+		expect(JSON.stringify(spy.mock.calls)).not.toContain('up-m1');
+
+		await umzug.up();
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']);
+
+		spy.mockClear();
+
+		await umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'] });
+		expect(names(await umzug.executed())).toEqual(['m2', 'm4', 'm6']);
+		expect(spy.mock.calls).toEqual([['down-m1'], ['down-m3'], ['down-m5'], ['down-m7']]);
+
+		await expect(umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'] })).rejects.toThrowError(
+			/Couldn't find migration to apply with name "m1"/
+		);
+
+		await umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'], force: true });
+		expect(names(await umzug.executed())).toEqual(['m2', 'm4', 'm6']);
+		expect(spy.mock.calls).toEqual([
+			['down-m1'],
+			['down-m3'],
+			['down-m5'],
+			['down-m7'],
+			['down-m1'],
+			['down-m3'],
+			['down-m5'],
+			['down-m7'],
+		]);
 	});
 
 	test('with migrations array', async () => {
@@ -411,7 +479,7 @@ describe('error cases', () => {
 			},
 		});
 
-		await expect(umzug.up({ to: 'typo' })).rejects.toThrowError(/Couldn't find migration with name "typo"/);
+		await expect(umzug.up({ to: 'typo' })).rejects.toThrowError(/Couldn't find migration to apply with name "typo"/);
 	});
 });
 
