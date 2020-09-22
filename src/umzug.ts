@@ -5,7 +5,8 @@ import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
 import { basename, extname } from 'path';
-import { Promisable } from 'type-fest';
+
+export type Promisable<T> = T | PromiseLike<T>;
 
 /** Constructor options for the Umzug class */
 export interface UmzugOptions<Ctx = never> {
@@ -100,7 +101,7 @@ export type MigrateDownOptions =
 	  }
 	| {
 			/** If specified, only these migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations */
-			migrations?: string[];
+			migrations: string[];
 
 			/** Allow reverting migrations which have not been run yet. Use with caution. */
 			force?: boolean;
@@ -147,7 +148,6 @@ export class Umzug<Ctx> extends EventEmitter {
 		this.logging = options.logger?.info || (() => {});
 	}
 
-	// todo [>=3.0.0] document how to migrate to v3, which has a breaking change - it passes in path, name, context where v2 passed in context only.
 	static defaultResolver: Resolver<unknown> = ({ path: filepath, name, context }) => {
 		const ext = path.extname(filepath);
 		const canRequire = ext === '.js' || ext in require.extensions;
@@ -339,9 +339,6 @@ export class Umzug<Ctx> extends EventEmitter {
 		const resolver: Resolver<Ctx> = inputMigrations.resolve || Umzug.defaultResolver;
 
 		return async () => {
-			// todo [>=3.0.0] deprecate the old `new Umzug(...)` usage and make this "lazier". It'd be good if
-			// we could hold off on actually querying the filesystem via glob.sync. Will require a refactor of
-			// the main `Umzug` class though, so should wait until this API has been proven out.
 			const globAsync = promisify(glob);
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
 			return paths.map(unresolvedPath => {
