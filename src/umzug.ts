@@ -57,18 +57,12 @@ export type InputMigrations<T> =
 	| RunnableMigration[]
 	| ((context: T) => Promisable<RunnableMigration[]>);
 
-/**
- * A helper property for type inference.
-export type MigrationFn<U extends Umzug<any>> = U extends Umzug<infer Ctx>
-	? (params: { name: string; path?: string; context: Ctx }) => Promise<unknown>
-	: never;
-
 /** A function which returns `up` and `down` function, from a migration name, path and context. */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration;
 
 export type MigrateUpOptions =
 	| {
-			/** If specified, migrations up to and including this name will be run. Otherwise, all will be run */
+			/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
 			to?: string;
 
 			/** Should not be specified with `to` */

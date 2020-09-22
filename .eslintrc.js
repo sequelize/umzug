@@ -54,7 +54,6 @@ module.exports = {
 		'@typescript-eslint/no-unsafe-call': 'off',
 		'@typescript-eslint/unified-signatures': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
-		// '@typescript-eslint/member-delimiter-style': 'off',
 
 		// xo defaults that overlap with prettier
 		'comma-dangle': 'off',
