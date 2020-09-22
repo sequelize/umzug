@@ -13,11 +13,8 @@
 		"lib"
 	],
 	"dependencies": {
-		"fs-jetpack": "^2.2.3",
 		"glob": "^7.1.6",
-		"p-each-series": "^2.1.0",
-		"p-map": "^4.0.0",
-		"tory": "~0.4.3"
+		"p-each-series": "^2.1.0"
 	},
 	"devDependencies": {
 		"@types/jest": "26.0.4",
