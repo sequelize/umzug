@@ -32,6 +32,7 @@ const umzug = new Umzug({
   migrations: { glob: 'migrations/*.js' },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
+  logger: console,
 });
 
 // Checks migrations and run them if they are not already applied. To keep
@@ -90,6 +91,7 @@ const umzug = new Umzug({
   migrations: { glob: 'migrations/*.ts' },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
+  logger: console,
 });
 
 // export the type helper exposed by umzug, which will have the `context` variable inferred
@@ -272,6 +274,7 @@ const umzug = new Umzug({
     }
   ],
   context: sequelize.getQueryInterface(),
+  logger: console,
 });
 ```
 
@@ -296,6 +299,7 @@ const umzug = new Umzug({
     })
   },
   context: sequelize.getQueryInterface(),
+  logger: console,
 });
 ```
 
@@ -323,8 +327,9 @@ const umzug = new Umzug({
         }
         return Umzug.defaultResolver(params)
       }
-    })
+    }),
   },
+  logger: console,
   context: sequelize.getQueryInterface(),
 });
 ```
@@ -367,6 +372,7 @@ const umzug = new Umzug({
     }
   },
   context: sequelize.getQueryInterface(),
+  logger: console,
 });
 ```
 
@@ -405,6 +411,7 @@ import { Umzug, memoryStorage } from 'umzug'
 const umzug = new Umzug({
   migrations: ...,
   storage: memoryStorage(),
+  logger: console,
 })
 ```
 
@@ -432,7 +439,7 @@ class CustomStorage {
   executed(...) {...}
 }
 
-const umzug = new Umzug({ storage: new CustomStorage(...) })
+const umzug = new Umzug({ storage: new CustomStorage(...), logger: console })
 ```
 
 Your instance must adhere to the [UmzugStorage](./src/storage/contract.ts) interface. If you're using TypeScript you can ensure this at compile time, and get IDE type hints by importing it:
