@@ -73,7 +73,7 @@ export type MigrateUpOptions =
 	  }
 	| {
 			/** If specified, only these migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
-			migrations?: string[];
+			migrations: string[];
 
 			/** Allow re-applying already-executed migrations. Use with caution. */
 			force?: boolean;
