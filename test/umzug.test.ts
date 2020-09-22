@@ -1,4 +1,4 @@
-import { Umzug, MigrationFn } from '../src/umzug';
+import { Umzug } from '../src/umzug';
 import { memoryStorage } from '../src';
 import { join } from 'path';
 import { fsSyncer } from 'fs-syncer';
@@ -97,18 +97,23 @@ describe('alternate migration inputs', () => {
 
 		await umzug.down({});
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6']);
+		expect(names(await umzug.pending())).toEqual(['m7']);
 
 		await umzug.down({ to: undefined });
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5']);
+		expect(names(await umzug.pending())).toEqual(['m6', 'm7']);
 
 		await umzug.down({ to: 'm3' });
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
+		expect(names(await umzug.pending())).toEqual(['m3', 'm4', 'm5', 'm6', 'm7']);
 
 		await umzug.down({ to: 0 });
 		expect(names(await umzug.executed())).toEqual([]);
+		expect(names(await umzug.pending())).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7']);
 
 		await umzug.up({ to: 'm4' });
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
+		expect(names(await umzug.pending())).toEqual(['m5', 'm6', 'm7']);
 	});
 
 	test('with migrations array', async () => {
@@ -337,11 +342,11 @@ describe('types', () => {
 			context: { someCustomSqlClient: {} },
 		});
 
-		expectTypeOf<MigrationFn<typeof umzug>>()
+		expectTypeOf(umzug._types.migration)
 			.parameter(0)
 			.toMatchTypeOf<{ name: string; path?: string; context: { someCustomSqlClient: {} } }>();
 
-		expectTypeOf<MigrationFn<typeof umzug>>().returns.toEqualTypeOf<Promise<unknown>>();
+		expectTypeOf(umzug._types.migration).returns.toEqualTypeOf<Promise<unknown>>();
 	});
 
 	test('custom resolver type', () => {

@@ -54,21 +54,7 @@ export type InputMigrations<T> =
 	| ((context: T) => Promisable<Migration[]>);
 
 /**
- * A helper property for type inference. After creating an Umzug instance, it can be used as type alias for
- * a user-defined migration. The function receives a migration name, path and the context for an umzug instance
- * @example
- * import { Umzug, MigrationFn } from 'umzug'
- *
- * // my-umzug.ts
- * const myUmzug = new Umzug({...})
- * export type MyMigrationFn = MigrationFn<typeof myUmzug>;
- *
- * // my-migration.ts
- * import type { MigrationFn } from '..'
- *
- * // name and context will be strongly-typed
- * export const up: MigrationFn = ({name, context}) => context.query(...)
- */
+ * A helper property for type inference.
 export type MigrationFn<U extends Umzug<any>> = U extends Umzug<infer Ctx>
 	? (params: { name: string; path?: string; context: Ctx }) => Promise<unknown>
 	: never;
@@ -80,6 +66,31 @@ export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
 	private readonly migrations: () => Promise<readonly Migration[]>;
 	private readonly logging: (...args: unknown[]) => void;
+
+	/**
+	 * Compile-time only property for type inference. After creating an Umzug instance, it can be used as type alias for
+	 * a user-defined migration. The function receives a migration name, path and the context for an umzug instance
+	 * @example
+	 * // migrator.ts
+	 * import { Umzug } from 'umzug'
+	 *
+	 * const umzug = new Umzug({...})
+	 * export type Migration = typeof umzug._types.migration;
+	 *
+	 * umzug.up();
+	 *
+	 * @example
+	 * // migration-1.ts
+	 * import type { Migration } from '../migrator'
+	 *
+	 * // name and context will now be strongly-typed
+	 * export const up: MigrationFn = ({name, context}) => context.query(...)
+	 * export const down: MigrationFn = ({name, context}) => context.query(...)
+	 */
+	// eslint-disable-next-line @typescript-eslint/member-ordering
+	readonly _types: {
+		migration: (params: { name: string; path?: string; context: Ctx }) => Promise<unknown>;
+	} = {} as any;
 
 	/** creates a new Umzug instance */
 	constructor(private readonly options: UmzugOptions<Ctx>) {
