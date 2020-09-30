@@ -45,6 +45,15 @@ module.exports = {
 			},
 		],
 
+		'unicorn/import-style': [
+			'warn',
+			{
+				styles: {
+					path: { default: false, namespace: true },
+				},
+			},
+		],
+
 		'@typescript-eslint/explicit-function-return-type': 'off',
 		'@typescript-eslint/no-explicit-any': 'off',
 		'@typescript-eslint/prefer-readonly-parameter-types': 'off',
