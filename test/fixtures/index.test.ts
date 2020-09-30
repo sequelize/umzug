@@ -31,7 +31,7 @@ describe('custom resolver', () => {
 					params: [state.sequelize.getQueryInterface(), state.sequelize.constructor],
 					pattern: state.pattern,
 					customResolver: state.customResolver,
-					nameFormatter: path => path.parse(path).name,
+					nameFormatter: filepath => path.parse(filepath).name,
 				},
 				storage: new SequelizeStorage({
 					path: state.storagePath,
@@ -72,13 +72,13 @@ describe('custom resolver', () => {
 				new Migration(require.resolve('./javascript/1.users'), {
 					migrations: {
 						wrap: fn => () => fn(state.sequelize.getQueryInterface(), state.sequelize.constructor),
-						nameFormatter: path => path.parse(path).name,
+						nameFormatter: filepath => path.parse(filepath).name,
 					},
 				}),
 				new Migration(require.resolve('./javascript/2.things'), {
 					migrations: {
 						wrap: fn => () => fn(state.sequelize.getQueryInterface(), state.sequelize.constructor),
-						nameFormatter: path => path.parse(path).name,
+						nameFormatter: filepath => path.parse(filepath).name,
 					},
 				}),
 			],
@@ -97,8 +97,8 @@ describe('custom resolver', () => {
 	it('can resolve sql files', async () => {
 		state.pattern = /\.sql$/;
 		state.path = path.resolve(__dirname, 'sql');
-		state.customResolver = path => ({
-			up: () => state.sequelize.query(readFileSync(path, 'utf8')),
+		state.customResolver = filepath => ({
+			up: () => state.sequelize.query(readFileSync(filepath, 'utf8')),
 		});
 
 		await state.umzug().up();

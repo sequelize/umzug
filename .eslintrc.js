@@ -26,6 +26,7 @@ module.exports = {
 		'prefer-arrow-callback': 'error',
 		'prefer-const': 'error',
 		'no-var': 'error',
+		'no-shadow': 'error',
 		strict: ['error', 'never'],
 
 		'jest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expectTypeOf', 'verify'] }],
