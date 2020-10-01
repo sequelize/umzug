@@ -26,6 +26,7 @@ module.exports = {
 		'prefer-arrow-callback': 'error',
 		'prefer-const': 'error',
 		'no-var': 'error',
+		'no-shadow': 'error',
 		strict: ['error', 'never'],
 
 		'jest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expectTypeOf', 'verify'] }],
@@ -42,6 +43,15 @@ module.exports = {
 				caughtErrorsIgnorePattern: '^_',
 				ignoreRestSiblings: true,
 				args: 'after-used',
+			},
+		],
+
+		'unicorn/import-style': [
+			'warn',
+			{
+				styles: {
+					path: { default: false, namespace: true },
+				},
 			},
 		],
 

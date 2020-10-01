@@ -22,20 +22,20 @@ const getHelper = subdir => {
 		},
 
 		generateDummyMigration(name, subDirectories, options = {}) {
-			let path = jetpack.path(tmpDir);
+			let filepath = jetpack.path(tmpDir);
 			if (subDirectories) {
 				if (!_.isArray(subDirectories)) {
 					subDirectories = [subDirectories];
 				}
 
 				subDirectories.forEach(directory => {
-					path = jetpack.path(path, directory);
-					jetpack.dir(path);
+					filepath = jetpack.path(filepath, directory);
+					jetpack.dir(filepath);
 				});
 			}
 
 			jetpack.write(
-				jetpack.path(path, name + '.js'),
+				jetpack.path(filepath, name + '.js'),
 				[
 					"'use strict';",
 					'',

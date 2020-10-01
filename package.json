@@ -31,7 +31,7 @@
 		"eslint-plugin-jest": "24.0.2",
 		"eslint-plugin-mocha": "8.0.0",
 		"eslint-plugin-prettier": "3.1.4",
-		"eslint-plugin-unicorn": "21.0.0",
+		"eslint-plugin-unicorn": "22.0.0",
 		"expect-type": "0.7.10",
 		"fs-syncer": "0.2.5",
 		"jest": "26.4.2",

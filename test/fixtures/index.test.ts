@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { readFileSync, mkdirSync } = require('fs');
-const { resolve, join, parse, dirname } = require('path');
+const path = require('path');
 const Sequelize = require('sequelize');
 const { Umzug, SequelizeStorage } = require('../../src');
 const { v4: uuid } = require('uuid');
@@ -12,8 +12,8 @@ describe('custom resolver', () => {
 	let state: any = {};
 	beforeEach(() => {
 		state = {};
-		state.storagePath = join(__dirname, `/../generated/sqlite/storage-${uuid()}.sqlite`);
-		mkdirSync(dirname(state.storagePath), { recursive: true });
+		state.storagePath = path.join(__dirname, `/../generated/sqlite/storage-${uuid()}.sqlite`);
+		mkdirSync(path.dirname(state.storagePath), { recursive: true });
 		state.sequelize = new Sequelize('database', 'username', 'password', {
 			dialect: 'sqlite',
 			storage: state.storagePath,
@@ -31,7 +31,7 @@ describe('custom resolver', () => {
 					params: [state.sequelize.getQueryInterface(), state.sequelize.constructor],
 					pattern: state.pattern,
 					customResolver: state.customResolver,
-					nameFormatter: path => parse(path).name,
+					nameFormatter: filepath => path.parse(filepath).name,
 				},
 				storage: new SequelizeStorage({
 					path: state.storagePath,
@@ -57,7 +57,7 @@ describe('custom resolver', () => {
 
 	it('resolves javascript files if no custom resolver is defined', async () => {
 		state.pattern = /\.js$/;
-		state.path = resolve(__dirname, 'javascript');
+		state.path = path.resolve(__dirname, 'javascript');
 		state.customResolver = undefined;
 
 		await state.umzug().up();
@@ -72,13 +72,13 @@ describe('custom resolver', () => {
 				new Migration(require.resolve('./javascript/1.users'), {
 					migrations: {
 						wrap: fn => () => fn(state.sequelize.getQueryInterface(), state.sequelize.constructor),
-						nameFormatter: path => parse(path).name,
+						nameFormatter: filepath => path.parse(filepath).name,
 					},
 				}),
 				new Migration(require.resolve('./javascript/2.things'), {
 					migrations: {
 						wrap: fn => () => fn(state.sequelize.getQueryInterface(), state.sequelize.constructor),
-						nameFormatter: path => parse(path).name,
+						nameFormatter: filepath => path.parse(filepath).name,
 					},
 				}),
 			],
@@ -96,9 +96,9 @@ describe('custom resolver', () => {
 
 	it('can resolve sql files', async () => {
 		state.pattern = /\.sql$/;
-		state.path = resolve(__dirname, 'sql');
-		state.customResolver = path => ({
-			up: () => state.sequelize.query(readFileSync(path, 'utf8')),
+		state.path = path.resolve(__dirname, 'sql');
+		state.customResolver = filepath => ({
+			up: () => state.sequelize.query(readFileSync(filepath, 'utf8')),
 		});
 
 		await state.umzug().up();

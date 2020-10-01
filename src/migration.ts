@@ -18,7 +18,7 @@ export class Migration {
 		this.options = {
 			...options,
 			migrations: {
-				nameFormatter: (path: string) => _path.basename(path),
+				nameFormatter: (filepath: string) => _path.basename(filepath),
 				...options.migrations,
 			},
 		};

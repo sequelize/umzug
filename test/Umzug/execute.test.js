@@ -3,7 +3,7 @@
 const helper = require('../helper')('execute');
 const { Umzug, memoryStorage } = require('../../src');
 const sinon = require('sinon');
-const { join } = require('path');
+const path = require('path');
 
 const resolveStub = Promise.resolve.bind(Promise);
 
@@ -170,7 +170,7 @@ describe('migrations.wrap', () => {
 	beforeEach(() => {
 		helper.clearTmp();
 		require('fs').writeFileSync(
-			join(helper.tmpDir, '/123-callback-last-migration.js'),
+			path.join(helper.tmpDir, '/123-callback-last-migration.js'),
 			[
 				"'use strict';",
 				'',
