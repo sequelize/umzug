@@ -24,7 +24,6 @@ describe('sequelize', () => {
 		Object.assign(helper, {
 			sequelize: new sequelize.Sequelize('database', 'username', 'password', {
 				dialect: 'sqlite',
-				storage: this.storagePath,
 				logging: false,
 			}),
 			storagePath: join(__dirname, `/../tmp/storage-${uuid()}.sqlite`),
