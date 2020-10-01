@@ -24,7 +24,6 @@ describe('sequelize', () => {
 		Object.assign(helper, {
 			sequelize: new sequelize.Sequelize('database', 'username', 'password', {
 				dialect: 'sqlite',
-				storage: this.storagePath,
 				logging: false,
 			}),
 			storagePath: join(__dirname, `/../tmp/storage-${uuid()}.sqlite`),
@@ -79,10 +78,7 @@ describe('sequelize', () => {
 						}
 					`);
 					expect(description.name.type).toBe('VARCHAR(255)');
-					// Expect(description.name.defaultValue).to.be.oneOf([null, undefined])
-					if (description.name.defaultValue !== undefined) {
-						expect(description.name.defaultValue).toBe(null);
-					}
+					expect(description.name.defaultValue).toBeUndefined();
 
 					expect(description.name.primaryKey).toBeTruthy();
 				});
@@ -172,10 +168,7 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then(description => {
 					expect(description.name.type).toBe('VARCHAR(190)');
-					// Expect(description.name.defaultValue).to.be.oneOf([null, undefined])
-					if (description.name.defaultValue !== undefined) {
-						expect(description.name.defaultValue).toBe(null);
-					}
+					expect(description.name.defaultValue).toBeUndefined();
 
 					expect(description.name.primaryKey).toBe(true);
 				});
