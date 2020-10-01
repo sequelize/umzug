@@ -8,12 +8,14 @@ import { basename, extname } from 'path';
 
 export type Promisable<T> = T | PromiseLike<T>;
 
+export type LogFn = (message: string) => void;
+
 /** Constructor options for the Umzug class */
 export interface UmzugOptions<Ctx = never> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
-	logger: Pick<Console, 'info' | 'warn' | 'error'> | undefined;
+	logger: Record<'info' | 'warn' | 'error', LogFn> | undefined;
 	/** The storage implementation. By default, `JSONStorage` will be used */
 	storage?: UmzugStorage;
 	/** An optional context object, which will be passed to each migration function, if defined */
@@ -107,7 +109,6 @@ export type MigrateDownOptions =
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
 	private readonly migrations: () => Promise<readonly RunnableMigration[]>;
-	private readonly logging: (message: string) => void;
 
 	/**
 	 * Compile-time only property for type inference. After creating an Umzug instance, it can be used as type alias for
@@ -139,7 +140,10 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		this.storage = verifyUmzugStorage(options.storage || new JSONStorage());
 		this.migrations = this.getMigrationsResolver();
-		this.logging = options.logger?.info || (() => {});
+	}
+
+	private logging(message: string) {
+		this.options.logger?.info(message);
 	}
 
 	static defaultResolver: Resolver<unknown> = ({ path: filepath, name, context }) => {

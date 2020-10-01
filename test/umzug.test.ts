@@ -389,7 +389,7 @@ describe('types', () => {
 			context: { foo: 123 },
 			logger: {
 				...console,
-				info: (...args) => expectTypeOf(args).toEqualTypeOf<any[]>(),
+				info: (...args) => expectTypeOf(args).toEqualTypeOf<[string]>(),
 			},
 		});
 	});
