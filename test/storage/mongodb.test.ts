@@ -89,7 +89,7 @@ describe('MongoDBStorage', () => {
 	});
 
 	describe('executed', () => {
-		test('returns ', async () => {
+		test('returns', async () => {
 			const storage = new MongoDBStorage({ collection: mockCollection });
 			const mockToArray = mockCollection.find().sort().toArray;
 			mockToArray.mockReturnValue([{ migrationName: 'm1.txt' }]);
