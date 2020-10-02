@@ -35,10 +35,12 @@ const umzug = new Umzug({
   logger: console,
 });
 
-// Checks migrations and run them if they are not already applied. To keep
-// track of the executed migrations, a table (and sequelize model) called SequelizeMeta
-// will be automatically created (if it doesn't exist already) and parsed.
-umzug.up();
+(async () => {
+  // Checks migrations and run them if they are not already applied. To keep
+  // track of the executed migrations, a table (and sequelize model) called SequelizeMeta
+  // will be automatically created (if it doesn't exist already) and parsed.
+  await umzug.up();
+})();
 ```
 
 ```js
@@ -75,8 +77,10 @@ async function down({ context: queryInterface }) {
 module.exports = { up, down };
 ```
 
+Note that we renamed the `context` argument to `queryInterface` for clarity. The `context` is whatever we specified when creating the Umzug instance in `index.js`.
+
 <details>
-<summary>You can also write your migrations in typescript by using `ts-node`:</summary>
+<summary>You can also write your migrations in typescript by using `ts-node` in the entrypoint:</summary>
 
 ```typescript
 // index.ts
@@ -94,10 +98,12 @@ const umzug = new Umzug({
   logger: console,
 });
 
-// export the type helper exposed by umzug, which will have the `context` variable inferred
+// export the type helper exposed by umzug, which will have the `context` argument typed correctly
 export type Migration = typeof umzug._types.migration;
 
-umzug.up();
+(async () => {
+  await umzug.up();
+})();
 ```
 
 ```typescript
@@ -262,19 +268,20 @@ const fs = require('fs')
 const umzug = new Umzug({
   migrations: {
     glob: 'migrations/*.up.sql',
-    resolve: ({ name, path, context }) => ({
+    resolve: ({ name, path, context: sequelize }) => ({
       name,
       up: async () => {
         const sql = fs.readFileSync(path).toString()
-        return context.sequelize.query(sql)
+        return sequelize.query(sql)
       },
       down: async (({ name, path, context })) => {
+        // Get the corresponding `.down.sql` file to undo this migration
         const sql = fs.readFileSync(path.replace('.up.sql', '.down.sql')).toString()
-        return context.sequelize.query(sql)
+        return sequelize.query(sql)
       }
     })
   },
-  context: sequelize.getQueryInterface(),
+  context: sequelize,
   logger: console,
 });
 ```
@@ -346,6 +353,7 @@ const umzug = new Umzug({
   migrations: {
     glob: 'migrations/umzug-v2-format/*.js',
     resolve: ({name, path, context}) => {
+      // Adjust the migration from the new signature to the v2 signature, making easier to upgrade to v3
       const migration = require(path)
       return { up: async () => migration.up(context), down: async () => migration.down(context) }
     }
