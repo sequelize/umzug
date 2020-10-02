@@ -4,7 +4,6 @@ import * as pEachSeries from 'p-each-series';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
-import { basename, extname } from 'path';
 
 export type Promisable<T> = T | PromiseLike<T>;
 
@@ -341,7 +340,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
 			return paths.map(unresolvedPath => {
 				const filepath = path.resolve(unresolvedPath);
-				const name = basename(filepath, extname(filepath));
+				const name = path.basename(filepath, path.extname(filepath));
 				return {
 					name,
 					path: filepath,

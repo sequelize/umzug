@@ -1,6 +1,6 @@
 import { Umzug } from '../src/umzug';
 import { memoryStorage } from '../src';
-import { join } from 'path';
+import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
 
@@ -21,7 +21,7 @@ describe('basic usage', () => {
 	test('requires script files', async () => {
 		const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/globjs'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/globjs'), {
 			'm1.js': `exports.up = async params => console.log('up1', params)`,
 		});
 		syncer.sync();
@@ -41,7 +41,7 @@ describe('basic usage', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, 'up1', {
 			context: { someCustomSqlClient: {} },
 			name: 'm1',
-			path: join(syncer.baseDir, 'm1.js'),
+			path: path.join(syncer.baseDir, 'm1.js'),
 		});
 	});
 });
@@ -50,7 +50,7 @@ describe('alternate migration inputs', () => {
 	test('with file globbing', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/glob'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/glob'), {
 			'migration1.sql': 'select true',
 			'migration2.sql': 'select true',
 			'should-be-ignored.txt': 'abc',
@@ -74,7 +74,7 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			context: { someCustomSqlClient: {} },
 			name: 'migration1',
-			path: join(syncer.baseDir, 'migration1.sql'),
+			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
 	});
 
@@ -191,7 +191,7 @@ describe('alternate migration inputs', () => {
 	test('with migrations array', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/migrationsArray'), {});
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/migrationsArray'), {});
 		syncer.sync();
 
 		const umzug = new Umzug({
@@ -212,7 +212,7 @@ describe('alternate migration inputs', () => {
 	test('with function returning migrations array', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/functionMigrationsArray'), {});
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/functionMigrationsArray'), {});
 		syncer.sync();
 
 		const umzug = new Umzug({
@@ -237,7 +237,7 @@ describe('alternate migration inputs', () => {
 	test('with custom file globbing options', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/glob'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/glob'), {
 			'migration1.sql': 'select true',
 			'migration2.sql': 'select true',
 			'should-be-ignored.txt': 'abc',
@@ -263,14 +263,14 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			context: { someCustomSqlClient: {} },
 			name: 'migration1',
-			path: join(syncer.baseDir, 'migration1.sql'),
+			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
 	});
 
 	test('allows customization via getMigrations', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/customOrdering'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/customOrdering'), {
 			'migration1.sql': 'select true',
 			'migration2.sql': 'select true',
 			'should-be-ignored.txt': 'abc',
@@ -295,7 +295,7 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			name: 'migration3',
-			path: join(syncer.baseDir, 'migration3.sql'),
+			path: path.join(syncer.baseDir, 'migration3.sql'),
 		});
 	});
 
@@ -303,7 +303,7 @@ describe('alternate migration inputs', () => {
 		const spy = jest.fn();
 
 		// folder structure splitting migrations into separate directories, with the filename determining the order:
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/customOrdering'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/customOrdering'), {
 			directory1: {
 				'm1.sql': 'select true',
 				'm1.down.sql': 'select false',
@@ -338,11 +338,11 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenCalledTimes(4);
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			name: 'm1',
-			path: join(syncer.baseDir, 'directory1/m1.sql'),
+			path: path.join(syncer.baseDir, 'directory1/m1.sql'),
 		});
 		expect(spy).toHaveBeenNthCalledWith(2, {
 			name: 'm2',
-			path: join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
+			path: path.join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
 		});
 	});
 });
@@ -478,7 +478,7 @@ describe('error cases', () => {
 		).toThrowError(/Invalid umzug storage/);
 	});
 	test('unresolvable file', async () => {
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/errors/unresolvable'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/errors/unresolvable'), {
 			'migration1.txt': 'create table somehow',
 		});
 		syncer.sync();
@@ -496,7 +496,7 @@ describe('error cases', () => {
 	});
 
 	test('typo in "to"', async () => {
-		const syncer = fsSyncer(join(__dirname, 'generated/umzug/errors/typo'), {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/errors/typo'), {
 			'migration1.js': 'exports.up = () => {}',
 		});
 		syncer.sync();

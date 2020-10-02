@@ -2,12 +2,12 @@ import { Sequelize, QueryInterface } from 'sequelize';
 import { SequelizeStorage } from '../src';
 import { Umzug } from '../src/umzug';
 import { fsSyncer } from 'fs-syncer';
-import * as path from 'path';
+import * as _path from 'path';
 
 describe('recommended usage', () => {
-	const baseDir = path.join(__dirname, 'generated/sequelize/integration/recommended-usage');
+	const baseDir = _path.join(__dirname, 'generated/sequelize/integration/recommended-usage');
 
-	const syncer = fsSyncer(path.join(baseDir, 'migrations'), {
+	const syncer = fsSyncer(_path.join(baseDir, 'migrations'), {
 		'00_initial.js': `
 			const { DataTypes } = require('sequelize');
 
@@ -35,7 +35,7 @@ describe('recommended usage', () => {
 
 	const sequelize = new Sequelize({
 		dialect: 'sqlite',
-		storage: path.join(baseDir, 'db.sqlite'),
+		storage: _path.join(baseDir, 'db.sqlite'),
 		logging: false,
 	});
 
@@ -78,9 +78,9 @@ describe('recommended usage', () => {
 });
 
 describe('v2 back compat', () => {
-	const baseDir = path.join(__dirname, 'generated/sequelize/integration/back-compat');
+	const baseDir = _path.join(__dirname, 'generated/sequelize/integration/back-compat');
 
-	const syncer = fsSyncer(path.join(baseDir, 'migrations'), {
+	const syncer = fsSyncer(_path.join(baseDir, 'migrations'), {
 		'00_initial.js': `
 			const { DataTypes } = require('sequelize');
 
@@ -108,7 +108,7 @@ describe('v2 back compat', () => {
 
 	const sequelize = new Sequelize({
 		dialect: 'sqlite',
-		storage: path.join(baseDir, 'db.sqlite'),
+		storage: _path.join(baseDir, 'db.sqlite'),
 		logging: false,
 	});
 
@@ -118,20 +118,20 @@ describe('v2 back compat', () => {
 	});
 
 	test('sequelize integration test', async () => {
-		const context = sequelize.getQueryInterface();
+		const queryInterface = sequelize.getQueryInterface();
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['migrations/*.js', { cwd: baseDir }],
 				resolve: ({ name, path, context }) => {
 					// umzug v2.x received context directly - this resolve function supports migrations written for v2
-					type MigrationFnV2 = (queryInterface: QueryInterface) => Promise<unknown>;
+					type MigrationFnV2 = (qi: QueryInterface) => Promise<unknown>;
 					// eslint-disable-next-line @typescript-eslint/no-var-requires
 					const migration: { up: MigrationFnV2; down: MigrationFnV2 } = require(path);
 
 					return { name, up: async () => migration.up(context), down: async () => migration.down(context) };
 				},
 			},
-			context,
+			context: queryInterface,
 			storage: new SequelizeStorage({ sequelize }),
 			logger: undefined,
 		});
@@ -143,7 +143,7 @@ describe('v2 back compat', () => {
 				WHERE type='table'
 				AND name='users'
 			`;
-			return context.sequelize.query(sql).then(([results]) => results[0]);
+			return queryInterface.sequelize.query(sql).then(([results]) => results[0]);
 		};
 
 		expect(await tableCount()).toEqual({ count: 0 });
