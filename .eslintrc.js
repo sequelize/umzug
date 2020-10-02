@@ -68,6 +68,7 @@ module.exports = {
 		'object-curly-spacing': 'off',
 		'operator-linebreak': 'off',
 		'no-mixed-spaces-and-tabs': 'off',
+		'@typescript-eslint/comma-dangle': 'off',
 		'@typescript-eslint/indent': 'off',
 		'@typescript-eslint/quotes': 'off',
 
