@@ -3,7 +3,7 @@
 import { SequelizeStorage as Storage } from '../../src';
 
 import * as sequelize from 'sequelize';
-import { join } from 'path';
+import * as path from 'path';
 import { v4 as uuid } from 'uuid';
 import jetpack = require('fs-jetpack');
 
@@ -26,7 +26,7 @@ describe('sequelize', () => {
 				dialect: 'sqlite',
 				logging: false,
 			}),
-			storagePath: join(__dirname, `/../tmp/storage-${uuid()}.sqlite`),
+			storagePath: path.join(__dirname, `/../tmp/storage-${uuid()}.sqlite`),
 		});
 	});
 
