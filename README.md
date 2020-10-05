@@ -262,7 +262,8 @@ const umzug = new Umzug({
 To load migrations in another format, you can use the `resolve` function:
 
 ```js
-const { Umzug } = require('umzug');
+const { Umzug } = require('umzug')
+const { Sequelize } = require('sequelize')
 const fs = require('fs')
 
 const umzug = new Umzug({
@@ -274,14 +275,14 @@ const umzug = new Umzug({
         const sql = fs.readFileSync(path).toString()
         return sequelize.query(sql)
       },
-      down: async (({ name, path, context })) => {
+      down: async () => {
         // Get the corresponding `.down.sql` file to undo this migration
         const sql = fs.readFileSync(path.replace('.up.sql', '.down.sql')).toString()
         return sequelize.query(sql)
       }
     })
   },
-  context: sequelize,
+  context: new Sequelize(...),
   logger: console,
 });
 ```
@@ -289,7 +290,8 @@ const umzug = new Umzug({
 You can support mixed migration file types, and use umzug's default resolver for javascript/typescript:
 
 ```js
-const { Umzug } = require('umzug');
+const { Umzug } = require('umzug')
+const { Sequelize } = require('sequelize')
 const fs = require('fs')
 
 const umzug = new Umzug({
@@ -299,21 +301,22 @@ const umzug = new Umzug({
       if (!params.path.endsWith('.sql')) {
         return Umzug.defaultResolver(params)
       }
+      const { context: sequelize } = params
       return {
         name: params.name,
         up: async () => {
           const sql = fs.readFileSync(params.path).toString()
-          return params.context.sequelize.query(sql)
+          return sequelize.query(sql)
         },
         down: async (params) => {
           const sql = fs.readFileSync(params.path.replace('.up.sql', '.down.sql')).toString()
-          return params.context.sequelize.query(sql)
+          return sequelize.query(sql)
         }
       }
     },
   },
   logger: console,
-  context: sequelize.getQueryInterface(),
+  context: new Sequelize(...),
 });
 ```
 

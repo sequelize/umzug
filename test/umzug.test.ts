@@ -61,7 +61,7 @@ describe('alternate migration inputs', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
-				resolve: context => ({ ...context, up: spy.bind(null, context) }),
+				resolve: params => ({ ...params, up: spy.bind(null, params) }),
 			},
 			context: { someCustomSqlClient: {} },
 			logger: undefined,
@@ -191,9 +191,6 @@ describe('alternate migration inputs', () => {
 	test('with migrations array', async () => {
 		const spy = jest.fn();
 
-		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/migrationsArray'), {});
-		syncer.sync();
-
 		const umzug = new Umzug({
 			migrations: [
 				{ name: 'migration1', up: spy.bind(null, 'migration1-up') },
@@ -211,9 +208,6 @@ describe('alternate migration inputs', () => {
 
 	test('with function returning migrations array', async () => {
 		const spy = jest.fn();
-
-		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/functionMigrationsArray'), {});
-		syncer.sync();
 
 		const umzug = new Umzug({
 			migrations: context => {
@@ -435,11 +429,13 @@ describe('types', () => {
 			logger: undefined,
 		});
 
-		expectTypeOf(umzug._types.migration)
+		type Migration = typeof umzug._types.migration;
+
+		expectTypeOf<Migration>()
 			.parameter(0)
 			.toMatchTypeOf<{ name: string; path?: string; context: { someCustomSqlClient: {} } }>();
 
-		expectTypeOf(umzug._types.migration).returns.toEqualTypeOf<Promise<unknown>>();
+		expectTypeOf<Migration>().returns.toEqualTypeOf<Promise<unknown>>();
 	});
 
 	test('custom resolver type', () => {

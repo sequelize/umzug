@@ -30,6 +30,8 @@ module.exports = {
 		'no-shadow': 'error',
 		strict: ['error', 'never'],
 
+		'no-await-in-loop': 'off',
+
 		'jest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expectTypeOf', 'verify'] }],
 
 		'@typescript-eslint/ban-types': 'off',

@@ -1,9 +1,10 @@
 import * as path from 'path';
 import { EventEmitter } from 'events';
-import * as pEachSeries from 'p-each-series';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
+
+const globAsync = promisify(glob);
 
 export type Promisable<T> = T | PromiseLike<T>;
 
@@ -23,14 +24,14 @@ export interface UmzugOptions<Ctx = never> {
 
 /** Serializeable metadata for a migration. The structure returned by the external-facing `pending()` and `executed()` methods. */
 export interface MigrationMeta {
-	/** Name - this is used to identify the migration persistently in storage */
+	/** Name - this is used as the migration unique identifier within storage */
 	name: string;
 	/** An optional filepath for the migration. Note: this may be undefined, since not all migrations correspond to files on the filesystem */
 	path?: string;
 }
 
 /**
- * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments.
+ * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments, and an optional `down` function to revert it.
  */
 export interface RunnableMigration extends MigrationMeta {
 	/** The effect of applying the migration */
@@ -52,13 +53,13 @@ export type InputMigrations<T> =
 			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
 			/** Will be supplied to every migration function. Can be a database client, for example */
 			context?: T;
-			/** A function which returns `up` and `down` function, from a migration name, path and context. */
+			/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions */
 			resolve?: Resolver<T>;
 	  }
 	| RunnableMigration[]
 	| ((context: T) => Promisable<RunnableMigration[]>);
 
-/** A function which returns `up` and `down` function, from a migration name, path and context. */
+/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration;
 
 export type MigrateUpOptions =
@@ -73,7 +74,7 @@ export type MigrateUpOptions =
 			force?: never;
 	  }
 	| {
-			/** If specified, only these migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
+			/** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
 			migrations: string[];
 
 			/** Allow re-applying already-executed migrations. Use with caution. */
@@ -95,7 +96,10 @@ export type MigrateDownOptions =
 			force?: never;
 	  }
 	| {
-			/** If specified, only these migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations */
+			/**
+			 * If specified, only the migrations with these names migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations.
+			 * Note, migrations will be run in the order specified.
+			 */
 			migrations: string[];
 
 			/** Allow reverting migrations which have not been run yet. Use with caution. */
@@ -126,12 +130,12 @@ export class Umzug<Ctx> extends EventEmitter {
 	 * import type { Migration } from '../migrator'
 	 *
 	 * // name and context will now be strongly-typed
-	 * export const up: MigrationFn = ({name, context}) => context.query(...)
-	 * export const down: MigrationFn = ({name, context}) => context.query(...)
+	 * export const up: Migration = ({name, context}) => context.query(...)
+	 * export const down: Migration = ({name, context}) => context.query(...)
 	 */
-	readonly _types: {
+	declare readonly _types: {
 		migration: (params: { name: string; path?: string; context: Ctx }) => Promise<unknown>;
-	} = {} as any;
+	};
 
 	/** creates a new Umzug instance */
 	constructor(private readonly options: UmzugOptions<Ctx>) {
@@ -150,7 +154,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		const canRequire = ext === '.js' || ext in require.extensions;
 		const languageSpecificHelp: Record<string, string> = {
 			'.ts':
-				"You can use the default resolver with typescript files by adding `ts-node` as a dependency and calling `require('ts-node/register')` before running migrations.",
+				"You can use the default resolver with typescript files by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
 			'.sql': 'Try writing a resolver which reads file content and executes it as a sql query.',
 		};
 		if (!canRequire) {
@@ -174,14 +178,14 @@ export class Umzug<Ctx> extends EventEmitter {
 
 	/**
 	 * create a clone of the current Umzug instance, allowing customising the list of migrations.
-	 * For example, this could be used to re-order the list of migrations.
+	 * This could be used, for example, to sort the list of migrations in a specific order.
 	 */
-	extend(fn: (migrations: readonly RunnableMigration[]) => Promisable<RunnableMigration[]>): Umzug<Ctx> {
+	extend(transform: (migrations: readonly RunnableMigration[]) => Promisable<RunnableMigration[]>): Umzug<Ctx> {
 		return new Umzug({
 			...this.options,
 			migrations: async () => {
 				const migrations = await this.migrations();
-				return fn(migrations);
+				return transform(migrations);
 			},
 		});
 	}
@@ -189,11 +193,12 @@ export class Umzug<Ctx> extends EventEmitter {
 	/** Get the list of migrations which have already been applied */
 	async executed(): Promise<MigrationMeta[]> {
 		const list = await this._executed();
+		// We do the following to not expose the `up` and `down` functions to the user
 		return list.map(m => ({ name: m.name, path: m.path }));
 	}
 
 	/** Get the list of migrations which have already been applied */
-	private async _executed(): Promise<RunnableMigration[]> {
+	private async _executed(): Promise<readonly RunnableMigration[]> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => executedSet.has(m.name));
@@ -202,6 +207,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	/** Get the list of migrations which are yet to be applied */
 	async pending(): Promise<MigrationMeta[]> {
 		const list = await this._pending();
+		// We do the following to not expose the `up` and `down` functions to the user
 		return list.map(m => ({ name: m.name, path: m.path }));
 	}
 
@@ -220,7 +226,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			if (options.migrations && options.force) {
 				// `force` means the specified migrations should be run even if they've run before - so get all migrations, not just pending
 				const list = await this.migrations();
-				return this.findMigrations(list.slice(), options.migrations);
+				return this.findMigrations(list, options.migrations);
 			}
 
 			if (options.migrations) {
@@ -239,7 +245,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeApplied = await eligibleMigrations();
 
-		await pEachSeries(toBeApplied, async m => {
+		for (const m of toBeApplied) {
 			const start = Date.now();
 			this.logging('== ' + m.name + ': migrating =======');
 			this.emit('migrating', m.name, m);
@@ -251,7 +257,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			const duration = ((Date.now() - start) / 1000).toFixed(3);
 			this.logging(`== ${m.name}: migrated (${duration}s)\n`);
 			this.emit('migrated', m.name, m);
-		});
+		}
 	}
 
 	/**
@@ -262,14 +268,14 @@ export class Umzug<Ctx> extends EventEmitter {
 		const eligibleMigrations = async () => {
 			if (options.migrations && options.force) {
 				const list = await this.migrations();
-				return this.findMigrations(list.slice(), options.migrations);
+				return this.findMigrations(list, options.migrations);
 			}
 
 			if (options.migrations) {
 				return this.findMigrations(await this._executed(), options.migrations);
 			}
 
-			const executedReversed = await this._executed().then(e => e.slice().reverse());
+			const executedReversed = (await this._executed()).slice().reverse();
 
 			let sliceIndex = 1;
 			if (options.to === 0 || options.migrations) {
@@ -283,7 +289,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeReverted = await eligibleMigrations();
 
-		await pEachSeries(toBeReverted, async m => {
+		for (const m of toBeReverted) {
 			const start = Date.now();
 			this.logging('== ' + m.name + ': reverting =======');
 			this.emit('reverting', m.name, m);
@@ -295,7 +301,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			const duration = ((Date.now() - start) / 1000).toFixed(3);
 			this.logging(`== ${m.name}: reverted (${duration}s)\n`);
 			this.emit('reverted', m.name, m);
-		});
+		}
 	}
 
 	private findNameIndex(migrations: RunnableMigration[], name: string) {
@@ -307,7 +313,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		return index;
 	}
 
-	private findMigrations(migrations: RunnableMigration[], names: string[]) {
+	private findMigrations(migrations: readonly RunnableMigration[], names: readonly string[]) {
 		const map = new Map(migrations.map(m => [m.name, m]));
 		return names.map(name => {
 			const migration = map.get(name);
@@ -336,7 +342,6 @@ export class Umzug<Ctx> extends EventEmitter {
 		const resolver: Resolver<Ctx> = inputMigrations.resolve || Umzug.defaultResolver;
 
 		return async () => {
-			const globAsync = promisify(glob);
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
 			return paths.map(unresolvedPath => {
 				const filepath = path.resolve(unresolvedPath);
