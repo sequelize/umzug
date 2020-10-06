@@ -14,8 +14,7 @@
 	],
 	"dependencies": {
 		"fs-jetpack": "^2.2.3",
-		"glob": "^7.1.6",
-		"p-each-series": "^2.1.0"
+		"glob": "^7.1.6"
 	},
 	"devDependencies": {
 		"@types/jest": "26.0.14",
