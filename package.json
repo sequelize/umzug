@@ -34,7 +34,7 @@
 		"eslint-plugin-unicorn": "22.0.0",
 		"expect-type": "0.8.0",
 		"fs-syncer": "0.2.7",
-		"jest": "26.5.0",
+		"jest": "26.5.2",
 		"lodash": "4.17.20",
 		"np": "6.5.0",
 		"prettier": "2.1.2",
