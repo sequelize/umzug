@@ -308,7 +308,8 @@ const umzug = new Umzug({
           const sql = fs.readFileSync(params.path).toString()
           return sequelize.query(sql)
         },
-        down: async (params) => {
+        down: async () => {
+          // Get the corresponding `.down.sql` file to undo this migration
           const sql = fs.readFileSync(params.path.replace('.up.sql', '.down.sql')).toString()
           return sequelize.query(sql)
         }
