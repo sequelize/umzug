@@ -75,6 +75,7 @@ module.exports = {
 		'@typescript-eslint/comma-dangle': 'off',
 		'@typescript-eslint/indent': 'off',
 		'@typescript-eslint/quotes': 'off',
+		'@typescript-eslint/semi': 'off',
 
 		// covered by `@typescript-eslint/no-unsued-vars`
 		'no-unused-vars': 'off',

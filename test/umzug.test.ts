@@ -400,55 +400,58 @@ describe('types', () => {
 	});
 
 	test('up and down', () => {
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 'migration123' });
+		const up = expectTypeOf(Umzug).instance.toHaveProperty('up');
+		const down = expectTypeOf(Umzug).instance.toHaveProperty('down');
 
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.ALLOW });
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.SKIP });
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.THROW });
+		up.toBeCallableWith({ to: 'migration123' });
 
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: 'ALLOW' });
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.ALLOW });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.SKIP });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.THROW });
+
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'ALLOW' });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
 
 		// don't allow general strings for rerun behavior
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
 		// rerun must be specified with `migrations`
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ rerun: 'xyztypo' });
+		up.toBeCallableWith({ rerun: 'xyztypo' });
 
 		// can't go up "to" 0
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 0 });
+		up.toBeCallableWith({ to: 0 });
 
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 'migration123' });
+		down.toBeCallableWith({ to: 'migration123' });
 
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.ALLOW });
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.SKIP });
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.THROW });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.ALLOW });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.SKIP });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.THROW });
 
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: 'ALLOW' });
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'ALLOW' });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
 
 		// don't allow general strings for rerun behavior
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
 		// rerun can only be specified with `migrations`
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ rerun: 'xyztypo' });
+		down.toBeCallableWith({ rerun: 'xyztypo' });
 
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 0 });
+		down.toBeCallableWith({ to: 0 });
 
 		// `{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed:
 
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 1 });
+		down.toBeCallableWith({ to: 1 });
 
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 1 });
+		up.toBeCallableWith({ to: 1 });
 	});
 
 	test('pending', () => {
