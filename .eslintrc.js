@@ -27,7 +27,6 @@ module.exports = {
 		'prefer-const': 'error',
 		'no-console': 'warn',
 		'no-var': 'error',
-		'no-shadow': 'error',
 		strict: ['error', 'never'],
 
 		'no-await-in-loop': 'off',
@@ -38,6 +37,7 @@ module.exports = {
 		'@typescript-eslint/ban-ts-comment': ['warn', { 'ts-expect-error': false }],
 		'@typescript-eslint/prefer-function-type': 'error',
 		'@typescript-eslint/restrict-template-expressions': 'error',
+		'@typescript-eslint/no-shadow': 'error',
 		'@typescript-eslint/no-unused-vars': [
 			'error',
 			{
