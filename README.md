@@ -321,6 +321,21 @@ const umzug = new Umzug({
 });
 ```
 
+The glob syntax allows loading migrations from multiple locations:
+
+```js
+const { Umzug } = require('umzug')
+const { Sequelize } = require('sequelize')
+
+const umzug = new Umzug({
+  migrations: {
+    glob: '{first-folder/*.js,second-folder-with-different-naming-convention/*.js}',
+  },
+  context: new Sequelize(...),
+  logger: console,
+});
+```
+
 ### Upgrading from v2.x
 
 The Umzug class should be imported as a named import, i.e. `import { Umzug } from 'umzug'`.
