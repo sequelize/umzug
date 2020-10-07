@@ -399,6 +399,10 @@ describe('types', () => {
 		});
 	});
 
+	test('rerun behavior is a map of its keys to themselves', () => {
+		expectTypeOf(RerunBehavior).toEqualTypeOf<{ readonly [K in RerunBehavior]: K }>();
+	});
+
 	test('up and down', () => {
 		const up = expectTypeOf(Umzug).instance.toHaveProperty('up');
 		const down = expectTypeOf(Umzug).instance.toHaveProperty('down');
