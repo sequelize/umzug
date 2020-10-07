@@ -14,9 +14,7 @@
 	],
 	"dependencies": {
 		"fs-jetpack": "^2.2.3",
-		"p-each-series": "^2.1.0",
-		"p-map": "^4.0.0",
-		"tory": "~0.4.3"
+		"glob": "^7.1.6"
 	},
 	"devDependencies": {
 		"@types/jest": "26.0.14",
@@ -84,10 +82,14 @@
 	},
 	"jest": {
 		"preset": "ts-jest",
+		"globals": {
+			"ts-jest": {
+				"diagnostics": false
+			}
+		},
 		"testEnvironment": "node",
 		"testMatch": [
-			"**/*test.ts",
-			"**/*test.js"
+			"**/*test.ts"
 		],
 		"collectCoverageFrom": [
 			"src/**"

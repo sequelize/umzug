@@ -25,9 +25,12 @@ module.exports = {
 
 		'prefer-arrow-callback': 'error',
 		'prefer-const': 'error',
+		'no-console': 'warn',
 		'no-var': 'error',
 		'no-shadow': 'error',
 		strict: ['error', 'never'],
+
+		'no-await-in-loop': 'off',
 
 		'jest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expectTypeOf', 'verify'] }],
 
@@ -59,6 +62,7 @@ module.exports = {
 		'@typescript-eslint/no-explicit-any': 'off',
 		'@typescript-eslint/prefer-readonly-parameter-types': 'off',
 		'@typescript-eslint/no-unsafe-member-access': 'off',
+		'@typescript-eslint/member-ordering': 'off',
 		'@typescript-eslint/no-unsafe-call': 'off',
 		'@typescript-eslint/unified-signatures': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
@@ -81,8 +85,17 @@ module.exports = {
 
 		'unicorn/catch-error-name': 'off',
 		'unicorn/consistent-function-scoping': 'off',
+		'unicorn/expiring-todo-comments': 'warn',
 		'unicorn/no-fn-reference-in-iterator': 'off',
 		'unicorn/no-null': 'off',
 		'unicorn/prevent-abbreviations': 'off',
 	},
+	overrides: [
+		{
+			files: ['test/*.ts'],
+			rules: {
+				'@typescript-eslint/no-unsafe-return': 'off',
+			},
+		},
+	],
 };

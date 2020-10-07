@@ -23,3 +23,11 @@ export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage 
 		typeof arg.executed === 'function'
 	);
 }
+
+export const verifyUmzugStorage = (arg: Partial<UmzugStorage>): UmzugStorage => {
+	if (!isUmzugStorage(arg)) {
+		throw new Error(`Invalid umzug storage`);
+	}
+
+	return arg;
+};
