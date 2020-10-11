@@ -344,9 +344,11 @@ The options for `Umguz#up` and `Umzug#down` have changed:
 - `umzug.down({ migrations: ['m1', 'm2'] })` is still valid but the shorthand `umzug.down(['m1', 'm2'])` has been removed.
 - `umzug.up({ migrations: ['m1', 'already-run'] })` will throw an error, if `already-run` is not found in the list of pending migrations.
 - `umzug.down({ migrations: ['m1', 'has-not-been-run'] })` will throw an error, if `has-not-been-run` is not found in the list of executed migrations.
-- `umzug.up({ migrations: ['m1', 'm2'], force: true })` will re-apply migrations `m1` and `m2` even if they've already been run.
-- `umzug.down({ migrations: ['m1', 'm2'], force: true })` will "revert" migrations `m1` and `m2` even if they've never been run.
-- `umzug.up({ migrations: ['m1', 'does-not-exist', 'm2'] })` will throw an error if the migration name is not found. Note that the error will be thrown and no migrations run unless _all_ migration names are found - whether or not `force: true` is added.
+- `umzug.up({ migrations: ['m1', 'm2'], rerun: 'ALLOW' })` will re-apply migrations `m1` and `m2` even if they've already been run.
+- `umzug.up({ migrations: ['m1', 'm2'], rerun: 'SKIP' })` will skip migrations `m1` and `m2` if they've already been run.
+- `umzug.down({ migrations: ['m1', 'm2'], rerun: 'ALLOW' })` will "revert" migrations `m1` and `m2` even if they've never been run.
+- `umzug.down({ migrations: ['m1', 'm2'], rerun: 'SKIP' })` will skip reverting migrations `m1` and `m2` if they haven't been run or are already reverted.
+- `umzug.up({ migrations: ['m1', 'does-not-exist', 'm2'] })` will throw an error if the migration name is not found. Note that the error will be thrown and no migrations run unless _all_ migration names are found - whether or not `rerun: 'ALLOW'` is added.
 
 The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 

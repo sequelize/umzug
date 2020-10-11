@@ -1,4 +1,4 @@
-import { Umzug } from '../src/umzug';
+import { RerunBehavior, Umzug } from '../src';
 import { memoryStorage } from '../src';
 import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
@@ -141,19 +141,25 @@ describe('alternate migration inputs', () => {
 			/Couldn't find migration to apply with name "m2"/
 		);
 
-		await umzug.up({ migrations: ['m2', 'm4'], force: true });
+		// rerun behavior 'SKIP' silently ignores already-executed migrations
+		await umzug.up({ migrations: ['m2', 'm4'], rerun: RerunBehavior.SKIP });
+		expect(names(await umzug.executed())).toEqual(['m2', 'm4']);
+		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4']]);
+
+		// rerun behavior 'ALLOW' runs already-executed migrations again
+		await umzug.up({ migrations: ['m2', 'm4'], rerun: RerunBehavior.ALLOW });
 
 		expect(names(await umzug.executed())).toEqual(['m2', 'm4']);
 		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4'], ['up-m2'], ['up-m4']]);
 
 		// you can use migration names to run migrations in the "wrong" order:
-		await umzug.up({ migrations: ['m5', 'm3'], force: true });
+		await umzug.up({ migrations: ['m5', 'm3'], rerun: RerunBehavior.ALLOW });
 
 		expect(names(await umzug.executed())).toEqual(['m2', 'm3', 'm4', 'm5']);
 		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4'], ['up-m2'], ['up-m4'], ['up-m5'], ['up-m3']]);
 
 		// invalid migration names result in an error:
-		await expect(umzug.up({ migrations: ['m1', 'typo'], force: true })).rejects.toThrowError(
+		await expect(umzug.up({ migrations: ['m1', 'typo'], rerun: RerunBehavior.ALLOW })).rejects.toThrowError(
 			/Couldn't find migration to apply with name "typo"/
 		);
 		// even though m1 _is_ a valid name, it shouldn't have been called - all listed migrations are verified before running any
@@ -170,11 +176,16 @@ describe('alternate migration inputs', () => {
 		expect(names(await umzug.executed())).toEqual(['m2', 'm4', 'm6']);
 		expect(spy.mock.calls).toEqual([['down-m1'], ['down-m3'], ['down-m5'], ['down-m7']]);
 
+		// rerun behavior 'SKIP' ignores down migrations that have already been reverted
+		await umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'], rerun: RerunBehavior.SKIP });
+		expect(names(await umzug.executed())).toEqual(['m2', 'm4', 'm6']);
+		expect(spy.mock.calls).toEqual([['down-m1'], ['down-m3'], ['down-m5'], ['down-m7']]);
+
 		await expect(umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'] })).rejects.toThrowError(
 			/Couldn't find migration to apply with name "m1"/
 		);
 
-		await umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'], force: true });
+		await umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'], rerun: RerunBehavior.ALLOW });
 		expect(names(await umzug.executed())).toEqual(['m2', 'm4', 'm6']);
 		expect(spy.mock.calls).toEqual([
 			['down-m1'],
@@ -388,24 +399,63 @@ describe('types', () => {
 		});
 	});
 
+	test('rerun behavior is a map of its keys to themselves', () => {
+		expectTypeOf(RerunBehavior).toEqualTypeOf<{ readonly [K in RerunBehavior]: K }>();
+	});
+
 	test('up and down', () => {
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 'migration123' });
+		const up = expectTypeOf(Umzug).instance.toHaveProperty('up');
+		const down = expectTypeOf(Umzug).instance.toHaveProperty('down');
 
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 'migration123' });
+		up.toBeCallableWith({ to: 'migration123' });
 
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 0 });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.ALLOW });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.SKIP });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.THROW });
+
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'ALLOW' });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
+
+		// don't allow general strings for rerun behavior
+		// @ts-expect-error
+		up.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
+
+		// rerun must be specified with `migrations`
+		// @ts-expect-error
+		up.toBeCallableWith({ rerun: 'xyztypo' });
 
 		// can't go up "to" 0
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 0 });
+		up.toBeCallableWith({ to: 0 });
+
+		down.toBeCallableWith({ to: 'migration123' });
+
+		down.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.ALLOW });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.SKIP });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: RerunBehavior.THROW });
+
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'ALLOW' });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
+
+		// don't allow general strings for rerun behavior
+		// @ts-expect-error
+		down.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
+
+		// rerun can only be specified with `migrations`
+		// @ts-expect-error
+		down.toBeCallableWith({ rerun: 'xyztypo' });
+
+		down.toBeCallableWith({ to: 0 });
 
 		// `{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed:
 
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('down').toBeCallableWith({ to: 1 });
+		down.toBeCallableWith({ to: 1 });
 
 		// @ts-expect-error
-		expectTypeOf(Umzug).instance.toHaveProperty('up').toBeCallableWith({ to: 1 });
+		up.toBeCallableWith({ to: 1 });
 	});
 
 	test('pending', () => {

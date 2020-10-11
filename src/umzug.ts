@@ -62,6 +62,17 @@ export type InputMigrations<T> =
 /** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration;
 
+export const RerunBehavior = {
+	/** Hard error if an up migration that has already been run, or a down migration that hasn't, is encountered */
+	THROW: 'THROW',
+	/** Silently skip up migrations that have already been run, or down migrations that haven't */
+	SKIP: 'SKIP',
+	/** Re-run up migrations that have already been run, or down migrations that haven't */
+	ALLOW: 'ALLOW',
+} as const;
+
+export type RerunBehavior = keyof typeof RerunBehavior;
+
 export type MigrateUpOptions =
 	| {
 			/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
@@ -71,14 +82,14 @@ export type MigrateUpOptions =
 			migrations?: never;
 
 			/** Should not be specified with `to` */
-			force?: never;
+			rerun?: never;
 	  }
 	| {
 			/** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
 			migrations: string[];
 
-			/** Allow re-applying already-executed migrations. Use with caution. */
-			force?: boolean;
+			/** What to do if a migration that has already been run is explicitly specified. Default is `THROW`. */
+			rerun?: RerunBehavior;
 
 			/** Should not be specified with `migrations` */
 			to?: never;
@@ -93,7 +104,7 @@ export type MigrateDownOptions =
 			migrations?: never;
 
 			/** Should not be specified with `to` */
-			force?: never;
+			rerun?: never;
 	  }
 	| {
 			/**
@@ -102,8 +113,8 @@ export type MigrateDownOptions =
 			 */
 			migrations: string[];
 
-			/** Allow reverting migrations which have not been run yet. Use with caution. */
-			force?: boolean;
+			/** What to do if a migration that has not been run is explicitly specified. Default is `THROW`. */
+			rerun?: RerunBehavior;
 
 			/** Should not be specified with `migrations` */
 			to?: never;
@@ -219,14 +230,20 @@ export class Umzug<Ctx> extends EventEmitter {
 
 	/**
 	 * Apply migrations. By default, runs all pending migrations.
-	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `force`.
+	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
 	async up(options: MigrateUpOptions = {}): Promise<void> {
 		const eligibleMigrations = async () => {
-			if (options.migrations && options.force) {
-				// `force` means the specified migrations should be run even if they've run before - so get all migrations, not just pending
+			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
+				// Allow rerun means the specified migrations should be run even if they've run before - so get all migrations, not just pending
 				const list = await this.migrations();
 				return this.findMigrations(list, options.migrations);
+			}
+
+			if (options.migrations && options.rerun === RerunBehavior.SKIP) {
+				const executedNames = new Set((await this._executed()).map(m => m.name));
+				const filteredMigrations = options.migrations.filter(m => !executedNames.has(m));
+				return this.findMigrations(await this.migrations(), filteredMigrations);
 			}
 
 			if (options.migrations) {
@@ -262,13 +279,19 @@ export class Umzug<Ctx> extends EventEmitter {
 
 	/**
 	 * Revert migrations. By default, the last executed migration is reverted.
-	 * @see MigrateDownOptions for other use cases using `to`, `migrations` and `force`.
+	 * @see MigrateDownOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
 	async down(options: MigrateDownOptions = {}): Promise<void> {
 		const eligibleMigrations = async () => {
-			if (options.migrations && options.force) {
+			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
 				const list = await this.migrations();
 				return this.findMigrations(list, options.migrations);
+			}
+
+			if (options.migrations && options.rerun === RerunBehavior.SKIP) {
+				const pendingNames = new Set((await this._pending()).map(m => m.name));
+				const filteredMigrations = options.migrations.filter(m => !pendingNames.has(m));
+				return this.findMigrations(await this.migrations(), filteredMigrations);
 			}
 
 			if (options.migrations) {
