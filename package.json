@@ -6,7 +6,8 @@
 		"migrate",
 		"migration",
 		"migrations",
-		"sequelize"
+		"sequelize",
+		"database"
 	],
 	"main": "lib/index.js",
 	"files": [
@@ -49,7 +50,7 @@
 		"build": "del-cli lib && tsc",
 		"lint": "eslint --ext .js,.ts . --max-warnings 0",
 		"prepare": "npm run build",
-		"release": "np --no-2fa",
+		"release": "np --no-yarn --no-2fa",
 		"pretest": "del-cli test/generated",
 		"test": "jest"
 	},

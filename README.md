@@ -130,7 +130,7 @@ See [these tests](./test/umzug.test.ts) for more examples of Umzug usage, includ
 The beta version of Umzug is available on npm by specifying the correct tag:
 
 ```bash
-npm install umzug@3.0.0-beta.5
+npm install umzug@3.0.0-beta.6
 ```
 
 #### Umzug instance
