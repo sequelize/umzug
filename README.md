@@ -321,6 +321,29 @@ const umzug = new Umzug({
 });
 ```
 
+The glob syntax allows loading migrations from multiple locations:
+
+```js
+const { Umzug } = require('umzug')
+const { Sequelize } = require('sequelize')
+
+const umzug = new Umzug({
+  migrations: {
+    glob: '{first-folder/*.js,second-folder-with-different-naming-convention/*.js}',
+  },
+  context: new Sequelize(...),
+  logger: console,
+});
+```
+
+Note on migration file sorting:
+
+- file matches, found using [glob](https://npmjs.com/package/glob), will be lexicographically sorted based on their paths
+  - so if your migrations are `one/m1.js`, `two/m2.js`, `three/m3.js`, the resultant order will be `one/m1.js`, `three/m3.js`, `two/m2.js`
+  - similarly, if your migrations are called `m1.js`, `m2.js`, ... `m10.js`, `m11.js`, the resultant ordering will be `m1.js`, `m10.js`, `m11.js`, ... `m2.js`
+- The easiest way to deal with this is to ensure your migrations appear in a single folder, and their paths match lexicographically with the order they should run in
+- If this isn't possible, the ordering can be customised using `.extend(...)` (see below)
+
 ### Upgrading from v2.x
 
 The Umzug class should be imported as a named import, i.e. `import { Umzug } from 'umzug'`.
