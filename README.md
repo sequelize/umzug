@@ -4,6 +4,18 @@ Umzug is a framework-agnostic migration tool for Node. It provides a clean API f
 
 _Note: master represents the next major version of umzug - v3 - which is currently in beta. For the stable version, please refer to the [v2.x branch](https://github.com/sequelize/umzug/tree/v2.x)._
 
+To install the beta package:
+
+```
+npm install umzug@beta
+```
+
+To install the stable package (v2.x):
+
+```
+npm install umzug
+```
+
 ## Highlights
 
 * Written in TypeScript
