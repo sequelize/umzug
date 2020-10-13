@@ -34,7 +34,7 @@ module.exports = {
 		'jest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expectTypeOf', 'verify'] }],
 
 		'@typescript-eslint/ban-types': 'off',
-		'@typescript-eslint/ban-ts-comment': ['warn', { 'ts-expect-error': false }],
+		'@typescript-eslint/ban-ts-comment': 'off', // covered by prefer-ts-expect-error
 		'@typescript-eslint/prefer-function-type': 'error',
 		'@typescript-eslint/restrict-template-expressions': 'error',
 		'@typescript-eslint/no-shadow': 'error',

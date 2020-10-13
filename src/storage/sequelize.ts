@@ -1,6 +1,8 @@
 import { UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
-import { Sequelize as SequelizeType, Model as ModelClass } from 'sequelize';
+// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+// @ts-ignore this avoids typescript errors for users not using sequelize
+import type { Sequelize as SequelizeType, Model as ModelClass } from 'sequelize';
 
 interface ModelTempInterface extends ModelClass {
 	[key: string]: any;
