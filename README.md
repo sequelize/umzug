@@ -1,4 +1,9 @@
-# Umzug [![Build Status](https://travis-ci.org/sequelize/umzug.svg?branch=master)](https://travis-ci.org/sequelize/umzug) [![npm version](https://badgen.net/npm/v/umzug)](https://www.npmjs.com/package/umzug)
+# Umzug
+
+[![Build Status](https://img.shields.io/github/workflow/status/sequelize/umzug/CI/master)](https://github.com/sequelize/umzug/actions?query=workflow%3ACI)
+[![npm (stable)](https://badgen.net/npm/v/umzug)](https://www.npmjs.com/package/umzug)
+[![npm (beta)](https://img.shields.io/npm/v/umzug/beta?color=cyan)](https://www.npmjs.com/package/umzug/v/beta)
+[![npm (downloads)](https://img.shields.io/npm/dm/umzug)](https://npmjs.com/package/umzug)
 
 Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
 
