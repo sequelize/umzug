@@ -36,11 +36,11 @@ describe('basic usage', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['m1']);
+		expect(names(await umzug.executed())).toEqual(['m1.js']);
 		expect(spy).toHaveBeenCalledTimes(1);
 		expect(spy).toHaveBeenNthCalledWith(1, 'up1', {
 			context: { someCustomSqlClient: {} },
-			name: 'm1',
+			name: 'm1.js',
 			path: path.join(syncer.baseDir, 'm1.js'),
 		});
 	});
@@ -69,11 +69,11 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
+		expect(names(await umzug.executed())).toEqual(['migration1.sql', 'migration2.sql', 'migration3.sql']);
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			context: { someCustomSqlClient: {} },
-			name: 'migration1',
+			name: 'migration1.sql',
 			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
 	});
@@ -263,11 +263,11 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
+		expect(names(await umzug.executed())).toEqual(['migration1.sql', 'migration2.sql', 'migration3.sql']);
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			context: { someCustomSqlClient: {} },
-			name: 'migration1',
+			name: 'migration1.sql',
 			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
 	});
@@ -296,10 +296,10 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['migration3', 'migration2', 'migration1']);
+		expect(names(await umzug.executed())).toEqual(['migration3.sql', 'migration2.sql', 'migration1.sql']);
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
-			name: 'migration3',
+			name: 'migration3.sql',
 			path: path.join(syncer.baseDir, 'migration3.sql'),
 		});
 	});
@@ -339,14 +339,14 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
+		expect(names(await umzug.executed())).toEqual(['m1.sql', 'm2.sql', 'm3.sql', 'm4.sql']);
 		expect(spy).toHaveBeenCalledTimes(4);
 		expect(spy).toHaveBeenNthCalledWith(1, {
-			name: 'm1',
+			name: 'm1.sql',
 			path: path.join(syncer.baseDir, 'directory1/m1.sql'),
 		});
 		expect(spy).toHaveBeenNthCalledWith(2, {
-			name: 'm2',
+			name: 'm2.sql',
 			path: path.join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
 		});
 	});
