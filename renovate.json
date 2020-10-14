@@ -5,22 +5,13 @@
     ":semanticCommits"
   ],
   "prConcurrentLimit": 4,
+  "dependencyDashboard": true,
+  "dependencyDashboardAutoclose": true,
   "packageRules": [
     {
       "depTypeList": ["devDependencies"],
+      "groupName": "devDependencies",
       "automerge": true
-    },
-    {
-      "depTypeList": ["devDependencies"],
-      "packagePatterns": ["eslint", "prettier"],
-      "groupName": "lint packages",
-      "labels": ["lint"]
-    },
-    {
-      "depTypeList": ["devDependencies"],
-      "packagePatterns": ["jest"],
-      "groupName": "test packages",
-      "labels": ["test"]
     }
   ]
 }
