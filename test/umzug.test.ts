@@ -61,7 +61,10 @@ describe('alternate migration inputs', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
-				resolve: params => ({ ...params, up: spy.bind(null, params) }),
+				resolve: params => ({
+					...params,
+					up: async () => spy(params),
+				}),
 			},
 			context: { someCustomSqlClient: {} },
 			logger: undefined,
@@ -76,6 +79,43 @@ describe('alternate migration inputs', () => {
 			name: 'migration1',
 			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
+	});
+
+	test('up and down functions should not take parameters', async () => {
+		const spy = jest.fn();
+
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/parameterless-fns'), {
+			'migration1.sql': 'select true',
+		});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.sql', { cwd: syncer.baseDir }],
+				resolve: params => ({
+					...params,
+					// @ts-expect-error - the type system should protect users from mistakenly trying to accept parameters here
+					up: async shouldBeUndefined => spy('up', params.name, shouldBeUndefined),
+					// @ts-expect-error - the type system should protect users from mistakenly trying to accept parameters here
+					down: async shouldBeUndefined => spy('down', params.name, shouldBeUndefined),
+				}),
+			},
+			logger: undefined,
+		});
+
+		await umzug.up();
+
+		expect(spy).toHaveBeenCalledTimes(1);
+		// eslint-disable-next-line unicorn/no-useless-undefined
+		expect(spy).toHaveBeenNthCalledWith(1, 'up', 'migration1', undefined);
+
+		spy.mockClear();
+
+		await umzug.down();
+
+		expect(spy).toHaveBeenCalledTimes(1);
+		// eslint-disable-next-line unicorn/no-useless-undefined
+		expect(spy).toHaveBeenNthCalledWith(1, 'down', 'migration1', undefined);
 	});
 
 	test('up and down "to"', async () => {
@@ -126,8 +166,8 @@ describe('alternate migration inputs', () => {
 				.map((_, i) => `m${i + 1}`)
 				.map(name => ({
 					name,
-					up: spy.bind(null, 'up-' + name),
-					down: spy.bind(null, 'down-' + name),
+					up: async () => spy('up-' + name),
+					down: async () => spy('down-' + name),
 				})),
 			logger: undefined,
 		});
@@ -204,8 +244,14 @@ describe('alternate migration inputs', () => {
 
 		const umzug = new Umzug({
 			migrations: [
-				{ name: 'migration1', up: spy.bind(null, 'migration1-up') },
-				{ name: 'migration2', up: spy.bind(null, 'migration2-up') },
+				{
+					name: 'migration1',
+					up: async () => spy('migration1-up'),
+				},
+				{
+					name: 'migration2',
+					up: async () => spy('migration2-up'),
+				},
 			],
 			logger: undefined,
 		});
@@ -224,8 +270,14 @@ describe('alternate migration inputs', () => {
 			migrations: context => {
 				expect(context).toEqual({ someCustomSqlClient: {} });
 				return [
-					{ name: 'migration1', up: spy.bind(null, 'migration1-up') },
-					{ name: 'migration2', up: spy.bind(null, 'migration2-up') },
+					{
+						name: 'migration1',
+						up: async () => spy('migration1-up'),
+					},
+					{
+						name: 'migration2',
+						up: async () => spy('migration2-up'),
+					},
 				];
 			},
 			context: { someCustomSqlClient: {} },
@@ -255,7 +307,10 @@ describe('alternate migration inputs', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
-				resolve: params => ({ ...params, up: spy.bind(null, params) }),
+				resolve: params => ({
+					...params,
+					up: async () => spy(params),
+				}),
 			},
 			context: { someCustomSqlClient: {} },
 			logger: undefined,
@@ -286,7 +341,10 @@ describe('alternate migration inputs', () => {
 		const parent = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
-				resolve: ({ context, ...params }) => ({ ...params, up: context.spy.bind(null, params) }),
+				resolve: ({ context, ...params }) => ({
+					...params,
+					up: async () => context.spy(params),
+				}),
 			},
 			context: { spy },
 			logger: undefined,
@@ -328,7 +386,10 @@ describe('alternate migration inputs', () => {
 		const withDefaultOrdering = new Umzug({
 			migrations: {
 				glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
-				resolve: params => ({ ...params, up: spy.bind(null, params) }),
+				resolve: params => ({
+					...params,
+					up: async () => spy(params),
+				}),
 			},
 			logger: undefined,
 		});
