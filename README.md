@@ -1,15 +1,15 @@
 # Umzug
 
-[![Build Status](https://img.shields.io/github/workflow/status/sequelize/umzug/CI/master)](https://github.com/sequelize/umzug/actions?query=workflow%3ACI)
+[![Build Status](https://badgen.net/github/checks/sequelize/umzug/master)](https://github.com/sequelize/umzug/actions?query=workflow%3ACI)
 [![npm (stable)](https://badgen.net/npm/v/umzug)](https://www.npmjs.com/package/umzug)
-[![npm (beta)](https://img.shields.io/npm/v/umzug/beta?color=cyan)](https://www.npmjs.com/package/umzug/v/beta)
-[![npm (downloads)](https://img.shields.io/npm/dm/umzug)](https://npmjs.com/package/umzug)
+[![npm (beta)](https://badgen.net/npm/v/umzug/beta)](https://www.npmjs.com/package/umzug/v/beta)
+[![npm (downloads)](https://badgen.net/npm/dm/umzug)](https://npmjs.com/package/umzug)
 
 Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
 
 _Note: master represents the next major version of umzug - v3 - which is currently in beta. For the stable version, please refer to the [v2.x branch](https://github.com/sequelize/umzug/tree/v2.x)._
 
-To install the beta package:
+To install the v3-beta package:
 
 ```
 npm install umzug@beta
@@ -147,7 +147,7 @@ See [these tests](./test/umzug.test.ts) for more examples of Umzug usage, includ
 The beta version of Umzug is available on npm by specifying the correct tag:
 
 ```bash
-npm install umzug@3.0.0-beta.6
+npm install umzug@beta
 ```
 
 #### Umzug instance
