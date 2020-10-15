@@ -421,7 +421,7 @@ describe('types', () => {
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
 		// @ts-expect-error (rerun must be specified with `migrations`)
-		up.toBeCallableWith({ rerun: 'xyztypo' });
+		up.toBeCallableWith({ rerun: 'ALLOW' });
 
 		// @ts-expect-error (can't go up "to" 0)
 		up.toBeCallableWith({ to: 0 });
@@ -440,7 +440,7 @@ describe('types', () => {
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
 		// @ts-expect-error (rerun can only be specified with `migrations`)
-		down.toBeCallableWith({ rerun: 'xyztypo' });
+		down.toBeCallableWith({ rerun: 'ALLOW' });
 
 		down.toBeCallableWith({ to: 0 });
 
