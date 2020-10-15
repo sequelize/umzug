@@ -417,16 +417,13 @@ describe('types', () => {
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
 
-		// don't allow general strings for rerun behavior
-		// @ts-expect-error
+		// @ts-expect-error (don't allow general strings for rerun behavior)
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
-		// rerun must be specified with `migrations`
-		// @ts-expect-error
+		// @ts-expect-error (rerun must be specified with `migrations`)
 		up.toBeCallableWith({ rerun: 'xyztypo' });
 
-		// can't go up "to" 0
-		// @ts-expect-error
+		// @ts-expect-error (can't go up "to" 0)
 		up.toBeCallableWith({ to: 0 });
 
 		down.toBeCallableWith({ to: 'migration123' });
@@ -439,22 +436,18 @@ describe('types', () => {
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
 
-		// don't allow general strings for rerun behavior
-		// @ts-expect-error
+		// @ts-expect-error (don't allow general strings for rerun behavior)
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
-		// rerun can only be specified with `migrations`
-		// @ts-expect-error
+		// @ts-expect-error (rerun can only be specified with `migrations`)
 		down.toBeCallableWith({ rerun: 'xyztypo' });
 
 		down.toBeCallableWith({ to: 0 });
 
-		// `{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed:
-
-		// @ts-expect-error
+		// @ts-expect-error (`{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed)
 		down.toBeCallableWith({ to: 1 });
 
-		// @ts-expect-error
+		// @ts-expect-error (`{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed)
 		up.toBeCallableWith({ to: 1 });
 	});
 
