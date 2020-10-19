@@ -376,7 +376,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
 			return paths.map(unresolvedPath => {
 				const filepath = path.resolve(unresolvedPath);
-				const name = path.basename(filepath, path.extname(filepath));
+				const name = path.basename(filepath);
 				return {
 					name,
 					path: filepath,

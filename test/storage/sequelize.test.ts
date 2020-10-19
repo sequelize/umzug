@@ -32,8 +32,11 @@ describe('sequelize', () => {
 
 	describe('constructor', () => {
 		it('requires a "sequelize" or "model" storage option', () => {
-			// @ts-expect-error
+			// @ts-expect-error (type error for no params)
 			expect(() => new Storage()).toThrowError('One of "sequelize" or "model" storage option is required');
+
+			// @ts-expect-error (type error for params with missing properties)
+			expect(() => new Storage({})).toThrowError('One of "sequelize" or "model" storage option is required');
 		});
 
 		it('stores needed options', () => {

@@ -36,11 +36,11 @@ describe('basic usage', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['m1']);
+		expect(names(await umzug.executed())).toEqual(['m1.js']);
 		expect(spy).toHaveBeenCalledTimes(1);
 		expect(spy).toHaveBeenNthCalledWith(1, 'up1', {
 			context: { someCustomSqlClient: {} },
-			name: 'm1',
+			name: 'm1.js',
 			path: path.join(syncer.baseDir, 'm1.js'),
 		});
 	});
@@ -72,11 +72,11 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
+		expect(names(await umzug.executed())).toEqual(['migration1.sql', 'migration2.sql', 'migration3.sql']);
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			context: { someCustomSqlClient: {} },
-			name: 'migration1',
+			name: 'migration1.sql',
 			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
 	});
@@ -318,11 +318,11 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['migration1', 'migration2', 'migration3']);
+		expect(names(await umzug.executed())).toEqual(['migration1.sql', 'migration2.sql', 'migration3.sql']);
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			context: { someCustomSqlClient: {} },
-			name: 'migration1',
+			name: 'migration1.sql',
 			path: path.join(syncer.baseDir, 'migration1.sql'),
 		});
 	});
@@ -354,10 +354,10 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['migration3', 'migration2', 'migration1']);
+		expect(names(await umzug.executed())).toEqual(['migration3.sql', 'migration2.sql', 'migration1.sql']);
 		expect(spy).toHaveBeenCalledTimes(3);
 		expect(spy).toHaveBeenNthCalledWith(1, {
-			name: 'migration3',
+			name: 'migration3.sql',
 			path: path.join(syncer.baseDir, 'migration3.sql'),
 		});
 	});
@@ -400,14 +400,14 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
+		expect(names(await umzug.executed())).toEqual(['m1.sql', 'm2.sql', 'm3.sql', 'm4.sql']);
 		expect(spy).toHaveBeenCalledTimes(4);
 		expect(spy).toHaveBeenNthCalledWith(1, {
-			name: 'm1',
+			name: 'm1.sql',
 			path: path.join(syncer.baseDir, 'directory1/m1.sql'),
 		});
 		expect(spy).toHaveBeenNthCalledWith(2, {
-			name: 'm2',
+			name: 'm2.sql',
 			path: path.join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
 		});
 	});
@@ -478,16 +478,13 @@ describe('types', () => {
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
 
-		// don't allow general strings for rerun behavior
-		// @ts-expect-error
+		// @ts-expect-error (don't allow general strings for rerun behavior)
 		up.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
-		// rerun must be specified with `migrations`
-		// @ts-expect-error
-		up.toBeCallableWith({ rerun: 'xyztypo' });
+		// @ts-expect-error (rerun must be specified with `migrations`)
+		up.toBeCallableWith({ rerun: 'ALLOW' });
 
-		// can't go up "to" 0
-		// @ts-expect-error
+		// @ts-expect-error (can't go up "to" 0)
 		up.toBeCallableWith({ to: 0 });
 
 		down.toBeCallableWith({ to: 'migration123' });
@@ -500,22 +497,18 @@ describe('types', () => {
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'SKIP' });
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'THROW' });
 
-		// don't allow general strings for rerun behavior
-		// @ts-expect-error
+		// @ts-expect-error (don't allow general strings for rerun behavior)
 		down.toBeCallableWith({ migrations: ['m1'], rerun: 'xyztypo' });
 
-		// rerun can only be specified with `migrations`
-		// @ts-expect-error
-		down.toBeCallableWith({ rerun: 'xyztypo' });
+		// @ts-expect-error (rerun can only be specified with `migrations`)
+		down.toBeCallableWith({ rerun: 'ALLOW' });
 
 		down.toBeCallableWith({ to: 0 });
 
-		// `{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed:
-
-		// @ts-expect-error
+		// @ts-expect-error (`{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed)
 		down.toBeCallableWith({ to: 1 });
 
-		// @ts-expect-error
+		// @ts-expect-error (`{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed)
 		up.toBeCallableWith({ to: 1 });
 	});
 
