@@ -92,12 +92,10 @@ describe('alternate migration inputs', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
-				resolve: params => ({
-					...params,
-					// @ts-expect-error - the type system should protect users from mistakenly trying to accept parameters here
-					up: async shouldBeUndefined => spy('up', params.name, shouldBeUndefined),
-					// @ts-expect-error - the type system should protect users from mistakenly trying to accept parameters here
-					down: async shouldBeUndefined => spy('down', params.name, shouldBeUndefined),
+				resolve: resolveParams => ({
+					...resolveParams,
+					up: async upParams => spy('up', resolveParams.name, upParams.name),
+					down: async downParams => spy('down', resolveParams.name, downParams.name),
 				}),
 			},
 			logger: undefined,
@@ -106,16 +104,14 @@ describe('alternate migration inputs', () => {
 		await umzug.up();
 
 		expect(spy).toHaveBeenCalledTimes(1);
-		// eslint-disable-next-line unicorn/no-useless-undefined
-		expect(spy).toHaveBeenNthCalledWith(1, 'up', 'migration1', undefined);
+		expect(spy).toHaveBeenNthCalledWith(1, 'up', 'migration1.sql', 'migration1.sql');
 
 		spy.mockClear();
 
 		await umzug.down();
 
 		expect(spy).toHaveBeenCalledTimes(1);
-		// eslint-disable-next-line unicorn/no-useless-undefined
-		expect(spy).toHaveBeenNthCalledWith(1, 'down', 'migration1', undefined);
+		expect(spy).toHaveBeenNthCalledWith(1, 'down', 'migration1.sql', 'migration1.sql');
 	});
 
 	test('up and down "to"', async () => {
@@ -637,10 +633,10 @@ describe('events', () => {
 
 		expect(mock.mock.calls).toMatchObject([
 			['migrating', 'm1', { name: 'm1' }],
-			['up-m1'],
+			['up-m1', { name: 'm1' }],
 			['migrated', 'm1', { name: 'm1' }],
 			['migrating', 'm2', { name: 'm2' }],
-			['up-m2'],
+			['up-m2', { name: 'm2' }],
 			['migrated', 'm2', { name: 'm2' }],
 		]);
 
@@ -650,7 +646,7 @@ describe('events', () => {
 
 		expect(mock.mock.calls).toMatchObject([
 			['reverting', 'm2', { name: 'm2' }],
-			['down-m2'],
+			['down-m2', { name: 'm2' }],
 			['reverted', 'm2', { name: 'm2' }],
 		]);
 
@@ -662,7 +658,7 @@ describe('events', () => {
 
 		expect(mock.mock.calls).toMatchObject([
 			// `reverting` shouldn't be here because the listener was removed
-			['down-m1'],
+			['down-m1', { name: 'm1' }],
 			['reverted', 'm1', { name: 'm1' }],
 		]);
 	});
