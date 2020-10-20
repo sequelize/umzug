@@ -53,19 +53,13 @@ export type InputMigrations<T> =
 			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
 			/** Will be supplied to every migration function. Can be a database client, for example */
 			context?: T;
-			/**
-			 * A function which takes a migration name, path and context, and returns an object with `up` and `down` functions.
-			 * Note: the `resolve` function will receive `name`, `path` and `context` but the `up` and down functions should be
-			 * parameterless.
-			 */
+			/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
 			resolve?: Resolver<T>;
 	  }
 	| Array<RunnableMigration<T>>
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
-/**
- * A function which takes a migration name, path and context, and returns an object with `up` and `down` functions.
- */
+/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration<T>;
 
 export const RerunBehavior = {
