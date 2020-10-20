@@ -65,8 +65,6 @@ export type InputMigrations<T> =
 
 /**
  * A function which takes a migration name, path and context, and returns an object with `up` and `down` functions.
- * Note: the `resolve` function will receive `name`, `path` and `context` but the `up` and down functions should be
- * parameterless.
  */
 export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration<T>;
 
