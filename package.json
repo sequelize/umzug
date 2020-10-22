@@ -14,7 +14,7 @@
 		"lib"
 	],
 	"dependencies": {
-		"fs-jetpack": "^3.0.0",
+		"fs-jetpack": "^4.0.0",
 		"glob": "^7.1.6"
 	},
 	"devDependencies": {
