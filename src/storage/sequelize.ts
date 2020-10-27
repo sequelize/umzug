@@ -4,7 +4,9 @@ import { SetRequired } from 'type-fest';
 // @ts-ignore (Avoid type errors for non-sequelize users. Can't use ts-expect-error; this _won't_ be an error when sequelize is installed)
 import type { Sequelize as SequelizeType, Model as ModelClass } from 'sequelize';
 
-type ModelClassType = typeof ModelClass & (new (values?: object, options?: any) => ModelClass);
+interface ModelTempInterface extends ModelClass, Record<string, any> {}
+
+type ModelClassType = typeof ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
 
 interface _SequelizeStorageConstructorOptions {
 	/**
