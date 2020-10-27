@@ -81,7 +81,7 @@ describe('alternate migration inputs', () => {
 		});
 	});
 
-	test('up and down functions should not take parameters', async () => {
+	test('up and down functions using `resolve` should receive parameters', async () => {
 		const spy = jest.fn();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/parameterless-fns'), {
@@ -89,29 +89,38 @@ describe('alternate migration inputs', () => {
 		});
 		syncer.sync();
 
+		const context = { someCustomSqlClient: {} };
+
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
 				resolve: resolveParams => ({
 					...resolveParams,
-					up: async upParams => spy('up', resolveParams.name, upParams.name),
-					down: async downParams => spy('down', resolveParams.name, downParams.name),
+					up: async upParams => spy('up', { resolveParams, upParams }),
+					down: async downParams => spy('down', { resolveParams, downParams }),
 				}),
 			},
+			context,
 			logger: undefined,
 		});
 
 		await umzug.up();
 
 		expect(spy).toHaveBeenCalledTimes(1);
-		expect(spy).toHaveBeenNthCalledWith(1, 'up', 'migration1.sql', 'migration1.sql');
+		expect(spy).toHaveBeenNthCalledWith(1, 'up', {
+			resolveParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+			upParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+		});
 
 		spy.mockClear();
 
 		await umzug.down();
 
 		expect(spy).toHaveBeenCalledTimes(1);
-		expect(spy).toHaveBeenNthCalledWith(1, 'down', 'migration1.sql', 'migration1.sql');
+		expect(spy).toHaveBeenNthCalledWith(1, 'down', {
+			resolveParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+			downParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+		});
 	});
 
 	test('up and down "to"', async () => {
