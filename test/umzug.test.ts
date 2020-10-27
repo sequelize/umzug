@@ -61,7 +61,10 @@ describe('alternate migration inputs', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
-				resolve: params => ({ ...params, up: spy.bind(null, params) }),
+				resolve: params => ({
+					...params,
+					up: async () => spy(params),
+				}),
 			},
 			context: { someCustomSqlClient: {} },
 			logger: undefined,
@@ -75,6 +78,48 @@ describe('alternate migration inputs', () => {
 			context: { someCustomSqlClient: {} },
 			name: 'migration1.sql',
 			path: path.join(syncer.baseDir, 'migration1.sql'),
+		});
+	});
+
+	test('up and down functions using `resolve` should receive parameters', async () => {
+		const spy = jest.fn();
+
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/parameterless-fns'), {
+			'migration1.sql': 'select true',
+		});
+		syncer.sync();
+
+		const context = { someCustomSqlClient: {} };
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.sql', { cwd: syncer.baseDir }],
+				resolve: resolveParams => ({
+					...resolveParams,
+					up: async upParams => spy('up', { resolveParams, upParams }),
+					down: async downParams => spy('down', { resolveParams, downParams }),
+				}),
+			},
+			context,
+			logger: undefined,
+		});
+
+		await umzug.up();
+
+		expect(spy).toHaveBeenCalledTimes(1);
+		expect(spy).toHaveBeenNthCalledWith(1, 'up', {
+			resolveParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+			upParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+		});
+
+		spy.mockClear();
+
+		await umzug.down();
+
+		expect(spy).toHaveBeenCalledTimes(1);
+		expect(spy).toHaveBeenNthCalledWith(1, 'down', {
+			resolveParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+			downParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
 		});
 	});
 
@@ -126,8 +171,8 @@ describe('alternate migration inputs', () => {
 				.map((_, i) => `m${i + 1}`)
 				.map(name => ({
 					name,
-					up: spy.bind(null, 'up-' + name),
-					down: spy.bind(null, 'down-' + name),
+					up: async () => spy('up-' + name),
+					down: async () => spy('down-' + name),
 				})),
 			logger: undefined,
 		});
@@ -204,8 +249,14 @@ describe('alternate migration inputs', () => {
 
 		const umzug = new Umzug({
 			migrations: [
-				{ name: 'migration1', up: spy.bind(null, 'migration1-up') },
-				{ name: 'migration2', up: spy.bind(null, 'migration2-up') },
+				{
+					name: 'migration1',
+					up: async () => spy('migration1-up'),
+				},
+				{
+					name: 'migration2',
+					up: async () => spy('migration2-up'),
+				},
 			],
 			logger: undefined,
 		});
@@ -224,8 +275,14 @@ describe('alternate migration inputs', () => {
 			migrations: context => {
 				expect(context).toEqual({ someCustomSqlClient: {} });
 				return [
-					{ name: 'migration1', up: spy.bind(null, 'migration1-up') },
-					{ name: 'migration2', up: spy.bind(null, 'migration2-up') },
+					{
+						name: 'migration1',
+						up: async () => spy('migration1-up'),
+					},
+					{
+						name: 'migration2',
+						up: async () => spy('migration2-up'),
+					},
 				];
 			},
 			context: { someCustomSqlClient: {} },
@@ -255,7 +312,10 @@ describe('alternate migration inputs', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir, ignore: ['ignoreme*.sql'] }],
-				resolve: params => ({ ...params, up: spy.bind(null, params) }),
+				resolve: params => ({
+					...params,
+					up: async () => spy(params),
+				}),
 			},
 			context: { someCustomSqlClient: {} },
 			logger: undefined,
@@ -286,7 +346,10 @@ describe('alternate migration inputs', () => {
 		const parent = new Umzug({
 			migrations: {
 				glob: ['*.sql', { cwd: syncer.baseDir }],
-				resolve: ({ context, ...params }) => ({ ...params, up: context.spy.bind(null, params) }),
+				resolve: ({ context, ...params }) => ({
+					...params,
+					up: async () => context.spy(params),
+				}),
 			},
 			context: { spy },
 			logger: undefined,
@@ -328,7 +391,10 @@ describe('alternate migration inputs', () => {
 		const withDefaultOrdering = new Umzug({
 			migrations: {
 				glob: ['**/*.sql', { cwd: syncer.baseDir, ignore: '**/*.down.sql' }],
-				resolve: params => ({ ...params, up: spy.bind(null, params) }),
+				resolve: params => ({
+					...params,
+					up: async () => spy(params),
+				}),
 			},
 			logger: undefined,
 		});
@@ -576,10 +642,10 @@ describe('events', () => {
 
 		expect(mock.mock.calls).toMatchObject([
 			['migrating', 'm1', { name: 'm1' }],
-			['up-m1'],
+			['up-m1', { name: 'm1' }],
 			['migrated', 'm1', { name: 'm1' }],
 			['migrating', 'm2', { name: 'm2' }],
-			['up-m2'],
+			['up-m2', { name: 'm2' }],
 			['migrated', 'm2', { name: 'm2' }],
 		]);
 
@@ -589,7 +655,7 @@ describe('events', () => {
 
 		expect(mock.mock.calls).toMatchObject([
 			['reverting', 'm2', { name: 'm2' }],
-			['down-m2'],
+			['down-m2', { name: 'm2' }],
 			['reverted', 'm2', { name: 'm2' }],
 		]);
 
@@ -601,7 +667,7 @@ describe('events', () => {
 
 		expect(mock.mock.calls).toMatchObject([
 			// `reverting` shouldn't be here because the listener was removed
-			['down-m1'],
+			['down-m1', { name: 'm1' }],
 			['reverted', 'm1', { name: 'm1' }],
 		]);
 	});
