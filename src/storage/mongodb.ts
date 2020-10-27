@@ -1,6 +1,6 @@
 import { UmzugStorage } from './contract';
 
-type AnyObject = { [key: string]: any };
+type AnyObject = Record<string, any>;
 
 export interface MongoDBConnectionOptions {
 	/**
