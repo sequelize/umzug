@@ -35,9 +35,9 @@ export interface MigrationMeta {
  */
 export interface RunnableMigration<T> extends MigrationMeta {
 	/** The effect of applying the migration */
-	up: (params: { path: string; name: string; context: T }) => Promise<unknown>;
+	up: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
 	/** The effect of reverting the migration */
-	down?: (params: { path: string; name: string; context: T }) => Promise<unknown>;
+	down?: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
 }
 
 /**
@@ -60,7 +60,7 @@ export type InputMigrations<T> =
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
 /** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
-export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration<T>;
+export type Resolver<T> = (params: { name: string; path?: string; context?: T }) => RunnableMigration<T>;
 
 export const RerunBehavior = {
 	/** Hard error if an up migration that has already been run, or a down migration that hasn't, is encountered */
@@ -161,6 +161,10 @@ export class Umzug<Ctx> extends EventEmitter {
 	}
 
 	static defaultResolver: Resolver<unknown> = ({ name, path: filepath }) => {
+		if (!filepath) {
+			throw new Error(`Can't use default resolver for non-filesystem migrations`);
+		}
+
 		const ext = path.extname(filepath);
 		const canRequire = ext === '.js' || ext in require.extensions;
 		const languageSpecificHelp: Record<string, string> = {
@@ -358,7 +362,8 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		if (typeof inputMigrations === 'function') {
-			return async () => inputMigrations(context);
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
+			return async () => inputMigrations(context!);
 		}
 
 		const fileGlob = inputMigrations.glob;
@@ -372,7 +377,6 @@ export class Umzug<Ctx> extends EventEmitter {
 				const filepath = path.resolve(unresolvedPath);
 				const name = path.basename(filepath);
 				return {
-					name,
 					path: filepath,
 					...resolver({ name, path: filepath, context }),
 				};

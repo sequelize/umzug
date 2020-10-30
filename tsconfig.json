@@ -12,6 +12,7 @@
 		"sourceMap": true,
 		"pretty": true,
 		"newLine": "lf",
+		"strictNullChecks": true,
 		"stripInternal": true,
 		"noImplicitReturns": true,
 		"noUnusedLocals": false,
