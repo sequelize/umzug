@@ -152,7 +152,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	constructor(private readonly options: UmzugOptions<Ctx>) {
 		super();
 
-		this.storage = verifyUmzugStorage(options.storage || new JSONStorage());
+		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
 		this.migrations = this.getMigrationsResolver();
 	}
 
@@ -362,14 +362,14 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		if (typeof inputMigrations === 'function') {
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			return async () => inputMigrations(context!);
 		}
 
 		const fileGlob = inputMigrations.glob;
 		const [globString, globOptions]: Parameters<typeof glob.sync> = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
-		const resolver: Resolver<Ctx> = inputMigrations.resolve || Umzug.defaultResolver;
+		const resolver: Resolver<Ctx> = inputMigrations.resolve ?? Umzug.defaultResolver;
 
 		return async () => {
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
