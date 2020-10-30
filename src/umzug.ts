@@ -187,6 +187,14 @@ export class Umzug<Ctx> extends EventEmitter {
 		};
 	};
 
+	async cli(mainModule: typeof module): Promise<void> {
+		const { UmzugCLI } = await import('./cli');
+		const cli = new UmzugCLI(this);
+		if (mainModule === require.main) {
+			await cli.execute();
+		}
+	}
+
 	/**
 	 * create a clone of the current Umzug instance, allowing customising the list of migrations.
 	 * This could be used, for example, to sort the list of migrations in a specific order.
