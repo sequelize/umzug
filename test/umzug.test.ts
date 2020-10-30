@@ -1,5 +1,4 @@
-import { RerunBehavior, Umzug } from '../src';
-import { memoryStorage } from '../src';
+import { memoryStorage, RerunBehavior, Umzug } from '../src';
 import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
