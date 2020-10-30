@@ -35,9 +35,9 @@ export interface MigrationMeta {
  */
 export interface RunnableMigration<T> extends MigrationMeta {
 	/** The effect of applying the migration */
-	up: (params: { path: string; name: string; context: T }) => Promise<unknown>;
+	up: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
 	/** The effect of reverting the migration */
-	down?: (params: { path: string; name: string; context: T }) => Promise<unknown>;
+	down?: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
 }
 
 /**
@@ -60,7 +60,7 @@ export type InputMigrations<T> =
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
 /** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
-export type Resolver<T> = (params: { path: string; name: string; context: T }) => RunnableMigration<T>;
+export type Resolver<T> = (params: { name: string; path?: string; context: T }) => RunnableMigration<T>;
 
 export const RerunBehavior = {
 	/** Hard error if an up migration that has already been run, or a down migration that hasn't, is encountered */
@@ -152,7 +152,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	constructor(private readonly options: UmzugOptions<Ctx>) {
 		super();
 
-		this.storage = verifyUmzugStorage(options.storage || new JSONStorage());
+		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
 		this.migrations = this.getMigrationsResolver();
 	}
 
@@ -161,6 +161,10 @@ export class Umzug<Ctx> extends EventEmitter {
 	}
 
 	static defaultResolver: Resolver<unknown> = ({ name, path: filepath }) => {
+		if (!filepath) {
+			throw new Error(`Can't use default resolver for non-filesystem migrations`);
+		}
+
 		const ext = path.extname(filepath);
 		const canRequire = ext === '.js' || ext in require.extensions;
 		const languageSpecificHelp: Record<string, string> = {
@@ -360,7 +364,10 @@ export class Umzug<Ctx> extends EventEmitter {
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
 	private getMigrationsResolver(): () => Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
-		const { migrations: inputMigrations, context } = this.options;
+		const inputMigrations = this.options.migrations;
+		// Safe to non-null assert - if there's no context passed in, the type of `Ctx` must be `undefined` anyway.
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		const context = this.options.context!;
 		if (Array.isArray(inputMigrations)) {
 			return async () => inputMigrations;
 		}
@@ -372,7 +379,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		const fileGlob = inputMigrations.glob;
 		const [globString, globOptions]: Parameters<typeof glob.sync> = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
-		const resolver: Resolver<Ctx> = inputMigrations.resolve || Umzug.defaultResolver;
+		const resolver: Resolver<Ctx> = inputMigrations.resolve ?? Umzug.defaultResolver;
 
 		return async () => {
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
@@ -380,7 +387,6 @@ export class Umzug<Ctx> extends EventEmitter {
 				const filepath = path.resolve(unresolvedPath);
 				const name = path.basename(filepath);
 				return {
-					name,
 					path: filepath,
 					...resolver({ name, path: filepath, context }),
 				};
