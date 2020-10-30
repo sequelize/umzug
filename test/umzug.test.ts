@@ -451,7 +451,7 @@ describe('types', () => {
 		expectTypeOf(Umzug)
 			.constructorParameters.toHaveProperty('0')
 			.toHaveProperty('logger')
-			.toMatchTypeOf<Pick<Console, 'info' | 'warn' | 'error'>>();
+			.toMatchTypeOf<undefined | Pick<Console, 'info' | 'warn' | 'error'>>();
 
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: [],
@@ -552,7 +552,7 @@ describe('types', () => {
 			migrations: {
 				glob: '*/*.ts',
 				resolve: params => {
-					expectTypeOf(params).toEqualTypeOf<{ name: string; path: string; context: { someCustomSqlClient: {} } }>();
+					expectTypeOf(params).toEqualTypeOf<{ name: string; path?: string; context: { someCustomSqlClient: {} } }>();
 					return { name: '', up: async () => {} };
 				},
 			},
@@ -619,7 +619,7 @@ describe('error cases', () => {
 describe('events', () => {
 	test('events', async () => {
 		const mock = jest.fn();
-		const spy = (label: string) => (...args) => mock(label, ...args);
+		const spy = (label: string) => (...args: unknown[]) => mock(label, ...args);
 
 		const umzug = new Umzug({
 			migrations: [

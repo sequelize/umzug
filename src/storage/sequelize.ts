@@ -72,7 +72,7 @@ export class SequelizeStorage implements UmzugStorage {
 	public readonly columnName: string;
 	public readonly timestamps: boolean;
 	public readonly modelName: string;
-	public readonly tableName: string;
+	public readonly tableName?: string;
 	public readonly schema: any;
 	public readonly model: ModelClassType;
 

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { SequelizeStorage as Storage } from '../../src';
 
 import * as sequelize from 'sequelize';
@@ -10,7 +9,7 @@ import jetpack = require('fs-jetpack');
 // TODO [>=3.0.0]: Investigate whether we are mis-using `model.describe()` here, and get rid of `any`.
 // See https://github.com/sequelize/umzug/pull/226 and https://github.com/sequelize/sequelize/issues/12296 for details
 const describeModel = (model: any) =>
-	model.describe().then(d => {
+	model.describe().then((d: any) => {
 		// FIXME [sequelize@>=6] remove this hack when only sequelize>=6 is supported
 		Object.keys(d).forEach(k => delete d[k].unique);
 		return d;
@@ -69,7 +68,7 @@ describe('sequelize', () => {
 			return storage.model
 				.sync()
 				.then(describeModel)
-				.then(description => {
+				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
 						  "name": Object {
@@ -113,7 +112,7 @@ describe('sequelize', () => {
 			return storage.model
 				.sync()
 				.then(describeModel)
-				.then(description => {
+				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
 						  "customColumn": Object {
@@ -135,7 +134,7 @@ describe('sequelize', () => {
 			return storage.model
 				.sync()
 				.then(describeModel)
-				.then(description => {
+				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
 						Object {
 						  "createdAt": Object {
@@ -169,7 +168,7 @@ describe('sequelize', () => {
 			return storage.model
 				.sync()
 				.then(describeModel)
-				.then(description => {
+				.then((description: any) => {
 					expect(description.name.type).toBe('VARCHAR(190)');
 					expect(description.name.defaultValue).toBeUndefined();
 
@@ -200,15 +199,15 @@ describe('sequelize', () => {
 				sequelize: helper.sequelize,
 			});
 
-			return storage.model.sequelize
-				.getQueryInterface()
+			return storage.model
+				.sequelize!.getQueryInterface()
 				.showAllTables()
-				.then(allTables => {
+				.then((allTables: any) => {
 					expect(Object.keys(allTables)).toHaveLength(0);
 				})
 				.then(() => storage.logMigration('asd.js'))
-				.then(() => storage.model.sequelize.getQueryInterface().showAllTables())
-				.then(allTables => {
+				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
+				.then((allTables: any) => {
 					expect(allTables).toEqual(['SequelizeMeta']);
 				});
 		});
@@ -272,15 +271,15 @@ describe('sequelize', () => {
 		it("creates the table if it doesn't exist yet", () => {
 			const storage = new Storage({ sequelize: helper.sequelize });
 
-			return storage.model.sequelize
-				.getQueryInterface()
+			return storage.model
+				.sequelize!.getQueryInterface()
 				.showAllTables()
-				.then(allTables => {
+				.then((allTables: any) => {
 					expect(Object.keys(allTables)).toHaveLength(0);
 				})
 				.then(() => storage.unlogMigration('asd.js'))
-				.then(() => storage.model.sequelize.getQueryInterface().showAllTables())
-				.then(allTables => {
+				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
+				.then((allTables: any) => {
 					expect(allTables).toEqual(['SequelizeMeta']);
 				});
 		});
@@ -370,15 +369,15 @@ describe('sequelize', () => {
 				sequelize: helper.sequelize,
 			});
 
-			return storage.model.sequelize
-				.getQueryInterface()
+			return storage.model
+				.sequelize!.getQueryInterface()
 				.showAllTables()
-				.then(allTables => {
+				.then((allTables: any) => {
 					expect(Object.keys(allTables)).toHaveLength(0);
 				})
 				.then(() => storage.executed())
-				.then(() => storage.model.sequelize.getQueryInterface().showAllTables())
-				.then(allTables => {
+				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
+				.then((allTables: any) => {
 					expect(allTables).toEqual(['SequelizeMeta']);
 				});
 		});

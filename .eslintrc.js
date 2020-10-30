@@ -99,9 +99,10 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: ['test/*.ts'],
+			files: ['test/**/*.ts'],
 			rules: {
 				'@typescript-eslint/no-unsafe-return': 'off',
+				'@typescript-eslint/no-non-null-assertion': 'off',
 			},
 		},
 	],
