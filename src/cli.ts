@@ -19,9 +19,8 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 			to: action.defineStringParameter({
 				parameterLongName: '--to',
 				argumentName: 'NAME',
-				description: `All migrations up to and including this one should be ${verb}. ${
-					verb === 'reverted' ? 'Pass "0" to revert all.' : ''
-				}`.trim(),
+				// prettier-ignore
+				description: `All migrations up to and including this one should be ${verb}. ${verb === 'reverted' ? 'Pass "0" to revert all.' : ''}`.trim(),
 			}),
 			migrations: action.defineStringListParameter({
 				parameterLongName: '--migration',
@@ -61,8 +60,8 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	}
 }
 
-class UpAction extends ApplyMigrationsAction {
-	constructor(private readonly parent: UmzugCLI) {
+export class UpAction extends ApplyMigrationsAction {
+	constructor(private readonly parent: { getUmzug(): Umzug<{}> }) {
 		super({
 			actionName: 'up',
 			summary: 'Applies pending migrations',
@@ -70,8 +69,8 @@ class UpAction extends ApplyMigrationsAction {
 		});
 	}
 
-	async onExecute() {
-		const umzug = this.parent.umzug;
+	async onExecute(): Promise<void> {
+		const umzug = this.parent.getUmzug();
 		type Opts = Parameters<typeof umzug.up>[0];
 
 		const { migrations, rerun, to } = this.getParams();
@@ -87,8 +86,8 @@ class UpAction extends ApplyMigrationsAction {
 	}
 }
 
-class DownAction extends ApplyMigrationsAction {
-	constructor(private readonly parent: UmzugCLI) {
+export class DownAction extends ApplyMigrationsAction {
+	constructor(private readonly parent: { getUmzug(): Umzug<{}> }) {
 		super({
 			actionName: 'down',
 			summary: 'Revert migrations',
@@ -97,8 +96,8 @@ class DownAction extends ApplyMigrationsAction {
 		});
 	}
 
-	async onExecute() {
-		const umzug = this.parent.umzug;
+	async onExecute(): Promise<void> {
+		const umzug = this.parent.getUmzug();
 		type Opts = Parameters<typeof umzug.down>[0];
 
 		const { migrations, rerun, to } = this.getParams();
@@ -114,8 +113,10 @@ class DownAction extends ApplyMigrationsAction {
 	}
 }
 
-export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly umzug?: Umzug<{}>) {
+export class GlobalUmzugCLI extends cli.CommandLineParser {
+	private _module: cli.CommandLineStringParameter;
+
+	constructor() {
 		super({
 			toolFilename: 'umzug',
 			toolDescription: 'Umzug migrator',
@@ -125,11 +126,51 @@ export class UmzugCLI extends cli.CommandLineParser {
 		this.addAction(new DownAction(this));
 	}
 
-	onDefineParameters(): void {}
+	onDefineParameters(): void {
+		this._module = this.defineStringParameter({
+			parameterLongName: '--module',
+			argumentName: 'PATH',
+			description: `Path to a commonjs module that will be 'require'd. An umzug instance should be the default export`,
+			required: true,
+		});
+	}
 
-	async onExecute() {
-		console.log('executing');
+	getUmzug(): Umzug<{}> {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		const modulePath = this._module.value!;
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const umzug = require(modulePath).default;
+
+		if (!(umzug instanceof Umzug)) {
+			throw new TypeError(`Expected umzug instance to be default export of ${modulePath}`);
+		}
+
+		return umzug;
 	}
 }
 
-void new UmzugCLI(new Umzug({ migrations: [], logger: console })).execute();
+export class UmzugCLI extends cli.CommandLineParser {
+	constructor(readonly umzug: Umzug<{}>) {
+		super({
+			toolFilename: 'umzug',
+			toolDescription: 'Umzug migrator',
+		});
+
+		this.addAction(new UpAction(this));
+		this.addAction(new DownAction(this));
+	}
+
+	getUmzug(): Umzug<{}> {
+		return this.umzug;
+	}
+
+	onDefineParameters(): void {}
+
+	async onExecute(): Promise<void> {
+		return super.onExecute();
+	}
+}
+
+if (require.main === module) {
+	void new GlobalUmzugCLI().execute();
+}
