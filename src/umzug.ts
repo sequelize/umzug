@@ -365,7 +365,6 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		if (typeof inputMigrations === 'function') {
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			return async () => inputMigrations(context);
 		}
 

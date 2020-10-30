@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { SequelizeStorage as Storage } from '../../src';
 
 import * as sequelize from 'sequelize';
