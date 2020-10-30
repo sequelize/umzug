@@ -384,3 +384,5 @@ export class Umzug<Ctx> extends EventEmitter {
 		};
 	}
 }
+
+const getLengthOrThrow = <T extends { length: number }>(val?: T) => val!.length;
