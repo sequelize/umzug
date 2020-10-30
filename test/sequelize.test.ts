@@ -62,7 +62,7 @@ describe('recommended usage', () => {
 				WHERE type='table'
 				AND name='users'
 			`;
-			return context.sequelize.query(sql).then(([results]) => results[0]);
+			return context.sequelize.query(sql).then(([results]: any[]) => results[0]);
 		};
 
 		expect(await tableCount()).toEqual({ count: 0 });
@@ -126,7 +126,7 @@ describe('v2 back compat', () => {
 					// umzug v2.x received context directly - this resolve function supports migrations written for v2
 					type MigrationFnV2 = (qi: QueryInterface) => Promise<unknown>;
 					// eslint-disable-next-line @typescript-eslint/no-var-requires
-					const migration: { up: MigrationFnV2; down: MigrationFnV2 } = require(path);
+					const migration: { up: MigrationFnV2; down: MigrationFnV2 } = require(path!);
 
 					return { name, up: async () => migration.up(context), down: async () => migration.down(context) };
 				},
@@ -143,7 +143,7 @@ describe('v2 back compat', () => {
 				WHERE type='table'
 				AND name='users'
 			`;
-			return queryInterface.sequelize.query(sql).then(([results]) => results[0]);
+			return queryInterface.sequelize.query(sql).then(([results]: any[]) => results[0]);
 		};
 
 		expect(await tableCount()).toEqual({ count: 0 });
