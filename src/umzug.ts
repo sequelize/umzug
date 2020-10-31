@@ -238,7 +238,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	 * Apply migrations. By default, runs all pending migrations.
 	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
-	async up(options: MigrateUpOptions = {}): Promise<void> {
+	async up(options: MigrateUpOptions = {}): Promise<MigrationMeta[]> {
 		const eligibleMigrations = async () => {
 			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
 				// Allow rerun means the specified migrations should be run even if they've run before - so get all migrations, not just pending
@@ -281,13 +281,15 @@ export class Umzug<Ctx> extends EventEmitter {
 			this.logging(`== ${m.name}: migrated (${duration}s)\n`);
 			this.emit('migrated', m.name, m);
 		}
+
+		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
 	}
 
 	/**
 	 * Revert migrations. By default, the last executed migration is reverted.
 	 * @see MigrateDownOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
-	async down(options: MigrateDownOptions = {}): Promise<void> {
+	async down(options: MigrateDownOptions = {}): Promise<MigrationMeta[]> {
 		const eligibleMigrations = async () => {
 			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
 				const list = await this.migrations();
@@ -331,6 +333,8 @@ export class Umzug<Ctx> extends EventEmitter {
 			this.logging(`== ${m.name}: reverted (${duration}s)\n`);
 			this.emit('reverted', m.name, m);
 		}
+
+		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
 	}
 
 	private findNameIndex(migrations: Array<RunnableMigration<Ctx>>, name: string) {
