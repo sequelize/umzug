@@ -4,6 +4,13 @@ import { Umzug } from './umzug';
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
 
+	protected constructor(
+		protected readonly parent: { getUmzug(): Umzug<{}> },
+		cliOptions: cli.ICommandLineActionOptions
+	) {
+		super(cliOptions);
+	}
+
 	private static _defineParameters(action: cli.CommandLineAction) {
 		let verb: string;
 		const name: string = action.actionName;
@@ -61,8 +68,8 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 }
 
 export class UpAction extends ApplyMigrationsAction {
-	constructor(private readonly parent: { getUmzug(): Umzug<{}> }) {
-		super({
+	constructor(parent: { getUmzug(): Umzug<{}> }) {
+		super(parent, {
 			actionName: 'up',
 			summary: 'Applies pending migrations',
 			documentation: 'Performs all migrations. See --help for more options',
@@ -87,8 +94,8 @@ export class UpAction extends ApplyMigrationsAction {
 }
 
 export class DownAction extends ApplyMigrationsAction {
-	constructor(private readonly parent: { getUmzug(): Umzug<{}> }) {
-		super({
+	constructor(parent: { getUmzug(): Umzug<{}> }) {
+		super(parent, {
 			actionName: 'down',
 			summary: 'Revert migrations',
 			documentation:
