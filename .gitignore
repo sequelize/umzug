@@ -4,3 +4,4 @@ umzug.json
 .vscode
 coverage
 test/generated
+*.tgz

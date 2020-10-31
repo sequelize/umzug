@@ -243,6 +243,28 @@ describe('alternate migration inputs', () => {
 		]);
 	});
 
+	test('up and down return migration meta array', async () => {
+		const umzug = new Umzug({
+			migrations: [
+				{ name: 'm1', path: 'm1.sql', up: async () => {} },
+				{ name: 'm2', path: 'm2.sql', up: async () => {} },
+			],
+			logger: undefined,
+		});
+
+		const upResults = await umzug.up();
+		expect(upResults).toEqual([
+			{ name: 'm1', path: 'm1.sql' },
+			{ name: 'm2', path: 'm2.sql' },
+		]);
+
+		const downResults = await umzug.down({ to: 0 });
+		expect(downResults).toEqual([
+			{ name: 'm2', path: 'm2.sql' },
+			{ name: 'm1', path: 'm1.sql' },
+		]);
+	});
+
 	test('with migrations array', async () => {
 		const spy = jest.fn();
 
@@ -514,6 +536,9 @@ describe('types', () => {
 
 		// @ts-expect-error (`{ to: 0 }` is a special case. `{ to: 1 }` shouldn't be allowed)
 		up.toBeCallableWith({ to: 1 });
+
+		up.returns.toEqualTypeOf<Promise<Array<{ name: string; path?: string }>>>();
+		down.returns.toEqualTypeOf<Promise<Array<{ name: string; path?: string }>>>();
 	});
 
 	test('pending', () => {
