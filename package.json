@@ -20,8 +20,8 @@
 	"devDependencies": {
 		"@types/jest": "26.0.15",
 		"@types/uuid": "8.3.0",
-		"@typescript-eslint/eslint-plugin": "4.6.1",
-		"@typescript-eslint/parser": "4.6.1",
+		"@typescript-eslint/eslint-plugin": "4.7.0",
+		"@typescript-eslint/parser": "4.7.0",
 		"del-cli": "3.0.1",
 		"eslint": "7.13.0",
 		"eslint-config-xo": "0.33.1",
