@@ -115,10 +115,8 @@ export class DownAction extends ApplyMigrationsAction {
 	}
 }
 
-export class GlobalUmzugCLI extends cli.CommandLineParser {
-	private _module: cli.CommandLineStringParameter;
-
-	constructor() {
+export class UmzugCLI extends cli.CommandLineParser {
+	constructor(readonly getUmzug: () => Umzug<{}>) {
 		super({
 			toolFilename: 'umzug',
 			toolDescription: 'Umzug migrator',
@@ -126,6 +124,20 @@ export class GlobalUmzugCLI extends cli.CommandLineParser {
 
 		this.addAction(new UpAction(this));
 		this.addAction(new DownAction(this));
+	}
+
+	onDefineParameters(): void {}
+}
+
+/**
+ * extends `UmzugCLI` and adds a `--module` string parameter so the class can be used as a global CLI by pointing
+ * at a module which exposes an umzug instance.
+ */
+export class GlobalUmzugCLI extends UmzugCLI {
+	private _module: cli.CommandLineStringParameter;
+
+	constructor() {
+		super(() => this._getUmzug());
 	}
 
 	onDefineParameters(): void {
@@ -137,7 +149,7 @@ export class GlobalUmzugCLI extends cli.CommandLineParser {
 		});
 	}
 
-	getUmzug(): Umzug<{}> {
+	private _getUmzug(): Umzug<{}> {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const modulePath = this._module.value!;
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -151,28 +163,7 @@ export class GlobalUmzugCLI extends cli.CommandLineParser {
 	}
 }
 
-export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly umzug: Umzug<{}>) {
-		super({
-			toolFilename: 'umzug',
-			toolDescription: 'Umzug migrator',
-		});
-
-		this.addAction(new UpAction(this));
-		this.addAction(new DownAction(this));
-	}
-
-	getUmzug(): Umzug<{}> {
-		return this.umzug;
-	}
-
-	onDefineParameters(): void {}
-
-	async onExecute(): Promise<void> {
-		return super.onExecute();
-	}
-}
-
+// istanbul ignore if
 if (require.main === module) {
 	void new GlobalUmzugCLI().execute();
 }
