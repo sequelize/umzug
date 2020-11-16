@@ -401,7 +401,7 @@ const umzug = new Umzug({
     resolve: ({name, path, context}) => {
       // Adjust the migration from the new signature to the v2 signature, making easier to upgrade to v3
       const migration = require(path)
-      return { up: async () => migration.up(context), down: async () => migration.down(context) }
+      return { name, up: async () => migration.up(context), down: async () => migration.down(context) }
     }
   },
   context: sequelize.getQueryInterface(),
