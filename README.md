@@ -494,6 +494,53 @@ Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#
 * `reverting` - A migration is about to be reverted.
 * `reverted` - A migration has successfully been reverted.
 
+### CLI
+
+Umzug has an optional built-in CLI helper. There are two ways you can use it.
+
+1. Call the `.runAsCLI()` method from an `Umzug` instance:
+
+```js
+// my-umzug-migrator.js
+const { Umzug } = require('umzug')
+
+exports.umzug = new Umzug({ ... })
+
+if (require.main === module) {
+  umzug.runAsCLI()
+}
+```
+
+This script is now a runnable CLI program, complete with help text. You can run `node my-umzug-migrator.js --help` to see how to use it. It'll print something like
+
+```
+usage: <script> [-h] <command> ...
+
+Umzug migrator
+
+Positional arguments:
+  <command>
+    up        Applies pending migrations
+    down      Revert migrations
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+
+For detailed help about a specific command, use: <script> <command> -h
+```
+
+`node my-umzug-migrator up` and `node my-umzug-migrator down` apply and revert migrations respectively. They're the equivalent of the `.up()` and `.down()` methods.
+
+Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior).
+
+#### Global CLI
+
+If an umzug instance is exported by another module and you can't call `.runAsCLI()` on it, you can use the pre-packaged CLI program and pass the path to the module:
+
+```
+umzug --module path/to/umzug/instance.js up
+```
+
 ## License
 
 See the [LICENSE file](./LICENSE)

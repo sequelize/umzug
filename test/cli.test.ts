@@ -31,7 +31,7 @@ describe('cli from instance', () => {
 	test('cli', async () => {
 		/** run the cli with the specified args, then return the executed migration names */
 		const runCli = async (argv: string[]) => {
-			await new UmzugCLI(() => umzug).executeWithoutErrorHandling(argv);
+			await new UmzugCLI('test', () => umzug).executeWithoutErrorHandling(argv);
 			return (await umzug.executed()).map(e => e.name);
 		};
 

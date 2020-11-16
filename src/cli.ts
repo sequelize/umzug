@@ -116,9 +116,9 @@ export class DownAction extends ApplyMigrationsAction {
 }
 
 export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly getUmzug: () => Umzug<{}>) {
+	constructor(toolFilename: string, readonly getUmzug: () => Umzug<{}>) {
 		super({
-			toolFilename: 'umzug',
+			toolFilename,
 			toolDescription: 'Umzug migrator',
 		});
 
@@ -137,7 +137,7 @@ export class GlobalUmzugCLI extends UmzugCLI {
 	private _module: cli.CommandLineStringParameter;
 
 	constructor() {
-		super(() => this._getUmzug());
+		super('umzug', () => this._getUmzug());
 	}
 
 	onDefineParameters(): void {

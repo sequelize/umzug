@@ -202,7 +202,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	 * }
 	 */
 	async runAsCLI(argv?: string[]): Promise<boolean> {
-		const cli = new UmzugCLI(() => this);
+		const cli = new UmzugCLI('<script>', () => this);
 		return cli.execute(argv);
 	}
 
