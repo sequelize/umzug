@@ -39,7 +39,7 @@ describe('cli', () => {
 	});
 
 	test('cli', async () => {
-		/** run the cli with the specified args, then return the execute migration names */
+		/** run the cli with the specified args, then return the executed migration names */
 		const runCli = async (argv: string[]) => {
 			await new GlobalUmzugCLI().executeWithoutErrorHandling(argv);
 			return (await umzug.executed()).map(e => e.name);
@@ -52,6 +52,10 @@ describe('cli', () => {
 
 		await expect(runCli(['--module', uzmugPath, 'down', '--to', '0'])).resolves.toEqual([]);
 
+		await expect(runCli(['--module', uzmugPath, 'up', '--migration', 'm1.js', '--to', 'm2.js'])).rejects.toThrowError(
+			/Can't specify 'to' and 'migrations' together/
+		);
+
 		await expect(
 			runCli(['--module', uzmugPath, 'up', '--migration', 'm1.js', '--migration', 'm3.js'])
 		).resolves.toEqual(['m1.js', 'm3.js']);
@@ -60,6 +64,10 @@ describe('cli', () => {
 
 		await expect(runCli(['--module', uzmugPath, 'up', '--migration', 'm3.js'])).rejects.toThrowError(
 			/Couldn't find migration to apply with name "m3.js"/
+		);
+
+		await expect(runCli(['--module', uzmugPath, 'up', '--rerun', 'ALLOW'])).rejects.toThrowError(
+			/Can't specify 'rerun' without 'migrations'/
 		);
 
 		await expect(
