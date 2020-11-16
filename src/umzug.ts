@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
+import { UmzugCLI } from './cli';
 
 const globAsync = promisify(glob);
 
@@ -191,12 +192,8 @@ export class Umzug<Ctx> extends EventEmitter {
 		};
 	};
 
-	async cli(mainModule: typeof module): Promise<void> {
-		const { UmzugCLI } = await import('./cli');
-		const cli = new UmzugCLI(this);
-		if (mainModule === require.main) {
-			await cli.execute();
-		}
+	cli(): UmzugCLI {
+		return new UmzugCLI(() => this);
 	}
 
 	/**
