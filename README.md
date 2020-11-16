@@ -533,14 +533,6 @@ For detailed help about a specific command, use: <script> <command> -h
 
 Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior).
 
-#### Global CLI
-
-If an umzug instance is exported by another module and you can't call `.runAsCLI()` on it, you can use the pre-packaged CLI program and pass the path to the module:
-
-```
-umzug --module path/to/umzug/instance.js up
-```
-
 ## License
 
 See the [LICENSE file](./LICENSE)
