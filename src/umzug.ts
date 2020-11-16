@@ -192,8 +192,18 @@ export class Umzug<Ctx> extends EventEmitter {
 		};
 	};
 
-	cli(): UmzugCLI {
-		return new UmzugCLI(() => this);
+	/**
+	 * 'Run' an umzug instance as a CLI. This will read `process.argv`, execute commands based on that, and call
+	 * `process.exit` after running. If that isn't what you want, stick to the programmatic API.
+	 * You probably want to run only if a file is executed as the process's 'main' module with something like:
+	 * @example
+	 * if (require.main === module) {
+	 *   myUmzugInstance.runAsCLI()
+	 * }
+	 */
+	async runAsCLI(argv?: string[]): Promise<boolean> {
+		const cli = new UmzugCLI(() => this);
+		return cli.execute(argv);
 	}
 
 	/**
