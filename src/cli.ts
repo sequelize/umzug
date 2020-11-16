@@ -12,15 +12,10 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	}
 
 	private static _defineParameters(action: cli.CommandLineAction) {
-		let verb: string;
-		const name: string = action.actionName;
-		if (name === 'up') {
-			verb = 'applied';
-		} else if (name === 'down') {
-			verb = 'reverted';
-		} else {
-			throw new Error(`Unexpected action name ${name}`);
-		}
+		const verb = {
+			up: 'applied',
+			down: 'reverted',
+		}[action.actionName as 'up' | 'down'];
 
 		return {
 			to: action.defineStringParameter({

@@ -30,12 +30,19 @@ describe('cli', () => {
 	const umzug: Umzug<{}> = require(uzmugPath).default;
 
 	test('requires module', async () => {
-		const cli = new GlobalUmzugCLI();
+		const cli = () => new GlobalUmzugCLI();
 
-		await expect(cli.executeWithoutErrorHandling(['up'])).rejects.toThrowErrorMatchingInlineSnapshot(`
-					"umzug: error: Argument \\"--module\\" is required
-					"
-				`);
+		await expect(cli().executeWithoutErrorHandling(['up'])).rejects.toThrowError(
+			/umzug: error: Argument "--module" is required/
+		);
+
+		await expect(
+			cli().executeWithoutErrorHandling(['--module', path.join(syncer.baseDir, 'notumzug.js'), 'up'])
+		).rejects.toThrowError(/Expected umzug instance to be default export of .*notumzug.js/);
+
+		await expect(
+			cli().executeWithoutErrorHandling(['--module', path.join(syncer.baseDir, 'doesnotexist.js'), 'up'])
+		).rejects.toThrowError(/Cannot find module .*doesnotexist.js/);
 	});
 
 	test('cli', async () => {
