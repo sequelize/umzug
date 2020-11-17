@@ -190,7 +190,7 @@ export class CreateAction extends cli.CommandLineAction {
 				argumentName: 'PATH',
 				environmentVariable: 'UMZUG_MIGRATION_TEMPLATE',
 				description:
-					'Path to a module which should default export a function. The function receives a string which is the full path of the migration file, and returns an array of [filepath, content] string pairs. ' +
+					'Path to a module (absolute or relative to cwd) which should default export a function. The function receives a string which is the full path of the migration file, and returns an array of [filepath, content] string pairs. ' +
 					'In most cases just one pair is needed, being the input filepath and some content, but depending on the project conventions/file type another pair can be included to generate a "down" migration file. ' +
 					'If this is omitted, some barebones defaults for javascript, typescript and sql are included.',
 			}),
@@ -295,9 +295,10 @@ export class CreateAction extends cli.CommandLineAction {
 		const filepath = path.join(folder, fileBasename);
 
 		let writer = CreateAction.writer;
-		if (this._params.template.value) {
+		const templatePath = this._params.template.value && path.resolve(process.cwd(), this._params.template.value);
+		if (templatePath) {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			const templateModule = require(this._params.template.value);
+			const templateModule = require(templatePath);
 			writer = templateModule.default;
 		}
 
@@ -308,7 +309,12 @@ export class CreateAction extends cli.CommandLineAction {
 
 		toWrite.forEach(pair => {
 			if (!Array.isArray(pair) || pair.length !== 2) {
-				throw new Error(`Expected [filepath, content] pair.`);
+				throw new Error(
+					`Expected [filepath, content] pair.` +
+						(templatePath
+							? ` Check that template ${templatePath} returns an array of pairs. See help for more info.`
+							: '')
+				);
 			}
 
 			const ext = path.extname(pair[0]);

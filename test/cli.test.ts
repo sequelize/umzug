@@ -210,7 +210,7 @@ describe('create migration file', () => {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const umzug: Umzug<{}> = require(uzmugPath).default;
 
-	test.only('create', async () => {
+	test('create', async () => {
 		/** run the cli with the specified args, then return the *new* migration files on disk */
 		const runCLI = async (argv: string[]) => {
 			const migrationsBefore = (syncer.read() as Record<string, any>).migrations;
@@ -304,6 +304,13 @@ describe('create migration file', () => {
 
 		await expect(
 			runCLI(['create', '--name', 'm8.sql', '--template', path.join(syncer.baseDir, 'bad-template.js')])
-		).rejects.toThrowErrorMatchingInlineSnapshot(`"Expected [filepath, content] pair."`);
+		).rejects.toThrowError(
+			/Expected \[filepath, content] pair. Check that template .*bad-template.js returns an array of pairs. See help for more info./
+		);
+
+		const badTemplateRelative = path.relative(process.cwd(), path.join(syncer.baseDir, 'bad-template.js'));
+		await expect(runCLI(['create', '--name', 'm8.sql', '--template', badTemplateRelative])).rejects.toThrowError(
+			/Expected \[filepath, content] pair. Check that template .*bad-template.js returns an array of pairs. See help for more info./
+		);
 	});
 });
