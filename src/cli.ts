@@ -272,7 +272,7 @@ export class CreateAction extends cli.CommandLineAction {
 			allowedExtensions = ['.js', '.ts', '.sql'];
 		}
 
-		let maybeFolder = this._params.folder.value;
+		const maybeFolder = this._params.folder.value;
 		const umzug = this.parent.getUmzug();
 		const existing = await umzug.migrations();
 		const last = existing[existing.length - 1];
@@ -284,15 +284,13 @@ export class CreateAction extends cli.CommandLineAction {
 			);
 		}
 
-		maybeFolder = maybeFolder || (last?.path && path.dirname(last.path));
+		const folder = maybeFolder || (last?.path && path.dirname(last.path));
 
-		if (!maybeFolder) {
+		if (!folder) {
 			throw new Error(
 				`Couldn't infer a folder to generate migration file in. Pass '--folder path/to/folder' explicitly`
 			);
 		}
-
-		const folder = maybeFolder;
 
 		const filepath = path.join(folder, fileBasename);
 
