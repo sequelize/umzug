@@ -28,6 +28,7 @@ npm install umzug
 	* Auto-completion right in your IDE
 	* Documentation right in your IDE
 * Programmatic API for migrations
+* Built in [CLI](#cli)
 * Database agnostic
 * Supports logging of migration process
 * Supports multiple storages for migration data
@@ -522,6 +523,8 @@ Positional arguments:
   <command>
     up        Applies pending migrations
     down      Revert migrations
+    pending   Lists pending migrations
+    executed  Lists executed migrations
     create    Create a migration file
 
 Optional arguments:
@@ -530,9 +533,64 @@ Optional arguments:
 For detailed help about a specific command, use: <script> <command> -h
 ```
 
+#### Running migrations
+
 `node my-umzug-migrator up` and `node my-umzug-migrator down` apply and revert migrations respectively. They're the equivalent of the `.up()` and `.down()` methods.
 
-Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior).
+Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior):
+
+Up:
+```
+usage: <script> up [-h] [--to NAME] [--migration NAME]
+                   [--rerun {THROW,SKIP,ALLOW}]
+
+
+Performs all migrations. See --help for more options
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --to NAME             All migrations up to and including this one should be
+                        applied.
+  --migration NAME      List of migrations to be applied
+  --rerun {THROW,SKIP,ALLOW}
+                        Specify what action should be taken when a migration
+                        that has already been applied is passed. The default
+                        value is "THROW".
+```
+
+Down:
+```
+usage: <script> down [-h] [--to NAME] [--migration NAME]
+                     [--rerun {THROW,SKIP,ALLOW}]
+
+
+Undoes previously-applied migrations. By default, undoes the most recent
+migration only. Use --help for more options. Useful in development to start
+from a clean slate. Use with care in production!
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --to NAME             All migrations up to and including this one should be
+                        reverted. Pass "0" to revert all.
+  --migration NAME      List of migrations to be reverted
+  --rerun {THROW,SKIP,ALLOW}
+                        Specify what action should be taken when a migration
+                        that has already been reverted is passed. The default
+                        value is "THROW".
+```
+
+#### Listing migrations
+
+```bash
+node my-umzug-migrator pending # list migrations yet to be run
+node my-umzug-migrator executed # list migrations that have already run
+
+node my-umzug-migrator pending --json # list pending migrations including names and paths, in a json array format
+node my-umzug-migrator executed --json # list executed migrations including names and paths, in a json array format
+
+node my-umzug-migrator pending --help # show help/options
+node my-umzug-migrator executed --help # show help/options
+```
 
 #### Creating migrations
 
@@ -565,7 +623,7 @@ Use the template by passing it as a cli parameter:
 node my-umzug-migrator create --name my-migration.js --template path/to/my-template.js
 ```
 
-This parameter may alternatively be specified via the `UMZUG_MIGRATION_TEMPLATE` environment variable.
+This parameter may alternatively be specified via the `UMZUG_MIGRATION_TEMPLATE` environment variable, to avoid having to pass the path explicitly every time.
 
 Use `node my-umzug-migrator create --help` for more options.
 
