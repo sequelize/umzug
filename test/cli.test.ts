@@ -191,23 +191,26 @@ describe('create migration file', () => {
       const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
 
       exports.default = new Umzug({
-				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
+				migrations: {
+					glob: ['migrations/*.{js,ts,sql}', { cwd: __dirname }],
+					resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
+				},
 				storage: new JSONStorage({path: __dirname + '/storage.json'}),
       })
 		`,
-		'template.js': `exports.default = filepath => [[filepath, 'custom migration']]`,
+		'template.js': `exports.default = filepath => [[filepath, 'select 123']]`,
 		'bad-template.js': `exports.default = filepath => [filepath, 'blah']`, // should be an array of pairs, not just a pair
 		'storage.json': '[]',
 		migrations: {},
 	});
 	syncer.sync();
-	del.sync(path.join(syncer.baseDir, 'migrations/down'));
+	del.sync(path.join(syncer.baseDir, 'migrations/'));
 
 	const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const umzug: Umzug<{}> = require(uzmugPath).default;
 
-	test('create', async () => {
+	test.only('create', async () => {
 		/** run the cli with the specified args, then return the *new* migration files on disk */
 		const runCLI = async (argv: string[]) => {
 			const migrationsBefore = (syncer.read() as Record<string, any>).migrations;
@@ -252,44 +255,55 @@ describe('create migration file', () => {
 					}
 				`);
 
-		await expect(runCLI(['create', '--name', 'm4.txt'])).resolves.toMatchInlineSnapshot(`
+		await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"Extension .txt not allowed. Allowed extensions are .js, .ts, .sql. See help for --allow-extension to avoid this error."`
+		);
+
+		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrowError(
+			/Expected .*2000.01.06T00.00.00.m4.txt to be a pending migration but it wasn't! You should investigate this./
+		);
+
+		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt', '--skip-verify'])).resolves
+			.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.05T00.00.00.m4.txt": "",
+					  "2000.01.07T00.00.00.m4.txt": "",
 					}
 				`);
 
 		await expect(runCLI(['create', '--name', 'm5.js', '--prefix', 'DATE'])).resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.06.m5.js": "exports.up = params => {};
+					  "2000.01.08.m5.js": "exports.up = params => {};
 					exports.down = params => {};
 					",
 					}
 				`);
 
-		// this will fail because we're creating ".m6.js" with no prefix. This results in an unexpected alphabetical order.
-		await expect(runCLI(['create', '--name', '.m6.js', '--prefix', 'NONE'])).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Can't create .m6.js, since it might run before existing migration 2000.01.02T00.00.00.m1.js"`
+		// this will fail because we're creating "000.m6.js" with no prefix. This results in an unexpected alphabetical order.
+		await expect(
+			runCLI(['create', '--name', '000.m6.js', '--prefix', 'NONE'])
+		).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"Can't create 000.m6.js, since it's unclear if it should run before or after existing migration 2000.01.02T00.00.00.m1.js. Use --allow-confusing-ordering to bypass this error."`
 		);
 
 		// Explicitly allow the weird alphabetical ordering.
-		await expect(runCLI(['create', '--name', '.m6.js', '--prefix', 'NONE', '--allow-confusing-ordering'])).resolves
+		await expect(runCLI(['create', '--name', '000.m6.js', '--prefix', 'NONE', '--allow-confusing-ordering'])).resolves
 			.toMatchInlineSnapshot(`
 					Object {
-					  ".m6.js": "exports.up = params => {};
+					  "000.m6.js": "exports.up = params => {};
 					exports.down = params => {};
 					",
 					}
 				`);
 
-		await expect(runCLI(['create', '--name', 'm7.txt', '--template', path.join(syncer.baseDir, 'template.js')]))
+		await expect(runCLI(['create', '--name', 'm7.sql', '--template', path.join(syncer.baseDir, 'template.js')]))
 			.resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.09T00.00.00.m7.txt": "custom migration",
+					  "2000.01.11T00.00.00.m7.sql": "select 123",
 					}
 				`);
 
 		await expect(
-			runCLI(['create', '--name', 'm8.txt', '--template', path.join(syncer.baseDir, 'bad-template.js')])
+			runCLI(['create', '--name', 'm8.sql', '--template', path.join(syncer.baseDir, 'bad-template.js')])
 		).rejects.toThrowErrorMatchingInlineSnapshot(`"Expected [filepath, content] pair."`);
 	});
 });

@@ -194,6 +194,18 @@ export class CreateAction extends cli.CommandLineAction {
 					'In most cases just one pair is needed, being the input filepath and some content, but depending on the project conventions/file type another pair can be included to generate a "down" migration file. ' +
 					'If this is omitted, some barebones defaults for javascript, typescript and sql are included.',
 			}),
+			allowExtension: action.defineStringListParameter({
+				parameterLongName: '--allow-extension',
+				argumentName: 'EXTENSION',
+				environmentVariable: 'UMZUG_ALLOW_EXTENSION',
+				description: `Allowable extension for created files. By default .js, .ts and .sql files can be created. To create txt file migrations, for example, you could use '--name my-migration.txt --allow-extension .txt'`,
+			}),
+			skipVerify: action.defineFlagParameter({
+				parameterLongName: '--skip-verify',
+				description:
+					`By default, the generated file will be checked after creation to make sure it is detected as a pending migration. This catches problems like creation in the wrong folder, or invalid naming conventions. ` +
+					`This flag bypasses that verification step.`,
+			}),
 			allowConfusingOrdering: action.defineFlagParameter({
 				parameterLongName: '--allow-confusing-ordering',
 				description:
@@ -255,6 +267,11 @@ export class CreateAction extends cli.CommandLineAction {
 		const prefixType = this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE';
 		const fileBasename = [prefixes[prefixType], this._params.name.value].filter(Boolean).join('.');
 
+		let allowedExtensions = this._params.allowExtension.values;
+		if (allowedExtensions.length === 0) {
+			allowedExtensions = ['.js', '.ts', '.sql'];
+		}
+
 		let maybeFolder = this._params.folder.value;
 		const umzug = this.parent.getUmzug();
 		const existing = await umzug.migrations();
@@ -263,7 +280,7 @@ export class CreateAction extends cli.CommandLineAction {
 		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
 		if (confusinglyOrdered && !this._params.allowConfusingOrdering.value) {
 			throw new Error(
-				`Can't create ${fileBasename}, since it might run before existing migration ${confusinglyOrdered.name}`
+				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use --allow-confusing-ordering to bypass this error.`
 			);
 		}
 
@@ -296,11 +313,25 @@ export class CreateAction extends cli.CommandLineAction {
 				throw new Error(`Expected [filepath, content] pair.`);
 			}
 
+			const ext = path.extname(pair[0]);
+			if (!allowedExtensions.includes(ext)) {
+				const allowStr = allowedExtensions.join(', ');
+				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for --allow-extension to avoid this error.`;
+				throw new Error(message);
+			}
+
 			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
 			fs.writeFileSync(pair[0], pair[1]);
 			// eslint-disable-next-line no-console
 			console.log(`Wrote ${pair[0]}`);
 		});
+
+		if (!this._params.skipVerify.value) {
+			const pending = await umzug.pending();
+			if (!pending.some(p => p.path === filepath)) {
+				throw new Error(`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this.`);
+			}
+		}
 	}
 }
 
