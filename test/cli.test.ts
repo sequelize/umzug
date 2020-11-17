@@ -100,6 +100,81 @@ describe('run as cli', () => {
 	});
 });
 
+describe('list migrations', () => {
+	const mockLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/list'), {
+		'umzug.js': `
+      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+
+      exports.default = new Umzug({
+				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
+				storage: new JSONStorage({path: __dirname + '/storage.json'}),
+			})
+    `,
+		'notumzug.js': `exports.default = 1234`,
+		'storage.json': '[]',
+		migrations: {
+			'm1.js': `exports.up = exports.down = async () => {}`,
+			'm2.js': `exports.up = exports.down = async () => {}`,
+			'm3.js': `exports.up = exports.down = async () => {}`,
+		},
+	});
+	syncer.sync();
+
+	const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const umzug: Umzug<{}> = require(uzmugPath).default;
+
+	test('run as cli', async () => {
+		/** clear console log calls, run the cli, then return new console log calls */
+		const runCLI = async (argv: string[]) => {
+			mockLog.mockClear();
+			await umzug.runAsCLI(argv);
+			const [logs] = mockLog.mock.calls;
+			return logs[0].map((log: any) => ({ name: log.name, path: '...' }));
+		};
+
+		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`
+					Array [
+					  Object {
+					    "name": "m1.js",
+					    "path": "...",
+					  },
+					  Object {
+					    "name": "m2.js",
+					    "path": "...",
+					  },
+					  Object {
+					    "name": "m3.js",
+					    "path": "...",
+					  },
+					]
+				`);
+		await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`Array []`);
+
+		await umzug.up();
+
+		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`Array []`);
+		await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`
+					Array [
+					  Object {
+					    "name": "m1.js",
+					    "path": "...",
+					  },
+					  Object {
+					    "name": "m2.js",
+					    "path": "...",
+					  },
+					  Object {
+					    "name": "m3.js",
+					    "path": "...",
+					  },
+					]
+				`);
+	});
+});
+
 describe('create migration file', () => {
 	jest.spyOn(console, 'log').mockImplementation(() => {});
 

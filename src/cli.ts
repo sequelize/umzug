@@ -117,6 +117,23 @@ export class DownAction extends ApplyMigrationsAction {
 	}
 }
 
+class ListAction extends cli.CommandLineAction {
+	constructor(private readonly action: 'pending' | 'executed', private readonly parent: { getUmzug: () => Umzug<{}> }) {
+		super({
+			actionName: action,
+			summary: `Lists ${action} migrations`,
+			documentation: `Prints the output of \`umzug.${action}()\``,
+		});
+	}
+
+	onDefineParameters(): void {}
+
+	async onExecute(): Promise<void> {
+		// eslint-disable-next-line no-console
+		console.log(await this.parent.getUmzug()[this.action]());
+	}
+}
+
 export class CreateAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof CreateAction._defineParameters>;
 
@@ -277,6 +294,8 @@ export class UmzugCLI extends cli.CommandLineParser {
 
 		this.addAction(new UpAction(this));
 		this.addAction(new DownAction(this));
+		this.addAction(new ListAction('pending', this));
+		this.addAction(new ListAction('executed', this));
 		this.addAction(new CreateAction(this));
 	}
 
