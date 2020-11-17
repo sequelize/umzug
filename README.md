@@ -522,6 +522,7 @@ Positional arguments:
   <command>
     up        Applies pending migrations
     down      Revert migrations
+    create    Create a migration file
 
 Optional arguments:
   -h, --help  Show this help message and exit.
@@ -532,6 +533,41 @@ For detailed help about a specific command, use: <script> <command> -h
 `node my-umzug-migrator up` and `node my-umzug-migrator down` apply and revert migrations respectively. They're the equivalent of the `.up()` and `.down()` methods.
 
 Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior).
+
+#### Creating migrations
+
+Usually, migrations correspond to files on the filesystem. The CLI exposes a way to create migration files easily:
+
+```bash
+node my-umzug-migrator create --name my-migration.js
+```
+
+This will create a file with a name like `2000.12.25T12.34.56.my-migration.js` in the same directory as the most recent migration file. If it's the very first migration file, you need to specify the folder explicitly:
+
+```bash
+node my-umzug-migrator create --name my-migration.js --folder path/to/directory
+```
+
+The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
+
+By default, placeholder content is included for `.js`, `.ts` and `.sql` migration files. You can override the template content or provide a template for other file types by creating a template module to generate code according to your project's convention. The default export should be a function which receives a filepath and returns an array of `[filepath, content]` pairs. Example:
+
+```javascript
+// my-template.js
+exports.default = filepath => [
+  [filepath, `exports.up = () => console.log('running up migration!');`]
+]
+```
+
+Use the template by passing it as a cli parameter:
+
+```
+node my-umzug-migrator create --name my-migration.js --template path/to/my-template.js
+```
+
+This parameter may alternatively be specified via the `UMZUG_MIGRATION_TEMPLATE` environment variable.
+
+Use `node my-umzug-migrator create --help` for more options.
 
 ## License
 

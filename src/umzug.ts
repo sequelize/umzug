@@ -123,7 +123,8 @@ export type MigrateDownOptions =
 
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
-	private readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
+	/** @internal */
+	readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
 	/**
 	 * Compile-time only property for type inference. After creating an Umzug instance, it can be used as type alias for
@@ -150,7 +151,10 @@ export class Umzug<Ctx> extends EventEmitter {
 	};
 
 	/** creates a new Umzug instance */
-	constructor(private readonly options: UmzugOptions<Ctx>) {
+	constructor(
+		/** @internal */
+		readonly options: UmzugOptions<Ctx>
+	) {
 		super();
 
 		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());

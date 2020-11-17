@@ -1,5 +1,7 @@
 import * as cli from '@rushstack/ts-command-line';
 import { Umzug } from './umzug';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
@@ -115,6 +117,157 @@ export class DownAction extends ApplyMigrationsAction {
 	}
 }
 
+export class CreateAction extends cli.CommandLineAction {
+	private _params: ReturnType<typeof CreateAction._defineParameters>;
+
+	constructor(readonly parent: { getUmzug: () => Umzug<{}> }) {
+		super({
+			actionName: 'create',
+			summary: 'Create a migration file',
+			documentation:
+				'Generates a placeholder migration file using a timestamp as a prefix. By default, mimics the last existing migration, or guesses where to generate the file if no migration exists yet.',
+		});
+	}
+
+	private static _defineParameters(action: cli.CommandLineAction) {
+		return {
+			name: action.defineStringParameter({
+				parameterLongName: '--name',
+				argumentName: 'NAME',
+				description: `The name of the migration file. e.g. my-migration.js, my-migration.ts or my-migration.sql. Note - a prefix will be added to this name, usually based on a timestamp. See --prefix`,
+				required: true,
+			}),
+			prefix: action.defineChoiceParameter({
+				parameterLongName: '--prefix',
+				description:
+					'The prefix format for generated files. TIMESTAMP uses a second-resolution timestamp, DATE uses a day-resolution timestamp, and NONE removes the prefix completely',
+				alternatives: ['TIMESTAMP', 'DATE', 'NONE'],
+				defaultValue: 'TIMESTAMP',
+			}),
+			folder: action.defineStringParameter({
+				parameterLongName: '--folder',
+				argumentName: 'PATH',
+				description: `Path on the filesystem where the file should be created. The new migration will be created as a sibling of the last existing one if this is omitted.`,
+			}),
+			template: action.defineStringParameter({
+				parameterLongName: '--template',
+				argumentName: 'PATH',
+				environmentVariable: 'UMZUG_MIGRATION_TEMPLATE',
+				description:
+					'Path to a module which should default export a function. The function receives a string which is the full path of the migration file, and returns an array of [filepath, content] string pairs. ' +
+					'In most cases just one pair is needed, being the input filepath and some content, but depending on the project conventions/file type another pair can be included to generate a "down" migration file. ' +
+					'If this is omitted, some barebones defaults for javascript, typescript and sql are included.',
+			}),
+			allowConfusingOrdering: action.defineFlagParameter({
+				parameterLongName: '--allow-confusing-ordering',
+				description:
+					`By default, an error will be thrown if you try to create a migration that will run before a migration that already exists. ` +
+					`This catches errors which can cause problems if you change file naming conventions. ` +
+					`If you use a custom ordering system, you can disable this behavior, but it's strongly recommended that you don't! ` +
+					`If you're unsure, just ignore this option.`,
+			}),
+		};
+	}
+
+	private static writer(filepath: string): Array<[string, string]> {
+		const dedent = (content: string) =>
+			content
+				.split('\n')
+				.map(line => line.trim())
+				.join('\n')
+				.trimStart();
+
+		const ext = path.extname(filepath);
+		if (ext === '.js') {
+			const content = dedent(`
+				exports.up = params => {};
+				exports.down = params => {};
+			`);
+			return [[filepath, content]];
+		}
+
+		if (ext === '.ts') {
+			const content = dedent(`
+				export const up = params => {};
+				export const down = params => {};
+			`);
+			return [[filepath, content]];
+		}
+
+		if (ext === '.sql') {
+			const downFilepath = path.join(path.dirname(filepath), 'down', path.basename(filepath));
+			return [
+				[filepath, '-- up migration'],
+				[downFilepath, '-- down migration'],
+			];
+		}
+
+		return [];
+	}
+
+	onDefineParameters(): void {
+		this._params = CreateAction._defineParameters(this);
+	}
+
+	async onExecute(): Promise<void> {
+		const isoDate = new Date().toISOString();
+		const prefixes = {
+			TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+			DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
+			NONE: '',
+		};
+		const prefixType = this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE';
+		const fileBasename = [prefixes[prefixType], this._params.name.value].filter(Boolean).join('.');
+
+		let maybeFolder = this._params.folder.value;
+		const umzug = this.parent.getUmzug();
+		const existing = await umzug.migrations();
+		const last = existing[existing.length - 1];
+
+		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
+		if (confusinglyOrdered && !this._params.allowConfusingOrdering.value) {
+			throw new Error(
+				`Can't create ${fileBasename}, since it might run before existing migration ${confusinglyOrdered.name}`
+			);
+		}
+
+		maybeFolder = maybeFolder || (last?.path && path.dirname(last.path));
+
+		if (!maybeFolder) {
+			throw new Error(
+				`Couldn't infer a folder to generate migration file in. Pass '--folder path/to/folder' explicitly`
+			);
+		}
+
+		const folder = maybeFolder;
+
+		const filepath = path.join(folder, fileBasename);
+
+		let writer = CreateAction.writer;
+		if (this._params.template.value) {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			const templateModule = require(this._params.template.value);
+			writer = templateModule.default;
+		}
+
+		const toWrite = writer(filepath);
+		if (toWrite.length === 0) {
+			toWrite.push([filepath, '']);
+		}
+
+		toWrite.forEach(pair => {
+			if (!Array.isArray(pair) || pair.length !== 2) {
+				throw new Error(`Expected [filepath, content] pair.`);
+			}
+
+			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
+			fs.writeFileSync(pair[0], pair[1]);
+			// eslint-disable-next-line no-console
+			console.log(`Wrote ${pair[0]}`);
+		});
+	}
+}
+
 export class UmzugCLI extends cli.CommandLineParser {
 	constructor(toolFilename: string, readonly getUmzug: () => Umzug<{}>) {
 		super({
@@ -124,6 +277,7 @@ export class UmzugCLI extends cli.CommandLineParser {
 
 		this.addAction(new UpAction(this));
 		this.addAction(new DownAction(this));
+		this.addAction(new CreateAction(this));
 	}
 
 	onDefineParameters(): void {}
