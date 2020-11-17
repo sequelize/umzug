@@ -2,6 +2,7 @@ import { fsSyncer } from 'fs-syncer';
 import { UmzugCLI } from '../src/cli';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as childProcess from 'child_process';
 import { Umzug } from '../src';
 import * as del from 'del';
 
@@ -71,14 +72,16 @@ describe('run as cli', () => {
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/run-as-cli'), {
 		'umzug.js': `
-      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('..'))})
 
       const umzug = new Umzug({
 				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
 				storage: new JSONStorage({path: __dirname + '/storage.json'}),
 			})
 			
-			exports.run = () => umzug.runAsCLI(['up'])
+			if (require.main === module) {
+				umzug.runAsCLI()
+			}
     `,
 		'notumzug.js': `exports.default = 1234`,
 		'storage.json': '[]',
@@ -93,8 +96,9 @@ describe('run as cli', () => {
 	const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
 
 	test('run as cli', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		await require(uzmugPath).run();
+		// note: this test requires the library to have been built since it's spawning a sub-process which doesn't transform typescript via jest.
+		childProcess.execSync(['node', uzmugPath, 'up'].join(' '));
+		// await require(uzmugPath).run();
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		expect(require(path.join(syncer.baseDir, 'storage.json'))).toEqual(['m1.js', 'm2.js', 'm3.js']);
 	});
@@ -126,51 +130,49 @@ describe('list migrations', () => {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const umzug: Umzug<{}> = require(uzmugPath).default;
 
-	test('run as cli', async () => {
+	test('pending and executed', async () => {
 		/** clear console log calls, run the cli, then return new console log calls */
 		const runCLI = async (argv: string[]) => {
 			mockLog.mockClear();
 			await umzug.runAsCLI(argv);
-			const [logs] = mockLog.mock.calls;
-			return logs[0].map((log: any) => ({ name: log.name, path: '...' }));
+			// json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
+			return mockLog.mock.calls[0][0]
+				.split(JSON.stringify(process.cwd()).slice(1, -1))
+				.join('<cwd>')
+				.split(JSON.stringify('\\').slice(1, -1))
+				.join('/');
 		};
 
 		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`
-					Array [
-					  Object {
-					    "name": "m1.js",
-					    "path": "...",
-					  },
-					  Object {
-					    "name": "m2.js",
-					    "path": "...",
-					  },
-					  Object {
-					    "name": "m3.js",
-					    "path": "...",
-					  },
-					]
+					"m1.js
+					m2.js
+					m3.js"
 				`);
-		await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`Array []`);
+		await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`""`);
 
 		await umzug.up();
 
-		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`Array []`);
+		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`""`);
 		await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`
-					Array [
-					  Object {
-					    "name": "m1.js",
-					    "path": "...",
+					"m1.js
+					m2.js
+					m3.js"
+				`);
+		await expect(runCLI(['executed', '--json'])).resolves.toMatchInlineSnapshot(`
+					"[
+					  {
+					    \\"name\\": \\"m1.js\\",
+					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m1.js\\"
 					  },
-					  Object {
-					    "name": "m2.js",
-					    "path": "...",
+					  {
+					    \\"name\\": \\"m2.js\\",
+					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m2.js\\"
 					  },
-					  Object {
-					    "name": "m3.js",
-					    "path": "...",
-					  },
-					]
+					  {
+					    \\"name\\": \\"m3.js\\",
+					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m3.js\\"
+					  }
+					]"
 				`);
 	});
 });

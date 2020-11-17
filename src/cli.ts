@@ -118,19 +118,38 @@ export class DownAction extends ApplyMigrationsAction {
 }
 
 class ListAction extends cli.CommandLineAction {
+	private _params: ReturnType<typeof ListAction._defineParameters>;
+
 	constructor(private readonly action: 'pending' | 'executed', private readonly parent: { getUmzug: () => Umzug<{}> }) {
 		super({
 			actionName: action,
 			summary: `Lists ${action} migrations`,
-			documentation: `Prints the output of \`umzug.${action}()\``,
+			documentation: `Prints migrations returned by \`umzug.${action}()\`. By default, prints migration names one per line.`,
 		});
 	}
 
-	onDefineParameters(): void {}
+	private static _defineParameters(action: cli.CommandLineAction) {
+		return {
+			json: action.defineFlagParameter({
+				parameterLongName: '--json',
+				description:
+					`Print ${action.actionName} migrations in a json format including names and paths. This allows piping output to tools like jq. ` +
+					`Without this flag, the migration names will be printed one per line.`,
+			}),
+		};
+	}
+
+	onDefineParameters(): void {
+		this._params = ListAction._defineParameters(this);
+	}
 
 	async onExecute(): Promise<void> {
+		const migrations = await this.parent.getUmzug()[this.action]();
+		const formatted = this._params.json.value
+			? JSON.stringify(migrations, null, 2)
+			: migrations.map(m => m.name).join('\n');
 		// eslint-disable-next-line no-console
-		console.log(await this.parent.getUmzug()[this.action]());
+		console.log(formatted);
 	}
 }
 
