@@ -1,12 +1,34 @@
 import { UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
-// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-// @ts-ignore (Avoid type errors for non-sequelize users. Can't use ts-expect-error; this _won't_ be an error when sequelize is installed)
-import type { Sequelize as SequelizeType, Model as ModelClass } from 'sequelize';
 
 interface ModelTempInterface extends ModelClass, Record<string, any> {}
 
-type ModelClassType = typeof ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
+/**
+ * Minimal structure of a sequelize model, defined here to avoid a hard dependency.
+ * The type expected is `import { Model } from 'sequelize'`
+ */
+export interface ModelClass {
+	tableName: string;
+	sequelize?: SequelizeType;
+	getTableName(): string;
+	sync(): Promise<void>;
+	findAll(options?: {}): Promise<any[]>;
+	create(options: {}): Promise<void>;
+	destroy(options: {}): Promise<void>;
+}
+
+/**
+ * Minimal structure of a sequelize model, defined here to avoid a hard dependency.
+ * The type expected is `import { Sequelize } from 'sequelize'`
+ */
+export interface SequelizeType {
+	getQueryInterface(): any;
+	isDefined(modelName: string): boolean;
+	model(modelName: string): any;
+	define(modelName: string, columns: {}, options: {}): {};
+}
+
+type ModelClassType = ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
 
 interface _SequelizeStorageConstructorOptions {
 	/**
