@@ -11,6 +11,7 @@
     {
       "depTypeList": ["devDependencies"],
       "groupName": "devDependencies",
+      "excludePackageNames": ["sequelize"],
       "automerge": true
     }
   ]
