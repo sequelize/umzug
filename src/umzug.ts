@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
+import { MergeExclusive } from './type-util';
 
 const globAsync = promisify(glob);
 
@@ -75,52 +76,44 @@ export const RerunBehavior = {
 
 export type RerunBehavior = keyof typeof RerunBehavior;
 
-export type MigrateUpOptions =
-	| {
-			/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
-			to?: string;
+export type MigrateUpOptions = MergeExclusive<
+	{
+		/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
+		to?: string;
+	},
+	{
+		/** Only run this many migrations. If not specified, all pending migrations will be run */
+		step: number;
+	},
+	{
+		/** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
+		migrations: string[];
 
-			/** Should not be specified with `to` */
-			migrations?: never;
+		/** What to do if a migration that has already been run is explicitly specified. Default is `THROW`. */
+		rerun?: RerunBehavior;
+	}
+>;
 
-			/** Should not be specified with `to` */
-			rerun?: never;
-	  }
-	| {
-			/** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
-			migrations: string[];
+export type MigrateDownOptions = MergeExclusive<
+	{
+		/** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
+		to?: string | 0;
+	},
+	{
+		/** Revert this many migrations. If not specified, only the most recent migration will be reverted */
+		step: number;
+	},
+	{
+		/**
+		 * If specified, only the migrations with these names migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations.
+		 * Note, migrations will be run in the order specified.
+		 */
+		migrations: string[];
 
-			/** What to do if a migration that has already been run is explicitly specified. Default is `THROW`. */
-			rerun?: RerunBehavior;
-
-			/** Should not be specified with `migrations` */
-			to?: never;
-	  };
-
-export type MigrateDownOptions =
-	| {
-			/** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
-			to?: string | 0;
-
-			/** Should not be specified with `to` */
-			migrations?: never;
-
-			/** Should not be specified with `to` */
-			rerun?: never;
-	  }
-	| {
-			/**
-			 * If specified, only the migrations with these names migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations.
-			 * Note, migrations will be run in the order specified.
-			 */
-			migrations: string[];
-
-			/** What to do if a migration that has not been run is explicitly specified. Default is `THROW`. */
-			rerun?: RerunBehavior;
-
-			/** Should not be specified with `migrations` */
-			to?: never;
-	  };
+		/** What to do if a migration that has not been run is explicitly specified. Default is `THROW`. */
+		rerun?: RerunBehavior;
+	}
+>;
 
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
@@ -260,7 +253,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			const allPending = await this._pending();
 
-			let sliceIndex = allPending.length;
+			let sliceIndex = options.step ?? allPending.length;
 			if (options.to) {
 				sliceIndex = this.findNameIndex(allPending, options.to) + 1;
 			}
@@ -310,7 +303,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			const executedReversed = (await this._executed()).slice().reverse();
 
-			let sliceIndex = 1;
+			let sliceIndex = options.step ?? 1;
 			if (options.to === 0 || options.migrations) {
 				sliceIndex = executedReversed.length;
 			} else if (options.to) {
