@@ -185,15 +185,6 @@ export class CreateAction extends cli.CommandLineAction {
 				argumentName: 'PATH',
 				description: `Path on the filesystem where the file should be created. The new migration will be created as a sibling of the last existing one if this is omitted.`,
 			}),
-			template: action.defineStringParameter({
-				parameterLongName: '--template',
-				argumentName: 'PATH',
-				environmentVariable: 'UMZUG_MIGRATION_TEMPLATE',
-				description:
-					'Path to a module (absolute or relative to cwd) which should default export a function. The function receives a string which is the full path of the migration file, and returns an array of [filepath, content] string pairs. ' +
-					'In most cases just one pair is needed, being the input filepath and some content, but depending on the project conventions/file type another pair can be included to generate a "down" migration file. ' +
-					'If this is omitted, some barebones defaults for javascript, typescript and sql are included.',
-			}),
 			allowExtension: action.defineStringListParameter({
 				parameterLongName: '--allow-extension',
 				argumentName: 'EXTENSION',
@@ -217,125 +208,22 @@ export class CreateAction extends cli.CommandLineAction {
 		};
 	}
 
-	private static writer(filepath: string): Array<[string, string]> {
-		const dedent = (content: string) =>
-			content
-				.split('\n')
-				.map(line => line.trim())
-				.join('\n')
-				.trimStart();
-
-		const ext = path.extname(filepath);
-		if (ext === '.js') {
-			const content = dedent(`
-				exports.up = params => {};
-				exports.down = params => {};
-			`);
-			return [[filepath, content]];
-		}
-
-		if (ext === '.ts') {
-			const content = dedent(`
-				export const up = params => {};
-				export const down = params => {};
-			`);
-			return [[filepath, content]];
-		}
-
-		if (ext === '.sql') {
-			const downFilepath = path.join(path.dirname(filepath), 'down', path.basename(filepath));
-			return [
-				[filepath, '-- up migration'],
-				[downFilepath, '-- down migration'],
-			];
-		}
-
-		return [];
-	}
-
 	onDefineParameters(): void {
 		this._params = CreateAction._defineParameters(this);
 	}
 
 	async onExecute(): Promise<void> {
-		const isoDate = new Date().toISOString();
-		const prefixes = {
-			TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
-			DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
-			NONE: '',
-		};
-		const prefixType = this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE';
-		const fileBasename = [prefixes[prefixType], this._params.name.value].filter(Boolean).join('.');
-
-		let allowedExtensions = this._params.allowExtension.values;
-		if (allowedExtensions.length === 0) {
-			allowedExtensions = ['.js', '.ts', '.sql'];
-		}
-
-		const maybeFolder = this._params.folder.value;
 		const umzug = this.parent.getUmzug();
-		const existing = await umzug.migrations();
-		const last = existing[existing.length - 1];
 
-		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
-		if (confusinglyOrdered && !this._params.allowConfusingOrdering.value) {
-			throw new Error(
-				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use --allow-confusing-ordering to bypass this error.`
-			);
-		}
-
-		const folder = maybeFolder || (last?.path && path.dirname(last.path));
-
-		if (!folder) {
-			throw new Error(
-				`Couldn't infer a folder to generate migration file in. Pass '--folder path/to/folder' explicitly`
-			);
-		}
-
-		const filepath = path.join(folder, fileBasename);
-
-		let writer = CreateAction.writer;
-		const templatePath = this._params.template.value && path.resolve(process.cwd(), this._params.template.value);
-		if (templatePath) {
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			const templateModule = require(templatePath);
-			writer = templateModule.default;
-		}
-
-		const toWrite = writer(filepath);
-		if (toWrite.length === 0) {
-			toWrite.push([filepath, '']);
-		}
-
-		toWrite.forEach(pair => {
-			if (!Array.isArray(pair) || pair.length !== 2) {
-				throw new Error(
-					`Expected [filepath, content] pair.` +
-						(templatePath
-							? ` Check that template ${templatePath} returns an array of pairs. See help for more info.`
-							: '')
-				);
-			}
-
-			const ext = path.extname(pair[0]);
-			if (!allowedExtensions.includes(ext)) {
-				const allowStr = allowedExtensions.join(', ');
-				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for --allow-extension to avoid this error.`;
-				throw new Error(message);
-			}
-
-			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
-			fs.writeFileSync(pair[0], pair[1]);
-			// eslint-disable-next-line no-console
-			console.log(`Wrote ${pair[0]}`);
+		await umzug.create({
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			name: this._params.name.value!,
+			prefix: this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE',
+			folder: this._params.folder.value,
+			allowExtension: this._params.allowExtension.values.length > 0 ? this._params.allowExtension.values[0] : undefined,
+			allowConfusingOrdering: this._params.allowConfusingOrdering.value,
+			skipVerify: this._params.skipVerify.value,
 		});
-
-		if (!this._params.skipVerify.value) {
-			const pending = await umzug.pending();
-			if (!pending.some(p => p.path === filepath)) {
-				throw new Error(`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this.`);
-			}
-		}
 	}
 }
 

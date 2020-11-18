@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import { EventEmitter } from 'events';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
@@ -21,6 +22,12 @@ export interface UmzugOptions<Ctx = never> {
 	storage?: UmzugStorage;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
+	/**
+	 * A function for generating placeholder migration files. Specify to make sure files generated using `.create` follow team conventions.
+	 * Should return an array of [filepath, content] pairs. Usually, only one pair is needed, but to put `down` migrations in a separate
+	 * file, more than one can be returned.
+	 */
+	template?: (filepath: string) => Array<[string, string]>;
 }
 
 /** Serializeable metadata for a migration. The structure returned by the external-facing `pending()` and `executed()` methods. */
@@ -354,6 +361,117 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
+	}
+
+	async create(options: {
+		name: string;
+		folder?: string;
+		prefix?: 'TIMESTAMP' | 'DATE' | 'NONE';
+		allowExtension?: string;
+		allowConfusingOrdering?: boolean;
+		skipVerify?: boolean;
+	}): Promise<void> {
+		const isoDate = new Date().toISOString();
+		const prefixes = {
+			TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+			DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
+			NONE: '',
+		};
+		const prefixType = options.prefix ?? 'TIMESTAMP';
+		const fileBasename = [prefixes[prefixType], options.name].filter(Boolean).join('.');
+
+		const allowedExtensions = options.allowExtension ? [options.allowExtension] : ['.js', '.ts', '.sql'];
+
+		const maybeFolder = options.folder;
+		const existing = await this.migrations();
+		const last = existing[existing.length - 1];
+
+		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
+		if (confusinglyOrdered && !options.allowConfusingOrdering) {
+			throw new Error(
+				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use --allow-confusing-ordering to bypass this error.`
+			);
+		}
+
+		const folder = maybeFolder || (last?.path && path.dirname(last.path));
+
+		if (!folder) {
+			throw new Error(
+				`Couldn't infer a folder to generate migration file in. Pass '--folder path/to/folder' explicitly`
+			);
+		}
+
+		const filepath = path.join(folder, fileBasename);
+
+		const writer = this.options.template ?? Umzug.defaultCreationTemplate;
+
+		const toWrite = writer(filepath);
+		if (toWrite.length === 0) {
+			toWrite.push([filepath, '']);
+		}
+
+		toWrite.forEach(pair => {
+			if (!Array.isArray(pair) || pair.length !== 2) {
+				throw new Error(
+					`Expected [filepath, content] pair. Check that the file template function returns an array of pairs.`
+				);
+			}
+
+			const ext = path.extname(pair[0]);
+			if (!allowedExtensions.includes(ext)) {
+				const allowStr = allowedExtensions.join(', ');
+				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for --allow-extension to avoid this error.`;
+				throw new Error(message);
+			}
+
+			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
+			fs.writeFileSync(pair[0], pair[1]);
+			// eslint-disable-next-line no-console
+			console.log(`Wrote ${pair[0]}`);
+		});
+
+		if (!options.skipVerify) {
+			const pending = await this.pending();
+			if (!pending.some(p => p.path === filepath)) {
+				throw new Error(`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this.`);
+			}
+		}
+	}
+
+	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
+		const dedent = (content: string) =>
+			content
+				.split('\n')
+				.map(line => line.trim())
+				.join('\n')
+				.trimStart();
+
+		const ext = path.extname(filepath);
+		if (ext === '.js') {
+			const content = dedent(`
+				exports.up = params => {};
+				exports.down = params => {};
+			`);
+			return [[filepath, content]];
+		}
+
+		if (ext === '.ts') {
+			const content = dedent(`
+				export const up = params => {};
+				export const down = params => {};
+			`);
+			return [[filepath, content]];
+		}
+
+		if (ext === '.sql') {
+			const downFilepath = path.join(path.dirname(filepath), 'down', path.basename(filepath));
+			return [
+				[filepath, '-- up migration'],
+				[downFilepath, '-- down migration'],
+			];
+		}
+
+		return [];
 	}
 
 	private findNameIndex(migrations: Array<RunnableMigration<Ctx>>, name: string) {

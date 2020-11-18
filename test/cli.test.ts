@@ -181,36 +181,34 @@ describe('create migration file', () => {
 	jest.spyOn(console, 'log').mockImplementation(() => {});
 
 	// prettier-ignore
-	beforeAll(() => {
+	beforeEach(() => {
 		const dates = [...new Array(100)].map((_, i) => new Date(new Date('2000').getTime() + (1000 * 60 * 60 * 24 * i)).toISOString());
 		jest.spyOn(Date.prototype, 'toISOString').mockImplementation(() => dates.shift()!);
 	});
 
-	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create'), {
-		'umzug.js': `
-      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
-
-      exports.default = new Umzug({
-				migrations: {
-					glob: ['migrations/*.{js,ts,sql}', { cwd: __dirname }],
-					resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
-				},
-				storage: new JSONStorage({path: __dirname + '/storage.json'}),
-      })
-		`,
-		'template.js': `exports.default = filepath => [[filepath, 'select 123']]`,
-		'bad-template.js': `exports.default = filepath => [filepath, 'blah']`, // should be an array of pairs, not just a pair
-		'storage.json': '[]',
-		migrations: {},
-	});
-	syncer.sync();
-	del.sync(path.join(syncer.baseDir, 'migrations/'));
-
-	const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const umzug: Umzug<{}> = require(uzmugPath).default;
-
 	test('create', async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create'), {
+			'umzug.js': `
+				const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+	
+				exports.default = new Umzug({
+					migrations: {
+						glob: ['migrations/*.{js,ts,sql}', { cwd: __dirname }],
+						resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
+					},
+					storage: new JSONStorage({path: __dirname + '/storage.json'}),
+				})
+			`,
+			'storage.json': '[]',
+			migrations: {},
+		});
+		syncer.sync();
+		del.sync(path.join(syncer.baseDir, 'migrations/'));
+
+		const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const umzug: Umzug<{}> = require(uzmugPath).default;
+
 		/** run the cli with the specified args, then return the *new* migration files on disk */
 		const runCLI = async (argv: string[]) => {
 			const migrationsBefore = (syncer.read() as Record<string, any>).migrations;
@@ -294,23 +292,58 @@ describe('create migration file', () => {
 					",
 					}
 				`);
+	});
 
-		await expect(runCLI(['create', '--name', 'm7.sql', '--template', path.join(syncer.baseDir, 'template.js')]))
-			.resolves.toMatchInlineSnapshot(`
+	test('create with custom template', async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create-custom-template'), {
+			'umzug.js': `
+				const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+				const path = require('path')
+	
+				exports.default = new Umzug({
+					migrations: {
+						glob: ['migrations/*.{js,ts,sql}', { cwd: __dirname }],
+						resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
+					},
+					storage: new JSONStorage({path: __dirname + '/storage.json'}),
+					template: filepath => {
+						const downpath = path.join(path.dirname(filepath), 'down', path.basename(filepath))
+						return [
+							[filepath, '-- custom up template'],
+							[downpath, '-- custom down template']
+						]
+					}
+				})
+			`,
+			'storage.json': '[]',
+			migrations: {},
+		});
+		syncer.sync();
+		del.sync(path.join(syncer.baseDir, 'migrations/'));
+
+		const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const umzug: Umzug<{}> = require(uzmugPath).default;
+
+		/** run the cli with the specified args, then return the *new* migration files on disk */
+		const runCLI = async (argv: string[]) => {
+			const migrationsBefore = (syncer.read() as Record<string, any>).migrations;
+
+			await new UmzugCLI(() => umzug).executeWithoutErrorHandling(argv);
+			const migrationsAfter = (syncer.read() as Record<string, any>).migrations;
+			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+			Object.keys(migrationsBefore || {}).forEach(k => delete migrationsAfter[k]);
+			return migrationsAfter;
+		};
+
+		await expect(runCLI(['create', '--name', 'm1.sql', '--folder', path.join(syncer.baseDir, 'migrations')])).resolves
+			.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.11T00.00.00.m7.sql": "select 123",
+					  "2000.01.11T00.00.00.m1.sql": "-- custom up template",
+					  "down": Object {
+					    "2000.01.11T00.00.00.m1.sql": "-- custom down template",
+					  },
 					}
 				`);
-
-		await expect(
-			runCLI(['create', '--name', 'm8.sql', '--template', path.join(syncer.baseDir, 'bad-template.js')])
-		).rejects.toThrowError(
-			/Expected \[filepath, content] pair. Check that template .*bad-template.js returns an array of pairs. See help for more info./
-		);
-
-		const badTemplateRelative = path.relative(process.cwd(), path.join(syncer.baseDir, 'bad-template.js'));
-		await expect(runCLI(['create', '--name', 'm8.sql', '--template', badTemplateRelative])).rejects.toThrowError(
-			/Expected \[filepath, content] pair. Check that template .*bad-template.js returns an array of pairs. See help for more info./
-		);
 	});
 });
