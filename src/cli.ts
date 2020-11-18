@@ -340,9 +340,9 @@ export class CreateAction extends cli.CommandLineAction {
 }
 
 export class UmzugCLI extends cli.CommandLineParser {
-	constructor(toolFilename: string, readonly getUmzug: () => Umzug<{}>) {
+	constructor(readonly getUmzug: () => Umzug<{}>) {
 		super({
-			toolFilename,
+			toolFilename: '<script>',
 			toolDescription: 'Umzug migrator',
 		});
 
