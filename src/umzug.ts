@@ -40,22 +40,24 @@ export interface RunnableMigration<T> extends MigrationMeta {
 	down?: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
 }
 
+/** Glob instructions for migration files */
+export type GlobInputMigrations<T> = {
+	/**
+	 * A glob string for migration files. Can also be in the format `[path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
+	 * See https://npmjs.com/package/glob for more details on the glob format - this package is used internally.
+	 */
+	glob: string | [string, { cwd?: string; ignore?: string | string[] }];
+	/** Will be supplied to every migration function. Can be a database client, for example */
+	/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
+	resolve?: Resolver<T>;
+};
+
 /**
  * Allowable inputs for migrations. Can be either glob instructions for migration files, a list of runnable migrations, or a
  * function which receives a context and returns a list of migrations.
  */
 export type InputMigrations<T> =
-	| {
-			/**
-			 * A glob string for migration files. Can also be in the format `[path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
-			 * See https://npmjs.com/package/glob for more details on the glob format - this package is used internally.
-			 */
-			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
-			/** Will be supplied to every migration function. Can be a database client, for example */
-			context?: T;
-			/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
-			resolve?: Resolver<T>;
-	  }
+	| GlobInputMigrations<T>
 	| Array<RunnableMigration<T>>
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
