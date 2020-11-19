@@ -4,10 +4,7 @@ import { Umzug } from './umzug';
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
 
-	protected constructor(
-		protected readonly parent: { getUmzug(): Umzug<{}> },
-		cliOptions: cli.ICommandLineActionOptions
-	) {
+	protected constructor(protected readonly umzug: Umzug<{}>, cliOptions: cli.ICommandLineActionOptions) {
 		super(cliOptions);
 	}
 
@@ -63,8 +60,8 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 }
 
 export class UpAction extends ApplyMigrationsAction {
-	constructor(parent: { getUmzug(): Umzug<{}> }) {
-		super(parent, {
+	constructor(umzug: Umzug<{}>) {
+		super(umzug, {
 			actionName: 'up',
 			summary: 'Applies pending migrations',
 			documentation: 'Performs all migrations. See --help for more options',
@@ -72,7 +69,7 @@ export class UpAction extends ApplyMigrationsAction {
 	}
 
 	async onExecute(): Promise<void> {
-		const umzug = this.parent.getUmzug();
+		const umzug = this.umzug;
 		type Opts = Parameters<typeof umzug.up>[0];
 
 		const { migrations, rerun, to } = this.getParams();
@@ -89,8 +86,8 @@ export class UpAction extends ApplyMigrationsAction {
 }
 
 export class DownAction extends ApplyMigrationsAction {
-	constructor(parent: { getUmzug(): Umzug<{}> }) {
-		super(parent, {
+	constructor(umzug: Umzug<{}>) {
+		super(umzug, {
 			actionName: 'down',
 			summary: 'Revert migrations',
 			documentation:
@@ -99,7 +96,7 @@ export class DownAction extends ApplyMigrationsAction {
 	}
 
 	async onExecute(): Promise<void> {
-		const umzug = this.parent.getUmzug();
+		const umzug = this.umzug;
 		type Opts = Parameters<typeof umzug.down>[0];
 
 		const { migrations, rerun, to } = this.getParams();
@@ -118,7 +115,7 @@ export class DownAction extends ApplyMigrationsAction {
 export class ListAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ListAction._defineParameters>;
 
-	constructor(private readonly action: 'pending' | 'executed', private readonly parent: { getUmzug: () => Umzug<{}> }) {
+	constructor(private readonly action: 'pending' | 'executed', private readonly umzug: Umzug<{}>) {
 		super({
 			actionName: action,
 			summary: `Lists ${action} migrations`,
@@ -142,7 +139,7 @@ export class ListAction extends cli.CommandLineAction {
 	}
 
 	async onExecute(): Promise<void> {
-		const migrations = await this.parent.getUmzug()[this.action]();
+		const migrations = await this.umzug[this.action]();
 		const formatted = this._params.json.value
 			? JSON.stringify(migrations, null, 2)
 			: migrations.map(m => m.name).join('\n');
@@ -154,7 +151,7 @@ export class ListAction extends cli.CommandLineAction {
 export class CreateAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof CreateAction._defineParameters>;
 
-	constructor(readonly parent: { getUmzug: () => Umzug<{}> }) {
+	constructor(readonly umzug: Umzug<{}>) {
 		super({
 			actionName: 'create',
 			summary: 'Create a migration file',
@@ -211,7 +208,7 @@ export class CreateAction extends cli.CommandLineAction {
 	}
 
 	async onExecute(): Promise<void> {
-		const umzug = this.parent.getUmzug();
+		const umzug = this.umzug;
 
 		await umzug
 			.create({
@@ -237,17 +234,17 @@ export class CreateAction extends cli.CommandLineAction {
 }
 
 export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly getUmzug: () => Umzug<{}>) {
+	constructor(readonly umzug: Umzug<{}>) {
 		super({
 			toolFilename: '<script>',
 			toolDescription: 'Umzug migrator',
 		});
 
-		this.addAction(new UpAction(this));
-		this.addAction(new DownAction(this));
-		this.addAction(new ListAction('pending', this));
-		this.addAction(new ListAction('executed', this));
-		this.addAction(new CreateAction(this));
+		this.addAction(new UpAction(umzug));
+		this.addAction(new DownAction(umzug));
+		this.addAction(new ListAction('pending', umzug));
+		this.addAction(new ListAction('executed', umzug));
+		this.addAction(new CreateAction(umzug));
 	}
 
 	onDefineParameters(): void {}

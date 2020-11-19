@@ -34,7 +34,7 @@ describe('cli from instance', () => {
 	test('cli', async () => {
 		/** run the cli with the specified args, then return the executed migration names */
 		const runCli = async (argv: string[]) => {
-			await new UmzugCLI(() => umzug).executeWithoutErrorHandling(argv);
+			await new UmzugCLI(umzug).executeWithoutErrorHandling(argv);
 			return (await umzug.executed()).map(e => e.name);
 		};
 
@@ -213,7 +213,7 @@ describe('create migration file', () => {
 		const runCLI = async (argv: string[]) => {
 			const migrationsBefore = (syncer.read() as Record<string, any>).migrations;
 
-			await new UmzugCLI(() => umzug).executeWithoutErrorHandling(argv);
+			await new UmzugCLI(umzug).executeWithoutErrorHandling(argv);
 			const migrationsAfter = (syncer.read() as Record<string, any>).migrations;
 			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 			Object.keys(migrationsBefore || {}).forEach(k => delete migrationsAfter[k]);
@@ -329,7 +329,7 @@ describe('create migration file', () => {
 		const runCLI = async (argv: string[]) => {
 			const migrationsBefore = (syncer.read() as Record<string, any>).migrations;
 
-			await new UmzugCLI(() => umzug).executeWithoutErrorHandling(argv);
+			await new UmzugCLI(umzug).executeWithoutErrorHandling(argv);
 			const migrationsAfter = (syncer.read() as Record<string, any>).migrations;
 			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 			Object.keys(migrationsBefore || {}).forEach(k => delete migrationsAfter[k]);
