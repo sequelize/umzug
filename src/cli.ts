@@ -21,6 +21,12 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 				// prettier-ignore
 				description: `All migrations up to and including this one should be ${verb}. ${verb === 'reverted' ? 'Pass "0" to revert all.' : ''}`.trim(),
 			}),
+			step: action.defineIntegerParameter({
+				parameterLongName: '--step',
+				argumentName: 'COUNT',
+				// prettier-ignore
+				description: `Run this many migrations. If not specified, ${verb === 'reverted' ? 'one' : 'all'} will be ${verb}.`,
+			}),
 			migrations: action.defineStringListParameter({
 				parameterLongName: '--migration',
 				argumentName: 'NAME',
@@ -42,20 +48,29 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	protected getParams() {
 		const {
+			to: { value: to },
+			step: { value: step },
 			migrations: { values: migrations },
 			rerun: { value: rerun },
-			to: { value: to },
 		} = this._params;
 
 		if (to && migrations.length > 0) {
-			throw new Error(`Can't specify 'to' and 'migrations' together`);
+			throw new Error(`Can't specify 'to' and 'migration' together`);
+		}
+
+		if (to && typeof step === 'number') {
+			throw new Error(`Can't specify 'to' and 'step' together`);
+		}
+
+		if (typeof step === 'number' && migrations.length > 0) {
+			throw new Error(`Can't specify 'step' and 'migration' together`);
 		}
 
 		if (rerun !== 'THROW' && migrations.length === 0) {
-			throw new Error(`Can't specify 'rerun' without 'migrations'`);
+			throw new Error(`Can't specify 'rerun' without 'migration'`);
 		}
 
-		return { migrations, rerun, to };
+		return { to, step, migrations, rerun };
 	}
 }
 
@@ -72,11 +87,12 @@ export class UpAction extends ApplyMigrationsAction {
 		const umzug = this.umzug;
 		type Opts = Parameters<typeof umzug.up>[0];
 
-		const { migrations, rerun, to } = this.getParams();
+		const { to, step, migrations, rerun } = this.getParams();
 
 		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 		const opts = {
 			to,
+			step,
 			migrations: migrations.length > 0 ? migrations : undefined,
 			rerun,
 		} as Opts;
@@ -99,11 +115,12 @@ export class DownAction extends ApplyMigrationsAction {
 		const umzug = this.umzug;
 		type Opts = Parameters<typeof umzug.down>[0];
 
-		const { migrations, rerun, to } = this.getParams();
+		const { to, step, migrations, rerun } = this.getParams();
 
 		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 		const opts = {
 			to: to === '0' ? 0 : to,
+			step,
 			migrations: migrations.length > 0 ? migrations : undefined,
 			rerun,
 		} as Opts;
