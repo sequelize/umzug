@@ -702,23 +702,6 @@ node my-umzug-migrator create --name my-migration.js --folder path/to/directory
 
 The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
 
-By default, placeholder content is included for `.js`, `.ts` and `.sql` migration files. You can override the template content or provide a template for other file types by creating a template module to generate code according to your project's convention. The default export should be a function which receives a filepath and returns an array of `[filepath, content]` pairs. Example:
-
-```javascript
-// my-template.js
-exports.default = filepath => [
-  [filepath, `exports.up = () => console.log('running up migration!');`]
-]
-```
-
-Use the template by passing it as a cli parameter:
-
-```
-node my-umzug-migrator create --name my-migration.js --template path/to/my-template.js
-```
-
-This parameter may alternatively be specified via the `UMZUG_MIGRATION_TEMPLATE` environment variable, to avoid having to pass the path explicitly every time.
-
 Use `node my-umzug-migrator create --help` for more options:
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: create} -->
