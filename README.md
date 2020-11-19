@@ -565,6 +565,7 @@ if (require.main === module) {
 
 This script is now a runnable CLI program, complete with help text. You can run `node my-umzug-migrator.js --help` to see how to use it. It'll print something like
 
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp} -->
 ```
 usage: <script> [-h] <command> ...
 
@@ -583,6 +584,7 @@ Optional arguments:
 
 For detailed help about a specific command, use: <script> <command> -h
 ```
+<!-- codegen:end -->
 
 #### Running migrations
 
@@ -591,44 +593,53 @@ For detailed help about a specific command, use: <script> <command> -h
 Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior):
 
 Up:
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: up} -->
 ```
-usage: <script> up [-h] [--to NAME] [--migration NAME]
+usage: <script> up [-h] [--to NAME] [--step COUNT] [--migration NAME]
                    [--rerun {THROW,SKIP,ALLOW}]
-
+                   
 
 Performs all migrations. See --help for more options
 
 Optional arguments:
   -h, --help            Show this help message and exit.
-  --to NAME             All migrations up to and including this one should be
+  --to NAME             All migrations up to and including this one should be 
                         applied.
+  --step COUNT          Run this many migrations. If not specified, all will 
+                        be applied.
   --migration NAME      List of migrations to be applied
   --rerun {THROW,SKIP,ALLOW}
-                        Specify what action should be taken when a migration
-                        that has already been applied is passed. The default
+                        Specify what action should be taken when a migration 
+                        that has already been applied is passed. The default 
                         value is "THROW".
 ```
+<!-- codegen:end -->
 
 Down:
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: down} -->
 ```
-usage: <script> down [-h] [--to NAME] [--migration NAME]
+usage: <script> down [-h] [--to NAME] [--step COUNT] [--migration NAME]
                      [--rerun {THROW,SKIP,ALLOW}]
+                     
 
-
-Undoes previously-applied migrations. By default, undoes the most recent
-migration only. Use --help for more options. Useful in development to start
+Undoes previously-applied migrations. By default, undoes the most recent 
+migration only. Use --help for more options. Useful in development to start 
 from a clean slate. Use with care in production!
 
 Optional arguments:
   -h, --help            Show this help message and exit.
-  --to NAME             All migrations up to and including this one should be
+  --to NAME             All migrations up to and including this one should be 
                         reverted. Pass "0" to revert all.
+  --step COUNT          Run this many migrations. If not specified, one will 
+                        be reverted.
   --migration NAME      List of migrations to be reverted
   --rerun {THROW,SKIP,ALLOW}
-                        Specify what action should be taken when a migration
-                        that has already been reverted is passed. The default
+                        Specify what action should be taken when a migration 
+                        that has already been reverted is passed. The default 
                         value is "THROW".
 ```
+<!-- codegen:end -->
+
 
 #### Listing migrations
 
@@ -642,6 +653,38 @@ node my-umzug-migrator executed --json # list executed migrations including name
 node my-umzug-migrator pending --help # show help/options
 node my-umzug-migrator executed --help # show help/options
 ```
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: pending} -->
+```
+usage: <script> pending [-h] [--json]
+
+Prints migrations returned by `umzug.pending()`. By default, prints migration 
+names one per line.
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+  --json      Print pending migrations in a json format including names and 
+              paths. This allows piping output to tools like jq. Without this 
+              flag, the migration names will be printed one per line.
+```
+<!-- codegen:end -->
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: executed} -->
+```
+usage: <script> executed [-h] [--json]
+
+Prints migrations returned by `umzug.executed()`. By default, prints 
+migration names one per line.
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+  --json      Print executed migrations in a json format including names and 
+              paths. This allows piping output to tools like jq. Without this 
+              flag, the migration names will be printed one per line.
+```
+<!-- codegen:end -->
+
+
 
 #### Creating migrations - CLI
 
@@ -678,51 +721,53 @@ This parameter may alternatively be specified via the `UMZUG_MIGRATION_TEMPLATE`
 
 Use `node my-umzug-migrator create --help` for more options:
 
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: create} -->
 ```
 usage: <script> create [-h] --name NAME [--prefix {TIMESTAMP,DATE,NONE}]
                        [--folder PATH] [--allow-extension EXTENSION]
                        [--skip-verify] [--allow-confusing-ordering]
+                       
 
-
-Generates a placeholder migration file using a timestamp as a prefix. By
-default, mimics the last existing migration, or guesses where to generate the
+Generates a placeholder migration file using a timestamp as a prefix. By 
+default, mimics the last existing migration, or guesses where to generate the 
 file if no migration exists yet.
 
 Optional arguments:
   -h, --help            Show this help message and exit.
-  --name NAME           The name of the migration file. e.g. my-migration.js,
-                        my-migration.ts or my-migration.sql. Note - a prefix
-                        will be added to this name, usually based on a
+  --name NAME           The name of the migration file. e.g. my-migration.js, 
+                        my-migration.ts or my-migration.sql. Note - a prefix 
+                        will be added to this name, usually based on a 
                         timestamp. See --prefix
   --prefix {TIMESTAMP,DATE,NONE}
-                        The prefix format for generated files. TIMESTAMP uses
-                        a second-resolution timestamp, DATE uses a
-                        day-resolution timestamp, and NONE removes the prefix
+                        The prefix format for generated files. TIMESTAMP uses 
+                        a second-resolution timestamp, DATE uses a 
+                        day-resolution timestamp, and NONE removes the prefix 
                         completely. The default value is "TIMESTAMP".
-  --folder PATH         Path on the filesystem where the file should be
-                        created. The new migration will be created as a
+  --folder PATH         Path on the filesystem where the file should be 
+                        created. The new migration will be created as a 
                         sibling of the last existing one if this is omitted.
   --allow-extension EXTENSION
                         Allowable extension for created files. By default .js,
-                         .ts and .sql files can be created. To create txt
-                        file migrations, for example, you could use '--name
-                        my-migration.txt --allow-extension .txt' This
-                        parameter may alternatively be specified via the
+                         .ts and .sql files can be created. To create txt 
+                        file migrations, for example, you could use '--name 
+                        my-migration.txt --allow-extension .txt' This 
+                        parameter may alternatively be specified via the 
                         UMZUG_ALLOW_EXTENSION environment variable.
-  --skip-verify         By default, the generated file will be checked after
-                        creation to make sure it is detected as a pending
-                        migration. This catches problems like creation in the
-                        wrong folder, or invalid naming conventions. This
+  --skip-verify         By default, the generated file will be checked after 
+                        creation to make sure it is detected as a pending 
+                        migration. This catches problems like creation in the 
+                        wrong folder, or invalid naming conventions. This 
                         flag bypasses that verification step.
   --allow-confusing-ordering
-                        By default, an error will be thrown if you try to
-                        create a migration that will run before a migration
-                        that already exists. This catches errors which can
-                        cause problems if you change file naming conventions.
-                        If you use a custom ordering system, you can disable
-                        this behavior, but it's strongly recommended that you
+                        By default, an error will be thrown if you try to 
+                        create a migration that will run before a migration 
+                        that already exists. This catches errors which can 
+                        cause problems if you change file naming conventions. 
+                        If you use a custom ordering system, you can disable 
+                        this behavior, but it's strongly recommended that you 
                         don't! If you're unsure, just ignore this option.
 ```
+<!-- codegen:end -->
 
 ## License
 
