@@ -55,7 +55,7 @@ describe('recommended usage', () => {
 			logger: undefined,
 		});
 
-		const tableCount = () => {
+		const tableCount = async () => {
 			const sql = `
 				SELECT count(*) as count
 				FROM sqlite_master
@@ -136,7 +136,7 @@ describe('v2 back compat', () => {
 			logger: undefined,
 		});
 
-		const tableCount = () => {
+		const tableCount = async () => {
 			const sql = `
 				SELECT count(*) as count
 				FROM sqlite_master

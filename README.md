@@ -195,6 +195,11 @@ It is also possible to pass the name of a migration in order to just run the mig
 await umzug.up({ to: '20141101203500-task' });
 ```
 
+To limit the number of migrations that are run, `step` can be used:
+
+```js
+await umzug.up({ step: 2 })
+```
 
 Running specific migrations while ignoring the right order, can be done like this:
 
@@ -209,6 +214,12 @@ The `down` method can be used to revert the last executed migration.
 ```js
 const migration = await umzug.down();
 // reverts the last migration and returns it.
+```
+
+To revert more than one migration, you can use `step`:
+
+```js
+await umzug.down({ step: 2 });
 ```
 
 It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.

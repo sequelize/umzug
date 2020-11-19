@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
 import { UmzugCLI } from './cli';
+import { MergeExclusive } from './type-util';
 
 const globAsync = promisify(glob);
 
@@ -48,22 +49,24 @@ export interface RunnableMigration<T> extends MigrationMeta {
 	down?: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
 }
 
+/** Glob instructions for migration files */
+export type GlobInputMigrations<T> = {
+	/**
+	 * A glob string for migration files. Can also be in the format `[path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
+	 * See https://npmjs.com/package/glob for more details on the glob format - this package is used internally.
+	 */
+	glob: string | [string, { cwd?: string; ignore?: string | string[] }];
+	/** Will be supplied to every migration function. Can be a database client, for example */
+	/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
+	resolve?: Resolver<T>;
+};
+
 /**
  * Allowable inputs for migrations. Can be either glob instructions for migration files, a list of runnable migrations, or a
  * function which receives a context and returns a list of migrations.
  */
 export type InputMigrations<T> =
-	| {
-			/**
-			 * A glob string for migration files. Can also be in the format `[path/to/migrations/*.js', {cwd: 'some/base/dir', ignore: '**ignoreme.js' }]`
-			 * See https://npmjs.com/package/glob for more details on the glob format - this package is used internally.
-			 */
-			glob: string | [string, { cwd?: string; ignore?: string | string[] }];
-			/** Will be supplied to every migration function. Can be a database client, for example */
-			context?: T;
-			/** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
-			resolve?: Resolver<T>;
-	  }
+	| GlobInputMigrations<T>
 	| Array<RunnableMigration<T>>
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
@@ -81,52 +84,44 @@ export const RerunBehavior = {
 
 export type RerunBehavior = keyof typeof RerunBehavior;
 
-export type MigrateUpOptions =
-	| {
-			/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
-			to?: string;
+export type MigrateUpOptions = MergeExclusive<
+	{
+		/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
+		to?: string;
+	},
+	{
+		/** Only run this many migrations. If not specified, all pending migrations will be run */
+		step: number;
+	},
+	{
+		/** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
+		migrations: string[];
 
-			/** Should not be specified with `to` */
-			migrations?: never;
+		/** What to do if a migration that has already been run is explicitly specified. Default is `THROW`. */
+		rerun?: RerunBehavior;
+	}
+>;
 
-			/** Should not be specified with `to` */
-			rerun?: never;
-	  }
-	| {
-			/** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
-			migrations: string[];
+export type MigrateDownOptions = MergeExclusive<
+	{
+		/** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
+		to?: string | 0;
+	},
+	{
+		/** Revert this many migrations. If not specified, only the most recent migration will be reverted */
+		step: number;
+	},
+	{
+		/**
+		 * If specified, only the migrations with these names migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations.
+		 * Note, migrations will be run in the order specified.
+		 */
+		migrations: string[];
 
-			/** What to do if a migration that has already been run is explicitly specified. Default is `THROW`. */
-			rerun?: RerunBehavior;
-
-			/** Should not be specified with `migrations` */
-			to?: never;
-	  };
-
-export type MigrateDownOptions =
-	| {
-			/** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
-			to?: string | 0;
-
-			/** Should not be specified with `to` */
-			migrations?: never;
-
-			/** Should not be specified with `to` */
-			rerun?: never;
-	  }
-	| {
-			/**
-			 * If specified, only the migrations with these names migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations.
-			 * Note, migrations will be run in the order specified.
-			 */
-			migrations: string[];
-
-			/** What to do if a migration that has not been run is explicitly specified. Default is `THROW`. */
-			rerun?: RerunBehavior;
-
-			/** Should not be specified with `migrations` */
-			to?: never;
-	  };
+		/** What to do if a migration that has not been run is explicitly specified. Default is `THROW`. */
+		rerun?: RerunBehavior;
+	}
+>;
 
 export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage;
@@ -178,10 +173,10 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		const ext = path.extname(filepath);
-		const canRequire = ext === '.js' || ext in require.extensions;
+		const canRequire = ext === '.js' || ext === '.ts';
 		const languageSpecificHelp: Record<string, string> = {
 			'.ts':
-				"You can use the default resolver with typescript files by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
+				"TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
 			'.sql': 'Try writing a resolver which reads file content and executes it as a sql query.',
 		};
 		if (!canRequire) {
@@ -193,7 +188,17 @@ export class Umzug<Ctx> extends EventEmitter {
 			throw new Error(errorParts.filter(Boolean).join(' '));
 		}
 
-		const getModule = () => require(filepath);
+		const getModule = () => {
+			try {
+				return require(filepath);
+			} catch (e: unknown) {
+				if (e instanceof Error && filepath.endsWith('.ts')) {
+					e.message += '\n\n' + languageSpecificHelp['.ts'];
+				}
+
+				throw e;
+			}
+		};
 
 		return {
 			name,
@@ -284,7 +289,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			const allPending = await this._pending();
 
-			let sliceIndex = allPending.length;
+			let sliceIndex = options.step ?? allPending.length;
 			if (options.to) {
 				sliceIndex = this.findNameIndex(allPending, options.to) + 1;
 			}
@@ -334,7 +339,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			const executedReversed = (await this._executed()).slice().reverse();
 
-			let sliceIndex = 1;
+			let sliceIndex = options.step ?? 1;
 			if (options.to === 0 || options.migrations) {
 				sliceIndex = executedReversed.length;
 			} else if (options.to) {
