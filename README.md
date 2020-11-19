@@ -497,6 +497,48 @@ class CustomStorage implements UmzugStorage {
 }
 ```
 
+### Creating migrations - API
+
+Umzug includes an optional helper for generating migration files. This will, by default, include a timestamp-based prefix and generate a file in the same folder as the most recent existing migration. It also includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
+
+```js
+await umzug.create({ name: 'my-new-migration.js' })
+```
+
+Umzug ships with a barebones default template for js, ts and sql migration files, but you can specify the template for your project when constructing an umzug instance. The `template` property should be a function which receives a filepath string, and returns an array of `[filepath, content]` pairs. Usually, just one pair is needed, but a second could be used to include a "down" migration in a separate file:
+
+```js
+const umzug = new Umzug({
+  migrations: ...,
+  template: filepath => [
+    [
+      filepath,
+      dedent`
+        import { Migration } from '@my-team/migration-type'
+        import { logger } from '@my-team/custom-logger'
+
+        export const up: Migration = params => {
+          logger.info('running migration', params.name)
+        }
+
+        export const down: Migration = params => {
+          logger.info('reverting migration', params.name)
+        }
+      `
+    ],
+  ]
+})
+```
+
+To create blank migration files, return an empty array:
+
+```js
+const umzug = new Umzug({
+  migrations: ...,
+  template: () => [],
+})
+```
+
 ### Events
 
 Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#events_class_eventemitter). Each of the following events will be called with `name` and `migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
@@ -508,9 +550,7 @@ Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#
 
 ### CLI
 
-Umzug has an optional built-in CLI helper. There are two ways you can use it.
-
-1. Call the `.runAsCLI()` method from an `Umzug` instance:
+Umzug has an optional built-in CLI helper. To use it, call the `.runAsCLI()` method from an `Umzug` instance:
 
 ```js
 // my-umzug-migrator.js
@@ -603,7 +643,7 @@ node my-umzug-migrator pending --help # show help/options
 node my-umzug-migrator executed --help # show help/options
 ```
 
-#### Creating migrations
+#### Creating migrations - CLI
 
 Usually, migrations correspond to files on the filesystem. The CLI exposes a way to create migration files easily:
 
@@ -636,7 +676,53 @@ node my-umzug-migrator create --name my-migration.js --template path/to/my-templ
 
 This parameter may alternatively be specified via the `UMZUG_MIGRATION_TEMPLATE` environment variable, to avoid having to pass the path explicitly every time.
 
-Use `node my-umzug-migrator create --help` for more options.
+Use `node my-umzug-migrator create --help` for more options:
+
+```
+usage: <script> create [-h] --name NAME [--prefix {TIMESTAMP,DATE,NONE}]
+                       [--folder PATH] [--allow-extension EXTENSION]
+                       [--skip-verify] [--allow-confusing-ordering]
+
+
+Generates a placeholder migration file using a timestamp as a prefix. By
+default, mimics the last existing migration, or guesses where to generate the
+file if no migration exists yet.
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --name NAME           The name of the migration file. e.g. my-migration.js,
+                        my-migration.ts or my-migration.sql. Note - a prefix
+                        will be added to this name, usually based on a
+                        timestamp. See --prefix
+  --prefix {TIMESTAMP,DATE,NONE}
+                        The prefix format for generated files. TIMESTAMP uses
+                        a second-resolution timestamp, DATE uses a
+                        day-resolution timestamp, and NONE removes the prefix
+                        completely. The default value is "TIMESTAMP".
+  --folder PATH         Path on the filesystem where the file should be
+                        created. The new migration will be created as a
+                        sibling of the last existing one if this is omitted.
+  --allow-extension EXTENSION
+                        Allowable extension for created files. By default .js,
+                         .ts and .sql files can be created. To create txt
+                        file migrations, for example, you could use '--name
+                        my-migration.txt --allow-extension .txt' This
+                        parameter may alternatively be specified via the
+                        UMZUG_ALLOW_EXTENSION environment variable.
+  --skip-verify         By default, the generated file will be checked after
+                        creation to make sure it is detected as a pending
+                        migration. This catches problems like creation in the
+                        wrong folder, or invalid naming conventions. This
+                        flag bypasses that verification step.
+  --allow-confusing-ordering
+                        By default, an error will be thrown if you try to
+                        create a migration that will run before a migration
+                        that already exists. This catches errors which can
+                        cause problems if you change file naming conventions.
+                        If you use a custom ordering system, you can disable
+                        this behavior, but it's strongly recommended that you
+                        don't! If you're unsure, just ignore this option.
+```
 
 ## License
 
