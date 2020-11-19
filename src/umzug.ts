@@ -394,16 +394,14 @@ export class Umzug<Ctx> extends EventEmitter {
 		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
 		if (confusinglyOrdered && !options.allowConfusingOrdering) {
 			throw new Error(
-				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use --allow-confusing-ordering to bypass this error.`
+				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
 			);
 		}
 
 		const folder = maybeFolder || (last?.path && path.dirname(last.path));
 
 		if (!folder) {
-			throw new Error(
-				`Couldn't infer a folder to generate migration file in. Pass '--folder path/to/folder' explicitly`
-			);
+			throw new Error(`Couldn't infer a directory to generate migration file in. Pass folder explicitly`);
 		}
 
 		const filepath = path.join(folder, fileBasename);
@@ -425,7 +423,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			const ext = path.extname(pair[0]);
 			if (!allowedExtensions.includes(ext)) {
 				const allowStr = allowedExtensions.join(', ');
-				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for --allow-extension to avoid this error.`;
+				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for allowExtension to avoid this error.`;
 				throw new Error(message);
 			}
 
@@ -438,7 +436,9 @@ export class Umzug<Ctx> extends EventEmitter {
 		if (!options.skipVerify) {
 			const pending = await this.pending();
 			if (!pending.some(p => p.path === filepath)) {
-				throw new Error(`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this.`);
+				throw new Error(
+					`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this. Use skipVerify to bypass this error.`
+				);
 			}
 		}
 	}

@@ -215,15 +215,26 @@ export class CreateAction extends cli.CommandLineAction {
 	async onExecute(): Promise<void> {
 		const umzug = this.parent.getUmzug();
 
-		await umzug.create({
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-			name: this._params.name.value!,
-			prefix: this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE',
-			folder: this._params.folder.value,
-			allowExtension: this._params.allowExtension.values.length > 0 ? this._params.allowExtension.values[0] : undefined,
-			allowConfusingOrdering: this._params.allowConfusingOrdering.value,
-			skipVerify: this._params.skipVerify.value,
-		});
+		await umzug
+			.create({
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				name: this._params.name.value!,
+				prefix: this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE',
+				folder: this._params.folder.value,
+				allowExtension:
+					this._params.allowExtension.values.length > 0 ? this._params.allowExtension.values[0] : undefined,
+				allowConfusingOrdering: this._params.allowConfusingOrdering.value,
+				skipVerify: this._params.skipVerify.value,
+			})
+			.catch(e => {
+				Object.entries(this._params)
+					.filter(entry => entry[0] !== 'name')
+					.forEach(([name, param]) => {
+						// replace `skipVerify` in error messages with `--skip-verify`, etc.
+						e.message = e.message?.replace(name, param.longName);
+					});
+				throw e;
+			});
 	}
 }
 

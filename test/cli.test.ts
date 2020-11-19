@@ -221,7 +221,7 @@ describe('create migration file', () => {
 		};
 
 		await expect(runCLI(['create', '--name', 'm1.js'])).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Couldn't infer a folder to generate migration file in. Pass '--folder path/to/folder' explicitly"`
+			`"Couldn't infer a directory to generate migration file in. Pass --folder explicitly"`
 		);
 
 		// a folder must be specified for the first migration
