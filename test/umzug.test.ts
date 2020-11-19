@@ -163,6 +163,28 @@ describe('alternate migration inputs', () => {
 		expect(names(await umzug.pending())).toEqual(['m5', 'm6', 'm7']);
 	});
 
+	test('up and down with step', async () => {
+		const umzug = new Umzug({
+			migrations: [
+				{ name: 'm1', up: async () => {} },
+				{ name: 'm2', up: async () => {} },
+				{ name: 'm3', up: async () => {} },
+				{ name: 'm4', up: async () => {} },
+			],
+			logger: undefined,
+		});
+
+		await umzug.up({ step: 3 });
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3']);
+		expect(names(await umzug.pending())).toEqual(['m4']);
+
+		await umzug.down({ step: 2 });
+
+		expect(names(await umzug.executed())).toEqual(['m1']);
+		expect(names(await umzug.pending())).toEqual(['m2', 'm3', 'm4']);
+	});
+
 	test('up and down options', async () => {
 		const spy = jest.fn();
 		const umzug = new Umzug({
