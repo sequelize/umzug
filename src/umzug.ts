@@ -168,10 +168,10 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		const ext = path.extname(filepath);
-		const canRequire = ext === '.js' || ext in require.extensions;
+		const canRequire = ext === '.js' || ext === '.ts';
 		const languageSpecificHelp: Record<string, string> = {
 			'.ts':
-				"You can use the default resolver with typescript files by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
+				"TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
 			'.sql': 'Try writing a resolver which reads file content and executes it as a sql query.',
 		};
 		if (!canRequire) {
@@ -183,7 +183,17 @@ export class Umzug<Ctx> extends EventEmitter {
 			throw new Error(errorParts.filter(Boolean).join(' '));
 		}
 
-		const getModule = () => require(filepath);
+		const getModule = () => {
+			try {
+				return require(filepath);
+			} catch (e: unknown) {
+				if (e instanceof Error && filepath.endsWith('.ts')) {
+					e.message += '\n\n' + languageSpecificHelp['.ts'];
+				}
+
+				throw e;
+			}
+		};
 
 		return {
 			name,

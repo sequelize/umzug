@@ -317,6 +317,33 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up');
 	});
 
+	test('typescript migration files', async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/typescript'), {
+			'm1.ts': `export const up = () => {}; export const down = () => {}`,
+			'm2.ts': `throw Error('Error to simulate typescript modules not being registered')`,
+		});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.ts', { cwd: syncer.baseDir }],
+			},
+			logger: undefined,
+		});
+
+		expect([names(await umzug.pending()), names(await umzug.executed())]).toEqual([['m1.ts', 'm2.ts'], []]);
+
+		await umzug.up({ to: 'm1.ts' });
+
+		expect([names(await umzug.pending()), names(await umzug.executed())]).toEqual([['m2.ts'], ['m1.ts']]);
+
+		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(`
+			"Error to simulate typescript modules not being registered
+
+			TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
+		`);
+	});
+
 	test('with custom file globbing options', async () => {
 		const spy = jest.fn();
 
