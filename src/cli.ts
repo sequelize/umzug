@@ -1,7 +1,5 @@
 import * as cli from '@rushstack/ts-command-line';
 import { Umzug } from './umzug';
-import * as path from 'path';
-import * as fs from 'fs';
 
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
@@ -117,7 +115,7 @@ export class DownAction extends ApplyMigrationsAction {
 	}
 }
 
-class ListAction extends cli.CommandLineAction {
+export class ListAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ListAction._defineParameters>;
 
 	constructor(private readonly action: 'pending' | 'executed', private readonly parent: { getUmzug: () => Umzug<{}> }) {
