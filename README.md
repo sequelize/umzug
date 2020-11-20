@@ -553,7 +553,7 @@ Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#
 Umzug has an optional built-in CLI helper. To use it, call the `.runAsCLI()` method from an `Umzug` instance:
 
 ```js
-// my-umzug-migrator.js
+// migrator.js
 const { Umzug } = require('umzug')
 
 exports.umzug = new Umzug({ ... })
@@ -563,7 +563,9 @@ if (require.main === module) {
 }
 ```
 
-This script is now a runnable CLI program, complete with help text. You can run `node my-umzug-migrator.js --help` to see how to use it. It'll print something like
+#### CLI Usage
+
+This script is now a runnable CLI program, complete with help text. You can run `node migrator.js --help` to see how to use it. It'll print something like
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp} -->
 ```
@@ -588,9 +590,9 @@ For detailed help about a specific command, use: <script> <command> -h
 
 #### Running migrations
 
-`node my-umzug-migrator up` and `node my-umzug-migrator down` apply and revert migrations respectively. They're the equivalent of the `.up()` and `.down()` methods.
+`node migrator up` and `node migrator down` apply and revert migrations respectively. They're the equivalent of the `.up()` and `.down()` methods.
 
-Use `node my-umzug-migrator up --help` and `node my-umzug-migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior):
+Use `node migrator up --help` and `node migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior):
 
 Up:
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: up} -->
@@ -644,14 +646,14 @@ Optional arguments:
 #### Listing migrations
 
 ```bash
-node my-umzug-migrator pending # list migrations yet to be run
-node my-umzug-migrator executed # list migrations that have already run
+node migrator pending # list migrations yet to be run
+node migrator executed # list migrations that have already run
 
-node my-umzug-migrator pending --json # list pending migrations including names and paths, in a json array format
-node my-umzug-migrator executed --json # list executed migrations including names and paths, in a json array format
+node migrator pending --json # list pending migrations including names and paths, in a json array format
+node migrator executed --json # list executed migrations including names and paths, in a json array format
 
-node my-umzug-migrator pending --help # show help/options
-node my-umzug-migrator executed --help # show help/options
+node migrator pending --help # show help/options
+node migrator executed --help # show help/options
 ```
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: pending} -->
@@ -684,25 +686,23 @@ Optional arguments:
 ```
 <!-- codegen:end -->
 
-
-
 #### Creating migrations - CLI
 
 Usually, migrations correspond to files on the filesystem. The CLI exposes a way to create migration files easily:
 
 ```bash
-node my-umzug-migrator create --name my-migration.js
+node migrator create --name my-migration.js
 ```
 
 This will create a file with a name like `2000.12.25T12.34.56.my-migration.js` in the same directory as the most recent migration file. If it's the very first migration file, you need to specify the folder explicitly:
 
 ```bash
-node my-umzug-migrator create --name my-migration.js --folder path/to/directory
+node migrator create --name my-migration.js --folder path/to/directory
 ```
 
 The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
 
-Use `node my-umzug-migrator create --help` for more options:
+Use `node migrator create --help` for more options:
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: create} -->
 ```
