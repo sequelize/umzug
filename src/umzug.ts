@@ -429,8 +429,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
 			fs.writeFileSync(pair[0], pair[1]);
-			// eslint-disable-next-line no-console
-			console.log(`Wrote ${pair[0]}`);
+			this.logging(`Wrote ${pair[0]}`);
 		});
 
 		if (!options.skipVerify) {
