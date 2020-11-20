@@ -1,4 +1,6 @@
 export interface UmzugStorage {
+	lock?: (transactionId: string) => Promise<void>;
+	unlock?: (transactionId: string) => Promise<void>;
 	/**
 	 * Logs migration to be considered as executed.
 	 */

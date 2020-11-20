@@ -273,6 +273,9 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeApplied = await eligibleMigrations();
 
+		const transactionId = new Date().toISOString() + `xxx__${Umzug.foo++}`;
+		await this.storage.lock?.(transactionId);
+
 		for (const m of toBeApplied) {
 			const start = Date.now();
 			this.logging('== ' + m.name + ': migrating =======');
@@ -287,8 +290,12 @@ export class Umzug<Ctx> extends EventEmitter {
 			this.emit('migrated', m.name, m);
 		}
 
+		await this.storage.unlock?.(transactionId);
+
 		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
 	}
+
+	static foo = 1;
 
 	/**
 	 * Revert migrations. By default, the last executed migration is reverted.
