@@ -23,12 +23,20 @@ export interface UmzugOptions<Ctx = never> {
 	storage?: UmzugStorage;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
-	/**
-	 * A function for generating placeholder migration files. Specify to make sure files generated using `.create` follow team conventions.
-	 * Should return an array of [filepath, content] pairs. Usually, only one pair is needed, but to put `down` migrations in a separate
-	 * file, more than one can be returned.
-	 */
-	template?: (filepath: string) => Array<[string, string]>;
+	/** Options for file creation */
+	create?: {
+		/**
+		 * A function for generating placeholder migration files. Specify to make sure files generated using `.create` follow team conventions.
+		 * Should return an array of [filepath, content] pairs. Usually, only one pair is needed, but to put `down` migrations in a separate
+		 * file, more than one can be returned.
+		 */
+		template?: (filepath: string) => Array<[string, string]>;
+		/**
+		 * The default folder that new migration files should be generated in. If this is not specified, the new migration file will be created
+		 * in the same folder as the last existing migration. The value here can be overriden by passing `folder` when calling `create`.
+		 */
+		folder?: string;
+	};
 }
 
 /** Serializeable metadata for a migration. The structure returned by the external-facing `pending()` and `executed()` methods. */
@@ -387,7 +395,6 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const allowedExtensions = options.allowExtension ? [options.allowExtension] : ['.js', '.ts', '.sql'];
 
-		const maybeFolder = options.folder;
 		const existing = await this.migrations();
 		const last = existing[existing.length - 1];
 
@@ -398,7 +405,7 @@ export class Umzug<Ctx> extends EventEmitter {
 			);
 		}
 
-		const folder = maybeFolder || (last?.path && path.dirname(last.path));
+		const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path));
 
 		if (!folder) {
 			throw new Error(`Couldn't infer a directory to generate migration file in. Pass folder explicitly`);
@@ -406,9 +413,9 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const filepath = path.join(folder, fileBasename);
 
-		const writer = this.options.template ?? Umzug.defaultCreationTemplate;
+		const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
 
-		const toWrite = writer(filepath);
+		const toWrite = template(filepath);
 		if (toWrite.length === 0) {
 			toWrite.push([filepath, '']);
 		}

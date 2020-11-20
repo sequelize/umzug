@@ -318,12 +318,14 @@ describe('create migration file', () => {
 						resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
 					},
 					storage: new JSONStorage({path: __dirname + '/storage.json'}),
-					template: filepath => {
-						const downpath = path.join(path.dirname(filepath), 'down', path.basename(filepath))
-						return [
-							[filepath, '-- custom up template'],
-							[downpath, '-- custom down template']
-						]
+					create: {
+						template: filepath => {
+							const downpath = path.join(path.dirname(filepath), 'down', path.basename(filepath))
+							return [
+								[filepath, '-- custom up template'],
+								[downpath, '-- custom down template']
+							]
+						}
 					}
 				})
 			`,
