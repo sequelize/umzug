@@ -28,6 +28,10 @@ export class JSONStorage implements UmzugStorage {
 		fs.writeFileSync(filepath, content);
 	}
 
+	async removeFile(filepath: string): Promise<void> {
+		fs.unlinkSync(filepath);
+	}
+
 	async logMigration(migrationName: string): Promise<void> {
 		const loggedMigrations = await this.executed();
 		loggedMigrations.push(migrationName);
@@ -64,11 +68,11 @@ export class LockableJSONStorage extends JSONStorage implements UmzugStorage {
 
 	async unlock(transactionId?: string): Promise<void> {
 		if (!transactionId) {
-			fs.unlinkSync(this.lockFile);
+			await this.removeFile(this.lockFile);
 			return;
 		}
 
-		const existing = fs.existsSync(this.lockFile) && fs.readFileSync(this.lockFile).toString();
+		const existing = await this.readFile(this.lockFile);
 		if (!existing) {
 			throw new Error(`Nothing to unlock`);
 		}
@@ -77,6 +81,6 @@ export class LockableJSONStorage extends JSONStorage implements UmzugStorage {
 			throw new Error(`Can't unlock ${transactionId}, current lock is ${existing}`);
 		}
 
-		fs.unlinkSync(this.lockFile);
+		await this.removeFile(this.lockFile);
 	}
 }
