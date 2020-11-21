@@ -274,27 +274,29 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 			return allPending.slice(0, sliceIndex);
 		};
 
-		const toBeApplied = await eligibleMigrations();
-
 		await this.storage.setup?.(this.context);
 
-		for (const m of toBeApplied) {
-			const start = Date.now();
-			this.logging('== ' + m.name + ': migrating =======');
-			this.emit('migrating', m.name, m);
+		try {
+			const toBeApplied = await eligibleMigrations();
 
-			await m.up({ name: m.name, path: m.path, context: this.context });
+			for (const m of toBeApplied) {
+				const start = Date.now();
+				this.logging('== ' + m.name + ': migrating =======');
+				this.emit('migrating', m.name, m);
 
-			await this.storage.logMigration(m.name, this.context);
+				await m.up({ name: m.name, path: m.path, context: this.context });
 
-			const duration = ((Date.now() - start) / 1000).toFixed(3);
-			this.logging(`== ${m.name}: migrated (${duration}s)\n`);
-			this.emit('migrated', m.name, m);
+				await this.storage.logMigration(m.name, this.context);
+
+				const duration = ((Date.now() - start) / 1000).toFixed(3);
+				this.logging(`== ${m.name}: migrated (${duration}s)\n`);
+				this.emit('migrated', m.name, m);
+			}
+
+			return toBeApplied.map(m => ({ name: m.name, path: m.path }));
+		} finally {
+			await this.storage.teardown?.(this.context);
 		}
-
-		await this.storage.teardown?.(this.context);
-
-		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
 	}
 
 	static foo = 1;
@@ -332,27 +334,29 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 			return executedReversed.slice(0, sliceIndex);
 		};
 
-		const toBeReverted = await eligibleMigrations();
-
 		await this.storage.setup?.(this.context);
 
-		for (const m of toBeReverted) {
-			const start = Date.now();
-			this.logging('== ' + m.name + ': reverting =======');
-			this.emit('reverting', m.name, m);
+		try {
+			const toBeReverted = await eligibleMigrations();
 
-			await m.down?.({ name: m.name, path: m.path, context: this.context });
+			for (const m of toBeReverted) {
+				const start = Date.now();
+				this.logging('== ' + m.name + ': reverting =======');
+				this.emit('reverting', m.name, m);
 
-			await this.storage.unlogMigration(m.name, this.context);
+				await m.down?.({ name: m.name, path: m.path, context: this.context });
 
-			const duration = ((Date.now() - start) / 1000).toFixed(3);
-			this.logging(`== ${m.name}: reverted (${duration}s)\n`);
-			this.emit('reverted', m.name, m);
+				await this.storage.unlogMigration(m.name, this.context);
+
+				const duration = ((Date.now() - start) / 1000).toFixed(3);
+				this.logging(`== ${m.name}: reverted (${duration}s)\n`);
+				this.emit('reverted', m.name, m);
+			}
+
+			return toBeReverted.map(m => ({ name: m.name, path: m.path }));
+		} finally {
+			await this.storage.teardown?.(this.context);
 		}
-
-		await this.storage.setup?.(this.context);
-
-		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
 	}
 
 	private findNameIndex(migrations: Array<RunnableMigration<Ctx>>, name: string) {
