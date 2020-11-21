@@ -11,7 +11,7 @@ describe('locks', () => {
 	const syncer = fsSyncer(path.join(__dirname, 'generated/lock/json'), {});
 	syncer.sync();
 
-	test('json', async () => {
+	test('file lock', async () => {
 		const umzug = new Umzug({
 			migrations: [1, 2].map(n => ({
 				name: `m${n}`,

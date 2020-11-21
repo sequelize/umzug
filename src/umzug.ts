@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { EventEmitter } from 'events';
 import { promisify } from 'util';
-import { UmzugStorage, JSONStorage, verifyUmzugStorage, BatchMeta } from './storage';
+import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
 import { MergeExclusive } from './type-util';
 
@@ -12,7 +12,7 @@ export type Promisable<T> = T | PromiseLike<T>;
 export type LogFn = (message: string) => void;
 
 /** Constructor options for the Umzug class */
-export interface UmzugOptions<Ctx = never> {
+export interface UmzugOptions<Ctx extends {} = {}> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
@@ -115,8 +115,9 @@ export type MigrateDownOptions = MergeExclusive<
 	}
 >;
 
-export class Umzug<Ctx> extends EventEmitter {
-	private readonly storage: UmzugStorage;
+export class Umzug<Ctx extends {}> extends EventEmitter {
+	private readonly storage: UmzugStorage<Ctx>;
+	private readonly context: Ctx;
 	private readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
 	/**
@@ -148,6 +149,8 @@ export class Umzug<Ctx> extends EventEmitter {
 		super();
 
 		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
+		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+		this.context = options.context ?? ({} as Ctx);
 		this.migrations = this.getMigrationsResolver();
 	}
 
@@ -233,11 +236,6 @@ export class Umzug<Ctx> extends EventEmitter {
 		return list.map(m => ({ name: m.name, path: m.path }));
 	}
 
-	private getBatchMeta(): BatchMeta {
-		const batchId = new Date().toISOString() + `xxx__${Umzug.foo++}`;
-		return { batchId };
-	}
-
 	private async _pending(): Promise<Array<RunnableMigration<Ctx>>> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
@@ -278,24 +276,23 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeApplied = await eligibleMigrations();
 
-		const meta = this.getBatchMeta();
-		await this.storage.setup?.(meta);
+		await this.storage.setup?.(this.context);
 
 		for (const m of toBeApplied) {
 			const start = Date.now();
 			this.logging('== ' + m.name + ': migrating =======');
 			this.emit('migrating', m.name, m);
 
-			await m.up({ name: m.name, path: m.path, context: this.options.context });
+			await m.up({ name: m.name, path: m.path, context: this.context });
 
-			await this.storage.logMigration(m.name, meta);
+			await this.storage.logMigration(m.name, this.context);
 
 			const duration = ((Date.now() - start) / 1000).toFixed(3);
 			this.logging(`== ${m.name}: migrated (${duration}s)\n`);
 			this.emit('migrated', m.name, m);
 		}
 
-		await this.storage.teardown?.(meta);
+		await this.storage.teardown?.(this.context);
 
 		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
 	}
@@ -337,25 +334,23 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeReverted = await eligibleMigrations();
 
-		const meta = this.getBatchMeta();
-
-		await this.storage.setup?.(meta);
+		await this.storage.setup?.(this.context);
 
 		for (const m of toBeReverted) {
 			const start = Date.now();
 			this.logging('== ' + m.name + ': reverting =======');
 			this.emit('reverting', m.name, m);
 
-			await m.down?.({ name: m.name, path: m.path, context: this.options.context });
+			await m.down?.({ name: m.name, path: m.path, context: this.context });
 
-			await this.storage.unlogMigration(m.name, meta);
+			await this.storage.unlogMigration(m.name, this.context);
 
 			const duration = ((Date.now() - start) / 1000).toFixed(3);
 			this.logging(`== ${m.name}: reverted (${duration}s)\n`);
 			this.emit('reverted', m.name, m);
 		}
 
-		await this.storage.setup?.(meta);
+		await this.storage.setup?.(this.context);
 
 		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
 	}
@@ -384,9 +379,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
 	private getMigrationsResolver(): () => Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
 		const inputMigrations = this.options.migrations;
-		// Safe to non-null assert - if there's no context passed in, the type of `Ctx` must be `undefined` anyway.
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		const context = this.options.context!;
+		const context = this.context;
 		if (Array.isArray(inputMigrations)) {
 			return async () => inputMigrations;
 		}

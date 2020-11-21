@@ -480,10 +480,12 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			name: 'm1.sql',
 			path: path.join(syncer.baseDir, 'directory1/m1.sql'),
+			context: {},
 		});
 		expect(spy).toHaveBeenNthCalledWith(2, {
 			name: 'm2.sql',
 			path: path.join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
+			context: {},
 		});
 	});
 });
