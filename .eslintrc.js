@@ -96,6 +96,7 @@ module.exports = {
 		'unicorn/no-fn-reference-in-iterator': 'off',
 		'unicorn/no-null': 'off',
 		'unicorn/prevent-abbreviations': 'off',
+		'unicorn/no-useless-undefined': 'off',
 	},
 	overrides: [
 		{

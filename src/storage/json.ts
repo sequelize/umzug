@@ -51,36 +51,3 @@ export class JSONStorage implements UmzugStorage {
 		return content ? (JSON.parse(content) as string[]) : [];
 	}
 }
-
-export class LockableJSONStorage extends JSONStorage implements UmzugStorage {
-	private get lockFile() {
-		return this.path + '.lock';
-	}
-
-	async lock(transactionId: string): Promise<void> {
-		const existing = fs.existsSync(this.lockFile) && fs.readFileSync(this.lockFile).toString();
-		if (existing) {
-			throw new Error(`Can't acquire lock ${transactionId}. ${this.lockFile} exists, transaction id: ${existing}`);
-		}
-
-		await this.writeFile(this.lockFile, transactionId);
-	}
-
-	async unlock(transactionId?: string): Promise<void> {
-		if (!transactionId) {
-			await this.removeFile(this.lockFile);
-			return;
-		}
-
-		const existing = await this.readFile(this.lockFile);
-		if (!existing) {
-			throw new Error(`Nothing to unlock`);
-		}
-
-		if (existing !== transactionId) {
-			throw new Error(`Can't unlock ${transactionId}, current lock is ${existing}`);
-		}
-
-		await this.removeFile(this.lockFile);
-	}
-}

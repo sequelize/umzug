@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { EventEmitter } from 'events';
 import { promisify } from 'util';
-import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
+import { UmzugStorage, JSONStorage, verifyUmzugStorage, BatchMeta } from './storage';
 import * as glob from 'glob';
 import { MergeExclusive } from './type-util';
 
@@ -233,6 +233,11 @@ export class Umzug<Ctx> extends EventEmitter {
 		return list.map(m => ({ name: m.name, path: m.path }));
 	}
 
+	private getBatchMeta(): BatchMeta {
+		const batchId = new Date().toISOString() + `xxx__${Umzug.foo++}`;
+		return { batchId };
+	}
+
 	private async _pending(): Promise<Array<RunnableMigration<Ctx>>> {
 		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
 		const executedSet = new Set(executedNames);
@@ -273,8 +278,8 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeApplied = await eligibleMigrations();
 
-		const transactionId = new Date().toISOString() + `xxx__${Umzug.foo++}`;
-		await this.storage.lock?.(transactionId);
+		const meta = this.getBatchMeta();
+		await this.storage.setup?.(meta);
 
 		for (const m of toBeApplied) {
 			const start = Date.now();
@@ -283,14 +288,14 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			await m.up({ name: m.name, path: m.path, context: this.options.context });
 
-			await this.storage.logMigration(m.name);
+			await this.storage.logMigration(m.name, meta);
 
 			const duration = ((Date.now() - start) / 1000).toFixed(3);
 			this.logging(`== ${m.name}: migrated (${duration}s)\n`);
 			this.emit('migrated', m.name, m);
 		}
 
-		await this.storage.unlock?.(transactionId);
+		await this.storage.teardown?.(meta);
 
 		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
 	}
@@ -332,6 +337,10 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		const toBeReverted = await eligibleMigrations();
 
+		const meta = this.getBatchMeta();
+
+		await this.storage.setup?.(meta);
+
 		for (const m of toBeReverted) {
 			const start = Date.now();
 			this.logging('== ' + m.name + ': reverting =======');
@@ -339,12 +348,14 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			await m.down?.({ name: m.name, path: m.path, context: this.options.context });
 
-			await this.storage.unlogMigration(m.name);
+			await this.storage.unlogMigration(m.name, meta);
 
 			const duration = ((Date.now() - start) / 1000).toFixed(3);
 			this.logging(`== ${m.name}: reverted (${duration}s)\n`);
 			this.emit('reverted', m.name, m);
 		}
+
+		await this.storage.setup?.(meta);
 
 		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
 	}

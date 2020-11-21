@@ -1,15 +1,19 @@
+export interface BatchMeta {
+	batchId: string;
+}
+
 export interface UmzugStorage {
-	lock?: (transactionId: string) => Promise<void>;
-	unlock?: (transactionId: string) => Promise<void>;
+	setup?: (meta: BatchMeta) => Promise<void>;
+	teardown?: (meta: BatchMeta) => Promise<void>;
 	/**
 	 * Logs migration to be considered as executed.
 	 */
-	logMigration: (migrationName: string) => Promise<void>;
+	logMigration: (migrationName: string, meta: { batchId: string }) => Promise<void>;
 
 	/**
 	 * Unlogs migration (makes it to be considered as pending).
 	 */
-	unlogMigration: (migrationName: string) => Promise<void>;
+	unlogMigration: (migrationName: string, meta: { batchId: string }) => Promise<void>;
 
 	/**
 	 * Gets list of executed migrations.
