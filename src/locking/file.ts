@@ -2,6 +2,33 @@ import * as path from 'path';
 import { UmzugLocker } from './contract';
 import * as _fs from 'fs';
 
+/**
+ * Simple locker using the filesystem. Only one lock can be held per file. An error will be thrown if the
+ * lock file already exists.
+ *
+ * @example
+ * const umzug = new Umzug({
+ *   migrations: ...,
+ *   storage: addLocker(
+ *     new JsonStorage(...),
+ *     new FileLocker('path/to/lockfile')
+ *   )
+ * })
+ *
+ * @detail
+ * To wait for the lock to be free, you could extend it (the below example uses `setInterval`,
+ * but depending on your use-case, you may want to use a library with retry/backoff):
+ *
+ * @example
+ * class WaitingFileLocker extends FileLocker {
+ *   async lock(id) {
+ *     return new Promise(resolve => setInterval(
+ *       () => super.lock(id).then(resolve).catch(),
+ *       500,
+ *     )
+ *   }
+ * }
+ */
 export class FileLocker implements UmzugLocker {
 	constructor(readonly lockFile: string, readonly fs = _fs) {}
 
