@@ -517,10 +517,15 @@ class CustomStorage implements UmzugStorage {
 }
 ```
 
-This library includes a `FileLocker` class which can be used to add locking to any storage:
+This library includes a `FileLockStorage` class which can be used to add file-based locking to any storage:
 
 ```typescript
-const storageWithLocking = addLocker(originalStorage, new FileLocker('path/to/lockfile'))
+import { FileLockStorage } from 'umzug'
+
+const storageWithLocking = new FileLockStorage({
+  parent: originalStorage,
+  path: 'path/to/lockfile',
+})
 ```
 
 ### Events

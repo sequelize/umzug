@@ -1,4 +1,4 @@
-import { JSONStorage, addLocker, FileLocker, Umzug } from '../src';
+import { JSONStorage, addLocker, FileLockStorage, Umzug } from '../src';
 import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import * as pEvent from 'p-event';
@@ -17,10 +17,10 @@ describe('locks', () => {
 				name: `m${n}`,
 				up: async () => delay(100),
 			})),
-			storage: addLocker(
-				new JSONStorage({ path: path.join(syncer.baseDir, 'storage.json') }),
-				new FileLocker(path.join(syncer.baseDir, 'storage.json.lock'))
-			),
+			storage: new FileLockStorage({
+				parent: new JSONStorage({ path: path.join(syncer.baseDir, 'storage.json') }),
+				path: path.join(syncer.baseDir, 'storage.json.lock'),
+			}),
 			logger: undefined,
 		});
 		expect(syncer.read()).toEqual({});
