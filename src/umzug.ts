@@ -243,6 +243,19 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 	}
 
 	/**
+	 * Call storage setup, then the specified callback, then teardown - with teardown in a `finally` block
+	 * to ensure it's called even if errors are thrown.
+	 */
+	private async withSetupAndTeardown<T>(cb: () => Promise<T>): Promise<T> {
+		try {
+			await this.storage.setup?.(this.context);
+			return await cb();
+		} finally {
+			await this.storage.teardown?.(this.context);
+		}
+	}
+
+	/**
 	 * Apply migrations. By default, runs all pending migrations.
 	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
@@ -274,9 +287,7 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 			return allPending.slice(0, sliceIndex);
 		};
 
-		await this.storage.setup?.(this.context);
-
-		try {
+		return this.withSetupAndTeardown(async () => {
 			const toBeApplied = await eligibleMigrations();
 
 			for (const m of toBeApplied) {
@@ -294,12 +305,8 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 			}
 
 			return toBeApplied.map(m => ({ name: m.name, path: m.path }));
-		} finally {
-			await this.storage.teardown?.(this.context);
-		}
+		});
 	}
-
-	static foo = 1;
 
 	/**
 	 * Revert migrations. By default, the last executed migration is reverted.
@@ -334,9 +341,7 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 			return executedReversed.slice(0, sliceIndex);
 		};
 
-		await this.storage.setup?.(this.context);
-
-		try {
+		return this.withSetupAndTeardown(async () => {
 			const toBeReverted = await eligibleMigrations();
 
 			for (const m of toBeReverted) {
@@ -354,9 +359,7 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 			}
 
 			return toBeReverted.map(m => ({ name: m.name, path: m.path }));
-		} finally {
-			await this.storage.teardown?.(this.context);
-		}
+		});
 	}
 
 	private findNameIndex(migrations: Array<RunnableMigration<Ctx>>, name: string) {
