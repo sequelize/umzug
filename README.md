@@ -496,6 +496,33 @@ class CustomStorage implements UmzugStorage {
 }
 ```
 
+##### Setup and teardown
+
+Storage implementations can optionally define `setup` and `teardown` functions. When running `unmzug.up(...)` and `umzug.down(...)`, `setup` will be called before all migrations and `teardown` after all:
+
+```typescript
+class CustomStorage implements UmzugStorage {
+  constructor(...) {...}
+  logMigration(...) {...}
+  unlogMigration(...) {...}
+  executed(...) {...}
+
+  async setup() {
+    await someDependency.waitForLock()
+  }
+
+  async teardown() {
+    await someDependency.unlock()
+  }
+}
+```
+
+This library includes a `FileLocker` class which can be used to add locking to any storage:
+
+```typescript
+const storageWithLocking = addLocker(originalStorage, new FileLocker('path/to/lockfile'))
+```
+
 ### Events
 
 Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#events_class_eventemitter). Each of the following events will be called with `name` and `migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
