@@ -1,4 +1,4 @@
-import { JSONStorage, addLocker, FileLockStorage, Umzug } from '../src';
+import { JSONStorage, FileLockStorage, Umzug } from '../src';
 import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import * as pEvent from 'p-event';
