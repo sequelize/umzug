@@ -9,14 +9,14 @@ const globAsync = promisify(glob);
 
 export type Promisable<T> = T | PromiseLike<T>;
 
-export type LogFn = (message: string) => void;
+export type LogFn = (message: Record<string, unknown>) => void;
 
 /** Constructor options for the Umzug class */
 export interface UmzugOptions<Ctx extends {} = {}> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
-	logger: Record<'info' | 'warn' | 'error', LogFn> | undefined;
+	logger: Record<'info' | 'warn' | 'error' | 'debug', LogFn> | undefined;
 	/** The storage implementation. By default, `JSONStorage` will be used */
 	storage?: UmzugStorage;
 	/** An optional context object, which will be passed to each migration function, if defined */
@@ -154,7 +154,7 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 		this.migrations = this.getMigrationsResolver();
 	}
 
-	private logging(message: string) {
+	private logging(message: Record<string, unknown>) {
 		this.options.logger?.info(message);
 	}
 
@@ -292,15 +292,15 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 
 			for (const m of toBeApplied) {
 				const start = Date.now();
-				this.logging('== ' + m.name + ': migrating =======');
+				this.logging({ event: 'migrating', name: m.name });
 				this.emit('migrating', m.name, m);
 
 				await m.up({ name: m.name, path: m.path, context: this.context });
 
 				await this.storage.logMigration(m.name, this.context);
 
-				const duration = ((Date.now() - start) / 1000).toFixed(3);
-				this.logging(`== ${m.name}: migrated (${duration}s)\n`);
+				const duration = (Date.now() - start) / 1000;
+				this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
 				this.emit('migrated', m.name, m);
 			}
 
@@ -346,15 +346,15 @@ export class Umzug<Ctx extends {}> extends EventEmitter {
 
 			for (const m of toBeReverted) {
 				const start = Date.now();
-				this.logging('== ' + m.name + ': reverting =======');
+				this.logging({ event: 'reverting', name: m.name });
 				this.emit('reverting', m.name, m);
 
 				await m.down?.({ name: m.name, path: m.path, context: this.context });
 
 				await this.storage.unlogMigration(m.name, this.context);
 
-				const duration = ((Date.now() - start) / 1000).toFixed(3);
-				this.logging(`== ${m.name}: reverted (${duration}s)\n`);
+				const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
+				this.logging({ event: 'reverted', name: m.name, durationSeconds: duration });
 				this.emit('reverted', m.name, m);
 			}
 

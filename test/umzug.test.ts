@@ -532,7 +532,7 @@ describe('types', () => {
 			context: { foo: 123 },
 			logger: {
 				...console,
-				info: (...args) => expectTypeOf(args).toEqualTypeOf<[string]>(),
+				info: (...args) => expectTypeOf(args).toEqualTypeOf<[Record<string, unknown>]>(),
 			},
 		});
 	});
@@ -757,15 +757,18 @@ describe('custom logger', () => {
 				info: spy,
 				warn: spy,
 				error: spy,
+				debug: spy,
 			},
 		});
 
 		await umzug.up();
 
 		expect(spy).toHaveBeenCalledTimes(2);
-		expect(spy.mock.calls.map(c => c[0].replace(/\d.\d{3}s/, '0.000s'))).toEqual([
-			'== m1: migrating =======',
-			'== m1: migrated (0.000s)\n',
+		expect(
+			spy.mock.calls.map(([c]) => ({ ...c, durationSeconds: c.durationSeconds && Math.floor(c.durationSeconds) }))
+		).toEqual([
+			{ event: 'migrating', name: 'm1' },
+			{ event: 'migrated', name: 'm1', durationSeconds: 0 },
 		]);
 	});
 });
