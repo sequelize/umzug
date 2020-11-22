@@ -12,7 +12,7 @@ export type Promisable<T> = T | PromiseLike<T>;
 export type LogFn = (message: Record<string, unknown>) => void;
 
 /** Constructor options for the Umzug class */
-export interface UmzugOptions<Ctx extends {} = {}> {
+export interface UmzugOptions<Ctx = {}> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
@@ -115,7 +115,7 @@ export type MigrateDownOptions = MergeExclusive<
 	}
 >;
 
-export class Umzug<Ctx extends {}> extends EventEmitter {
+export class Umzug<Ctx> extends EventEmitter {
 	private readonly storage: UmzugStorage<Ctx>;
 	private readonly context: Ctx;
 	private readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;

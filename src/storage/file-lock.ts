@@ -29,7 +29,7 @@ import * as path from 'path';
  *   }
  * }
  */
-export class FileLockStorage<T extends {}> implements UmzugStorage<T> {
+export class FileLockStorage<T> implements UmzugStorage<T> {
 	private readonly lockFile: string;
 	private readonly parent: UmzugStorage<T>;
 	private readonly fs: typeof fs;
