@@ -282,7 +282,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			await this.storage.logMigration(m.name);
 
-			const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
+			const duration = (Date.now() - start) / 1000;
 			this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
 			this.emit('migrated', m.name, m);
 		}
