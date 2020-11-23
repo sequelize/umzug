@@ -15,7 +15,7 @@
 	],
 	"dependencies": {
 		"emittery": "~0.7.2",
-		"fs-jetpack": "~4.0.0",
+		"fs-jetpack": "~4.1.0",
 		"glob": "~7.1.6",
 		"type-fest": "~0.19.0"
 	},
