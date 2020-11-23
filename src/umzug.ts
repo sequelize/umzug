@@ -1,9 +1,9 @@
 import * as path from 'path';
-import { EventEmitter } from 'events';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
 import { MergeExclusive } from './type-util';
+import { Typed as EventEmitter } from 'emittery';
 
 const globAsync = promisify(glob);
 
@@ -31,14 +31,20 @@ export interface MigrationMeta {
 	path?: string;
 }
 
+export interface MigrationParams<T> {
+	name: string;
+	path?: string;
+	context: T;
+}
+
 /**
  * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments, and an optional `down` function to revert it.
  */
 export interface RunnableMigration<T> extends MigrationMeta {
 	/** The effect of applying the migration */
-	up: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
+	up: (params: MigrationParams<T>) => Promise<unknown>;
 	/** The effect of reverting the migration */
-	down?: (params: { name: string; path?: string; context?: T }) => Promise<unknown>;
+	down?: (params: MigrationParams<T>) => Promise<unknown>;
 }
 
 /** Glob instructions for migration files */
@@ -63,7 +69,7 @@ export type InputMigrations<T> =
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
 /** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
-export type Resolver<T> = (params: { name: string; path?: string; context: T }) => RunnableMigration<T>;
+export type Resolver<T> = (params: MigrationParams<T>) => RunnableMigration<T>;
 
 export const RerunBehavior = {
 	/** Hard error if an up migration that has already been run, or a down migration that hasn't, is encountered */
@@ -115,7 +121,9 @@ export type MigrateDownOptions = MergeExclusive<
 	}
 >;
 
-export class Umzug<Ctx> extends EventEmitter {
+export class Umzug<Ctx> extends EventEmitter<
+	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>>
+> {
 	private readonly storage: UmzugStorage;
 	private readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
@@ -140,7 +148,7 @@ export class Umzug<Ctx> extends EventEmitter {
 	 * export const down: Migration = ({name, context}) => context.query(...)
 	 */
 	declare readonly _types: {
-		migration: (params: { name: string; path?: string; context: Ctx }) => Promise<unknown>;
+		migration: (params: MigrationParams<Ctx>) => Promise<unknown>;
 	};
 
 	/** creates a new Umzug instance */
@@ -149,6 +157,11 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
 		this.migrations = this.getMigrationsResolver();
+	}
+
+	private get context(): Ctx {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- safe because options.context is only undefined if Ctx's type is undefined
+		return this.options.context!;
 	}
 
 	private logging(message: Record<string, unknown>) {
@@ -275,16 +288,18 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		for (const m of toBeApplied) {
 			const start = Date.now();
-			this.logging({ event: 'migrating', name: m.name });
-			this.emit('migrating', m.name, m);
+			const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
 
-			await m.up({ name: m.name, path: m.path, context: this.options.context });
+			this.logging({ event: 'migrating', name: m.name });
+			await this.emit('migrating', params);
+
+			await m.up(params);
 
 			await this.storage.logMigration(m.name);
 
 			const duration = (Date.now() - start) / 1000;
 			this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
-			this.emit('migrated', m.name, m);
+			await this.emit('migrated', params);
 		}
 
 		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
@@ -327,16 +342,18 @@ export class Umzug<Ctx> extends EventEmitter {
 
 		for (const m of toBeReverted) {
 			const start = Date.now();
-			this.logging({ event: 'reverting', name: m.name });
-			this.emit('reverting', m.name, m);
+			const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
 
-			await m.down?.({ name: m.name, path: m.path, context: this.options.context });
+			this.logging({ event: 'reverting', name: m.name });
+			await this.emit('reverting', params);
+
+			await m.down?.(params);
 
 			await this.storage.unlogMigration(m.name);
 
 			const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
 			this.logging({ event: 'reverted', name: m.name, durationSeconds: duration });
-			this.emit('reverted', m.name, m);
+			await this.emit('reverted', params);
 		}
 
 		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
