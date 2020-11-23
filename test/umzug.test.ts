@@ -642,6 +642,38 @@ describe('types', () => {
 			return migrations.slice();
 		});
 	});
+
+	test('event types', () => {
+		const umzug = new Umzug({
+			migrations: [],
+			context: { someCustomSqlClient: {} },
+			logger: undefined,
+		});
+
+		umzug.on('migrating', params => {
+			expectTypeOf(params.name).toBeString();
+			expectTypeOf(params.path).toEqualTypeOf<string | undefined>();
+			expectTypeOf(params.context).toEqualTypeOf({ someCustomSqlClient: {} });
+		});
+
+		umzug.on('migrated', params => {
+			expectTypeOf(params.name).toBeString();
+			expectTypeOf(params.path).toEqualTypeOf<string | undefined>();
+			expectTypeOf(params.context).toEqualTypeOf({ someCustomSqlClient: {} });
+		});
+
+		umzug.on('reverting', params => {
+			expectTypeOf(params.name).toBeString();
+			expectTypeOf(params.path).toEqualTypeOf<string | undefined>();
+			expectTypeOf(params.context).toEqualTypeOf({ someCustomSqlClient: {} });
+		});
+
+		umzug.on('reverted', params => {
+			expectTypeOf(params.name).toBeString();
+			expectTypeOf(params.path).toEqualTypeOf<string | undefined>();
+			expectTypeOf(params.context).toEqualTypeOf({ someCustomSqlClient: {} });
+		});
+	});
 });
 
 describe('error cases', () => {
@@ -703,23 +735,22 @@ describe('events', () => {
 			logger: undefined,
 		});
 
-		// `.addListener` and `.on` are aliases - use both to make sure they're wired up properly
-		umzug.addListener('migrating', spy('migrating'));
+		umzug.on('migrating', spy('migrating'));
 		umzug.on('migrated', spy('migrated'));
 
 		const revertingSpy = spy('reverting');
-		umzug.addListener('reverting', revertingSpy);
+		umzug.on('reverting', revertingSpy);
 		umzug.on('reverted', spy('reverted'));
 
 		await umzug.up();
 
 		expect(mock.mock.calls).toMatchObject([
-			['migrating', 'm1', { name: 'm1' }],
+			['migrating', { name: 'm1' }],
 			['up-m1', { name: 'm1' }],
-			['migrated', 'm1', { name: 'm1' }],
-			['migrating', 'm2', { name: 'm2' }],
+			['migrated', { name: 'm1' }],
+			['migrating', { name: 'm2' }],
 			['up-m2', { name: 'm2' }],
-			['migrated', 'm2', { name: 'm2' }],
+			['migrated', { name: 'm2' }],
 		]);
 
 		mock.mockClear();
@@ -727,21 +758,21 @@ describe('events', () => {
 		await umzug.down();
 
 		expect(mock.mock.calls).toMatchObject([
-			['reverting', 'm2', { name: 'm2' }],
+			['reverting', { name: 'm2' }],
 			['down-m2', { name: 'm2' }],
-			['reverted', 'm2', { name: 'm2' }],
+			['reverted', { name: 'm2' }],
 		]);
 
 		mock.mockClear();
 
-		umzug.removeListener('reverting', revertingSpy);
+		umzug.off('reverting', revertingSpy);
 
 		await umzug.down();
 
 		expect(mock.mock.calls).toMatchObject([
 			// `reverting` shouldn't be here because the listener was removed
 			['down-m1', { name: 'm1' }],
-			['reverted', 'm1', { name: 'm1' }],
+			['reverted', { name: 'm1' }],
 		]);
 	});
 });

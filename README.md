@@ -384,6 +384,20 @@ The `migrations.resolve` parameter replaces `customResolver`. Explicit support f
 
 The constructor option `logging` is replaced by `logger` to allow for `warn` and `error` messages in future. NodeJS's global `console` object can be passed to this. To disable logging, replace `logging: false` with `logger: undefined`.
 
+Events have moved from the default nodejs `EventEmitter` to [emittery](https://www.npmjs.com/package/emittery). It has better design for async code, a less bloated API surface and strong types. But, it doesn't allow passing multiple arguments to callbacks, so listeners have to change slightly, as well as `.addListener(...)` and `.removeListener(...)` no longer being supported (`.on(...)` and `.off(...)` should now be used):
+
+Before:
+
+```js
+umzug.on('migrating', (name, m) => console.log({ name, path: m.path }))
+```
+
+After:
+
+```js
+umzug.on('migrating', ev => console.log({ name: ev.name, path: ev.path }))
+```
+
 The `Umzug#execute` method is removed. Use `Umzug#up` or `Umzug#down`.
 
 The options for `Umguz#up` and `Umzug#down` have changed:
@@ -498,12 +512,14 @@ class CustomStorage implements UmzugStorage {
 
 ### Events
 
-Umzug is an [EventEmitter](https://nodejs.org/docs/latest-v10.x/api/events.html#events_class_eventemitter). Each of the following events will be called with `name` and `migration` as arguments. Events are a convenient place to implement application-specific logic that must run around each migration:
+Umzug is an [emittery event emitter](https://www.npmjs.com/package/emittery). Each of the following events will be called with migration parameters as its payload (with `context`, `name`, and nullable `path` properties). Events are a convenient place to implement application-specific logic that must run around each migration:
 
 * `migrating` - A migration is about to be executed.
 * `migrated` - A migration has successfully been executed.
 * `reverting` - A migration is about to be reverted.
 * `reverted` - A migration has successfully been reverted.
+
+All events are type-safe, so IDEs will prevent typos and supply strong types for the event payloads.
 
 ## License
 
