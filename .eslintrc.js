@@ -89,6 +89,7 @@ module.exports = {
 		'no-warning-comments': 'off',
 		'no-dupe-class-members': 'off',
 		'capitalized-comments': 'off',
+		'no-promise-executor-return': 'off',
 
 		'unicorn/catch-error-name': 'off',
 		'unicorn/consistent-function-scoping': 'off',
