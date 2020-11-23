@@ -436,7 +436,7 @@ export class Umzug<Ctx> extends EventEmitter {
 
 			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
 			fs.writeFileSync(pair[0], pair[1]);
-			this.logging(`Wrote ${pair[0]}`);
+			this.logging({ event: 'created', path: pair[0] });
 		});
 
 		if (!options.skipVerify) {
