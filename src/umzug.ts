@@ -393,7 +393,9 @@ export class Umzug<Ctx> extends EventEmitter {
 		const prefixType = options.prefix ?? 'TIMESTAMP';
 		const fileBasename = [prefixes[prefixType], options.name].filter(Boolean).join('.');
 
-		const allowedExtensions = options.allowExtension ? [options.allowExtension] : ['.js', '.ts', '.sql'];
+		const allowedExtensions = options.allowExtension
+			? [options.allowExtension]
+			: ['.js', '.cjs', '.mjs', '.ts', '.sql'];
 
 		const existing = await this.migrations();
 		const last = existing[existing.length - 1];
@@ -458,7 +460,7 @@ export class Umzug<Ctx> extends EventEmitter {
 				.trimStart();
 
 		const ext = path.extname(filepath);
-		if (ext === '.js') {
+		if (ext === '.js' || ext === '.cjs') {
 			const content = dedent(`
 				exports.up = params => {};
 				exports.down = params => {};
@@ -467,6 +469,16 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		if (ext === '.ts') {
+			const content = dedent(`
+				import { MigrationFn } from 'umzug';
+
+				export const up: MigrationFn = params => {};
+				export const down: MigrationFn = params => {};
+			`);
+			return [[filepath, content]];
+		}
+
+		if (ext === '.mjs') {
 			const content = dedent(`
 				export const up = params => {};
 				export const down = params => {};

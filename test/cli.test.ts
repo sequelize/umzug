@@ -205,8 +205,8 @@ describe('create migration file', () => {
 	
 				exports.default = new Umzug({
 					migrations: {
-						glob: ['migrations/*.{js,ts,sql}', { cwd: __dirname }],
-						resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
+						glob: ['migrations/*.{js,ts,cjs,mjs,sql}', { cwd: __dirname }],
+						resolve: params => ({ ...params, up: async () => {}, down: async () => {} }),
 					},
 					storage: new JSONStorage({path: __dirname + '/storage.json'}),
 				})
@@ -249,8 +249,10 @@ describe('create migration file', () => {
 		// for the second migration, the program should guess it's supposed to live next to the previous one.
 		await expect(runCLI(['create', '--name', 'm2.ts'])).resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.03T00.00.00.m2.ts": "export const up = params => {};
-					export const down = params => {};
+					  "2000.01.03T00.00.00.m2.ts": "import { MigrationFn } from 'umzug';
+
+					export const up: MigrationFn = params => {};
+					export const down: MigrationFn = params => {};
 					",
 					}
 				`);
@@ -266,7 +268,7 @@ describe('create migration file', () => {
 				`);
 
 		await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Extension .txt not allowed. Allowed extensions are .js, .ts, .sql. See help for --allow-extension to avoid this error."`
+			`"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .sql. See help for --allow-extension to avoid this error."`
 		);
 
 		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrowError(
@@ -280,9 +282,9 @@ describe('create migration file', () => {
 					}
 				`);
 
-		await expect(runCLI(['create', '--name', 'm5.js', '--prefix', 'DATE'])).resolves.toMatchInlineSnapshot(`
+		await expect(runCLI(['create', '--name', 'm5.cjs', '--prefix', 'DATE'])).resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.08.m5.js": "exports.up = params => {};
+					  "2000.01.08.m5.cjs": "exports.up = params => {};
 					exports.down = params => {};
 					",
 					}
@@ -296,11 +298,11 @@ describe('create migration file', () => {
 		);
 
 		// Explicitly allow the weird alphabetical ordering.
-		await expect(runCLI(['create', '--name', '000.m6.js', '--prefix', 'NONE', '--allow-confusing-ordering'])).resolves
+		await expect(runCLI(['create', '--name', '000.m6.mjs', '--prefix', 'NONE', '--allow-confusing-ordering'])).resolves
 			.toMatchInlineSnapshot(`
 					Object {
-					  "000.m6.js": "exports.up = params => {};
-					exports.down = params => {};
+					  "000.m6.mjs": "export const up = params => {};
+					export const down = params => {};
 					",
 					}
 				`);
