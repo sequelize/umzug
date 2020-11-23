@@ -14,10 +14,11 @@
 		"lib"
 	],
 	"dependencies": {
-		"@rushstack/ts-command-line": "^4.7.7",
-		"fs-jetpack": "^4.0.0",
-		"glob": "^7.1.6",
-		"type-fest": "^0.19.0"
+		"@rushstack/ts-command-line": "~4.7.7",
+		"emittery": "~0.7.2",
+		"fs-jetpack": "~4.0.0",
+		"glob": "~7.1.6",
+		"type-fest": "~0.19.0"
 	},
 	"devDependencies": {
 		"@types/jest": "26.0.15",
