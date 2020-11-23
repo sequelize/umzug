@@ -384,7 +384,7 @@ The `migrations.resolve` parameter replaces `customResolver`. Explicit support f
 
 The constructor option `logging` is replaced by `logger` to allow for `warn` and `error` messages in future. NodeJS's global `console` object can be passed to this. To disable logging, replace `logging: false` with `logger: undefined`.
 
-Events have moved from the default nodejs `EventEmitter` to [emittery](https://www.npmjs.com/package/emittery). It has better design for async code, a less bloated API surface and strong types. But, it doesn't allow passing multiple arguments to callbacks, so listeners have to change slightly:
+Events have moved from the default nodejs `EventEmitter` to [emittery](https://www.npmjs.com/package/emittery). It has better design for async code, a less bloated API surface and strong types. But, it doesn't allow passing multiple arguments to callbacks, so listeners have to change slightly, as well as `.addListener(...)` and `.removeListener(...)` no longer being supported (`.on(...)` and `.off(...)` should now be used):
 
 Before:
 
