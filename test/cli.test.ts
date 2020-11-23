@@ -362,4 +362,44 @@ describe('create migration file', () => {
 					}
 				`);
 	});
+
+	test('create with invalid custom template', async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create-invalid-template'), {
+			'umzug.js': `
+				const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+				const path = require('path')
+	
+				exports.default = new Umzug({
+					migrations: {
+						glob: ['migrations/*.{js,ts,sql}', { cwd: __dirname }],
+						resolve: (params) => ({ ...params, up: async () => {}, down: async () => {} }),
+					},
+					storage: new JSONStorage({path: __dirname + '/storage.json'}),
+					create: {
+						folder: path.join(__dirname, 'migrations'),
+						template: filepath => {
+							return [filepath, '-- custom up template'] // will fail: should be Array<[string, string]>, not [string, string]
+						}
+					}
+				})
+			`,
+			'storage.json': '[]',
+			migrations: {},
+		});
+		syncer.sync();
+		del.sync(path.join(syncer.baseDir, 'migrations/'));
+
+		const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const umzug: Umzug<{}> = require(uzmugPath).default;
+
+		/** run the cli with the specified args */
+		const runCLI = async (argv: string[]) => {
+			await new UmzugCLI(umzug).executeWithoutErrorHandling(argv);
+		};
+
+		await expect(runCLI(['create', '--name', 'm1.sql'])).rejects.toMatchInlineSnapshot(
+			`[Error: Expected [filepath, content] pair. Check that the file template function returns an array of pairs.]`
+		);
+	});
 });
