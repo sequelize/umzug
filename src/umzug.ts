@@ -181,7 +181,7 @@ export class Umzug<Ctx> extends EventEmitter {
 		}
 
 		const ext = path.extname(filepath);
-		const canRequire = ext === '.js' || ext === '.ts';
+		const canRequire = ext === '.js' || ext === '.cjs' || ext === '.ts';
 		const languageSpecificHelp: Record<string, string> = {
 			'.ts':
 				"TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
