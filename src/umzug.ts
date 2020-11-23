@@ -3,7 +3,7 @@ import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as glob from 'glob';
 import { MergeExclusive } from './type-util';
-import { Typed as EventEmitter } from 'emittery';
+import * as emittery from 'emittery';
 
 const globAsync = promisify(glob);
 
@@ -121,7 +121,7 @@ export type MigrateDownOptions = MergeExclusive<
 	}
 >;
 
-export class Umzug<Ctx> extends EventEmitter<
+export class Umzug<Ctx> extends emittery.Typed<
 	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>>
 > {
 	private readonly storage: UmzugStorage;
