@@ -287,6 +287,38 @@ describe('alternate migration inputs', () => {
 		]);
 	});
 
+	test('custom storage', async () => {
+		const spy = jest.fn();
+
+		const umzug = new Umzug({
+			migrations: [{ name: 'm1', up: async () => {} }],
+			context: { someCustomSqlClient: {} },
+			storage: {
+				executed: async (...args) => spy('executed', ...args),
+				logMigration: async (...args) => spy('logMigration', ...args),
+				unlogMigration: async (...args) => spy('unlogMigration', ...args),
+			},
+			logger: undefined,
+		});
+
+		await umzug.up();
+
+		expect(spy.mock.calls).toEqual([
+			['executed', { context: { someCustomSqlClient: {} } }],
+			['logMigration', 'm1', { name: 'm1', context: { someCustomSqlClient: {} } }],
+		]);
+
+		spy.mockClear();
+		spy.mockReturnValueOnce(['m1']);
+
+		await umzug.down();
+
+		expect(spy.mock.calls).toEqual([
+			['executed', { context: { someCustomSqlClient: {} } }],
+			['unlogMigration', 'm1', { name: 'm1', context: { someCustomSqlClient: {} } }],
+		]);
+	});
+
 	test('with migrations array', async () => {
 		const spy = jest.fn();
 

@@ -1,18 +1,20 @@
-export interface UmzugStorage {
+import { MigrationParams } from '../umzug';
+
+export interface UmzugStorage<Ctx = unknown> {
 	/**
 	 * Logs migration to be considered as executed.
 	 */
-	logMigration: (migrationName: string) => Promise<void>;
+	logMigration: (migrationName: string, params: MigrationParams<Ctx>) => Promise<void>;
 
 	/**
 	 * Unlogs migration (makes it to be considered as pending).
 	 */
-	unlogMigration: (migrationName: string) => Promise<void>;
+	unlogMigration: (migrationName: string, params: MigrationParams<Ctx>) => Promise<void>;
 
 	/**
 	 * Gets list of executed migrations.
 	 */
-	executed: () => Promise<string[]>;
+	executed: (meta: Pick<MigrationParams<Ctx>, 'context'>) => Promise<string[]>;
 }
 
 export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage {
