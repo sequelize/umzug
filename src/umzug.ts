@@ -141,7 +141,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>> &
 		Record<'beforeAll' | 'afterAll', { context: Ctx }>
 > {
-	private readonly storage: UmzugStorage;
+	private readonly storage: UmzugStorage<Ctx>;
 	/** @internal */
 	readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
@@ -269,7 +269,10 @@ export class Umzug<Ctx> extends emittery.Typed<
 
 	/** Get the list of migrations which have already been applied */
 	private async _executed(): Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
-		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
+		const [migrations, executedNames] = await Promise.all([
+			this.migrations(),
+			this.storage.executed({ context: this.context }),
+		]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => executedSet.has(m.name));
 	}
@@ -282,7 +285,10 @@ export class Umzug<Ctx> extends emittery.Typed<
 	}
 
 	private async _pending(): Promise<Array<RunnableMigration<Ctx>>> {
-		const [migrations, executedNames] = await Promise.all([this.migrations(), this.storage.executed()]);
+		const [migrations, executedNames] = await Promise.all([
+			this.migrations(),
+			this.storage.executed({ context: this.context }),
+		]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => !executedSet.has(m.name));
 	}
@@ -340,7 +346,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 
 				await m.up(params);
 
-				await this.storage.logMigration(m.name);
+				await this.storage.logMigration(m.name, params);
 
 				const duration = (Date.now() - start) / 1000;
 				this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
@@ -396,7 +402,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 
 				await m.down?.(params);
 
-				await this.storage.unlogMigration(m.name);
+				await this.storage.unlogMigration(m.name, params);
 
 				const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
 				this.logging({ event: 'reverted', name: m.name, durationSeconds: duration });
