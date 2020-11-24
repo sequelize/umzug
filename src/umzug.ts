@@ -138,7 +138,8 @@ export type MigrateDownOptions = MergeExclusive<
 >;
 
 export class Umzug<Ctx> extends emittery.Typed<
-	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>>
+	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>> &
+		Record<'beforeAll' | 'afterAll', { context: Ctx }>
 > {
 	private readonly storage: UmzugStorage;
 	/** @internal */
@@ -286,6 +287,15 @@ export class Umzug<Ctx> extends emittery.Typed<
 		return migrations.filter(m => !executedSet.has(m.name));
 	}
 
+	private async withBeforeAfterHooks<T>(cb: () => Promise<T>): Promise<T> {
+		await this.emit('beforeAll', { context: this.context });
+		try {
+			return await cb();
+		} finally {
+			await this.emit('afterAll', { context: this.context });
+		}
+	}
+
 	/**
 	 * Apply migrations. By default, runs all pending migrations.
 	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `rerun`.
@@ -318,25 +328,27 @@ export class Umzug<Ctx> extends emittery.Typed<
 			return allPending.slice(0, sliceIndex);
 		};
 
-		const toBeApplied = await eligibleMigrations();
+		return this.withBeforeAfterHooks(async () => {
+			const toBeApplied = await eligibleMigrations();
 
-		for (const m of toBeApplied) {
-			const start = Date.now();
-			const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
+			for (const m of toBeApplied) {
+				const start = Date.now();
+				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
 
-			this.logging({ event: 'migrating', name: m.name });
-			await this.emit('migrating', params);
+				this.logging({ event: 'migrating', name: m.name });
+				await this.emit('migrating', params);
 
-			await m.up(params);
+				await m.up(params);
 
-			await this.storage.logMigration(m.name);
+				await this.storage.logMigration(m.name);
 
-			const duration = (Date.now() - start) / 1000;
-			this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
-			await this.emit('migrated', params);
-		}
+				const duration = (Date.now() - start) / 1000;
+				this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
+				await this.emit('migrated', params);
+			}
 
-		return toBeApplied.map(m => ({ name: m.name, path: m.path }));
+			return toBeApplied.map(m => ({ name: m.name, path: m.path }));
+		});
 	}
 
 	/**
@@ -372,25 +384,27 @@ export class Umzug<Ctx> extends emittery.Typed<
 			return executedReversed.slice(0, sliceIndex);
 		};
 
-		const toBeReverted = await eligibleMigrations();
+		return this.withBeforeAfterHooks(async () => {
+			const toBeReverted = await eligibleMigrations();
 
-		for (const m of toBeReverted) {
-			const start = Date.now();
-			const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
+			for (const m of toBeReverted) {
+				const start = Date.now();
+				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
 
-			this.logging({ event: 'reverting', name: m.name });
-			await this.emit('reverting', params);
+				this.logging({ event: 'reverting', name: m.name });
+				await this.emit('reverting', params);
 
-			await m.down?.(params);
+				await m.down?.(params);
 
-			await this.storage.unlogMigration(m.name);
+				await this.storage.unlogMigration(m.name);
 
-			const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
-			this.logging({ event: 'reverted', name: m.name, durationSeconds: duration });
-			await this.emit('reverted', params);
-		}
+				const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
+				this.logging({ event: 'reverted', name: m.name, durationSeconds: duration });
+				await this.emit('reverted', params);
+			}
 
-		return toBeReverted.map(m => ({ name: m.name, path: m.path }));
+			return toBeReverted.map(m => ({ name: m.name, path: m.path }));
+		});
 	}
 
 	async create(options: {

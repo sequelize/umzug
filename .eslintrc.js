@@ -90,6 +90,7 @@ module.exports = {
 		'no-warning-comments': 'off',
 		'no-dupe-class-members': 'off',
 		'capitalized-comments': 'off',
+		'no-promise-executor-return': 'off',
 
 		'unicorn/catch-error-name': 'off',
 		'unicorn/consistent-function-scoping': 'off',
@@ -97,6 +98,7 @@ module.exports = {
 		'unicorn/no-fn-reference-in-iterator': 'off',
 		'unicorn/no-null': 'off',
 		'unicorn/prevent-abbreviations': 'off',
+		'unicorn/no-useless-undefined': 'off',
 	},
 	overrides: [
 		{
