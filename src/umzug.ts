@@ -20,7 +20,7 @@ export interface UmzugOptions<Ctx = never> {
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
 	logger: Record<'info' | 'warn' | 'error' | 'debug', LogFn> | undefined;
 	/** The storage implementation. By default, `JSONStorage` will be used */
-	storage?: UmzugStorage;
+	storage?: UmzugStorage<Ctx>;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
 	/** Options for file creation */
