@@ -519,6 +519,13 @@ Umzug is an [emittery event emitter](https://www.npmjs.com/package/emittery). Ea
 * `reverting` - A migration is about to be reverted.
 * `reverted` - A migration has successfully been reverted.
 
+These events run at the beginning and end of `up` and `down` calls. They'll receive an object containing a `context` property:
+
+- `beforeAll` - Before any of the migrations are run.
+- `afterAll` - After all the migrations have been executed. Note: this will always run, even if migrations throw an error.
+
+The [`FileLocker` class](./src/file-locker.ts) uses `beforeAll` and `afterAll` to implement a simple filesystem-based locking mechanism.
+
 All events are type-safe, so IDEs will prevent typos and supply strong types for the event payloads.
 
 ## License
