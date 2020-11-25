@@ -620,7 +620,7 @@ Use `node migrator up --help` and `node migrator down --help` for options (runni
 Up:
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: up} -->
 ```
-usage: <script> up [-h] [--to NAME] [--step COUNT] [--migration NAME]
+usage: <script> up [-h] [--to NAME] [--step COUNT] [--name MIGRATION]
                    [--rerun {THROW,SKIP,ALLOW}]
                    
 
@@ -632,18 +632,18 @@ Optional arguments:
                         applied.
   --step COUNT          Run this many migrations. If not specified, all will 
                         be applied.
-  --migration NAME      List of migrations to be applied
+  --name MIGRATION      Explicity declare migration name(s) to be applied.
   --rerun {THROW,SKIP,ALLOW}
                         Specify what action should be taken when a migration 
-                        that has already been applied is passed. The default 
-                        value is "THROW".
+                        that has already been applied is passed to --name. 
+                        The default value is "THROW".
 ```
 <!-- codegen:end -->
 
 Down:
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: down} -->
 ```
-usage: <script> down [-h] [--to NAME] [--step COUNT] [--migration NAME]
+usage: <script> down [-h] [--to NAME] [--step COUNT] [--name MIGRATION]
                      [--rerun {THROW,SKIP,ALLOW}]
                      
 
@@ -657,11 +657,11 @@ Optional arguments:
                         reverted. Pass "0" to revert all.
   --step COUNT          Run this many migrations. If not specified, one will 
                         be reverted.
-  --migration NAME      List of migrations to be reverted
+  --name MIGRATION      Explicity declare migration name(s) to be reverted.
   --rerun {THROW,SKIP,ALLOW}
                         Specify what action should be taken when a migration 
-                        that has already been reverted is passed. The default 
-                        value is "THROW".
+                        that has already been reverted is passed to --name. 
+                        The default value is "THROW".
 ```
 <!-- codegen:end -->
 

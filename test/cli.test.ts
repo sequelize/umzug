@@ -49,33 +49,33 @@ describe('cli from instance', () => {
 
 		await expect(runCli(['down', '--step', '2'])).resolves.toEqual([]);
 
-		await expect(runCli(['up', '--migration', 'm1.js', '--to', 'm2.js'])).rejects.toThrowError(
-			/Can't specify 'to' and 'migration' together/
+		await expect(runCli(['up', '--name', 'm1.js', '--to', 'm2.js'])).rejects.toThrowError(
+			/Can't specify 'to' and 'name' together/
 		);
 
 		await expect(runCli(['up', '--to', 'm2.js', '--step', '2'])).rejects.toThrowError(
 			/Can't specify 'to' and 'step' together/
 		);
 
-		await expect(runCli(['up', '--step', '2', '--migration', 'm1.js'])).rejects.toThrowError(
-			/Can't specify 'step' and 'migration' together/
+		await expect(runCli(['up', '--step', '2', '--name', 'm1.js'])).rejects.toThrowError(
+			/Can't specify 'step' and 'name' together/
 		);
 
-		await expect(runCli(['up', '--migration', 'm1.js', '--migration', 'm3.js'])).resolves.toEqual(['m1.js', 'm3.js']);
+		await expect(runCli(['up', '--name', 'm1.js', '--name', 'm3.js'])).resolves.toEqual(['m1.js', 'm3.js']);
 
-		await expect(runCli(['down', '--migration', 'm1.js'])).resolves.toEqual(['m3.js']);
+		await expect(runCli(['down', '--name', 'm1.js'])).resolves.toEqual(['m3.js']);
 
-		await expect(runCli(['up', '--migration', 'm3.js'])).rejects.toThrowError(
+		await expect(runCli(['up', '--name', 'm3.js'])).rejects.toThrowError(
 			/Couldn't find migration to apply with name "m3.js"/
 		);
 
-		await expect(runCli(['up', '--rerun', 'ALLOW'])).rejects.toThrowError(/Can't specify 'rerun' without 'migration'/);
+		await expect(runCli(['up', '--rerun', 'ALLOW'])).rejects.toThrowError(/Can't specify 'rerun' without 'name'/);
 
-		await expect(runCli(['up', '--migration', 'm3.js', '--rerun', 'THROW'])).rejects.toThrowError(
+		await expect(runCli(['up', '--name', 'm3.js', '--rerun', 'THROW'])).rejects.toThrowError(
 			/Couldn't find migration to apply with name "m3.js"/
 		);
 
-		await expect(runCli(['up', '--migration', 'm3.js', '--rerun', 'ALLOW'])).resolves.toEqual(['m3.js']);
+		await expect(runCli(['up', '--name', 'm3.js', '--rerun', 'ALLOW'])).resolves.toEqual(['m3.js']);
 	});
 });
 

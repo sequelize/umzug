@@ -231,6 +231,14 @@ export class Umzug<Ctx> extends emittery.Typed<
 	};
 
 	/**
+	 * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
+	 * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
+	 */
+	protected getCli(): UmzugCLI {
+		return new UmzugCLI(this);
+	}
+
+	/**
 	 * 'Run' an umzug instance as a CLI. This will read `process.argv`, execute commands based on that, and call
 	 * `process.exit` after running. If that isn't what you want, stick to the programmatic API.
 	 * You probably want to run only if a file is executed as the process's 'main' module with something like:
@@ -240,7 +248,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 	 * }
 	 */
 	async runAsCLI(argv?: string[]): Promise<boolean> {
-		const cli = new UmzugCLI(this);
+		const cli = this.getCli();
 		return cli.execute(argv);
 	}
 

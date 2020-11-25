@@ -1,5 +1,5 @@
 import * as cli from '@rushstack/ts-command-line';
-import { Umzug } from './umzug';
+import { MigrateDownOptions, MigrateUpOptions, Umzug } from './umzug';
 
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
@@ -9,10 +9,7 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	}
 
 	private static _defineParameters(action: cli.CommandLineAction) {
-		const verb = {
-			up: 'applied',
-			down: 'reverted',
-		}[action.actionName as 'up' | 'down'];
+		const verb = ApplyMigrationsAction.getVerb(action.actionName);
 
 		return {
 			to: action.defineStringParameter({
@@ -27,14 +24,14 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 				// prettier-ignore
 				description: `Run this many migrations. If not specified, ${verb === 'reverted' ? 'one' : 'all'} will be ${verb}.`,
 			}),
-			migrations: action.defineStringListParameter({
-				parameterLongName: '--migration',
-				argumentName: 'NAME',
-				description: `List of migrations to be ${verb}`,
+			name: action.defineStringListParameter({
+				parameterLongName: '--name',
+				argumentName: 'MIGRATION',
+				description: `Explicity declare migration name(s) to be ${verb}.`,
 			}),
 			rerun: action.defineChoiceParameter({
 				parameterLongName: '--rerun',
-				description: `Specify what action should be taken when a migration that has already been ${verb} is passed`,
+				description: `Specify what action should be taken when a migration that has already been ${verb} is passed to --name.`,
 				alternatives: ['THROW', 'SKIP', 'ALLOW'],
 				defaultValue: 'THROW',
 			}),
@@ -45,32 +42,55 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 		this._params = ApplyMigrationsAction._defineParameters(this);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	protected getParams() {
+	private static getVerb(direction: string) {
+		return {
+			up: 'applied',
+			down: 'reverted',
+		}[direction as 'up' | 'down'];
+	}
+
+	async onExecute(): Promise<void> {
 		const {
 			to: { value: to },
 			step: { value: step },
-			migrations: { values: migrations },
+			name: { values: nameArray },
 			rerun: { value: rerun },
 		} = this._params;
 
-		if (to && migrations.length > 0) {
-			throw new Error(`Can't specify 'to' and 'migration' together`);
+		// string list parameters are always defined. When they're empty it means nothing was passed.
+		const maybeNameArray = nameArray.length > 0 ? nameArray : undefined;
+
+		if (to && maybeNameArray) {
+			throw new Error(`Can't specify 'to' and 'name' together`);
 		}
 
 		if (to && typeof step === 'number') {
 			throw new Error(`Can't specify 'to' and 'step' together`);
 		}
 
-		if (typeof step === 'number' && migrations.length > 0) {
-			throw new Error(`Can't specify 'step' and 'migration' together`);
+		if (typeof step === 'number' && maybeNameArray) {
+			throw new Error(`Can't specify 'step' and 'name' together`);
 		}
 
-		if (rerun !== 'THROW' && migrations.length === 0) {
-			throw new Error(`Can't specify 'rerun' without 'migration'`);
+		if (rerun !== 'THROW' && !maybeNameArray) {
+			throw new Error(`Can't specify 'rerun' without 'name'`);
 		}
 
-		return { to, step, migrations, rerun };
+		const params = {
+			to: to === '0' ? 0 : to,
+			step,
+			migrations: maybeNameArray,
+			rerun,
+		};
+		const actions = {
+			up: async () => this.umzug.up(params as MigrateUpOptions),
+			down: async () => this.umzug.down(params as MigrateDownOptions),
+		};
+		const result = await actions[this.actionName as 'up' | 'down']();
+
+		const verb = ApplyMigrationsAction.getVerb(this.actionName);
+
+		this.umzug.options.logger?.info({ event: this.actionName, message: `${verb} ${result.length} migrations.` });
 	}
 }
 
@@ -82,23 +102,6 @@ export class UpAction extends ApplyMigrationsAction {
 			documentation: 'Performs all migrations. See --help for more options',
 		});
 	}
-
-	async onExecute(): Promise<void> {
-		const umzug = this.umzug;
-		type Opts = Parameters<typeof umzug.up>[0];
-
-		const { to, step, migrations, rerun } = this.getParams();
-
-		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-		const opts = {
-			to,
-			step,
-			migrations: migrations.length > 0 ? migrations : undefined,
-			rerun,
-		} as Opts;
-
-		await umzug.up(opts);
-	}
 }
 
 export class DownAction extends ApplyMigrationsAction {
@@ -109,23 +112,6 @@ export class DownAction extends ApplyMigrationsAction {
 			documentation:
 				'Undoes previously-applied migrations. By default, undoes the most recent migration only. Use --help for more options. Useful in development to start from a clean slate. Use with care in production!',
 		});
-	}
-
-	async onExecute(): Promise<void> {
-		const umzug = this.umzug;
-		type Opts = Parameters<typeof umzug.down>[0];
-
-		const { to, step, migrations, rerun } = this.getParams();
-
-		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-		const opts = {
-			to: to === '0' ? 0 : to,
-			step,
-			migrations: migrations.length > 0 ? migrations : undefined,
-			rerun,
-		} as Opts;
-
-		await umzug.down(opts);
 	}
 }
 
