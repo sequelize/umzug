@@ -1,7 +1,7 @@
-import { Batchy, UmzugStorage } from './contract';
+import { StorableMigration, UmzugStorage } from './contract';
 
 export const memoryStorage = (): UmzugStorage => {
-	let executed: Batchy[] = [];
+	let executed: StorableMigration[] = [];
 	return {
 		logMigration: async (name, { batch }) => {
 			executed.push({ name, batch });

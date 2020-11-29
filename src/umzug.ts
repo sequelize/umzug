@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { promisify } from 'util';
-import { UmzugStorage, JSONStorage, verifyUmzugStorage, Batchy } from './storage';
+import { UmzugStorage, JSONStorage, verifyUmzugStorage, StorableMigration } from './storage';
 import * as glob from 'glob';
 import { MergeExclusive } from './type-util';
 import * as emittery from 'emittery';
@@ -247,7 +247,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 		const executedMap = new Map(
 			executed
 				// umzug v2 returned a list of names from storage.executed() - account for that (even though the type system should force users to update)
-				.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e))
+				.map<StorableMigration>(e => (typeof e === 'string' ? { name: e } : e))
 				.map(e => [e.name, e])
 		);
 		return executedMap;

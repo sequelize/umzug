@@ -1,4 +1,4 @@
-import { Batchy, UmzugStorage } from './contract';
+import { StorableMigration, UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
 import { MigrationParams } from '../umzug';
 
@@ -180,7 +180,7 @@ export class SequelizeStorage implements UmzugStorage {
 		});
 	}
 
-	async executed(): Promise<Batchy[]> {
+	async executed(): Promise<StorableMigration[]> {
 		await this.model.sync();
 		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
 		return migrations.map(migration => {

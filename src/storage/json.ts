@@ -1,6 +1,6 @@
 import jetpack = require('fs-jetpack');
 import { MigrationParams } from '../umzug';
-import { Batchy, UmzugStorage } from './contract';
+import { StorableMigration, UmzugStorage } from './contract';
 
 export interface JSONStorageConstructorOptions {
 	/**
@@ -32,9 +32,9 @@ export class JSONStorage implements UmzugStorage {
 		await jetpack.writeAsync(this.path, JSON.stringify(updatedMigrations, null, 2));
 	}
 
-	async executed(): Promise<Batchy[]> {
+	async executed(): Promise<StorableMigration[]> {
 		const content = await jetpack.readAsync(this.path);
-		const executed = content ? (JSON.parse(content) as Array<string | Batchy>) : [];
-		return executed.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e));
+		const executed = content ? (JSON.parse(content) as Array<string | StorableMigration>) : [];
+		return executed.map<StorableMigration>(e => (typeof e === 'string' ? { name: e } : e));
 	}
 }
