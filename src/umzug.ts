@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { promisify } from 'util';
-import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
+import { UmzugStorage, JSONStorage, verifyUmzugStorage, Batchy } from './storage';
 import * as glob from 'glob';
 import { MergeExclusive } from './type-util';
 import * as emittery from 'emittery';
@@ -34,6 +34,7 @@ export interface MigrationMeta {
 export interface MigrationParams<T> {
 	name: string;
 	path?: string;
+	batch?: string;
 	context: T;
 }
 
@@ -87,6 +88,7 @@ export type MigrateUpOptions = MergeExclusive<
 		/** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
 		to?: string;
 	},
+	never,
 	{
 		/** Only run this many migrations. If not specified, all pending migrations will be run */
 		step: number;
@@ -104,6 +106,9 @@ export type MigrateDownOptions = MergeExclusive<
 	{
 		/** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
 		to?: string | 0;
+	},
+	{
+		batch: string;
 	},
 	{
 		/** Revert this many migrations. If not specified, only the most recent migration will be reverted */
@@ -234,13 +239,17 @@ export class Umzug<Ctx> extends emittery.Typed<
 	}
 
 	/** Get the list of migrations which have already been applied */
-	private async _executed(): Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
-		const [migrations, executedNames] = await Promise.all([
+	private async _executed() {
+		const [migrations, executed] = await Promise.all([
 			this.migrations(),
 			this.storage.executed({ context: this.context }),
 		]);
-		const executedSet = new Set(executedNames);
-		return migrations.filter(m => executedSet.has(m.name));
+		const executedSet = new Map(
+			executed
+				.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e))
+				.map(e => [e.name, e])
+		);
+		return migrations.filter(m => executedSet.has(m.name)).map(m => ({ ...m, ...executedSet.get(m.name) }));
 	}
 
 	/** Get the list of migrations which are yet to be applied */
@@ -251,11 +260,15 @@ export class Umzug<Ctx> extends emittery.Typed<
 	}
 
 	private async _pending(): Promise<Array<RunnableMigration<Ctx>>> {
-		const [migrations, executedNames] = await Promise.all([
+		const [migrations, executed] = await Promise.all([
 			this.migrations(),
 			this.storage.executed({ context: this.context }),
 		]);
-		const executedSet = new Set(executedNames);
+		const executedSet = new Map(
+			executed
+				.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e))
+				.map(e => [e.name, e])
+		);
 		return migrations.filter(m => !executedSet.has(m.name));
 	}
 
@@ -324,11 +337,30 @@ export class Umzug<Ctx> extends emittery.Typed<
 	}
 
 	/**
+	 * Roll back the most recently applied batch of migrations. Fails if using a storage that doesn't support batches.
+	 */
+	async rollback(): Promise<MigrationMeta[]> {
+		const executed = await this._executed();
+		const last = executed[executed.length - 1];
+		if (!last?.batch) {
+			throw new Error(`Can't rollback; didn't find a batch for most recent migration ${last?.name}`);
+		}
+
+		return this.down({ batch: last.batch });
+	}
+
+	/**
 	 * Revert migrations. By default, the last executed migration is reverted.
 	 * @see MigrateDownOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
 	async down(options: MigrateDownOptions = {}): Promise<MigrationMeta[]> {
 		const eligibleMigrations = async () => {
+			if (options.batch) {
+				const executed = await this._executed();
+				const filteredMigrations = executed.filter(e => e.batch === options.batch).map(e => e.name);
+				return this.findMigrations(await this.migrations(), filteredMigrations);
+			}
+
 			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
 				const list = await this.migrations();
 				return this.findMigrations(list, options.migrations);

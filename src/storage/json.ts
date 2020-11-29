@@ -1,5 +1,6 @@
 import jetpack = require('fs-jetpack');
-import { UmzugStorage } from './contract';
+import { MigrationParams } from '../umzug';
+import { Batchy, UmzugStorage } from './contract';
 
 export interface JSONStorageConstructorOptions {
 	/**
@@ -17,22 +18,23 @@ export class JSONStorage implements UmzugStorage {
 		this.path = options?.path ?? jetpack.path(process.cwd(), 'umzug.json');
 	}
 
-	async logMigration(migrationName: string): Promise<void> {
+	async logMigration(migrationName: string, { batch }: MigrationParams<{}>): Promise<void> {
 		const loggedMigrations = await this.executed();
-		loggedMigrations.push(migrationName);
+		loggedMigrations.push({ name: migrationName, batch });
 
 		await jetpack.writeAsync(this.path, JSON.stringify(loggedMigrations, null, 2));
 	}
 
 	async unlogMigration(migrationName: string): Promise<void> {
 		const loggedMigrations = await this.executed();
-		const updatedMigrations = loggedMigrations.filter(name => name !== migrationName);
+		const updatedMigrations = loggedMigrations.filter(({ name }) => name !== migrationName);
 
 		await jetpack.writeAsync(this.path, JSON.stringify(updatedMigrations, null, 2));
 	}
 
-	async executed(): Promise<string[]> {
+	async executed(): Promise<Batchy[]> {
 		const content = await jetpack.readAsync(this.path);
-		return content ? (JSON.parse(content) as string[]) : [];
+		const executed = content ? (JSON.parse(content) as Array<string | Batchy>) : [];
+		return executed.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e));
 	}
 }

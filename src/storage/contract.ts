@@ -1,5 +1,10 @@
 import { MigrationParams } from '../umzug';
 
+export interface Batchy {
+	name: string;
+	batch?: string;
+}
+
 export interface UmzugStorage<Ctx = unknown> {
 	/**
 	 * Logs migration to be considered as executed.
@@ -14,7 +19,7 @@ export interface UmzugStorage<Ctx = unknown> {
 	/**
 	 * Gets list of executed migrations.
 	 */
-	executed: (meta: Pick<MigrationParams<Ctx>, 'context'>) => Promise<string[]>;
+	executed: (meta: Pick<MigrationParams<Ctx>, 'context'>) => Promise<Array<Batchy | string>>;
 }
 
 export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage {

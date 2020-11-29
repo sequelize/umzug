@@ -1,4 +1,4 @@
-import { UmzugStorage } from './contract';
+import { Batchy, UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
 
 interface ModelTempInterface extends ModelClass, Record<string, any> {}
@@ -68,6 +68,13 @@ interface _SequelizeStorageConstructorOptions {
 	readonly columnName?: string;
 
 	/**
+	Name of the table column holding the executed migration batches.
+
+	@default 'batch'
+	*/
+	readonly batchColumnName?: string;
+
+	/**
 	The type of the column holding the executed migration names.
 
 	For `utf8mb4` charsets under InnoDB, you may need to set this to less than 190
@@ -92,6 +99,7 @@ export class SequelizeStorage implements UmzugStorage {
 	public readonly sequelize: SequelizeType;
 	public readonly columnType: string;
 	public readonly columnName: string;
+	public readonly batchColumnName: string;
 	public readonly timestamps: boolean;
 	public readonly modelName: string;
 	public readonly tableName?: string;
@@ -113,6 +121,7 @@ export class SequelizeStorage implements UmzugStorage {
 		this.sequelize = options.sequelize ?? options.model.sequelize;
 		this.columnType = options.columnType ?? (this.sequelize.constructor as any).STRING;
 		this.columnName = options.columnName ?? 'name';
+		this.batchColumnName = options.batchColumnName ?? 'batch';
 		this.timestamps = options.timestamps ?? false;
 		this.modelName = options.modelName ?? 'SequelizeMeta';
 		this.tableName = options.tableName;
@@ -133,6 +142,13 @@ export class SequelizeStorage implements UmzugStorage {
 					allowNull: false,
 					unique: true,
 					primaryKey: true,
+					autoIncrement: false,
+				},
+				[this.batchColumnName]: {
+					type: this.columnType,
+					allowNull: true,
+					unique: false,
+					primaryKey: false,
 					autoIncrement: false,
 				},
 			},
@@ -162,16 +178,17 @@ export class SequelizeStorage implements UmzugStorage {
 		});
 	}
 
-	async executed(): Promise<string[]> {
+	async executed(): Promise<Batchy[]> {
 		await this.model.sync();
 		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
 		return migrations.map(migration => {
 			const name = migration[this.columnName];
+			const batch = migration[this.batchColumnName];
 			if (typeof name !== 'string') {
 				throw new TypeError(`Unexpected migration name type: expected string, got ${typeof name}`);
 			}
 
-			return name;
+			return { name, batch };
 		});
 	}
 
