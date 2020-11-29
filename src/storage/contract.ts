@@ -19,7 +19,7 @@ export interface UmzugStorage<Ctx = unknown> {
 	/**
 	 * Gets list of executed migrations.
 	 */
-	executed: (meta: Pick<MigrationParams<Ctx>, 'context'>) => Promise<Array<Batchy | string>>;
+	executed: (meta: Pick<MigrationParams<Ctx>, 'context'>) => Promise<Batchy[]>;
 }
 
 export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage {

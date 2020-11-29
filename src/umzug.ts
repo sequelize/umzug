@@ -238,18 +238,25 @@ export class Umzug<Ctx> extends emittery.Typed<
 		return list.map(m => ({ name: m.name, path: m.path }));
 	}
 
-	/** Get the list of migrations which have already been applied */
-	private async _executed() {
-		const [migrations, executed] = await Promise.all([
-			this.migrations(),
-			this.storage.executed({ context: this.context }),
-		]);
-		const executedSet = new Map(
+	/**
+	 * get a map of executed names -> {name, batch} structs. Note: conceivably this could contain old migrations
+	 * which are no longer tracked, so should be compared against the result of `this.migrations()`.
+	 */
+	private async _storageExecutedMap() {
+		const executed = await this.storage.executed({ context: this.context });
+		const executedMap = new Map(
 			executed
+				// umzug v2 returned a list of names from storage.executed() - account for that (even though the type system should force users to update)
 				.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e))
 				.map(e => [e.name, e])
 		);
-		return migrations.filter(m => executedSet.has(m.name)).map(m => ({ ...m, ...executedSet.get(m.name) }));
+		return executedMap;
+	}
+
+	/** Get the list of migrations which have already been applied */
+	private async _executed() {
+		const [migrations, executedMap] = await Promise.all([this.migrations(), this._storageExecutedMap()]);
+		return migrations.filter(m => executedMap.has(m.name)).map(m => ({ ...m, ...executedMap.get(m.name) }));
 	}
 
 	/** Get the list of migrations which are yet to be applied */
@@ -260,16 +267,8 @@ export class Umzug<Ctx> extends emittery.Typed<
 	}
 
 	private async _pending(): Promise<Array<RunnableMigration<Ctx>>> {
-		const [migrations, executed] = await Promise.all([
-			this.migrations(),
-			this.storage.executed({ context: this.context }),
-		]);
-		const executedSet = new Map(
-			executed
-				.map<Batchy>(e => (typeof e === 'string' ? { name: e } : e))
-				.map(e => [e.name, e])
-		);
-		return migrations.filter(m => !executedSet.has(m.name));
+		const [migrations, executedMap] = await Promise.all([this.migrations(), this._storageExecutedMap()]);
+		return migrations.filter(m => !executedMap.has(m.name));
 	}
 
 	private async withBeforeAfterHooks<T>(cb: () => Promise<T>): Promise<T> {
