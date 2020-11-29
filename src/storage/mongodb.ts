@@ -1,4 +1,5 @@
-import { UmzugStorage } from './contract';
+import { MigrationParams } from '../umzug';
+import { Batchy, UmzugStorage } from './contract';
 
 type AnyObject = Record<string, any>;
 
@@ -49,17 +50,17 @@ export class MongoDBStorage implements UmzugStorage {
 		this.collectionName = (options as any).collectionName ?? 'migrations'; // TODO remove this
 	}
 
-	async logMigration(migrationName: string): Promise<void> {
-		await this.collection.insertOne({ migrationName });
+	async logMigration(migrationName: string, { batch }: MigrationParams<unknown>): Promise<void> {
+		await this.collection.insertOne({ migrationName, batch });
 	}
 
 	async unlogMigration(migrationName: string): Promise<void> {
 		await this.collection.removeOne({ migrationName });
 	}
 
-	async executed(): Promise<string[]> {
-		type Record = { migrationName: string };
+	async executed(): Promise<Batchy[]> {
+		type Record = { migrationName: string; batch: string };
 		const records: Record[] = await this.collection.find({}).sort({ migrationName: 1 }).toArray();
-		return records.map(r => r.migrationName);
+		return records.map(r => ({ name: r.migrationName, batch: r.batch }));
 	}
 }
