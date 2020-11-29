@@ -1,5 +1,6 @@
 import { Batchy, UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
+import { MigrationParams } from '../umzug';
 
 interface ModelTempInterface extends ModelClass, Record<string, any> {}
 
@@ -162,10 +163,11 @@ export class SequelizeStorage implements UmzugStorage {
 		) as ModelClassType;
 	}
 
-	async logMigration(migrationName: string): Promise<void> {
+	async logMigration(migrationName: string, { batch }: MigrationParams<unknown>): Promise<void> {
 		await this.model.sync();
 		await this.model.create({
 			[this.columnName]: migrationName,
+			[this.batchColumnName]: batch,
 		});
 	}
 
