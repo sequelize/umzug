@@ -70,15 +70,21 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-						Object {
-						  "name": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						  },
-						}
-					`);
+				Object {
+				  "batch": Object {
+				    "allowNull": true,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "VARCHAR(255)",
+				  },
+				  "name": Object {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": true,
+				    "type": "VARCHAR(255)",
+				  },
+				}
+			`);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					expect(description.name.defaultValue).toBeUndefined();
 
@@ -114,15 +120,21 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-						Object {
-						  "customColumn": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						  },
-						}
-					`);
+				Object {
+				  "batch": Object {
+				    "allowNull": true,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "VARCHAR(255)",
+				  },
+				  "customColumn": Object {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": true,
+				    "type": "VARCHAR(255)",
+				  },
+				}
+			`);
 				});
 		});
 
@@ -136,27 +148,33 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-						Object {
-						  "createdAt": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "DATETIME",
-						  },
-						  "name": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						  },
-						  "updatedAt": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "DATETIME",
-						  },
-						}
-					`);
+				Object {
+				  "batch": Object {
+				    "allowNull": true,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "VARCHAR(255)",
+				  },
+				  "createdAt": Object {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "DATETIME",
+				  },
+				  "name": Object {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": true,
+				    "type": "VARCHAR(255)",
+				  },
+				  "updatedAt": Object {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "DATETIME",
+				  },
+				}
+			`);
 				});
 		});
 
@@ -205,7 +223,7 @@ describe('sequelize', () => {
 				.then((allTables: any) => {
 					expect(Object.keys(allTables)).toHaveLength(0);
 				})
-				.then(() => storage.logMigration('asd.js'))
+				.then(() => storage.logMigration('asd.js', { name: 'asd.js', context: {} }))
 				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
 				.then((allTables: any) => {
 					expect(allTables).toEqual(['SequelizeMeta']);
@@ -218,7 +236,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -233,7 +251,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -256,7 +274,7 @@ describe('sequelize', () => {
 			const startTime = new Date(Math.floor(Date.now() / 1000) * 1000);
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -288,7 +306,7 @@ describe('sequelize', () => {
 			const storage = new Storage({ sequelize: helper.sequelize });
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -304,8 +322,8 @@ describe('sequelize', () => {
 			const storage = new Storage({ sequelize: helper.sequelize });
 
 			return storage
-				.logMigration('migration1.js')
-				.then(() => storage.logMigration('migration2.js'))
+				.logMigration('migration1.js', { name: 'migration1.js', context: {} })
+				.then(() => storage.logMigration('migration2.js', { name: 'migration2.js', context: {} }))
 				.then(() => storage.unlogMigration('migration2.js'))
 				.then(() => storage._model().findAll())
 				.then(migrations => {
@@ -321,7 +339,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -340,7 +358,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -398,10 +416,10 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.executed())
 				.then(migrations => {
-					expect(migrations).toEqual(['asd.js']);
+					expect(migrations).toEqual([{ name: 'asd.js' }]);
 				});
 		});
 
@@ -412,10 +430,10 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.executed())
 				.then(migrations => {
-					expect(migrations).toEqual(['asd.js']);
+					expect(migrations).toEqual([{ name: 'asd.js' }]);
 				});
 		});
 
@@ -426,10 +444,10 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration('asd.js', { name: 'asd.js', context: {} })
 				.then(() => storage.executed())
 				.then(migrations => {
-					expect(migrations).toEqual(['asd.js']);
+					expect(migrations).toEqual([{ name: 'asd.js' }]);
 				});
 		});
 	});

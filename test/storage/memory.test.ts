@@ -17,14 +17,14 @@ describe('memoryStorage', () => {
 		const storage = memoryStorage();
 
 		await storage.logMigration('m1', { name: 'm1', context: {} });
-		expect(await storage.executed({ context: {} })).toEqual(['m1']);
+		expect(await storage.executed({ context: {} })).toEqual([{ name: 'm1' }]);
 
 		await storage.logMigration('m1', { name: 'm1', context: {} });
 		await storage.logMigration('m2', { name: 'm1', context: {} });
-		expect(await storage.executed({ context: {} })).toEqual(['m1', 'm1', 'm2']);
+		expect(await storage.executed({ context: {} })).toEqual([{ name: 'm1' }, { name: 'm1' }, { name: 'm2' }]);
 
 		await storage.unlogMigration('m1', { name: 'm1', context: {} });
-		expect(await storage.executed({ context: {} })).toEqual(['m2']);
+		expect(await storage.executed({ context: {} })).toEqual([{ name: 'm2' }]);
 
 		await storage.unlogMigration('m2', { name: 'm1', context: {} });
 		expect(await storage.executed({ context: {} })).toEqual([]);
@@ -34,7 +34,7 @@ describe('memoryStorage', () => {
 		const storage = memoryStorage();
 
 		const executed = await storage.executed({ context: {} });
-		executed.push('abc');
+		executed.push({ name: 'abc' });
 
 		expect(await storage.executed({ context: {} })).toEqual([]);
 	});

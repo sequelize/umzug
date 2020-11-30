@@ -69,7 +69,7 @@ describe('MongoDBStorage', () => {
 	describe('logMigration', () => {
 		test('adds entry to storage', async () => {
 			const storage = new MongoDBStorage({ collection: mockCollection });
-			await storage.logMigration('m1.txt');
+			await storage.logMigration('m1.txt', { name: 'm1.txt', context: {} });
 			expect(mockCollection.insertOne).toHaveBeenCalledTimes(1);
 			expect(mockCollection.insertOne).toHaveBeenCalledWith({
 				migrationName: 'm1.txt',
