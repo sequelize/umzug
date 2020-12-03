@@ -240,8 +240,11 @@ describe('create migration file', () => {
 		await expect(runCLI(['create', '--name', 'm1.js', '--folder', path.join(syncer.baseDir, 'migrations')])).resolves
 			.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.02T00.00.00.m1.js": "exports.up = params => {};
-					exports.down = params => {};
+					  "2000.01.02T00.00.00.m1.js": "/** @type {import('umzug').MigrationFn<any>} */
+					exports.up = async params => {};
+
+					/** @type {import('umzug').MigrationFn<any>} */
+					exports.down = async params => {};
 					",
 					}
 				`);
@@ -260,9 +263,11 @@ describe('create migration file', () => {
 		expect(fs.existsSync(path.join(syncer.baseDir, 'migrations/down'))).toBe(false);
 		await expect(runCLI(['create', '--name', 'm3.sql'])).resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.04T00.00.00.m3.sql": "-- up migration",
+					  "2000.01.04T00.00.00.m3.sql": "-- up migration
+					",
 					  "down": Object {
-					    "2000.01.04T00.00.00.m3.sql": "-- down migration",
+					    "2000.01.04T00.00.00.m3.sql": "-- down migration
+					",
 					  },
 					}
 				`);
@@ -284,8 +289,11 @@ describe('create migration file', () => {
 
 		await expect(runCLI(['create', '--name', 'm5.cjs', '--prefix', 'DATE'])).resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.08.m5.cjs": "exports.up = params => {};
-					exports.down = params => {};
+					  "2000.01.08.m5.cjs": "/** @type {import('umzug').MigrationFn<any>} */
+					exports.up = async params => {};
+
+					/** @type {import('umzug').MigrationFn<any>} */
+					exports.down = async params => {};
 					",
 					}
 				`);
@@ -301,8 +309,11 @@ describe('create migration file', () => {
 		await expect(runCLI(['create', '--name', '000.m6.mjs', '--prefix', 'NONE', '--allow-confusing-ordering'])).resolves
 			.toMatchInlineSnapshot(`
 					Object {
-					  "000.m6.mjs": "export const up = params => {};
-					export const down = params => {};
+					  "000.m6.mjs": "/** @type {import('umzug').MigrationFn<any>} */
+					export const up = async params => {};
+
+					/** @type {import('umzug').MigrationFn<any>} */
+					export const down = async params => {};
 					",
 					}
 				`);

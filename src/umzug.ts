@@ -54,14 +54,17 @@ export interface MigrationParams<T> {
 	context: T;
 }
 
+/** A callable function for applying or reverting a migration  */
+export type MigrationFn<T = unknown> = (params: MigrationParams<T>) => Promise<unknown>;
+
 /**
  * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments, and an optional `down` function to revert it.
  */
 export interface RunnableMigration<T> extends MigrationMeta {
 	/** The effect of applying the migration */
-	up: (params: MigrationParams<T>) => Promise<unknown>;
+	up: MigrationFn<T>;
 	/** The effect of reverting the migration */
-	down?: (params: MigrationParams<T>) => Promise<unknown>;
+	down?: MigrationFn<T>;
 }
 
 /** Glob instructions for migration files */
@@ -499,11 +502,11 @@ export class Umzug<Ctx> extends emittery.Typed<
 
 	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
 		const ext = path.extname(filepath);
-		if (ext === '.js') {
+		if (ext === '.js' || ext === '.cjs') {
 			return [[filepath, templates.js]];
 		}
 
-		if (ext === 'ts') {
+		if (ext === '.ts') {
 			return [[filepath, templates.ts]];
 		}
 
