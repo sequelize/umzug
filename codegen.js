@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { Umzug } = require('.');
 const { UmzugCLI } = require('./lib/cli');
+const stripAnsi = require('strip-ansi');
 
 /** @type import('eslint-plugin-codegen').Preset<{ action?: string }> */
 exports.cliHelp = ({ options: { action } }) => {
@@ -9,11 +10,9 @@ exports.cliHelp = ({ options: { action } }) => {
 
 	return [
 		'```',
-		helpable
-			.renderHelpText()
-			// eslint-disable-next-line no-control-regex
-			.replace(/\u001B\[.*?m/g, '') // https://stackoverflow.com/a/25245824/1002973
+		stripAnsi(helpable.renderHelpText())
 			.trim()
+			// for some reason the last `-h` is on its own line
 			.replace(/\n-h$/, '-h'),
 		'```',
 	].join('\n');
