@@ -700,6 +700,8 @@ const umzug = new Umzug({
 })
 ```
 
+The create command includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations.
+
 Use `node migrator create --help` for more options:
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: create} -->
@@ -752,7 +754,7 @@ Optional arguments:
 
 ### Creating migrations - API
 
-Umzug includes an optional helper for generating migration files. This will, by default, include a timestamp-based prefix and generate a file in the same folder as the most recent existing migration. It also includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
+Umzug includes an optional helper for generating migration files. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
 
 ```js
 await umzug.create({ name: 'my-new-migration.js' })
