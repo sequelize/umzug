@@ -3,12 +3,16 @@ import { MigrateDownOptions, MigrateUpOptions, Umzug } from './umzug';
 
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
+	declare actionName: 'up' | 'down';
 
-	protected constructor(protected readonly umzug: Umzug<{}>, cliOptions: cli.ICommandLineActionOptions) {
+	protected constructor(
+		protected readonly umzug: Umzug<{}>,
+		cliOptions: cli.ICommandLineActionOptions & { actionName: 'up' | 'down' }
+	) {
 		super(cliOptions);
 	}
 
-	private static _defineParameters(action: cli.CommandLineAction) {
+	private static _defineParameters(action: ApplyMigrationsAction) {
 		const verb = ApplyMigrationsAction.getVerb(action.actionName);
 
 		return {
@@ -42,11 +46,11 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 		this._params = ApplyMigrationsAction._defineParameters(this);
 	}
 
-	private static getVerb(direction: string) {
+	private static getVerb(direction: 'up' | 'down') {
 		return {
 			up: 'applied',
 			down: 'reverted',
-		}[direction as 'up' | 'down'];
+		}[direction];
 	}
 
 	async onExecute(): Promise<void> {
@@ -86,7 +90,7 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 			up: async () => this.umzug.up(params as MigrateUpOptions),
 			down: async () => this.umzug.down(params as MigrateDownOptions),
 		};
-		const result = await actions[this.actionName as 'up' | 'down']();
+		const result = await actions[this.actionName]();
 
 		const verb = ApplyMigrationsAction.getVerb(this.actionName);
 
@@ -229,7 +233,7 @@ export class CreateAction extends cli.CommandLineAction {
 					.filter(entry => entry[0] !== 'name')
 					.forEach(([name, param]) => {
 						// replace `skipVerify` in error messages with `--skip-verify`, etc.
-						e.message = e.message?.replace(name, param.longName);
+						e.message = e.message?.split(name).join(param.longName);
 					});
 				throw e;
 			});
