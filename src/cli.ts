@@ -6,7 +6,7 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	declare actionName: 'up' | 'down';
 
 	protected constructor(
-		protected readonly umzug: Umzug<{}>,
+		protected readonly umzug: Umzug,
 		cliOptions: cli.ICommandLineActionOptions & { actionName: 'up' | 'down' }
 	) {
 		super(cliOptions);
@@ -99,7 +99,7 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 }
 
 export class UpAction extends ApplyMigrationsAction {
-	constructor(umzug: Umzug<{}>) {
+	constructor(umzug: Umzug) {
 		super(umzug, {
 			actionName: 'up',
 			summary: 'Applies pending migrations',
@@ -109,7 +109,7 @@ export class UpAction extends ApplyMigrationsAction {
 }
 
 export class DownAction extends ApplyMigrationsAction {
-	constructor(umzug: Umzug<{}>) {
+	constructor(umzug: Umzug) {
 		super(umzug, {
 			actionName: 'down',
 			summary: 'Revert migrations',
@@ -122,7 +122,7 @@ export class DownAction extends ApplyMigrationsAction {
 export class ListAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ListAction._defineParameters>;
 
-	constructor(private readonly action: 'pending' | 'executed', private readonly umzug: Umzug<{}>) {
+	constructor(private readonly action: 'pending' | 'executed', private readonly umzug: Umzug) {
 		super({
 			actionName: action,
 			summary: `Lists ${action} migrations`,
@@ -158,7 +158,7 @@ export class ListAction extends cli.CommandLineAction {
 export class CreateAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof CreateAction._defineParameters>;
 
-	constructor(readonly umzug: Umzug<{}>) {
+	constructor(readonly umzug: Umzug) {
 		super({
 			actionName: 'create',
 			summary: 'Create a migration file',
@@ -241,7 +241,7 @@ export class CreateAction extends cli.CommandLineAction {
 }
 
 export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly umzug: Umzug<{}>) {
+	constructor(readonly umzug: Umzug) {
 		super({
 			toolFilename: '<script>',
 			toolDescription: 'Umzug migrator',

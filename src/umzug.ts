@@ -15,7 +15,7 @@ export type Promisable<T> = T | PromiseLike<T>;
 export type LogFn = (message: Record<string, unknown>) => void;
 
 /** Constructor options for the Umzug class */
-export interface UmzugOptions<Ctx = never> {
+export interface UmzugOptions<Ctx = unknown> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
@@ -27,7 +27,7 @@ export interface UmzugOptions<Ctx = never> {
 	/** Options for file creation */
 	create?: {
 		/**
-		 * A function for generating placeholder migration files. Specify to make sure files generated using `.create` follow team conventions.
+		 * A function for generating placeholder migration files. Specify to make sure files generated via CLI or using `.create` follow team conventions.
 		 * Should return an array of [filepath, content] pairs. Usually, only one pair is needed, but to put `down` migrations in a separate
 		 * file, more than one can be returned.
 		 */
@@ -141,7 +141,7 @@ export type MigrateDownOptions = MergeExclusive<
 	}
 >;
 
-export class Umzug<Ctx> extends emittery.Typed<
+export class Umzug<Ctx = unknown> extends emittery.Typed<
 	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>> &
 		Record<'beforeAll' | 'afterAll', { context: Ctx }>
 > {
