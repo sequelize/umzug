@@ -533,7 +533,7 @@ All events are type-safe, so IDEs will prevent typos and supply strong types for
 
 ### CLI
 
-Umzug has an optional built-in CLI helper. To use it, call the `.runAsCLI()` method from an `Umzug` instance:
+Umzug instances provide a `.runAsCLI()` method. When called, this method will automatically cause your program to become a complete CLI, with help text and such:
 
 ```js
 // migrator.js
@@ -548,7 +548,7 @@ if (require.main === module) {
 
 #### CLI Usage
 
-This script is now a runnable CLI program, complete with help text. You can run `node migrator.js --help` to see how to use it. It'll print something like
+A script like the one above is now a runnable CLI program. You can run `node migrator.js --help` to see how to use it. It will print something like:
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp} -->
 ```
