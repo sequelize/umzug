@@ -197,6 +197,7 @@ await umzug.up({ to: '20141101203500-task' });
 To limit the number of migrations that are run, `step` can be used:
 
 ```js
+// This will run the next two migrations
 await umzug.up({ step: 2 })
 ```
 
@@ -218,6 +219,7 @@ const migration = await umzug.down();
 To revert more than one migration, you can use `step`:
 
 ```js
+// This will revert the last two migrations
 await umzug.down({ step: 2 });
 ```
 
