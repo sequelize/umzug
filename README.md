@@ -28,7 +28,7 @@ npm install umzug
 	* Auto-completion right in your IDE
 	* Documentation right in your IDE
 * Programmatic API for migrations
-* Built in [CLI](#cli)
+* Built-in [CLI](#cli)
 * Database agnostic
 * Supports logging of migration process
 * Supports multiple storages for migration data
@@ -513,48 +513,6 @@ class CustomStorage implements UmzugStorage {
 }
 ```
 
-### Creating migrations - API
-
-Umzug includes an optional helper for generating migration files. This will, by default, include a timestamp-based prefix and generate a file in the same folder as the most recent existing migration. It also includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
-
-```js
-await umzug.create({ name: 'my-new-migration.js' })
-```
-
-Umzug ships with a barebones default template for js, ts and sql migration files, but you can specify the template for your project when constructing an umzug instance. The `template` property should be a function which receives a filepath string, and returns an array of `[filepath, content]` pairs. Usually, just one pair is needed, but a second could be used to include a "down" migration in a separate file:
-
-```js
-const umzug = new Umzug({
-  migrations: ...,
-  template: filepath => [
-    [
-      filepath,
-      dedent`
-        import { Migration } from '@my-team/migration-type'
-        import { logger } from '@my-team/custom-logger'
-
-        export const up: Migration = params => {
-          logger.info('running migration', params.name)
-        }
-
-        export const down: Migration = params => {
-          logger.info('reverting migration', params.name)
-        }
-      `
-    ],
-  ]
-})
-```
-
-To create blank migration files, return an empty array:
-
-```js
-const umzug = new Umzug({
-  migrations: ...,
-  template: () => [],
-})
-```
-
 ### Events
 
 Umzug is an [emittery event emitter](https://www.npmjs.com/package/emittery). Each of the following events will be called with migration parameters as its payload (with `context`, `name`, and nullable `path` properties). Events are a convenient place to implement application-specific logic that must run around each migration:
@@ -727,6 +685,21 @@ node migrator create --name my-migration.js --folder path/to/directory
 
 The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
 
+This will generate a migration file called `<<timestamp>>.my-migration.js` with the default migration template for `.js` files that ships with Umzug.
+
+Umzug also ships with default templates for [`.ts`, `.cjs`, `.mjs` and `.sql` files](./src/templates.ts). Umzug will choose the template based on the extension you provide in `name`.
+
+You can specify a custom template for your project when constructing an umzug instance via the `template` option. It should be a function which receives a filepath string, and returns an array of `[filepath, content]` pairs. Usually, just one pair is needed, but a second could be used to include a "down" migration in a separate file:
+
+```js
+const umzug = new Umzug({
+  migrations: ...,
+  template: filepath => [
+    [filepath, fs.readFileSync('path/to/your/template/file').toString()],
+  ]
+})
+```
+
 Use `node migrator create --help` for more options:
 
 <!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: create} -->
@@ -776,6 +749,14 @@ Optional arguments:
                         don't! If you're unsure, just ignore this option.
 ```
 <!-- codegen:end -->
+
+### Creating migrations - API
+
+Umzug includes an optional helper for generating migration files. This will, by default, include a timestamp-based prefix and generate a file in the same folder as the most recent existing migration. It also includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
+
+```js
+await umzug.create({ name: 'my-new-migration.js' })
+```
 
 ## License
 

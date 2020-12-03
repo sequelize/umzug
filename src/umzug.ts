@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
+import * as templates from './templates';
 import * as glob from 'glob';
 import { UmzugCLI } from './cli';
 import { MergeExclusive } from './type-util';
@@ -497,45 +498,24 @@ export class Umzug<Ctx> extends emittery.Typed<
 	}
 
 	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
-		const dedent = (content: string) =>
-			content
-				.split('\n')
-				.map(line => line.trim())
-				.join('\n')
-				.trimStart();
-
 		const ext = path.extname(filepath);
-		if (ext === '.js' || ext === '.cjs') {
-			const content = dedent(`
-				exports.up = params => {};
-				exports.down = params => {};
-			`);
-			return [[filepath, content]];
+		if (ext === '.js') {
+			return [[filepath, templates.js]];
 		}
 
-		if (ext === '.ts') {
-			const content = dedent(`
-				import { MigrationFn } from 'umzug';
-
-				export const up: MigrationFn = params => {};
-				export const down: MigrationFn = params => {};
-			`);
-			return [[filepath, content]];
+		if (ext === 'ts') {
+			return [[filepath, templates.ts]];
 		}
 
 		if (ext === '.mjs') {
-			const content = dedent(`
-				export const up = params => {};
-				export const down = params => {};
-			`);
-			return [[filepath, content]];
+			return [[filepath, templates.mjs]];
 		}
 
 		if (ext === '.sql') {
 			const downFilepath = path.join(path.dirname(filepath), 'down', path.basename(filepath));
 			return [
-				[filepath, '-- up migration'],
-				[downFilepath, '-- down migration'],
+				[filepath, templates.sqlUp],
+				[downFilepath, templates.sqlDown],
 			];
 		}
 
