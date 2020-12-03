@@ -128,7 +128,7 @@ export type MigrateDownOptions = MergeExclusive<
 
 export class Umzug<Ctx> extends emittery.Typed<
 	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>> &
-		Record<'beforeAll' | 'afterAll', { context: Ctx }>
+		Record<'beforeAll' | 'afterAll', { batch: string; context: Ctx }>
 > {
 	private readonly storage: UmzugStorage<Ctx>;
 	private readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
@@ -271,12 +271,13 @@ export class Umzug<Ctx> extends emittery.Typed<
 		return migrations.filter(m => !executedMap.has(m.name));
 	}
 
-	private async withBeforeAfterHooks<T>(cb: () => Promise<T>): Promise<T> {
-		await this.emit('beforeAll', { context: this.context });
+	private async runBatch<T>(cb: (batch: string) => Promise<T>): Promise<T> {
+		const batch = new Date().toISOString(); // todo: figure out best format for batch. ULID?
+		await this.emit('beforeAll', { batch, context: this.context });
 		try {
-			return await cb();
+			return await cb(batch);
 		} finally {
-			await this.emit('afterAll', { context: this.context });
+			await this.emit('afterAll', { batch, context: this.context });
 		}
 	}
 
@@ -312,12 +313,12 @@ export class Umzug<Ctx> extends emittery.Typed<
 			return allPending.slice(0, sliceIndex);
 		};
 
-		return this.withBeforeAfterHooks(async () => {
+		return this.runBatch(async batch => {
 			const toBeApplied = await eligibleMigrations();
 
 			for (const m of toBeApplied) {
 				const start = Date.now();
-				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
+				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, batch, context: this.context };
 
 				this.logging({ event: 'migrating', name: m.name });
 				await this.emit('migrating', params);
@@ -387,7 +388,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 			return executedReversed.slice(0, sliceIndex);
 		};
 
-		return this.withBeforeAfterHooks(async () => {
+		return this.runBatch(async () => {
 			const toBeReverted = await eligibleMigrations();
 
 			for (const m of toBeReverted) {
