@@ -4,6 +4,7 @@ module.exports = {
 		ecmaVersion: 2018,
 		sourceType: 'module',
 		project: ['./tsconfig.eslint.json'],
+		extraFileExtensions: ['.md'],
 	},
 	plugins: ['@typescript-eslint/eslint-plugin', 'prettier', 'unicorn', 'jest', 'import', 'codegen'],
 	env: { 'jest/globals': true },
@@ -105,6 +106,14 @@ module.exports = {
 			rules: {
 				'@typescript-eslint/no-unsafe-return': 'off',
 				'@typescript-eslint/no-non-null-assertion': 'off',
+			},
+		},
+		{
+			files: ['*.md'],
+			rules: {
+				'no-trailing-spaces': 'off',
+				'no-multiple-empty-lines': 'off',
+				'unicorn/filename-case': 'off',
 			},
 		},
 	],

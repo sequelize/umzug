@@ -42,13 +42,13 @@ export class FileLocker {
 	}
 
 	/** Attach `beforeAll` and `afterAll` events to an umzug instance which use the specified filepath */
-	static attach(umzug: Umzug<unknown>, params: FileLockerOptions): void {
+	static attach(umzug: Umzug, params: FileLockerOptions): void {
 		const locker = new FileLocker(params);
 		locker.attachTo(umzug);
 	}
 
 	/** Attach `beforeAll` and `afterAll` events to an umzug instance */
-	attachTo(umzug: Umzug<unknown>): void {
+	attachTo(umzug: Umzug): void {
 		umzug.on('beforeAll', async () => this.getLock());
 		umzug.on('afterAll', async () => this.releaseLock());
 	}
