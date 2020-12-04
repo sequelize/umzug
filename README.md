@@ -533,6 +533,8 @@ All events are type-safe, so IDEs will prevent typos and supply strong types for
 
 ### CLI
 
+🚧🚧🚧 The CLI is new to Umzug v3 beta and is not yet stable. Feedback on it is welcome in [discussions](https://github.com/sequelize/umzug/discussions) 🚧🚧🚧
+
 Umzug instances provide a `.runAsCLI()` method. When called, this method will automatically cause your program to become a complete CLI, with help text and such:
 
 ```js
