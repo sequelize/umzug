@@ -14,6 +14,7 @@
 		"lib"
 	],
 	"dependencies": {
+		"@rushstack/ts-command-line": "~4.7.7",
 		"emittery": "~0.7.2",
 		"fs-jetpack": "~4.0.0",
 		"glob": "~7.1.6",
@@ -44,13 +45,14 @@
 		"sinon": "9.2.1",
 		"source-map-support": "0.5.19",
 		"sqlite3": "5.0.0",
+		"strip-ansi": "^6.0.0",
 		"ts-jest": "26.4.4",
 		"typescript": "4.1.2",
 		"uuid": "8.3.1"
 	},
 	"scripts": {
 		"build": "del-cli lib && tsc",
-		"lint": "eslint --ext .js,.ts . --max-warnings 0",
+		"lint": "eslint --ext .js,.ts,.md . --max-warnings 0",
 		"prepare": "npm run build",
 		"release": "np --no-yarn --no-2fa",
 		"pretest": "del-cli test/generated",

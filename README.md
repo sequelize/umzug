@@ -28,6 +28,7 @@ npm install umzug
 	* Auto-completion right in your IDE
 	* Documentation right in your IDE
 * Programmatic API for migrations
+* Built-in [CLI](#cli)
 * Database agnostic
 * Supports logging of migration process
 * Supports multiple storages for migration data
@@ -529,6 +530,237 @@ These events run at the beginning and end of `up` and `down` calls. They'll rece
 The [`FileLocker` class](./src/file-locker.ts) uses `beforeAll` and `afterAll` to implement a simple filesystem-based locking mechanism.
 
 All events are type-safe, so IDEs will prevent typos and supply strong types for the event payloads.
+
+### CLI
+
+🚧🚧🚧 The CLI is new to Umzug v3 beta and is not yet stable. Feedback on it is welcome in [discussions](https://github.com/sequelize/umzug/discussions) 🚧🚧🚧
+
+Umzug instances provide a `.runAsCLI()` method. When called, this method will automatically cause your program to become a complete CLI, with help text and such:
+
+```js
+// migrator.js
+const { Umzug } = require('umzug')
+
+exports.umzug = new Umzug({ ... })
+
+if (require.main === module) {
+  umzug.runAsCLI()
+}
+```
+
+#### CLI Usage
+
+A script like the one above is now a runnable CLI program. You can run `node migrator.js --help` to see how to use it. It will print something like:
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp} -->
+```
+usage: <script> [-h] <command> ...
+
+Umzug migrator
+
+Positional arguments:
+  <command>
+    up        Applies pending migrations
+    down      Revert migrations
+    pending   Lists pending migrations
+    executed  Lists executed migrations
+    create    Create a migration file
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+
+For detailed help about a specific command, use: <script> <command> -h
+```
+<!-- codegen:end -->
+
+#### Running migrations
+
+`node migrator up` and `node migrator down` apply and revert migrations respectively. They're the equivalent of the `.up()` and `.down()` methods.
+
+Use `node migrator up --help` and `node migrator down --help` for options (running "to" a specific migration, passing migration names to be run explicitly, and specifying the rerun behavior):
+
+Up:
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: up} -->
+```
+usage: <script> up [-h] [--to NAME] [--step COUNT] [--name MIGRATION]
+                   [--rerun {THROW,SKIP,ALLOW}]
+                   
+
+Performs all migrations. See --help for more options
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --to NAME             All migrations up to and including this one should be 
+                        applied.
+  --step COUNT          Run this many migrations. If not specified, all will 
+                        be applied.
+  --name MIGRATION      Explicity declare migration name(s) to be applied.
+  --rerun {THROW,SKIP,ALLOW}
+                        Specify what action should be taken when a migration 
+                        that has already been applied is passed to --name. 
+                        The default value is "THROW".
+```
+<!-- codegen:end -->
+
+Down:
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: down} -->
+```
+usage: <script> down [-h] [--to NAME] [--step COUNT] [--name MIGRATION]
+                     [--rerun {THROW,SKIP,ALLOW}]
+                     
+
+Undoes previously-applied migrations. By default, undoes the most recent 
+migration only. Use --help for more options. Useful in development to start 
+from a clean slate. Use with care in production!
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --to NAME             All migrations up to and including this one should be 
+                        reverted. Pass "0" to revert all.
+  --step COUNT          Run this many migrations. If not specified, one will 
+                        be reverted.
+  --name MIGRATION      Explicity declare migration name(s) to be reverted.
+  --rerun {THROW,SKIP,ALLOW}
+                        Specify what action should be taken when a migration 
+                        that has already been reverted is passed to --name. 
+                        The default value is "THROW".
+```
+<!-- codegen:end -->
+
+
+#### Listing migrations
+
+```bash
+node migrator pending # list migrations yet to be run
+node migrator executed # list migrations that have already run
+
+node migrator pending --json # list pending migrations including names and paths, in a json array format
+node migrator executed --json # list executed migrations including names and paths, in a json array format
+
+node migrator pending --help # show help/options
+node migrator executed --help # show help/options
+```
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: pending} -->
+```
+usage: <script> pending [-h] [--json]
+
+Prints migrations returned by `umzug.pending()`. By default, prints migration 
+names one per line.
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+  --json      Print pending migrations in a json format including names and 
+              paths. This allows piping output to tools like jq. Without this 
+              flag, the migration names will be printed one per line.
+```
+<!-- codegen:end -->
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: executed} -->
+```
+usage: <script> executed [-h] [--json]
+
+Prints migrations returned by `umzug.executed()`. By default, prints 
+migration names one per line.
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+  --json      Print executed migrations in a json format including names and 
+              paths. This allows piping output to tools like jq. Without this 
+              flag, the migration names will be printed one per line.
+```
+<!-- codegen:end -->
+
+#### Creating migrations - CLI
+
+Usually, migrations correspond to files on the filesystem. The CLI exposes a way to create migration files easily:
+
+```bash
+node migrator create --name my-migration.js
+```
+
+This will create a file with a name like `2000.12.25T12.34.56.my-migration.js` in the same directory as the most recent migration file. If it's the very first migration file, you need to specify the folder explicitly:
+
+```bash
+node migrator create --name my-migration.js --folder path/to/directory
+```
+
+The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
+
+This will generate a migration file called `<<timestamp>>.my-migration.js` with the default migration template for `.js` files that ships with Umzug.
+
+Umzug also ships with default templates for [`.ts`, `.cjs`, `.mjs` and `.sql` files](./src/templates.ts). Umzug will choose the template based on the extension you provide in `name`.
+
+You can specify a custom template for your project when constructing an umzug instance via the `template` option. It should be a function which receives a filepath string, and returns an array of `[filepath, content]` pairs. Usually, just one pair is needed, but a second could be used to include a "down" migration in a separate file:
+
+```js
+const umzug = new Umzug({
+  migrations: ...,
+  template: filepath => [
+    [filepath, fs.readFileSync('path/to/your/template/file').toString()],
+  ]
+})
+```
+
+The create command includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations.
+
+Use `node migrator create --help` for more options:
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: create} -->
+```
+usage: <script> create [-h] --name NAME [--prefix {TIMESTAMP,DATE,NONE}]
+                       [--folder PATH] [--allow-extension EXTENSION]
+                       [--skip-verify] [--allow-confusing-ordering]
+                       
+
+Generates a placeholder migration file using a timestamp as a prefix. By 
+default, mimics the last existing migration, or guesses where to generate the 
+file if no migration exists yet.
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --name NAME           The name of the migration file. e.g. my-migration.js, 
+                        my-migration.ts or my-migration.sql. Note - a prefix 
+                        will be added to this name, usually based on a 
+                        timestamp. See --prefix
+  --prefix {TIMESTAMP,DATE,NONE}
+                        The prefix format for generated files. TIMESTAMP uses 
+                        a second-resolution timestamp, DATE uses a 
+                        day-resolution timestamp, and NONE removes the prefix 
+                        completely. The default value is "TIMESTAMP".
+  --folder PATH         Path on the filesystem where the file should be 
+                        created. The new migration will be created as a 
+                        sibling of the last existing one if this is omitted.
+  --allow-extension EXTENSION
+                        Allowable extension for created files. By default .js,
+                         .ts and .sql files can be created. To create txt 
+                        file migrations, for example, you could use '--name 
+                        my-migration.txt --allow-extension .txt' This 
+                        parameter may alternatively be specified via the 
+                        UMZUG_ALLOW_EXTENSION environment variable.
+  --skip-verify         By default, the generated file will be checked after 
+                        creation to make sure it is detected as a pending 
+                        migration. This catches problems like creation in the 
+                        wrong folder, or invalid naming conventions. This 
+                        flag bypasses that verification step.
+  --allow-confusing-ordering
+                        By default, an error will be thrown if you try to 
+                        create a migration that will run before a migration 
+                        that already exists. This catches errors which can 
+                        cause problems if you change file naming conventions. 
+                        If you use a custom ordering system, you can disable 
+                        this behavior, but it's strongly recommended that you 
+                        don't! If you're unsure, just ignore this option.
+```
+<!-- codegen:end -->
+
+### Creating migrations - API
+
+Umzug includes an optional helper for generating migration files. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
+
+```js
+await umzug.create({ name: 'my-new-migration.js' })
+```
 
 ## License
 

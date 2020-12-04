@@ -1,7 +1,10 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage, StorableMigration } from './storage';
+import * as templates from './templates';
 import * as glob from 'glob';
+import { UmzugCLI } from './cli';
 import { MergeExclusive } from './type-util';
 import * as emittery from 'emittery';
 
@@ -12,15 +15,29 @@ export type Promisable<T> = T | PromiseLike<T>;
 export type LogFn = (message: Record<string, unknown>) => void;
 
 /** Constructor options for the Umzug class */
-export interface UmzugOptions<Ctx = never> {
+export interface UmzugOptions<Ctx = unknown> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
 	logger: Record<'info' | 'warn' | 'error' | 'debug', LogFn> | undefined;
 	/** The storage implementation. By default, `JSONStorage` will be used */
-	storage?: UmzugStorage;
+	storage?: UmzugStorage<Ctx>;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
+	/** Options for file creation */
+	create?: {
+		/**
+		 * A function for generating placeholder migration files. Specify to make sure files generated via CLI or using `.create` follow team conventions.
+		 * Should return an array of [filepath, content] pairs. Usually, only one pair is needed, but to put `down` migrations in a separate
+		 * file, more than one can be returned.
+		 */
+		template?: (filepath: string) => Array<[string, string]>;
+		/**
+		 * The default folder that new migration files should be generated in. If this is not specified, the new migration file will be created
+		 * in the same folder as the last existing migration. The value here can be overriden by passing `folder` when calling `create`.
+		 */
+		folder?: string;
+	};
 }
 
 /** Serializeable metadata for a migration. The structure returned by the external-facing `pending()` and `executed()` methods. */
@@ -38,14 +55,17 @@ export interface MigrationParams<T> {
 	context: T;
 }
 
+/** A callable function for applying or reverting a migration  */
+export type MigrationFn<T = unknown> = (params: MigrationParams<T>) => Promise<unknown>;
+
 /**
  * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments, and an optional `down` function to revert it.
  */
 export interface RunnableMigration<T> extends MigrationMeta {
 	/** The effect of applying the migration */
-	up: (params: MigrationParams<T>) => Promise<unknown>;
+	up: MigrationFn<T>;
 	/** The effect of reverting the migration */
-	down?: (params: MigrationParams<T>) => Promise<unknown>;
+	down?: MigrationFn<T>;
 }
 
 /** Glob instructions for migration files */
@@ -126,12 +146,13 @@ export type MigrateDownOptions = MergeExclusive<
 	}
 >;
 
-export class Umzug<Ctx> extends emittery.Typed<
+export class Umzug<Ctx = unknown> extends emittery.Typed<
 	Record<'migrating' | 'migrated' | 'reverting' | 'reverted', MigrationParams<Ctx>> &
 		Record<'beforeAll' | 'afterAll', { batch: string; context: Ctx }>
 > {
 	private readonly storage: UmzugStorage<Ctx>;
-	private readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
+	/** @internal */
+	readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
 	/**
 	 * Compile-time only property for type inference. After creating an Umzug instance, it can be used as type alias for
@@ -158,7 +179,10 @@ export class Umzug<Ctx> extends emittery.Typed<
 	};
 
 	/** creates a new Umzug instance */
-	constructor(private readonly options: UmzugOptions<Ctx>) {
+	constructor(
+		/** @internal */
+		readonly options: UmzugOptions<Ctx>
+	) {
 		super();
 
 		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
@@ -180,7 +204,7 @@ export class Umzug<Ctx> extends emittery.Typed<
 		}
 
 		const ext = path.extname(filepath);
-		const canRequire = ext === '.js' || ext === '.ts';
+		const canRequire = ext === '.js' || ext === '.cjs' || ext === '.ts';
 		const languageSpecificHelp: Record<string, string> = {
 			'.ts':
 				"TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
@@ -214,6 +238,28 @@ export class Umzug<Ctx> extends emittery.Typed<
 			down: async ({ context }) => getModule().down({ path: filepath, name, context }) as unknown,
 		};
 	};
+
+	/**
+	 * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
+	 * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
+	 */
+	protected getCli(): UmzugCLI {
+		return new UmzugCLI(this);
+	}
+
+	/**
+	 * 'Run' an umzug instance as a CLI. This will read `process.argv`, execute commands based on that, and call
+	 * `process.exit` after running. If that isn't what you want, stick to the programmatic API.
+	 * You probably want to run only if a file is executed as the process's 'main' module with something like:
+	 * @example
+	 * if (require.main === module) {
+	 *   myUmzugInstance.runAsCLI()
+	 * }
+	 */
+	async runAsCLI(argv?: string[]): Promise<boolean> {
+		const cli = this.getCli();
+		return cli.execute(argv);
+	}
 
 	/**
 	 * create a clone of the current Umzug instance, allowing customising the list of migrations.
@@ -409,6 +455,106 @@ export class Umzug<Ctx> extends emittery.Typed<
 
 			return toBeReverted.map(m => ({ name: m.name, path: m.path }));
 		});
+	}
+
+	async create(options: {
+		name: string;
+		folder?: string;
+		prefix?: 'TIMESTAMP' | 'DATE' | 'NONE';
+		allowExtension?: string;
+		allowConfusingOrdering?: boolean;
+		skipVerify?: boolean;
+	}): Promise<void> {
+		const isoDate = new Date().toISOString();
+		const prefixes = {
+			TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+			DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
+			NONE: '',
+		};
+		const prefixType = options.prefix ?? 'TIMESTAMP';
+		const fileBasename = [prefixes[prefixType], options.name].filter(Boolean).join('.');
+
+		const allowedExtensions = options.allowExtension
+			? [options.allowExtension]
+			: ['.js', '.cjs', '.mjs', '.ts', '.sql'];
+
+		const existing = await this.migrations();
+		const last = existing[existing.length - 1];
+
+		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
+		if (confusinglyOrdered && !options.allowConfusingOrdering) {
+			throw new Error(
+				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
+			);
+		}
+
+		const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path));
+
+		if (!folder) {
+			throw new Error(`Couldn't infer a directory to generate migration file in. Pass folder explicitly`);
+		}
+
+		const filepath = path.join(folder, fileBasename);
+
+		const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
+
+		const toWrite = template(filepath);
+		if (toWrite.length === 0) {
+			toWrite.push([filepath, '']);
+		}
+
+		toWrite.forEach(pair => {
+			if (!Array.isArray(pair) || pair.length !== 2) {
+				throw new Error(
+					`Expected [filepath, content] pair. Check that the file template function returns an array of pairs.`
+				);
+			}
+
+			const ext = path.extname(pair[0]);
+			if (!allowedExtensions.includes(ext)) {
+				const allowStr = allowedExtensions.join(', ');
+				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for allowExtension to avoid this error.`;
+				throw new Error(message);
+			}
+
+			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
+			fs.writeFileSync(pair[0], pair[1]);
+			this.logging({ event: 'created', path: pair[0] });
+		});
+
+		if (!options.skipVerify) {
+			const pending = await this.pending();
+			if (!pending.some(p => p.path && path.resolve(p.path) === path.resolve(filepath))) {
+				throw new Error(
+					`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this. Use skipVerify to bypass this error.`
+				);
+			}
+		}
+	}
+
+	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
+		const ext = path.extname(filepath);
+		if (ext === '.js' || ext === '.cjs') {
+			return [[filepath, templates.js]];
+		}
+
+		if (ext === '.ts') {
+			return [[filepath, templates.ts]];
+		}
+
+		if (ext === '.mjs') {
+			return [[filepath, templates.mjs]];
+		}
+
+		if (ext === '.sql') {
+			const downFilepath = path.join(path.dirname(filepath), 'down', path.basename(filepath));
+			return [
+				[filepath, templates.sqlUp],
+				[downFilepath, templates.sqlDown],
+			];
+		}
+
+		return [];
 	}
 
 	private findNameIndex(migrations: Array<RunnableMigration<Ctx>>, name: string) {
