@@ -4,7 +4,7 @@ module.exports = {
 		ecmaVersion: 2018,
 		sourceType: 'module',
 		project: ['./tsconfig.eslint.json'],
-		extraFileExtensions: ['.md'],
+		extraFileExtensions: ['.md', '.mjs'],
 	},
 	plugins: ['@typescript-eslint/eslint-plugin', 'prettier', 'unicorn', 'jest', 'import', 'codegen'],
 	env: { 'jest/globals': true },
@@ -18,7 +18,7 @@ module.exports = {
 		'xo',
 		'xo-typescript',
 	],
-	ignorePatterns: ['lib', 'node_modules', 'test/generated', 'test/fixtures/javascript', 'coverage'],
+	ignorePatterns: ['lib', 'node_modules', 'test/generated', 'test/fixtures/javascript', 'coverage', 'examples/**/*.md'],
 	globals: { __dirname: true, process: true },
 	rules: {
 		'codegen/codegen': 'warn',
@@ -104,6 +104,18 @@ module.exports = {
 		{
 			files: ['test/**/*.ts'],
 			rules: {
+				'@typescript-eslint/no-unsafe-return': 'off',
+				'@typescript-eslint/no-non-null-assertion': 'off',
+			},
+		},
+		{
+			files: ['examples/**/*.{cjs,mjs,js,ts}'],
+			rules: {
+				'@typescript-eslint/no-unused-vars': 'off',
+				'unicorn/filename-case': 'off',
+				'no-console': 'off',
+				'@typescript-eslint/no-floating-promises': 'off',
+				'@typescript-eslint/no-var-requires': 'off',
 				'@typescript-eslint/no-unsafe-return': 'off',
 				'@typescript-eslint/no-non-null-assertion': 'off',
 			},
