@@ -4,6 +4,9 @@
     "config:base",
     ":semanticCommits"
   ],
+  "schedule": [
+    "before 3am on Monday"
+  ],
   "prConcurrentLimit": 4,
   "dependencyDashboard": true,
   "dependencyDashboardAutoclose": true,
