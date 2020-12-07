@@ -1,0 +1,1 @@
+This folder contains several minimal umzug setups. You can try them out by cloning this repo, running `npm install`, then `cd`ing into the folders. Or just browse them on GitHub and copy-paste what you need. Each has a short readme.

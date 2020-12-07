@@ -32,12 +32,13 @@ npm install umzug
 * Database agnostic
 * Supports logging of migration process
 * Supports multiple storages for migration data
+* [Usage examples](./examples)
 
 ## Documentation
 
 ### Minimal Example
 
-The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage.
+The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage. There are several more involved examples covering a few different scenarios in the [examples folder](./examples).
 
 ```js
 // index.js

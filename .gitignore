@@ -1,7 +1,10 @@
-node_modules
+node_modules/*
 lib
 umzug.json
 .vscode
 coverage
 test/generated
 *.tgz
+examples/*/db.sqlite
+# to make the examples realistic, they `import {} from 'umzug'`. So there's a passthrough script to the compiled library in examples/node_modules/umzug/index.js
+!examples/node_modules/umzug/*
