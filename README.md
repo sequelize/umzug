@@ -161,7 +161,7 @@ const { Umzug } = require('umzug');
 const umzug = new Umzug({ /* ... options ... */ });
 ```
 
-Detailed documentation for these options are in the `UmzugConstructorOptions` TypeScript interface, which can be found in [src/types.ts](./src/types.ts).
+Detailed documentation for these options are in the `UmzugOptions` TypeScript interface, which can be found in [src/types.ts](./src/types.ts).
 
 #### Getting all pending migrations
 

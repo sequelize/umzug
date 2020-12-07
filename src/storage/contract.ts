@@ -1,4 +1,4 @@
-import { MigrationParams } from '../umzug';
+import { MigrationParams } from '../types';
 
 export interface UmzugStorage<Ctx = unknown> {
 	/**
