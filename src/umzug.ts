@@ -18,7 +18,7 @@ import {
 	UmzugEvents,
 	UmzugOptions,
 } from './types';
-import * as verror from 'verror';
+import * as VError from 'verror';
 
 const globAsync = promisify(glob);
 
@@ -26,17 +26,17 @@ interface MigrationErrorParams extends MigrationParams<unknown> {
 	direction: 'up' | 'down';
 }
 
-export class Rethrowable extends verror.VError {
-	static wrap(throwable: unknown): verror {
-		if (throwable instanceof verror.VError) {
+export class Rethrowable extends VError {
+	static wrap(throwable: unknown): VError {
+		if (throwable instanceof VError) {
 			return throwable;
 		}
 
 		if (throwable instanceof Error) {
-			return new verror.VError(throwable, 'Original error');
+			return new VError(throwable, 'Original error');
 		}
 
-		return new verror.VError(
+		return new VError(
 			{
 				info: { original: throwable },
 			},
@@ -49,7 +49,7 @@ export class Rethrowable extends verror.VError {
 		throw Rethrowable.wrap(original);
 	}
 }
-export class MigrationError extends verror.VError {
+export class MigrationError extends VError {
 	constructor(migration: MigrationErrorParams, original: unknown) {
 		super(
 			{
