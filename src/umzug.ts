@@ -196,6 +196,34 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	}
 
 	/**
+	 * Introduce umzug to existing databases/systems by baselining them at a specific migration. This will cause `up` to ignore all migrations
+	 * up to and including the baseline version. Newer migrations will then be applied as usual.
+	 */
+	async baseline(params: { name: string }): Promise<void> {
+		const all = await this.migrations();
+
+		const executed = await this._executed();
+		const executedNames = new Set(executed.map(e => e.name));
+
+		const target = all.slice(0, this.findNameIndex(all, params.name) + 1);
+		const targetNames = new Set(target.map(t => t.name));
+
+		this.logging({ event: 'baseline:before', name: executed[executed.length - 1]?.name });
+
+		for (const m of executed.filter(e => !targetNames.has(e.name)).reverse()) {
+			this.logging({ event: 'baseline:removing', name: m.name });
+			await this.storage.unlogMigration(m.name, { context: this.context, name: m.name, path: m.path });
+		}
+
+		for (const m of target.filter(t => !executedNames.has(t.name))) {
+			this.logging({ event: 'baseline:adding', name: m.name });
+			await this.storage.logMigration(m.name, { context: this.context, name: m.name, path: m.path });
+		}
+
+		this.logging({ event: 'baseline:after', name: target[target.length - 1]?.name });
+	}
+
+	/**
 	 * Apply migrations. By default, runs all pending migrations.
 	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
@@ -406,7 +434,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		return [];
 	}
 
-	private findNameIndex(migrations: Array<RunnableMigration<Ctx>>, name: string) {
+	private findNameIndex(migrations: ReadonlyArray<RunnableMigration<Ctx>>, name: string) {
 		const index = migrations.findIndex(m => m.name === name);
 		if (index === -1) {
 			throw new Error(`Couldn't find migration to apply with name ${JSON.stringify(name)}`);

@@ -287,6 +287,32 @@ describe('alternate migration inputs', () => {
 		]);
 	});
 
+	test('baseline', async () => {
+		const spy = jest.fn();
+		const umzug = new Umzug({
+			migrations: [
+				{ name: 'm1', up: spy, down: spy },
+				{ name: 'm2', up: spy, down: spy },
+				{ name: 'm3', up: spy, down: spy },
+				{ name: 'm4', up: spy, down: spy },
+				{ name: 'm5', up: spy, down: spy },
+			],
+			logger: undefined,
+		});
+
+		expect(names(await umzug.executed())).toEqual([]);
+
+		await umzug.baseline({ name: 'm3' });
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3']);
+		expect(spy).not.toHaveBeenCalled();
+
+		await umzug.baseline({ name: 'm2' });
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
+		expect(spy).not.toHaveBeenCalled();
+	});
+
 	test('custom storage', async () => {
 		const spy = jest.fn();
 

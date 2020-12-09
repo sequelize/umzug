@@ -120,6 +120,41 @@ export class DownAction extends ApplyMigrationsAction {
 	}
 }
 
+export class BaselineAction extends cli.CommandLineAction {
+	private _params: ReturnType<typeof BaselineAction._defineParameters>;
+
+	constructor(private readonly umzug: Umzug) {
+		super({
+			actionName: 'baseline',
+			summary: `Baselines an existing system to a specific migration`,
+			documentation:
+				`Running this records all migrations up to the requested one as applied, and un-logs any others. ` +
+				`Migrations after the baselined one can then be applied as usual.` +
+				`This can be useful for introducing Umzug to an existing database, for example.`,
+		});
+	}
+
+	private static _defineParameters(action: cli.CommandLineAction) {
+		return {
+			name: action.defineStringParameter({
+				parameterLongName: '--name',
+				argumentName: 'MIGRATION',
+				description: `Baseline migrations to this one. All migrations up to and including this one will be recorded as applied.`,
+				required: true,
+			}),
+		};
+	}
+
+	onDefineParameters(): void {
+		this._params = BaselineAction._defineParameters(this);
+	}
+
+	async onExecute(): Promise<void> {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		await this.umzug.baseline({ name: this._params.name.value! });
+	}
+}
+
 export class ListAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ListAction._defineParameters>;
 
@@ -253,6 +288,7 @@ export class UmzugCLI extends cli.CommandLineParser {
 		this.addAction(new ListAction('pending', umzug));
 		this.addAction(new ListAction('executed', umzug));
 		this.addAction(new CreateAction(umzug));
+		this.addAction(new BaselineAction(umzug));
 	}
 
 	onDefineParameters(): void {}
