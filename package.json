@@ -15,10 +15,12 @@
 	],
 	"dependencies": {
 		"@rushstack/ts-command-line": "~4.7.7",
+		"@types/verror": "^1.10.4",
 		"emittery": "~0.7.2",
 		"fs-jetpack": "~4.0.0",
 		"glob": "~7.1.6",
-		"type-fest": "~0.19.0"
+		"type-fest": "~0.19.0",
+		"verror": "^1.10.0"
 	},
 	"devDependencies": {
 		"@types/jest": "26.0.16",

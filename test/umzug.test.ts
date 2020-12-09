@@ -2,6 +2,7 @@ import { memoryStorage, RerunBehavior, Umzug } from '../src';
 import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
+import * as VError from 'verror';
 
 jest.mock('../src/storage', () => {
 	const storage = jest.requireActual('../src/storage');
@@ -371,10 +372,105 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, 'migration1-up');
 	});
 
+	test('errors are wrapped helpfully', async () => {
+		// Raw errors usually won't tell you which migration threw. This test ensures umzug adds that information.
+		const umzug = new Umzug({
+			migrations: [
+				{
+					name: 'm1',
+					up: async () => {},
+					down: async () => Promise.reject(new Error('Some cryptic failure')),
+				},
+				{
+					name: 'm2',
+					up: async () => Promise.reject(new Error('Some cryptic failure')),
+					down: async () => {},
+				},
+			],
+			logger: undefined,
+		});
+
+		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"up migration m2 failed: Original error: Some cryptic failure"`
+		);
+
+		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"down migration m1 failed: Original error: Some cryptic failure"`
+		);
+	});
+
+	test('Error causes are propagated properly', async () => {
+		const umzug = new Umzug({
+			migrations: [
+				{
+					name: 'm1',
+					up: async () => {},
+					down: async () => Promise.reject(new VError({ info: { extra: 'detail' } }, 'Some cryptic failure')),
+				},
+				{
+					name: 'm2',
+					up: async () => Promise.reject(new VError({ info: { extra: 'detail' } }, 'Some cryptic failure')),
+					down: async () => {},
+				},
+			],
+			logger: undefined,
+		});
+
+		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"up migration m2 failed: Some cryptic failure"`
+		);
+
+		// slightly weird format verror uses, not worth validating much more than that the `cause` is captured
+		await expect(umzug.up()).rejects.toMatchObject({
+			jse_cause: {
+				jse_info: { extra: 'detail' },
+			},
+		});
+
+		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"down migration m1 failed: Some cryptic failure"`
+		);
+
+		await expect(umzug.down()).rejects.toMatchObject({
+			jse_cause: {
+				jse_info: { extra: 'detail' },
+			},
+		});
+	});
+
+	test('non-error throwables are wrapped helpfully', async () => {
+		// Migration errors usually won't tell you which migration threw. This test ensures umzug adds that information.
+		const umzug = new Umzug({
+			migrations: [
+				{
+					name: 'm1',
+					up: async () => {},
+					// eslint-disable-next-line prefer-promise-reject-errors
+					down: async () => Promise.reject('Some cryptic failure'),
+				},
+				{
+					name: 'm2',
+					// eslint-disable-next-line prefer-promise-reject-errors
+					up: async () => Promise.reject('Some cryptic failure'),
+					down: async () => {},
+				},
+			],
+			logger: undefined,
+		});
+
+		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"up migration m2 failed: Non-error value thrown. See info for full props: Some cryptic failure"`
+		);
+
+		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
+			`"down migration m1 failed: Non-error value thrown. See info for full props: Some cryptic failure"`
+		);
+	});
+
 	test('typescript migration files', async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/typescript'), {
 			'm1.ts': `export const up = () => {}; export const down = () => {}`,
-			'm2.ts': `throw Error('Error to simulate typescript modules not being registered')`,
+			'm2.ts': `throw SyntaxError('Fake syntax error to simulate typescript modules not being registered')`,
 		});
 		syncer.sync();
 
@@ -392,7 +488,7 @@ describe('alternate migration inputs', () => {
 		expect([names(await umzug.pending()), names(await umzug.executed())]).toEqual([['m2.ts'], ['m1.ts']]);
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(`
-			"Error to simulate typescript modules not being registered
+			"up migration m2.ts failed: Original error: Fake syntax error to simulate typescript modules not being registered
 
 			TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
 		`);
