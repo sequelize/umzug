@@ -532,6 +532,26 @@ The [`FileLocker` class](./src/file-locker.ts) uses `beforeAll` and `afterAll` t
 
 All events are type-safe, so IDEs will prevent typos and supply strong types for the event payloads.
 
+### Errors
+
+When a migration throws an error, it will be wrapped in a `MigrationError` which captures the migration metadata (name, path etc.) as well as the original error message, and _will be rethrown_. In most cases, this is exppected behaviour, and doesn't require any special handling beyond standard error logging setups.
+
+If you expect failures and want to try to recover from them, you will need to try-catch the call to `umzug.up()`. You can access the original error from the `.cause` property if necessary:
+
+```js
+try {
+  await umzug.up();
+} catch (e) {
+  if (e instanceof MigrationError) {
+    const original = e.cause;
+    // do something with the original error here
+  }
+  throw e;
+}
+```
+
+Under the hood, [verror](https://npmjs.com/package/verror) is being used to wrap errors.
+
 ### CLI
 
 🚧🚧🚧 The CLI is new to Umzug v3 beta and is not yet stable. Feedback on it is welcome in [discussions](https://github.com/sequelize/umzug/discussions) 🚧🚧🚧
