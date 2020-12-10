@@ -1,6 +1,6 @@
 import { StorableMigration, UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
-import { MigrationParams } from '../umzug';
+import { MigrationParams } from '../types';
 
 interface ModelTempInterface extends ModelClass, Record<string, any> {}
 

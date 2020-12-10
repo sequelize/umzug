@@ -5,7 +5,7 @@ import * as typeFest from 'type-fest';
  * Create a type that has mutually exclusive keys.
  * Wrapper for @see `import('type-fest').MergeExclusive` that works for up to four types
  */
-type MergeExclusive<A, B, C = never, D = never> = typeFest.MergeExclusive<
+type MergeExclusive<A, B, C = {}, D = {}> = typeFest.MergeExclusive<
 	typeFest.MergeExclusive<A, B>,
 	typeFest.MergeExclusive<C, D>
 >;
@@ -52,6 +52,7 @@ export interface MigrationMeta {
 export interface MigrationParams<T> {
 	name: string;
 	path?: string;
+	/** An optional batch identifier, which indicates the group of migrations that this one was applied with. Note - not all storages keep track of the batch, this is a feature which allows batched rollback. */
 	batch?: string;
 	context: T;
 }

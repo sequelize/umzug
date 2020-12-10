@@ -1,4 +1,4 @@
-import { MigrationParams } from '../umzug';
+import { MigrationParams } from '../types';
 import { StorableMigration, UmzugStorage } from './contract';
 
 type AnyObject = Record<string, any>;

@@ -1,9 +1,9 @@
 import { MigrationParams } from '../types';
 
-export interface StorableMigration {
+export type StorableMigration = {
 	name: string;
 	batch?: string;
-}
+};
 
 export interface UmzugStorage<Ctx = unknown> {
 	/**

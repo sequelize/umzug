@@ -114,7 +114,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		this.options.logger?.info(message);
 	}
 
-	static defaultResolver: Resolver<unknown> = ({ name, path: filepath }) => {
+	static defaultResolver: Resolver<unknown> = ({ name, path: filepath, batch }) => {
 		if (!filepath) {
 			throw new Error(`Can't use default resolver for non-filesystem migrations`);
 		}
@@ -150,6 +150,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		return {
 			name,
 			path: filepath,
+			batch,
 			up: async ({ context }) => getModule().up({ path: filepath, name, context }) as unknown,
 			down: async ({ context }) => getModule().down({ path: filepath, name, context }) as unknown,
 		};
@@ -194,10 +195,10 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	}
 
 	/** Get the list of migrations which have already been applied */
-	async executed(): Promise<MigrationMeta[]> {
+	async executed(): Promise<Array<MigrationMeta & { batch: string | undefined }>> {
 		const list = await this._executed();
 		// We do the following to not expose the `up` and `down` functions to the user
-		return list.map(m => ({ name: m.name, path: m.path }));
+		return list.map(m => ({ name: m.name, path: m.path, batch: m.batch }));
 	}
 
 	/**
@@ -309,7 +310,9 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		const executed = await this._executed();
 		const last = executed[executed.length - 1];
 		if (!last?.batch) {
-			throw new Error(`Can't rollback; didn't find a batch for most recent migration ${last?.name}`);
+			throw new Error(
+				`Can't rollback; didn't find a batch for most recent migration ${last?.name}. Use \`down\` instead.`
+			);
 		}
 
 		return this.down({ batch: last.batch });
