@@ -25,7 +25,7 @@ export interface UmzugOptions<Ctx = unknown> {
 	storage?: UmzugStorage<Ctx>;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
-	/** A function to return a batch identifier. By default, an [ULID](https://npmjs.com/package/ulid) will be generated to ensure uniqueness and sortability, but this could be changed to a UUID or a timestamp. */
+	/** A function to return a batch identifier. By default, an [ULID](https://github.com/ulid/spec) will be generated to ensure uniqueness and sortability, but this could be changed to a UUID or a timestamp. */
 	batch?: () => string;
 	/** Options for file creation */
 	create?: {
