@@ -1,5 +1,5 @@
 import { Sequelize, QueryInterface } from 'sequelize';
-import { SequelizeStorage } from '../src';
+import { MigrationParams, SequelizeStorage } from '../src';
 import { Umzug } from '../src/umzug';
 import { fsSyncer } from 'fs-syncer';
 import * as _path from 'path';
@@ -122,7 +122,7 @@ describe('v2 back compat', () => {
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['migrations/*.js', { cwd: baseDir }],
-				resolve: ({ name, path, context }) => {
+				resolve: ({ name, path, context }: MigrationParams<typeof queryInterface>) => {
 					// umzug v2.x received context directly - this resolve function supports migrations written for v2
 					type MigrationFnV2 = (qi: QueryInterface) => Promise<unknown>;
 					// eslint-disable-next-line @typescript-eslint/no-var-requires
