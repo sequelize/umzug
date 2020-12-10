@@ -25,6 +25,8 @@ export interface UmzugOptions<Ctx = unknown> {
 	storage?: UmzugStorage<Ctx>;
 	/** An optional context object, which will be passed to each migration function, if defined */
 	context?: Ctx;
+	/** A function to return a batch identifier. By default, an [ULID](https://npmjs.com/package/ulid) will be generated to ensure uniqueness and sortability, but this could be changed to a UUID or a timestamp. */
+	batch?: () => string;
 	/** Options for file creation */
 	create?: {
 		/**
@@ -53,7 +55,7 @@ export interface MigrationParams<T> {
 	name: string;
 	path?: string;
 	/** An optional batch identifier, which indicates the group of migrations that this one was applied with. Note - not all storages keep track of the batch, this is a feature which allows batched rollback. */
-	batch?: string;
+	batch?: string | undefined;
 	context: T;
 }
 
@@ -92,7 +94,7 @@ export type InputMigrations<T> =
 	| ((context: T) => Promisable<Array<RunnableMigration<T>>>);
 
 /** A function which takes a migration name, path and context, and returns an object with `up` and `down` functions. */
-export type Resolver<T> = (params: MigrationParams<T>) => RunnableMigration<T>;
+export type Resolver<T> = (params: Omit<MigrationParams<T>, 'batch'>) => RunnableMigration<T>;
 
 export const RerunBehavior = {
 	/** Hard error if an up migration that has already been run, or a down migration that hasn't, is encountered */

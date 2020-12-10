@@ -185,7 +185,7 @@ export class SequelizeStorage implements UmzugStorage {
 		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
 		return migrations.map(migration => {
 			const name = migration[this.columnName];
-			const batch = migration[this.batchColumnName];
+			const batch = migration[this.batchColumnName] ?? undefined;
 			if (typeof name !== 'string') {
 				throw new TypeError(`Unexpected migration name type: expected string, got ${typeof name}`);
 			}

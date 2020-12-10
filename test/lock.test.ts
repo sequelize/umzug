@@ -32,8 +32,12 @@ describe('locks', () => {
 		await expect(promise1.then(names)).resolves.toEqual(['m1', 'm2']);
 
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
-		expect(syncer.read()).toEqual({
-			'storage.json': JSON.stringify(['m1', 'm2'], null, 2),
-		});
+
+		const files: any = syncer.read();
+		expect(files['storage.json']).toBeDefined();
+		expect(JSON.parse(files['storage.json'])).toEqual([
+			{ name: 'm1', batch: expect.any(String) },
+			{ name: 'm2', batch: expect.any(String) },
+		]);
 	});
 });

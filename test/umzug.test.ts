@@ -42,6 +42,7 @@ describe('basic usage', () => {
 			context: { someCustomSqlClient: {} },
 			name: 'm1.js',
 			path: path.join(syncer.baseDir, 'm1.js'),
+			batch: expect.any(String),
 		});
 	});
 });
@@ -108,8 +109,17 @@ describe('alternate migration inputs', () => {
 
 		expect(spy).toHaveBeenCalledTimes(1);
 		expect(spy).toHaveBeenNthCalledWith(1, 'up', {
-			resolveParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
-			upParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+			resolveParams: {
+				name: 'migration1.sql',
+				path: path.join(syncer.baseDir, 'migration1.sql'),
+				context,
+			},
+			upParams: {
+				name: 'migration1.sql',
+				path: path.join(syncer.baseDir, 'migration1.sql'),
+				context,
+				batch: expect.any(String),
+			},
 		});
 
 		spy.mockClear();
@@ -118,8 +128,17 @@ describe('alternate migration inputs', () => {
 
 		expect(spy).toHaveBeenCalledTimes(1);
 		expect(spy).toHaveBeenNthCalledWith(1, 'down', {
-			resolveParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
-			downParams: { name: 'migration1.sql', path: path.join(syncer.baseDir, 'migration1.sql'), context },
+			resolveParams: {
+				name: 'migration1.sql',
+				path: path.join(syncer.baseDir, 'migration1.sql'),
+				context,
+			},
+			downParams: {
+				name: 'migration1.sql',
+				path: path.join(syncer.baseDir, 'migration1.sql'),
+				context,
+				batch: expect.any(String),
+			},
 		});
 	});
 
@@ -295,7 +314,7 @@ describe('alternate migration inputs', () => {
 			migrations: [{ name: 'm1', up: async () => {} }],
 			context: { someCustomSqlClient: {} },
 			storage: {
-				executed: async (...args) => spy('executed', ...args),
+				executed: async (...args) => spy.mockReturnValueOnce(Promise.resolve([]))('executed', ...args),
 				logMigration: async (...args) => spy('logMigration', ...args),
 				unlogMigration: async (...args) => spy('unlogMigration', ...args),
 			},
@@ -305,8 +324,21 @@ describe('alternate migration inputs', () => {
 		await umzug.up();
 
 		expect(spy.mock.calls).toEqual([
-			['executed', { context: { someCustomSqlClient: {} } }],
-			['logMigration', 'm1', { name: 'm1', context: { someCustomSqlClient: {} } }],
+			[
+				'executed',
+				{
+					context: { someCustomSqlClient: {} },
+				},
+			],
+			[
+				'logMigration',
+				'm1',
+				{
+					name: 'm1',
+					context: { someCustomSqlClient: {} },
+					batch: expect.any(String),
+				},
+			],
 		]);
 
 		spy.mockClear();
@@ -315,8 +347,21 @@ describe('alternate migration inputs', () => {
 		await umzug.down();
 
 		expect(spy.mock.calls).toEqual([
-			['executed', { context: { someCustomSqlClient: {} } }],
-			['unlogMigration', 'm1', { name: 'm1', context: { someCustomSqlClient: {} } }],
+			[
+				'executed',
+				{
+					context: { someCustomSqlClient: {} },
+				},
+			],
+			[
+				'unlogMigration',
+				'm1',
+				{
+					name: 'm1',
+					context: { someCustomSqlClient: {} },
+					batch: expect.any(String),
+				},
+			],
 		]);
 	});
 
@@ -729,6 +774,7 @@ describe('types', () => {
 		expectTypeOf(Umzug).instance.toHaveProperty('executed').returns.resolves.items.toEqualTypeOf<{
 			name: string;
 			path?: string;
+			batch: string | undefined;
 		}>();
 	});
 

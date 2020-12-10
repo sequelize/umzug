@@ -93,7 +93,7 @@ describe('MongoDBStorage', () => {
 			const storage = new MongoDBStorage({ collection: mockCollection });
 			const mockToArray = mockCollection.find().sort().toArray;
 			mockToArray.mockReturnValue([{ migrationName: 'm1.txt' }]);
-			expect(await storage.executed()).toEqual(['m1.txt']);
+			expect(await storage.executed()).toEqual([{ name: 'm1.txt' }]);
 		});
 	});
 });

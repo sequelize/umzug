@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage, StorableMigration } from './storage';
 import * as templates from './templates';
 import * as glob from 'glob';
+import { UlidMonotonic } from 'id128';
 import { UmzugCLI } from './cli';
 import * as emittery from 'emittery';
 import * as VError from 'verror';
@@ -21,6 +22,7 @@ import {
 } from './types';
 
 const globAsync = promisify(glob);
+const getUlid = () => UlidMonotonic.generate().toCanonical();
 
 interface MigrationErrorParams extends MigrationParams<unknown> {
 	direction: 'up' | 'down';
@@ -114,7 +116,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		this.options.logger?.info(message);
 	}
 
-	static defaultResolver: Resolver<unknown> = ({ name, path: filepath, batch }) => {
+	static defaultResolver: Resolver<unknown> = ({ name, path: filepath }) => {
 		if (!filepath) {
 			throw new Error(`Can't use default resolver for non-filesystem migrations`);
 		}
@@ -135,7 +137,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 			throw new Error(errorParts.filter(Boolean).join(' '));
 		}
 
-		const getModule = () => {
+		const getModule = (): RunnableMigration<any> => {
 			try {
 				return require(filepath);
 			} catch (e: unknown) {
@@ -150,9 +152,8 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		return {
 			name,
 			path: filepath,
-			batch,
-			up: async ({ context }) => getModule().up({ path: filepath, name, context }) as unknown,
-			down: async ({ context }) => getModule().down({ path: filepath, name, context }) as unknown,
+			up: async ({ context, batch }) => getModule().up({ path: filepath, name, context, batch }),
+			down: async ({ context, batch }) => getModule().down?.({ path: filepath, name, context, batch }),
 		};
 	};
 
@@ -235,7 +236,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	}
 
 	private async runBatch<T>(cb: (batch: string) => Promise<T>): Promise<T> {
-		const batch = new Date().toISOString(); // todo: figure out best format for batch. ULID?
+		const batch = (this.options.batch ?? getUlid)();
 		await this.emit('beforeAll', { batch, context: this.context });
 		try {
 			return await cb(batch);
@@ -357,12 +358,12 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 			return executedReversed.slice(0, sliceIndex);
 		};
 
-		return this.runBatch(async () => {
+		return this.runBatch(async batch => {
 			const toBeReverted = await eligibleMigrations();
 
 			for (const m of toBeReverted) {
 				const start = Date.now();
-				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
+				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context, batch };
 
 				this.logging({ event: 'reverting', name: m.name });
 				await this.emit('reverting', params);

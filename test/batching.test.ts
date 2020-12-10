@@ -81,4 +81,53 @@ describe('batching', () => {
 		await umzug.down();
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
 	});
+
+	test(`batches are unique`, async () => {
+		const noop = async () => {};
+		const umzug = new Umzug({
+			migrations: [
+				{ name: 'm1', up: noop },
+				{ name: 'm2', up: noop },
+				{ name: 'm3', up: noop },
+				{ name: 'm4', up: noop },
+			],
+			logger: undefined,
+		});
+
+		await umzug.up({ step: 1 });
+		await umzug.up({ step: 1 });
+		await umzug.up({ step: 1 });
+		await umzug.up({ step: 1 });
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3', 'm4']);
+
+		const batches = (await umzug.executed()).map(e => e.batch);
+		expect([...new Set(batches)]).toHaveLength(batches.length);
+		// eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+		expect(batches.slice().sort()).toEqual(batches);
+	});
+
+	test(`batch identifier can be configured`, async () => {
+		const noop = async () => {};
+		let counter = 0;
+		const umzug = new Umzug({
+			migrations: [
+				{ name: 'm1', up: noop },
+				{ name: 'm2', up: noop },
+				{ name: 'm3', up: noop },
+			],
+			batch: () => `b${++counter}`,
+			logger: undefined,
+		});
+
+		await umzug.up({ step: 1 });
+		await umzug.up({ step: 1 });
+		await umzug.up({ step: 1 });
+		await umzug.up({ step: 1 });
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3']);
+
+		const batches = (await umzug.executed()).map(e => e.batch);
+		expect(batches).toEqual(['b1', 'b2', 'b3']);
+	});
 });

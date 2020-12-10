@@ -110,9 +110,16 @@ describe('run as cli', () => {
 	test('run as cli', async () => {
 		// note: this test requires the library to have been built since it's spawning a sub-process which doesn't transform typescript via jest.
 		childProcess.execSync(['node', uzmugPath, 'up'].join(' '));
-		// await require(uzmugPath).run();
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		expect(require(path.join(syncer.baseDir, 'storage.json'))).toEqual(['m1.js', 'm2.js', 'm3.js']);
+		const storageJson = require(path.join(syncer.baseDir, 'storage.json'));
+
+		expect(storageJson).toEqual([
+			{ name: 'm1.js', batch: expect.stringMatching(/^\w{26}$/) },
+			{ name: 'm2.js', batch: storageJson[0].batch },
+			{ name: 'm3.js', batch: storageJson[0].batch },
+		]);
+
+		expect(storageJson[0].batch).toEqual(storageJson[1].batch);
 	});
 });
 
@@ -152,7 +159,9 @@ describe('list migrations', () => {
 				.split(JSON.stringify(process.cwd()).slice(1, -1))
 				.join('<cwd>')
 				.split(JSON.stringify('\\').slice(1, -1))
-				.join('/');
+				.join('/')
+				.split(/[\d,A-Z]{26}/)
+				.join('<ULID>');
 		};
 
 		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`
@@ -174,15 +183,18 @@ describe('list migrations', () => {
 					"[
 					  {
 					    \\"name\\": \\"m1.js\\",
-					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m1.js\\"
+					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m1.js\\",
+					    \\"batch\\": \\"<ULID>\\"
 					  },
 					  {
 					    \\"name\\": \\"m2.js\\",
-					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m2.js\\"
+					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m2.js\\",
+					    \\"batch\\": \\"<ULID>\\"
 					  },
 					  {
 					    \\"name\\": \\"m3.js\\",
-					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m3.js\\"
+					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m3.js\\",
+					    \\"batch\\": \\"<ULID>\\"
 					  }
 					]"
 				`);
