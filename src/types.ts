@@ -2,13 +2,11 @@ import { UmzugStorage } from './storage';
 import * as typeFest from 'type-fest';
 
 /**
- * @internal
  * Create a type that has mutually exclusive keys.
  * Wrapper for @see `import('type-fest').MergeExclusive` that works for three types
  */
 export type MergeExclusive<A, B, C> = typeFest.MergeExclusive<A, typeFest.MergeExclusive<B, C>>;
 
-/** @internal */
 export type Promisable<T> = T | PromiseLike<T>;
 
 export type LogFn = (message: Record<string, unknown>) => void;
