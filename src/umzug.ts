@@ -6,6 +6,7 @@ import * as templates from './templates';
 import * as glob from 'glob';
 import { UmzugCLI } from './cli';
 import * as emittery from 'emittery';
+import * as VError from 'verror';
 import {
 	MigrateDownOptions,
 	MigrateUpOptions,
@@ -20,6 +21,45 @@ import {
 } from './types';
 
 const globAsync = promisify(glob);
+
+interface MigrationErrorParams extends MigrationParams<unknown> {
+	direction: 'up' | 'down';
+}
+
+export class Rethrowable extends VError {
+	static wrap(throwable: unknown): VError {
+		if (throwable instanceof VError) {
+			return throwable;
+		}
+
+		if (throwable instanceof Error) {
+			return new VError(throwable, 'Original error');
+		}
+
+		return new VError(
+			{
+				info: { original: throwable },
+			},
+			`Non-error value thrown. See info for full props: %s`,
+			throwable
+		);
+	}
+}
+
+export class MigrationError extends VError {
+	constructor(migration: MigrationErrorParams, original: unknown) {
+		super(
+			{
+				cause: Rethrowable.wrap(original),
+				name: 'MigrationError',
+				info: migration,
+			},
+			'Migration %s (%s) failed',
+			migration.name,
+			migration.direction
+		);
+	}
+}
 
 export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	private readonly storage: UmzugStorage<Ctx>;
@@ -99,7 +139,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 			try {
 				return require(filepath);
 			} catch (e: unknown) {
-				if (e instanceof Error && filepath.endsWith('.ts')) {
+				if (e instanceof SyntaxError && filepath.endsWith('.ts')) {
 					e.message += '\n\n' + languageSpecificHelp['.ts'];
 				}
 
@@ -237,7 +277,11 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 				this.logging({ event: 'migrating', name: m.name });
 				await this.emit('migrating', params);
 
-				await m.up(params);
+				try {
+					await m.up(params);
+				} catch (e: unknown) {
+					throw new MigrationError({ direction: 'up', ...params }, e);
+				}
 
 				await this.storage.logMigration(m.name, params);
 
@@ -293,7 +337,11 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 				this.logging({ event: 'reverting', name: m.name });
 				await this.emit('reverting', params);
 
-				await m.down?.(params);
+				try {
+					await m.down?.(params);
+				} catch (e: unknown) {
+					throw new MigrationError({ direction: 'down', ...params }, e);
+				}
 
 				await this.storage.unlogMigration(m.name, params);
 
