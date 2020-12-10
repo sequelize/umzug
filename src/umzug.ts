@@ -6,6 +6,7 @@ import * as templates from './templates';
 import * as glob from 'glob';
 import { UmzugCLI } from './cli';
 import * as emittery from 'emittery';
+import * as VError from 'verror';
 import {
 	MigrateDownOptions,
 	MigrateUpOptions,
@@ -18,7 +19,6 @@ import {
 	UmzugEvents,
 	UmzugOptions,
 } from './types';
-import * as VError from 'verror';
 
 const globAsync = promisify(glob);
 
@@ -44,11 +44,8 @@ export class Rethrowable extends VError {
 			throwable
 		);
 	}
-
-	static rethrow(original: unknown): never {
-		throw Rethrowable.wrap(original);
-	}
 }
+
 export class MigrationError extends VError {
 	constructor(migration: MigrationErrorParams, original: unknown) {
 		super(
@@ -57,14 +54,10 @@ export class MigrationError extends VError {
 				name: 'MigrationError',
 				info: migration,
 			},
-			'%s migration %s failed',
-			migration.direction,
-			migration.name
+			'Migration %s (%s) failed',
+			migration.name,
+			migration.direction
 		);
-	}
-
-	static rethrow(migration: MigrationErrorParams): (original: unknown) => never {
-		return original => Rethrowable.rethrow(new MigrationError(migration, original));
 	}
 }
 

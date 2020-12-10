@@ -391,11 +391,11 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"up migration m2 failed: Original error: Some cryptic failure"`
+			`"Migration m2 (up) failed: Original error: Some cryptic failure"`
 		);
 
 		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"down migration m1 failed: Original error: Some cryptic failure"`
+			`"Migration m1 (down) failed: Original error: Some cryptic failure"`
 		);
 	});
 
@@ -417,7 +417,7 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"up migration m2 failed: Some cryptic failure"`
+			`"Migration m2 (up) failed: Some cryptic failure"`
 		);
 
 		// slightly weird format verror uses, not worth validating much more than that the `cause` is captured
@@ -428,7 +428,7 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"down migration m1 failed: Some cryptic failure"`
+			`"Migration m1 (down) failed: Some cryptic failure"`
 		);
 
 		await expect(umzug.down()).rejects.toMatchObject({
@@ -459,11 +459,11 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"up migration m2 failed: Non-error value thrown. See info for full props: Some cryptic failure"`
+			`"Migration m2 (up) failed: Non-error value thrown. See info for full props: Some cryptic failure"`
 		);
 
 		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"down migration m1 failed: Non-error value thrown. See info for full props: Some cryptic failure"`
+			`"Migration m1 (down) failed: Non-error value thrown. See info for full props: Some cryptic failure"`
 		);
 	});
 
@@ -488,7 +488,7 @@ describe('alternate migration inputs', () => {
 		expect([names(await umzug.pending()), names(await umzug.executed())]).toEqual([['m2.ts'], ['m1.ts']]);
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(`
-			"up migration m2.ts failed: Original error: Fake syntax error to simulate typescript modules not being registered
+			"Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered
 
 			TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
 		`);

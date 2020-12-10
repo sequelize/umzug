@@ -534,7 +534,7 @@ All events are type-safe, so IDEs will prevent typos and supply strong types for
 
 ### Errors
 
-When a migration throws an error, it will be wrapped in a `MigrationError` which captures the migration metadata (name, path etc.) as well as the original error message, and _will be rethrown_. In most cases, this is exppected behaviour, and doesn't require any special handling beyond standard error logging setups.
+When a migration throws an error, it will be wrapped in a `MigrationError` which captures the migration metadata (name, path etc.) as well as the original error message, and _will be rethrown_. In most cases, this is expected behaviour, and doesn't require any special handling beyond standard error logging setups.
 
 If you expect failures and want to try to recover from them, you will need to try-catch the call to `umzug.up()`. You can access the original error from the `.cause` property if necessary:
 
@@ -550,7 +550,7 @@ try {
 }
 ```
 
-Under the hood, [verror](https://npmjs.com/package/verror) is being used to wrap errors.
+Under the hood, [verror](https://npmjs.com/package/verror) is used to wrap errors.
 
 ### CLI
 
