@@ -32,12 +32,13 @@ npm install umzug
 * Database agnostic
 * Supports logging of migration process
 * Supports multiple storages for migration data
+* [Usage examples](./examples)
 
 ## Documentation
 
 ### Minimal Example
 
-The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage.
+The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage. There are several more involved examples covering a few different scenarios in the [examples folder](./examples).
 
 ```js
 // index.js
@@ -160,7 +161,7 @@ const { Umzug } = require('umzug');
 const umzug = new Umzug({ /* ... options ... */ });
 ```
 
-Detailed documentation for these options are in the `UmzugConstructorOptions` TypeScript interface, which can be found in [src/types.ts](./src/types.ts).
+Detailed documentation for these options are in the `UmzugOptions` TypeScript interface, which can be found in [src/types.ts](./src/types.ts).
 
 #### Getting all pending migrations
 
@@ -530,6 +531,26 @@ These events run at the beginning and end of `up` and `down` calls. They'll rece
 The [`FileLocker` class](./src/file-locker.ts) uses `beforeAll` and `afterAll` to implement a simple filesystem-based locking mechanism.
 
 All events are type-safe, so IDEs will prevent typos and supply strong types for the event payloads.
+
+### Errors
+
+When a migration throws an error, it will be wrapped in a `MigrationError` which captures the migration metadata (name, path etc.) as well as the original error message, and _will be rethrown_. In most cases, this is expected behaviour, and doesn't require any special handling beyond standard error logging setups.
+
+If you expect failures and want to try to recover from them, you will need to try-catch the call to `umzug.up()`. You can access the original error from the `.cause` property if necessary:
+
+```js
+try {
+  await umzug.up();
+} catch (e) {
+  if (e instanceof MigrationError) {
+    const original = e.cause;
+    // do something with the original error here
+  }
+  throw e;
+}
+```
+
+Under the hood, [verror](https://npmjs.com/package/verror) is used to wrap errors.
 
 ### CLI
 
