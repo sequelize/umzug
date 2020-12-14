@@ -123,6 +123,7 @@ module.exports = {
 		{
 			files: ['*.md'],
 			rules: {
+				'prettier/prettier': 'off',
 				'no-trailing-spaces': 'off',
 				'no-multiple-empty-lines': 'off',
 				'unicorn/filename-case': 'off',
