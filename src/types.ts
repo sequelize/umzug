@@ -12,7 +12,7 @@ export type Promisable<T> = T | PromiseLike<T>;
 export type LogFn = (message: Record<string, unknown>) => void;
 
 /** Constructor options for the Umzug class */
-export interface UmzugOptions<Ctx extends Record<string, unknown> = Record<string, unknown>> {
+export interface UmzugOptions<Ctx extends {} = Record<string, unknown>> {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
@@ -144,6 +144,6 @@ export interface UmzugEvents<Ctx> {
 	migrated: MigrationParams<Ctx>;
 	reverting: MigrationParams<Ctx>;
 	reverted: MigrationParams<Ctx>;
-	beforeAll: { context: Ctx };
-	afterAll: { context: Ctx };
+	beforeCommand: { command: string; context: Ctx };
+	afterCommand: { command: string; context: Ctx };
 }
