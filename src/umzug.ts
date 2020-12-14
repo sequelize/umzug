@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
 import * as templates from './templates';
 import * as glob from 'glob';
-import { UmzugCLI } from './cli';
+import { CommandLineParserOptions, UmzugCLI } from './cli';
 import * as emittery from 'emittery';
 import * as VError from 'verror';
 import {
@@ -159,8 +159,8 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	 * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
 	 * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
 	 */
-	protected getCli(): UmzugCLI {
-		return new UmzugCLI(this);
+	protected getCli(options?: CommandLineParserOptions): UmzugCLI {
+		return new UmzugCLI(this, options);
 	}
 
 	/**

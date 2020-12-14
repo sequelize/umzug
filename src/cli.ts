@@ -241,11 +241,16 @@ export class CreateAction extends cli.CommandLineAction {
 	}
 }
 
+export interface CommandLineParserOptions {
+	toolFileName?: string;
+	toolDescription?: string;
+}
+
 export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly umzug: Umzug) {
+	constructor(readonly umzug: Umzug, commandLineParserOptions: CommandLineParserOptions = {}) {
 		super({
-			toolFilename: '<script>',
-			toolDescription: 'Umzug migrator',
+			toolFilename: commandLineParserOptions.toolFileName ?? '<script>',
+			toolDescription: commandLineParserOptions.toolDescription ?? 'Umzug migrator',
 		});
 
 		this.addAction(new UpAction(umzug));
