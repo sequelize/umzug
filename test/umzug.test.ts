@@ -46,6 +46,30 @@ describe('basic usage', () => {
 	});
 });
 
+describe('custom context', () => {
+	test(`mutating context doesn't affect separate invocations`, async () => {
+		const spy = jest.fn();
+		const umzug = new Umzug({
+			migrations: [{ name: 'm1', up: spy }],
+			context: () => ({ counter: 0 }),
+			logger: undefined,
+		});
+
+		umzug.on('beforeCommand', ev => ev.context.counter++);
+
+		await Promise.all([umzug.up(), umzug.up()]);
+
+		expect(spy).toHaveBeenCalledTimes(2);
+
+		expect(spy.mock.calls).toMatchObject([
+			// because the context is lazy (returned by an inline function), both `up()` calls should
+			// get a fresh counter set to 0, which they each increment to 1
+			[{ context: { counter: 1 } }],
+			[{ context: { counter: 1 } }],
+		]);
+	});
+});
+
 describe('alternate migration inputs', () => {
 	test('with file globbing', async () => {
 		const spy = jest.fn();
@@ -608,10 +632,12 @@ describe('alternate migration inputs', () => {
 		expect(spy).toHaveBeenNthCalledWith(1, {
 			name: 'm1.sql',
 			path: path.join(syncer.baseDir, 'directory1/m1.sql'),
+			context: {},
 		});
 		expect(spy).toHaveBeenNthCalledWith(2, {
 			name: 'm2.sql',
 			path: path.join(syncer.baseDir, 'deeply/nested/directory2/m2.sql'),
+			context: {},
 		});
 	});
 });

@@ -8,6 +8,7 @@ import { CommandLineParserOptions, UmzugCLI } from './cli';
 import * as emittery from 'emittery';
 import * as VError from 'verror';
 import {
+	InputMigrations,
 	MigrateDownOptions,
 	MigrateUpOptions,
 	MigrationMeta,
@@ -61,10 +62,10 @@ export class MigrationError extends VError {
 	}
 }
 
-export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
+export class Umzug<Ctx extends object = object> extends emittery.Typed<UmzugEvents<Ctx>> {
 	private readonly storage: UmzugStorage<Ctx>;
 	/** @internal */
-	readonly migrations: () => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
+	readonly migrations: (ctx: Ctx) => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
 	/**
 	 * Compile-time only property for type inference. After creating an Umzug instance, it can be used as type alias for
@@ -102,12 +103,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		super();
 
 		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
-		this.migrations = this.getMigrationsResolver();
-	}
-
-	private get context(): Ctx {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- safe because options.context is only undefined if Ctx's type is undefined
-		return this.options.context!;
+		this.migrations = this.getMigrationsResolver(this.options.migrations);
 	}
 
 	private logging(message: Record<string, unknown>) {
@@ -186,8 +182,8 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	): Umzug<Ctx> {
 		return new Umzug({
 			...this.options,
-			migrations: async () => {
-				const migrations = await this.migrations();
+			migrations: async context => {
+				const migrations = await this.migrations(context);
 				return transform(migrations);
 			},
 		});
@@ -195,16 +191,18 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 
 	/** Get the list of migrations which have already been applied */
 	async executed(): Promise<MigrationMeta[]> {
-		const list = await this._executed();
-		// We do the following to not expose the `up` and `down` functions to the user
-		return list.map(m => ({ name: m.name, path: m.path }));
+		return this.runCommand('executed', async ({ context }) => {
+			const list = await this._executed(context);
+			// We do the following to not expose the `up` and `down` functions to the user
+			return list.map(m => ({ name: m.name, path: m.path }));
+		});
 	}
 
 	/** Get the list of migrations which have already been applied */
-	private async _executed(): Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
+	private async _executed(context: Ctx): Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
 		const [migrations, executedNames] = await Promise.all([
-			this.migrations(),
-			this.storage.executed({ context: this.context }),
+			this.migrations(context),
+			this.storage.executed({ context }),
 		]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => executedSet.has(m.name));
@@ -212,26 +210,33 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 
 	/** Get the list of migrations which are yet to be applied */
 	async pending(): Promise<MigrationMeta[]> {
-		const list = await this._pending();
-		// We do the following to not expose the `up` and `down` functions to the user
-		return list.map(m => ({ name: m.name, path: m.path }));
+		return this.runCommand('pending', async ({ context }) => {
+			const list = await this._pending(context);
+			// We do the following to not expose the `up` and `down` functions to the user
+			return list.map(m => ({ name: m.name, path: m.path }));
+		});
 	}
 
-	private async _pending(): Promise<Array<RunnableMigration<Ctx>>> {
+	private async _pending(context: Ctx): Promise<Array<RunnableMigration<Ctx>>> {
 		const [migrations, executedNames] = await Promise.all([
-			this.migrations(),
-			this.storage.executed({ context: this.context }),
+			this.migrations(context),
+			this.storage.executed({ context }),
 		]);
 		const executedSet = new Set(executedNames);
 		return migrations.filter(m => !executedSet.has(m.name));
 	}
 
-	private async withBeforeAfterHooks<T>(cb: () => Promise<T>): Promise<T> {
-		await this.emit('beforeAll', { context: this.context });
+	protected async runCommand<T>(command: string, cb: (commandParams: { context: Ctx }) => Promise<T>): Promise<T> {
+		const context: Ctx =
+			typeof this.options.context === 'function'
+				? (this.options.context as () => Ctx)()
+				: ((this.options.context ?? {}) as Ctx);
+
+		await this.emit('beforeCommand', { command, context });
 		try {
-			return await cb();
+			return await cb({ context });
 		} finally {
-			await this.emit('afterAll', { context: this.context });
+			await this.emit('afterCommand', { command, context });
 		}
 	}
 
@@ -240,24 +245,24 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	 * @see MigrateUpOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
 	async up(options: MigrateUpOptions = {}): Promise<MigrationMeta[]> {
-		const eligibleMigrations = async () => {
+		const eligibleMigrations = async (context: Ctx) => {
 			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
 				// Allow rerun means the specified migrations should be run even if they've run before - so get all migrations, not just pending
-				const list = await this.migrations();
+				const list = await this.migrations(context);
 				return this.findMigrations(list, options.migrations);
 			}
 
 			if (options.migrations && options.rerun === RerunBehavior.SKIP) {
-				const executedNames = new Set((await this._executed()).map(m => m.name));
+				const executedNames = new Set((await this._executed(context)).map(m => m.name));
 				const filteredMigrations = options.migrations.filter(m => !executedNames.has(m));
-				return this.findMigrations(await this.migrations(), filteredMigrations);
+				return this.findMigrations(await this.migrations(context), filteredMigrations);
 			}
 
 			if (options.migrations) {
-				return this.findMigrations(await this._pending(), options.migrations);
+				return this.findMigrations(await this._pending(context), options.migrations);
 			}
 
-			const allPending = await this._pending();
+			const allPending = await this._pending(context);
 
 			let sliceIndex = options.step ?? allPending.length;
 			if (options.to) {
@@ -267,12 +272,12 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 			return allPending.slice(0, sliceIndex);
 		};
 
-		return this.withBeforeAfterHooks(async () => {
-			const toBeApplied = await eligibleMigrations();
+		return this.runCommand('up', async ({ context }) => {
+			const toBeApplied = await eligibleMigrations(context);
 
 			for (const m of toBeApplied) {
 				const start = Date.now();
-				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
+				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context };
 
 				this.logging({ event: 'migrating', name: m.name });
 				await this.emit('migrating', params);
@@ -299,23 +304,23 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	 * @see MigrateDownOptions for other use cases using `to`, `migrations` and `rerun`.
 	 */
 	async down(options: MigrateDownOptions = {}): Promise<MigrationMeta[]> {
-		const eligibleMigrations = async () => {
+		const eligibleMigrations = async (context: Ctx) => {
 			if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
-				const list = await this.migrations();
+				const list = await this.migrations(context);
 				return this.findMigrations(list, options.migrations);
 			}
 
 			if (options.migrations && options.rerun === RerunBehavior.SKIP) {
-				const pendingNames = new Set((await this._pending()).map(m => m.name));
+				const pendingNames = new Set((await this._pending(context)).map(m => m.name));
 				const filteredMigrations = options.migrations.filter(m => !pendingNames.has(m));
-				return this.findMigrations(await this.migrations(), filteredMigrations);
+				return this.findMigrations(await this.migrations(context), filteredMigrations);
 			}
 
 			if (options.migrations) {
-				return this.findMigrations(await this._executed(), options.migrations);
+				return this.findMigrations(await this._executed(context), options.migrations);
 			}
 
-			const executedReversed = (await this._executed()).slice().reverse();
+			const executedReversed = (await this._executed(context)).slice().reverse();
 
 			let sliceIndex = options.step ?? 1;
 			if (options.to === 0 || options.migrations) {
@@ -327,12 +332,12 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 			return executedReversed.slice(0, sliceIndex);
 		};
 
-		return this.withBeforeAfterHooks(async () => {
-			const toBeReverted = await eligibleMigrations();
+		return this.runCommand('down', async ({ context }) => {
+			const toBeReverted = await eligibleMigrations(context);
 
 			for (const m of toBeReverted) {
 				const start = Date.now();
-				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context: this.context };
+				const params: MigrationParams<Ctx> = { name: m.name, path: m.path, context };
 
 				this.logging({ event: 'reverting', name: m.name });
 				await this.emit('reverting', params);
@@ -362,71 +367,73 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 		allowConfusingOrdering?: boolean;
 		skipVerify?: boolean;
 	}): Promise<void> {
-		const isoDate = new Date().toISOString();
-		const prefixes = {
-			TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
-			DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
-			NONE: '',
-		};
-		const prefixType = options.prefix ?? 'TIMESTAMP';
-		const fileBasename = [prefixes[prefixType], options.name].filter(Boolean).join('.');
+		await this.runCommand('create', async ({ context }) => {
+			const isoDate = new Date().toISOString();
+			const prefixes = {
+				TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+				DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
+				NONE: '',
+			};
+			const prefixType = options.prefix ?? 'TIMESTAMP';
+			const fileBasename = [prefixes[prefixType], options.name].filter(Boolean).join('.');
 
-		const allowedExtensions = options.allowExtension
-			? [options.allowExtension]
-			: ['.js', '.cjs', '.mjs', '.ts', '.sql'];
+			const allowedExtensions = options.allowExtension
+				? [options.allowExtension]
+				: ['.js', '.cjs', '.mjs', '.ts', '.sql'];
 
-		const existing = await this.migrations();
-		const last = existing[existing.length - 1];
+			const existing = await this.migrations(context);
+			const last = existing[existing.length - 1];
 
-		const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
-		if (confusinglyOrdered && !options.allowConfusingOrdering) {
-			throw new Error(
-				`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
-			);
-		}
-
-		const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path));
-
-		if (!folder) {
-			throw new Error(`Couldn't infer a directory to generate migration file in. Pass folder explicitly`);
-		}
-
-		const filepath = path.join(folder, fileBasename);
-
-		const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
-
-		const toWrite = template(filepath);
-		if (toWrite.length === 0) {
-			toWrite.push([filepath, '']);
-		}
-
-		toWrite.forEach(pair => {
-			if (!Array.isArray(pair) || pair.length !== 2) {
+			const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
+			if (confusinglyOrdered && !options.allowConfusingOrdering) {
 				throw new Error(
-					`Expected [filepath, content] pair. Check that the file template function returns an array of pairs.`
+					`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
 				);
 			}
 
-			const ext = path.extname(pair[0]);
-			if (!allowedExtensions.includes(ext)) {
-				const allowStr = allowedExtensions.join(', ');
-				const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for allowExtension to avoid this error.`;
-				throw new Error(message);
+			const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path));
+
+			if (!folder) {
+				throw new Error(`Couldn't infer a directory to generate migration file in. Pass folder explicitly`);
 			}
 
-			fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
-			fs.writeFileSync(pair[0], pair[1]);
-			this.logging({ event: 'created', path: pair[0] });
+			const filepath = path.join(folder, fileBasename);
+
+			const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
+
+			const toWrite = template(filepath);
+			if (toWrite.length === 0) {
+				toWrite.push([filepath, '']);
+			}
+
+			toWrite.forEach(pair => {
+				if (!Array.isArray(pair) || pair.length !== 2) {
+					throw new Error(
+						`Expected [filepath, content] pair. Check that the file template function returns an array of pairs.`
+					);
+				}
+
+				const ext = path.extname(pair[0]);
+				if (!allowedExtensions.includes(ext)) {
+					const allowStr = allowedExtensions.join(', ');
+					const message = `Extension ${ext} not allowed. Allowed extensions are ${allowStr}. See help for allowExtension to avoid this error.`;
+					throw new Error(message);
+				}
+
+				fs.mkdirSync(path.dirname(pair[0]), { recursive: true });
+				fs.writeFileSync(pair[0], pair[1]);
+				this.logging({ event: 'created', path: pair[0] });
+			});
+
+			if (!options.skipVerify) {
+				const pending = await this.pending();
+				if (!pending.some(p => p.path && path.resolve(p.path) === path.resolve(filepath))) {
+					throw new Error(
+						`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this. Use skipVerify to bypass this error.`
+					);
+				}
+			}
 		});
-
-		if (!options.skipVerify) {
-			const pending = await this.pending();
-			if (!pending.some(p => p.path && path.resolve(p.path) === path.resolve(filepath))) {
-				throw new Error(
-					`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this. Use skipVerify to bypass this error.`
-				);
-			}
-		}
 	}
 
 	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
@@ -476,17 +483,19 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 	}
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
-	private getMigrationsResolver(): () => Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
-		const inputMigrations = this.options.migrations;
-		// Safe to non-null assert - if there's no context passed in, the type of `Ctx` must be `undefined` anyway.
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		const context = this.options.context!;
+	private getMigrationsResolver(
+		inputMigrations: InputMigrations<Ctx>
+	): (ctx: Ctx) => Promise<ReadonlyArray<RunnableMigration<Ctx>>> {
 		if (Array.isArray(inputMigrations)) {
 			return async () => inputMigrations;
 		}
 
 		if (typeof inputMigrations === 'function') {
-			return async () => inputMigrations(context);
+			// Lazy migrations definition, recurse.
+			return async ctx => {
+				const resolved = await inputMigrations(ctx);
+				return this.getMigrationsResolver(resolved)(ctx);
+			};
 		}
 
 		const fileGlob = inputMigrations.glob;
@@ -494,7 +503,7 @@ export class Umzug<Ctx = unknown> extends emittery.Typed<UmzugEvents<Ctx>> {
 
 		const resolver: Resolver<Ctx> = inputMigrations.resolve ?? Umzug.defaultResolver;
 
-		return async () => {
+		return async context => {
 			const paths = await globAsync(globString, { ...globOptions, absolute: true });
 			return paths.map(unresolvedPath => {
 				const filepath = path.resolve(unresolvedPath);
