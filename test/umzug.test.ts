@@ -68,6 +68,27 @@ describe('custom context', () => {
 			[{ context: { counter: 1 } }],
 		]);
 	});
+
+	test(`create doesn't spawn multiple contexts`, async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/create-context'), {});
+		syncer.sync();
+
+		const spy = jest.fn();
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.js', { cwd: syncer.baseDir }],
+			},
+			context: spy,
+			logger: undefined,
+			create: {
+				folder: syncer.baseDir,
+			},
+		});
+
+		await umzug.create({ name: 'test.js' });
+
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
 });
 
 describe('alternate migration inputs', () => {

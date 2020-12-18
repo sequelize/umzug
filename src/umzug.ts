@@ -426,7 +426,7 @@ export class Umzug<Ctx extends object = object> extends emittery.Typed<UmzugEven
 			});
 
 			if (!options.skipVerify) {
-				const pending = await this.pending();
+				const pending = await this._pending(context);
 				if (!pending.some(p => p.path && path.resolve(p.path) === path.resolve(filepath))) {
 					throw new Error(
 						`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this. Use skipVerify to bypass this error.`
