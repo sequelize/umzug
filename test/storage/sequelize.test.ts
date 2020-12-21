@@ -262,7 +262,7 @@ describe('sequelize', () => {
 					expect(migrations.length).toBe(1);
 					expect(migrations[0].name).toBe('asd.js');
 					expect(migrations[0].createdAt.getTime()).toBeGreaterThanOrEqual(startTime.getTime());
-					expect(migrations[0].createdAt.getTime()).toBeLessThanOrEqual(new Date().getTime());
+					expect(migrations[0].createdAt.getTime()).toBeLessThanOrEqual(Date.now());
 				});
 		});
 	});
