@@ -62,7 +62,7 @@ export class MigrationError extends VError {
 	}
 }
 
-export class Umzug<Ctx extends object = object> extends emittery.Typed<UmzugEvents<Ctx>> {
+export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx>> {
 	private readonly storage: UmzugStorage<Ctx>;
 	/** @internal */
 	readonly migrations: (ctx: Ctx) => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
