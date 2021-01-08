@@ -49,11 +49,11 @@ export class MongoDBStorage implements UmzugStorage {
 		this.collectionName = (options as any).collectionName ?? 'migrations'; // TODO remove this
 	}
 
-	async logMigration(migrationName: string): Promise<void> {
+	async logMigration({ name: migrationName }: { name: string }): Promise<void> {
 		await this.collection.insertOne({ migrationName });
 	}
 
-	async unlogMigration(migrationName: string): Promise<void> {
+	async unlogMigration({ name: migrationName }: { name: string }): Promise<void> {
 		await this.collection.removeOne({ migrationName });
 	}
 

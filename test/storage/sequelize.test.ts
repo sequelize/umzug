@@ -205,7 +205,7 @@ describe('sequelize', () => {
 				.then((allTables: any) => {
 					expect(Object.keys(allTables)).toHaveLength(0);
 				})
-				.then(() => storage.logMigration('asd.js'))
+				.then(() => storage.logMigration({ name: 'asd.js' }))
 				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
 				.then((allTables: any) => {
 					expect(allTables).toEqual(['SequelizeMeta']);
@@ -218,7 +218,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -233,7 +233,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -256,7 +256,7 @@ describe('sequelize', () => {
 			const startTime = new Date(Math.floor(Date.now() / 1000) * 1000);
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -277,7 +277,7 @@ describe('sequelize', () => {
 				.then((allTables: any) => {
 					expect(Object.keys(allTables)).toHaveLength(0);
 				})
-				.then(() => storage.unlogMigration('asd.js'))
+				.then(() => storage.unlogMigration({ name: 'asd.js' }))
 				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
 				.then((allTables: any) => {
 					expect(allTables).toEqual(['SequelizeMeta']);
@@ -288,12 +288,12 @@ describe('sequelize', () => {
 			const storage = new Storage({ sequelize: helper.sequelize });
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
 				})
-				.then(() => storage.unlogMigration('asd.js'))
+				.then(() => storage.unlogMigration({ name: 'asd.js' }))
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(Object.keys(migrations)).toHaveLength(0);
@@ -304,9 +304,9 @@ describe('sequelize', () => {
 			const storage = new Storage({ sequelize: helper.sequelize });
 
 			return storage
-				.logMigration('migration1.js')
-				.then(() => storage.logMigration('migration2.js'))
-				.then(() => storage.unlogMigration('migration2.js'))
+				.logMigration({ name: 'migration1.js' })
+				.then(() => storage.logMigration({ name: 'migration2.js' }))
+				.then(() => storage.unlogMigration({ name: 'migration2.js' }))
 				.then(() => storage._model().findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
@@ -321,12 +321,12 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
 				})
-				.then(() => storage.unlogMigration('asd.js'))
+				.then(() => storage.unlogMigration({ name: 'asd.js' }))
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(Object.keys(migrations)).toHaveLength(0);
@@ -340,12 +340,12 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(migrations.length).toBe(1);
 				})
-				.then(() => storage.unlogMigration('asd.js'))
+				.then(() => storage.unlogMigration({ name: 'asd.js' }))
 				.then(() => storage.model.findAll())
 				.then(migrations => {
 					expect(Object.keys(migrations)).toHaveLength(0);
@@ -398,7 +398,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.executed())
 				.then(migrations => {
 					expect(migrations).toEqual(['asd.js']);
@@ -412,7 +412,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.executed())
 				.then(migrations => {
 					expect(migrations).toEqual(['asd.js']);
@@ -426,7 +426,7 @@ describe('sequelize', () => {
 			});
 
 			return storage
-				.logMigration('asd.js')
+				.logMigration({ name: 'asd.js' })
 				.then(() => storage.executed())
 				.then(migrations => {
 					expect(migrations).toEqual(['asd.js']);

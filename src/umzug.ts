@@ -288,7 +288,7 @@ export class Umzug<Ctx extends object = object> extends emittery.Typed<UmzugEven
 					throw new MigrationError({ direction: 'up', ...params }, e);
 				}
 
-				await this.storage.logMigration(m.name, params);
+				await this.storage.logMigration(params);
 
 				const duration = (Date.now() - start) / 1000;
 				this.logging({ event: 'migrated', name: m.name, durationSeconds: duration });
@@ -348,7 +348,7 @@ export class Umzug<Ctx extends object = object> extends emittery.Typed<UmzugEven
 					throw new MigrationError({ direction: 'down', ...params }, e);
 				}
 
-				await this.storage.unlogMigration(m.name, params);
+				await this.storage.unlogMigration(params);
 
 				const duration = Number.parseFloat(((Date.now() - start) / 1000).toFixed(3));
 				this.logging({ event: 'reverted', name: m.name, durationSeconds: duration });

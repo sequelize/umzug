@@ -17,14 +17,14 @@ export class JSONStorage implements UmzugStorage {
 		this.path = options?.path ?? jetpack.path(process.cwd(), 'umzug.json');
 	}
 
-	async logMigration(migrationName: string): Promise<void> {
+	async logMigration({ name: migrationName }: { name: string }): Promise<void> {
 		const loggedMigrations = await this.executed();
 		loggedMigrations.push(migrationName);
 
 		await jetpack.writeAsync(this.path, JSON.stringify(loggedMigrations, null, 2));
 	}
 
-	async unlogMigration(migrationName: string): Promise<void> {
+	async unlogMigration({ name: migrationName }: { name: string }): Promise<void> {
 		const loggedMigrations = await this.executed();
 		const updatedMigrations = loggedMigrations.filter(name => name !== migrationName);
 
