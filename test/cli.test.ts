@@ -429,8 +429,6 @@ describe('create migration file', () => {
 	});
 });
 
-describe('validate', async () => {});
-
 describe('exported from package', () => {
 	test('cli exported as namespace', () => {
 		expectTypeOf<import('../src').UmzugCLI>().toEqualTypeOf<UmzugCLI>();
