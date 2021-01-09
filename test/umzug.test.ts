@@ -353,7 +353,7 @@ describe('alternate migration inputs', () => {
 
 		expect(spy.mock.calls).toEqual([
 			['executed', { context: { someCustomSqlClient: {} } }],
-			['logMigration', 'm1', { name: 'm1', context: { someCustomSqlClient: {} } }],
+			['logMigration', { name: 'm1', context: { someCustomSqlClient: {} } }],
 		]);
 
 		spy.mockClear();
@@ -363,7 +363,7 @@ describe('alternate migration inputs', () => {
 
 		expect(spy.mock.calls).toEqual([
 			['executed', { context: { someCustomSqlClient: {} } }],
-			['unlogMigration', 'm1', { name: 'm1', context: { someCustomSqlClient: {} } }],
+			['unlogMigration', { name: 'm1', context: { someCustomSqlClient: {} } }],
 		]);
 	});
 

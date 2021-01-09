@@ -69,7 +69,7 @@ describe('MongoDBStorage', () => {
 	describe('logMigration', () => {
 		test('adds entry to storage', async () => {
 			const storage = new MongoDBStorage({ collection: mockCollection });
-			await storage.logMigration('m1.txt');
+			await storage.logMigration({ name: 'm1.txt' });
 			expect(mockCollection.insertOne).toHaveBeenCalledTimes(1);
 			expect(mockCollection.insertOne).toHaveBeenCalledWith({
 				migrationName: 'm1.txt',
@@ -80,7 +80,7 @@ describe('MongoDBStorage', () => {
 	describe('unlogMigration', () => {
 		test('adds entry to storage', async () => {
 			const storage = new MongoDBStorage({ collection: mockCollection });
-			await storage.unlogMigration('m1.txt');
+			await storage.unlogMigration({ name: 'm1.txt' });
 			expect(mockCollection.removeOne).toHaveBeenCalledTimes(1);
 			expect(mockCollection.removeOne).toHaveBeenCalledWith({
 				migrationName: 'm1.txt',

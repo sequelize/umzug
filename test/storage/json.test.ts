@@ -29,15 +29,15 @@ describe('JSONStorage', () => {
 		const storage = new JSONStorage({ path: path.join(syncer.baseDir, 'umzug.json') });
 
 		test('adds entry', async () => {
-			await storage.logMigration('m1.txt');
+			await storage.logMigration({ name: 'm1.txt' });
 
 			expect(syncer.read()).toEqual({
 				'umzug.json': json(['m1.txt']),
 			});
 		});
 		test(`doesn't dedupe`, async () => {
-			await storage.logMigration('m1.txt');
-			await storage.logMigration('m1.txt');
+			await storage.logMigration({ name: 'm1.txt' });
+			await storage.logMigration({ name: 'm1.txt' });
 
 			expect(syncer.read()).toEqual({
 				'umzug.json': json(['m1.txt', 'm1.txt']),
@@ -53,14 +53,14 @@ describe('JSONStorage', () => {
 		const storage = new JSONStorage({ path: path.join(syncer.baseDir, 'umzug.json') });
 
 		test('removes entry', async () => {
-			await storage.unlogMigration('m1.txt');
+			await storage.unlogMigration({ name: 'm1.txt' });
 			expect(syncer.read()).toEqual({
 				'umzug.json': '[]',
 			});
 		});
 
 		test('does nothing when unlogging non-existent migration', async () => {
-			await storage.unlogMigration('does-not-exist.txt');
+			await storage.unlogMigration({ name: 'does-not-exist.txt' });
 
 			expect(syncer.read()).toEqual({
 				'umzug.json': json(['m1.txt']),
@@ -79,7 +79,7 @@ describe('JSONStorage', () => {
 		});
 
 		test('returns logged migration', async () => {
-			await storage.logMigration('m1.txt');
+			await storage.logMigration({ name: 'm1.txt' });
 			expect(await storage.executed()).toEqual(['m1.txt']);
 		});
 	});
