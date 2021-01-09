@@ -146,14 +146,14 @@ export class SequelizeStorage implements UmzugStorage {
 		) as ModelClassType;
 	}
 
-	async logMigration(migrationName: string): Promise<void> {
+	async logMigration({ name: migrationName }: { name: string }): Promise<void> {
 		await this.model.sync();
 		await this.model.create({
 			[this.columnName]: migrationName,
 		});
 	}
 
-	async unlogMigration(migrationName: string): Promise<void> {
+	async unlogMigration({ name: migrationName }: { name: string }): Promise<void> {
 		await this.model.sync();
 		await this.model.destroy({
 			where: {

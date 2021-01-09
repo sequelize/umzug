@@ -47,10 +47,10 @@ export class FileLocker {
 		locker.attachTo(umzug);
 	}
 
-	/** Attach `beforeAll` and `afterAll` events to an umzug instance */
+	/** Attach lock handlers to `beforeCommand` and `afterCommand` events on an umzug instance */
 	attachTo(umzug: Umzug): void {
-		umzug.on('beforeAll', async () => this.getLock());
-		umzug.on('afterAll', async () => this.releaseLock());
+		umzug.on('beforeCommand', async () => this.getLock());
+		umzug.on('afterCommand', async () => this.releaseLock());
 	}
 
 	private async readFile(filepath: string): Promise<string | undefined> {

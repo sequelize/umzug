@@ -525,8 +525,8 @@ Umzug is an [emittery event emitter](https://www.npmjs.com/package/emittery). Ea
 
 These events run at the beginning and end of `up` and `down` calls. They'll receive an object containing a `context` property:
 
-- `beforeAll` - Before any of the migrations are run.
-- `afterAll` - After all the migrations have been executed. Note: this will always run, even if migrations throw an error.
+- `beforeCommand` - Before any command (`'up' | 'down' | 'executed' | 'pending'`) is run.
+- `afterCommand` - After any command (`'up' | 'down' | 'executed' | 'pending'`) is run. Note: this will always run, even if the command throws an error.
 
 The [`FileLocker` class](./src/file-locker.ts) uses `beforeAll` and `afterAll` to implement a simple filesystem-based locking mechanism.
 

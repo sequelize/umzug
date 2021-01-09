@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as childProcess from 'child_process';
 import { Umzug } from '../src';
 import * as del from 'del';
+import { expectTypeOf } from 'expect-type';
 
 describe('cli from instance', () => {
 	jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -412,5 +413,11 @@ describe('create migration file', () => {
 		await expect(runCLI(['create', '--name', 'm1.sql'])).rejects.toMatchInlineSnapshot(
 			`[Error: Expected [filepath, content] pair. Check that the file template function returns an array of pairs.]`
 		);
+	});
+});
+
+describe('exported from package', () => {
+	test('cli exported as namespace', () => {
+		expectTypeOf<import('../src').UmzugCLI>().toEqualTypeOf<UmzugCLI>();
 	});
 });

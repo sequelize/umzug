@@ -1,8 +1,7 @@
 {
-	"include": [
-		"src"
-	],
 	"compilerOptions": {
+		"noEmit": true,
+		"allowJs": true,
 		"outDir": "lib",
 		"target": "es2018",
 		"module": "commonjs",
@@ -14,12 +13,22 @@
 		"newLine": "lf",
 		"strictNullChecks": true,
 		"noImplicitAny": true,
-		"stripInternal": true,
 		"noImplicitReturns": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"noFallthroughCasesInSwitch": true,
 		"noEmitOnError": true,
 		"skipLibCheck": true
-	}
+	},
+	"include": [
+		"src",
+		"test",
+		"examples",
+		"*.md",
+		"*.js",
+		".*.js"
+	],
+	"exclude": [
+		"test/generated"
+	]
 }

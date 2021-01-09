@@ -16,17 +16,17 @@ describe('memoryStorage', () => {
 	test('logMigration, executed and unlogMigration', async () => {
 		const storage = memoryStorage();
 
-		await storage.logMigration('m1', { name: 'm1', context: {} });
+		await storage.logMigration({ name: 'm1', context: {} });
 		expect(await storage.executed({ context: {} })).toEqual(['m1']);
 
-		await storage.logMigration('m1', { name: 'm1', context: {} });
-		await storage.logMigration('m2', { name: 'm1', context: {} });
+		await storage.logMigration({ name: 'm1', context: {} });
+		await storage.logMigration({ name: 'm2', context: {} });
 		expect(await storage.executed({ context: {} })).toEqual(['m1', 'm1', 'm2']);
 
-		await storage.unlogMigration('m1', { name: 'm1', context: {} });
+		await storage.unlogMigration({ name: 'm1', context: {} });
 		expect(await storage.executed({ context: {} })).toEqual(['m2']);
 
-		await storage.unlogMigration('m2', { name: 'm1', context: {} });
+		await storage.unlogMigration({ name: 'm2', context: {} });
 		expect(await storage.executed({ context: {} })).toEqual([]);
 	});
 

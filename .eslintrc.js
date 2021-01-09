@@ -3,7 +3,7 @@ module.exports = {
 	parserOptions: {
 		ecmaVersion: 2018,
 		sourceType: 'module',
-		project: ['./tsconfig.eslint.json'],
+		project: ['./tsconfig.json'],
 		extraFileExtensions: ['.md', '.mjs'],
 	},
 	plugins: ['@typescript-eslint/eslint-plugin', 'prettier', 'unicorn', 'jest', 'import', 'codegen'],
@@ -123,6 +123,7 @@ module.exports = {
 		{
 			files: ['*.md'],
 			rules: {
+				'prettier/prettier': 'off',
 				'no-trailing-spaces': 'off',
 				'no-multiple-empty-lines': 'off',
 				'unicorn/filename-case': 'off',
