@@ -136,9 +136,9 @@ export class BaselineAction extends cli.CommandLineAction {
 
 	private static _defineParameters(action: cli.CommandLineAction) {
 		return {
-			name: action.defineStringParameter({
-				parameterLongName: '--name',
-				argumentName: 'MIGRATION',
+			to: action.defineStringParameter({
+				parameterLongName: '--to',
+				argumentName: 'MIGRATION_NAME',
 				description: `Baseline migrations to this one. All migrations up to and including this one will be recorded as applied.`,
 				required: true,
 			}),
@@ -151,7 +151,7 @@ export class BaselineAction extends cli.CommandLineAction {
 
 	async onExecute(): Promise<void> {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		await this.umzug.baseline({ name: this._params.name.value! });
+		await this.umzug.baseline({ to: this._params.to.value! });
 	}
 }
 
@@ -188,6 +188,27 @@ export class ListAction extends cli.CommandLineAction {
 			: migrations.map(m => m.name).join('\n');
 		// eslint-disable-next-line no-console
 		console.log(formatted);
+	}
+}
+
+export class ValidateAction extends cli.CommandLineAction {
+	constructor(private readonly umzug: Umzug) {
+		super({
+			actionName: 'validate',
+			summary: `Validates executed migrations`,
+			documentation:
+				`Checks that all migrations currently marked as executed match those provided to the umzug instance. ` +
+				`Throws an error if any unexpected migrations are found. Errors of this type can be fixed with the ` +
+				`\`baseline\` command.`,
+		});
+	}
+
+	onDefineParameters(): void {}
+
+	async onExecute(): Promise<void> {
+		await this.umzug.validate();
+		// eslint-disable-next-line no-console
+		console.log('Executed migrations are valid.');
 	}
 }
 
@@ -294,6 +315,7 @@ export class UmzugCLI extends cli.CommandLineParser {
 		this.addAction(new ListAction('executed', umzug));
 		this.addAction(new CreateAction(umzug));
 		this.addAction(new BaselineAction(umzug));
+		this.addAction(new ValidateAction(umzug));
 	}
 
 	onDefineParameters(): void {}

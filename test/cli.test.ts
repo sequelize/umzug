@@ -143,19 +143,19 @@ describe('list migrations', () => {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const umzug: Umzug<{}> = require(uzmugPath).default;
 
-	test('pending and executed', async () => {
-		/** clear console log calls, run the cli, then return new console log calls */
-		const runCLI = async (argv: string[]) => {
-			mockLog.mockClear();
-			await umzug.runAsCLI(argv);
-			// json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
-			return mockLog.mock.calls[0][0]
-				.split(JSON.stringify(process.cwd()).slice(1, -1))
-				.join('<cwd>')
-				.split(JSON.stringify('\\').slice(1, -1))
-				.join('/');
-		};
+	/** clear console log calls, run the cli, then return new console log calls */
+	const runCLI = async (argv: string[]) => {
+		mockLog.mockClear();
+		await umzug.runAsCLI(argv);
+		// json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
+		return (mockLog.mock.calls[0]?.[0] as string)
+			?.split(JSON.stringify(process.cwd()).slice(1, -1))
+			.join('<cwd>')
+			.split(JSON.stringify('\\').slice(1, -1))
+			.join('/');
+	};
 
+	test('pending and executed', async () => {
 		await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`
 					"m1.js
 					m2.js
@@ -187,6 +187,19 @@ describe('list migrations', () => {
 					  }
 					]"
 				`);
+	});
+
+	test('validate', async () => {
+		expect(await runCLI(['validate'])).toMatchInlineSnapshot(`"Executed migrations are valid."`);
+	});
+
+	test('baseline', async () => {
+		await umzug.up();
+		expect((await runCLI(['executed'])).replace(/\s+/g, ', ')).toEqual('m1.js, m2.js, m3.js');
+
+		await runCLI(['baseline', '--to', 'm2.js']);
+
+		expect((await runCLI(['executed'])).replace(/\s+/g, ', ')).toEqual('m1.js, m2.js');
 	});
 });
 
@@ -415,6 +428,8 @@ describe('create migration file', () => {
 		);
 	});
 });
+
+describe('validate', async () => {});
 
 describe('exported from package', () => {
 	test('cli exported as namespace', () => {

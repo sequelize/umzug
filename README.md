@@ -244,6 +244,22 @@ Reverting specific migrations while ignoring the right order, can be done like t
 await umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
 ```
 
+### Validate/Baseline
+
+Validate executed migrations:
+
+```js
+await umzug.validate();
+```
+
+Mark all migrations up to a certain point as executed:
+
+```js
+await umzug.baseline({ to: 'some-migration-name.js' })
+```
+
+See [validate](#validating-migrations) and [baseline](#baseline-migrations) for more detail (on the equivalent CLI commands).
+
 ### Migrations
 
 There are two ways to specify migrations: via files or directly via an array of migrations.
@@ -586,6 +602,8 @@ Positional arguments:
     pending   Lists pending migrations
     executed  Lists executed migrations
     create    Create a migration file
+    baseline  Baselines an existing system to a specific migration
+    validate  Validates executed migrations
 
 Optional arguments:
   -h, --help  Show this help message and exit.
@@ -689,6 +707,43 @@ Optional arguments:
   --json      Print executed migrations in a json format including names and 
               paths. This allows piping output to tools like jq. Without this 
               flag, the migration names will be printed one per line.
+```
+<!-- codegen:end -->
+
+#### Validating migrations
+
+If you have renamed, refactored or deleted migrations on the filesystem, your database may be out of sync with the "source of truth". The `validate` action can check this for you (note that validation is done automatically as part of the `up`, `down`, `pending` and `executed` commands):
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: validate} -->
+```
+usage: <script> validate [-h]
+
+Checks that all migrations currently marked as executed match those provided 
+to the umzug instance. Throws an error if any unexpected migrations are found.
+ Errors of this type can be fixed with the `baseline` command.
+
+Optional arguments:
+  -h, --help  Show this help message and exit.
+```
+<!-- codegen:end -->
+
+#### Baseline migrations
+
+If there are invalid migrations, you can mark all migrations up to a specified name as executed so that validation will succeed in future. This can also be used as a way to mark all migrations up to a certain point as executed when introducing umzug to a database that has been previously managed manually or with a different tool:
+
+<!-- codegen:start {preset: custom, source: ./codegen.js, export: cliHelp, action: baseline} -->
+```
+usage: <script> baseline [-h] --to MIGRATION_NAME
+
+Running this records all migrations up to the requested one as applied, and 
+un-logs any others. Migrations after the baselined one can then be applied as 
+usual.This can be useful for introducing Umzug to an existing database, for 
+example.
+
+Optional arguments:
+  -h, --help           Show this help message and exit.
+  --to MIGRATION_NAME  Baseline migrations to this one. All migrations up to 
+                       and including this one will be recorded as applied.
 ```
 <!-- codegen:end -->
 

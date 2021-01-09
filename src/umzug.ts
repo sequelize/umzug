@@ -193,6 +193,9 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	async executed(): Promise<MigrationMeta[]> {
 		return this.runCommand('executed', async ({ context }) => {
 			const list = await this._executed(context);
+
+			await this._validate(context);
+
 			// We do the following to not expose the `up` and `down` functions to the user
 			return list.map(m => ({ name: m.name, path: m.path }));
 		});
@@ -212,6 +215,9 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	async pending(): Promise<MigrationMeta[]> {
 		return this.runCommand('pending', async ({ context }) => {
 			const list = await this._pending(context);
+
+			await this._validate(context);
+
 			// We do the following to not expose the `up` and `down` functions to the user
 			return list.map(m => ({ name: m.name, path: m.path }));
 		});
@@ -240,32 +246,67 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		}
 	}
 
+	private async _validate(context: Ctx) {
+		const all = await this.migrations(context);
+		const executed = await this.storage.executed({ context });
+
+		const allowedNames = new Set(all.map(m => m.name));
+		const unexpectedExecuted = executed.filter(name => !allowedNames.has(name));
+
+		if (unexpectedExecuted.length > 0) {
+			const message =
+				`Validation failed: untracked migrations have been executed:\n` +
+				`${unexpectedExecuted.map(m => `- ${m}`).join('\n')}\n \n` +
+				`Migrations expected:\n` +
+				`${all.map(m => `- ${m.name}`).join('\n')}\n \n` +
+				`If migrations have been renamed or changed recently, you can baseline migrations with\n` +
+				`\`node migrate baseline --to some-migration-name.js\`\nor\n` +
+				`\`await umzug.baseline({ to: 'some-migration-name.js' })\``;
+			throw new Error(message);
+		}
+
+		return executed;
+	}
+
+	/**
+	 * Validates that the already-executed migrations match those supplied via options to this umzug instance.
+	 * Throws an error if any names are detected which don't match. If this happens (for example, if migrations are
+	 * renamed), it can be fixed by manually calling `await umzug.baseline({ name: 'some-migration-name' })`.
+	 */
+	async validate(): Promise<void> {
+		return this.runCommand('validate', async ({ context }) => {
+			await this._validate(context);
+		});
+	}
+
 	/**
 	 * Introduce umzug to existing databases/systems by baselining them at a specific migration. This will cause `up` to ignore all migrations
 	 * up to and including the baseline version. Newer migrations will then be applied as usual.
 	 */
-	async baseline(params: { name: string }): Promise<void> {
-		const all = await this.migrations();
+	async baseline(params: { to: string }): Promise<void> {
+		return this.runCommand('baseline', async ({ context }) => {
+			const all = await this.migrations(context);
 
-		const executed = await this._executed();
-		const executedNames = new Set(executed.map(e => e.name));
+			const executed = await this.storage.executed({ context });
+			const executedNames = new Set(executed);
 
-		const target = all.slice(0, this.findNameIndex(all, params.name) + 1);
-		const targetNames = new Set(target.map(t => t.name));
+			const target = all.slice(0, this.findNameIndex(all, params.to) + 1);
+			const targetNames = new Set(target.map(t => t.name));
 
-		this.logging({ event: 'baseline:before', name: executed[executed.length - 1]?.name });
+			this.logging({ event: 'baseline:before', name: executed[executed.length - 1] });
 
-		for (const m of executed.filter(e => !targetNames.has(e.name)).reverse()) {
-			this.logging({ event: 'baseline:removing', name: m.name });
-			await this.storage.unlogMigration(m.name, { context: this.context, name: m.name, path: m.path });
-		}
+			for (const m of executed.filter(e => !targetNames.has(e)).reverse()) {
+				this.logging({ event: 'baseline:removing', name: m });
+				await this.storage.unlogMigration({ context, name: m });
+			}
 
-		for (const m of target.filter(t => !executedNames.has(t.name))) {
-			this.logging({ event: 'baseline:adding', name: m.name });
-			await this.storage.logMigration(m.name, { context: this.context, name: m.name, path: m.path });
-		}
+			for (const m of target.filter(t => !executedNames.has(t.name))) {
+				this.logging({ event: 'baseline:adding', name: m.name });
+				await this.storage.logMigration({ context, name: m.name, path: m.path });
+			}
 
-		this.logging({ event: 'baseline:after', name: target[target.length - 1]?.name });
+			this.logging({ event: 'baseline:after', name: target[target.length - 1]?.name });
+		});
 	}
 
 	/**
@@ -301,6 +342,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		};
 
 		return this.runCommand('up', async ({ context }) => {
+			await this._validate(context);
 			const toBeApplied = await eligibleMigrations(context);
 
 			for (const m of toBeApplied) {
@@ -361,6 +403,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		};
 
 		return this.runCommand('down', async ({ context }) => {
+			await this._validate(context);
 			const toBeReverted = await eligibleMigrations(context);
 
 			for (const m of toBeReverted) {

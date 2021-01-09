@@ -335,6 +335,43 @@ describe('alternate migration inputs', () => {
 		]);
 	});
 
+	test('validate', async () => {
+		const spy = jest.fn();
+		const storage = memoryStorage();
+		await storage.logMigration({ name: 'this-migration-was-deleted', context: {} });
+		const umzug = new Umzug({
+			storage,
+			migrations: [
+				{ name: 'm1', up: spy, down: spy },
+				{ name: 'm2', up: spy, down: spy },
+				{ name: 'm3', up: spy, down: spy },
+			],
+			logger: undefined,
+		});
+
+		await expect(umzug.validate()).rejects.toThrowErrorMatchingInlineSnapshot(`
+					"Validation failed: untracked migrations have been executed:
+					- this-migration-was-deleted
+					 
+					Migrations expected:
+					- m1
+					- m2
+					- m3
+					 
+					If migrations have been renamed or changed recently, you can baseline migrations with
+					\`node migrate baseline --to some-migration-name.js\`
+					or
+					\`await umzug.baseline({ to: 'some-migration-name.js' })\`"
+				`);
+
+		await umzug.baseline({ to: 'm2' });
+
+		await umzug.validate();
+
+		expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
+		expect(spy).not.toHaveBeenCalled();
+	});
+
 	test('baseline', async () => {
 		const spy = jest.fn();
 		const umzug = new Umzug({
@@ -350,12 +387,12 @@ describe('alternate migration inputs', () => {
 
 		expect(names(await umzug.executed())).toEqual([]);
 
-		await umzug.baseline({ name: 'm3' });
+		await umzug.baseline({ to: 'm3' });
 
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2', 'm3']);
 		expect(spy).not.toHaveBeenCalled();
 
-		await umzug.baseline({ name: 'm2' });
+		await umzug.baseline({ to: 'm2' });
 
 		expect(names(await umzug.executed())).toEqual(['m1', 'm2']);
 		expect(spy).not.toHaveBeenCalled();
@@ -368,7 +405,7 @@ describe('alternate migration inputs', () => {
 			migrations: [{ name: 'm1', up: async () => {} }],
 			context: { someCustomSqlClient: {} },
 			storage: {
-				executed: async (...args) => spy('executed', ...args),
+				executed: async (...args) => spy('executed', ...args) || [],
 				logMigration: async (...args) => spy('logMigration', ...args),
 				unlogMigration: async (...args) => spy('unlogMigration', ...args),
 			},
@@ -377,20 +414,16 @@ describe('alternate migration inputs', () => {
 
 		await umzug.up();
 
-		expect(spy.mock.calls).toEqual([
-			['executed', { context: { someCustomSqlClient: {} } }],
-			['logMigration', { name: 'm1', context: { someCustomSqlClient: {} } }],
-		]);
+		expect(spy).toHaveBeenCalledWith('executed', { context: { someCustomSqlClient: {} } });
+		expect(spy).toHaveBeenCalledWith('logMigration', { name: 'm1', context: { someCustomSqlClient: {} } });
 
 		spy.mockClear();
-		spy.mockReturnValueOnce(['m1']);
+		spy.mockReturnValue(['m1']);
 
 		await umzug.down();
 
-		expect(spy.mock.calls).toEqual([
-			['executed', { context: { someCustomSqlClient: {} } }],
-			['unlogMigration', { name: 'm1', context: { someCustomSqlClient: {} } }],
-		]);
+		expect(spy).toHaveBeenCalledWith('executed', { context: { someCustomSqlClient: {} } });
+		expect(spy).toHaveBeenCalledWith('unlogMigration', { name: 'm1', context: { someCustomSqlClient: {} } });
 	});
 
 	test('with migrations array', async () => {
