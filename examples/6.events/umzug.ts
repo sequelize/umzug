@@ -24,11 +24,11 @@ const fakeApi = {
 	},
 };
 
-migrator.on('beforeAll', async () => {
+migrator.on('beforeCommand', async () => {
 	await fakeApi.shutdownInternalService();
 });
 
-migrator.on('afterAll', async () => {
+migrator.on('afterCommand', async () => {
 	await fakeApi.restartInternalService();
 });
 

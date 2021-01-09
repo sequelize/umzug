@@ -19,11 +19,11 @@ export const migrator = new Umzug({
 	migrations: {
 		glob: ['migrations/*.sql', { cwd: __dirname }],
 		resolve: params => {
-			const downPath = path.join(path.dirname(params.path), 'down', path.basename(params.path));
+			const downPath = path.join(path.dirname(params.path!), 'down', path.basename(params.path!));
 			return {
 				name: params.name,
 				path: params.path,
-				up: async () => params.context.query(fs.readFileSync(params.path).toString()),
+				up: async () => params.context.query(fs.readFileSync(params.path!).toString()),
 				down: async () => params.context.query(fs.readFileSync(downPath).toString()),
 			};
 		},
