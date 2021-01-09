@@ -35,10 +35,10 @@ export const migrator = new Umzug({
 			const [results] = await client.query(`select name from my_migrations_table`);
 			return results.map((r: { name: string }) => r.name);
 		},
-		async logMigration(name, { context: client }) {
+		async logMigration({ name, context: client }) {
 			await client.query(`insert into my_migrations_table(name) values ($1)`, [name]);
 		},
-		async unlogMigration(name, { context: client }) {
+		async unlogMigration({ name, context: client }) {
 			await client.query(`delete from my_migrations_table where name = $1`, [name]);
 		},
 	},
