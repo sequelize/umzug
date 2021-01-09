@@ -55,7 +55,9 @@ describe('custom context', () => {
 			logger: undefined,
 		});
 
-		umzug.on('beforeCommand', ev => ev.context.counter++);
+		umzug.on('beforeCommand', ev => {
+			ev.context.counter++;
+		});
 
 		await Promise.all([umzug.up(), umzug.up()]);
 

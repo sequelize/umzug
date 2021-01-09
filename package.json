@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@rushstack/ts-command-line": "^4.7.7",
 		"@types/verror": "^1.10.4",
-		"emittery": "^0.7.2",
+		"emittery": "^0.8.1",
 		"fs-jetpack": "^4.1.0",
 		"glob": "^7.1.6",
 		"type-fest": "^0.20.0",
