@@ -602,8 +602,8 @@ Positional arguments:
     pending   Lists pending migrations
     executed  Lists executed migrations
     create    Create a migration file
-    baseline  Baselines an existing system to a specific migration
     validate  Validates executed migrations
+    baseline  Baselines an existing system to a specific migration
 
 Optional arguments:
   -h, --help  Show this help message and exit.

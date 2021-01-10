@@ -314,8 +314,8 @@ export class UmzugCLI extends cli.CommandLineParser {
 		this.addAction(new ListAction('pending', umzug));
 		this.addAction(new ListAction('executed', umzug));
 		this.addAction(new CreateAction(umzug));
-		this.addAction(new BaselineAction(umzug));
 		this.addAction(new ValidateAction(umzug));
+		this.addAction(new BaselineAction(umzug));
 	}
 
 	onDefineParameters(): void {}
