@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs = require('fs');
+import path = require('path');
 import { Umzug } from './umzug';
 
 export interface FileLockerOptions {

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 import { SequelizeStorage as Storage } from '../../src';
 
-import * as sequelize from 'sequelize';
-import * as path from 'path';
+import sequelize = require('sequelize');
+import path = require('path');
 import { v4 as uuid } from 'uuid';
 import jetpack = require('fs-jetpack');
 

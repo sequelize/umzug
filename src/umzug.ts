@@ -1,12 +1,13 @@
-import * as path from 'path';
-import * as fs from 'fs';
+import path = require('path');
+import fs = require('fs');
 import { promisify } from 'util';
 import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
-import * as templates from './templates';
-import * as glob from 'glob';
+import templates = require('./templates');
+import glob = require('glob');
 import { CommandLineParserOptions, UmzugCLI } from './cli';
-import * as emittery from 'emittery';
-import * as VError from 'verror';
+import emittery = require('emittery');
+import VError = require('verror');
+
 import {
 	InputMigrations,
 	MigrateDownOptions,
