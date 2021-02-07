@@ -1,7 +1,7 @@
 import { Umzug } from 'umzug';
 import { Sequelize } from 'sequelize';
-import * as path from 'path';
-import * as fs from 'fs';
+import path = require('path');
+import fs = require('fs');
 
 const getRawSqlClient = () => {
 	// this implementation happens to use sequelize, but you may want to use a specialised sql client

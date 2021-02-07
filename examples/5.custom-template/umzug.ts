@@ -1,7 +1,7 @@
 import { Umzug, SequelizeStorage } from 'umzug';
 import { Sequelize } from 'sequelize';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs = require('fs');
+import path = require('path');
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',

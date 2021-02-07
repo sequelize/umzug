@@ -1,10 +1,10 @@
 import { fsSyncer } from 'fs-syncer';
 import { UmzugCLI } from '../src/cli';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as childProcess from 'child_process';
+import path = require('path');
+import fs = require('fs');
+import childProcess = require('child_process');
 import { Umzug } from '../src';
-import * as del from 'del';
+import del = require('del');
 import { expectTypeOf } from 'expect-type';
 
 describe('cli from instance', () => {

@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'expect-type';
 import { JSONStorage, UmzugStorage } from '../../src';
 import { fsSyncer } from 'fs-syncer';
-import * as path from 'path';
+import path = require('path');
 
 describe('JSONStorage', () => {
 	describe('constructor', () => {

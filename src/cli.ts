@@ -1,4 +1,4 @@
-import * as cli from '@rushstack/ts-command-line';
+import cli = require('@rushstack/ts-command-line');
 import type { MigrateDownOptions, MigrateUpOptions } from './types';
 import { Umzug } from './umzug';
 

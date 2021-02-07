@@ -1,7 +1,7 @@
 import { JSONStorage, FileLocker, Umzug } from '../src';
-import * as path from 'path';
+import path = require('path');
 import { fsSyncer } from 'fs-syncer';
-import * as pEvent from 'p-event';
+import pEvent = require('p-event');
 
 const names = (migrations: Array<{ name: string }>) => migrations.map(m => m.name);
 const delay = async (ms: number) => new Promise(r => setTimeout(r, ms));
