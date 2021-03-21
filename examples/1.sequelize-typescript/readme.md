@@ -12,5 +12,5 @@ node migrate down # revert the last migration
 node migrate down --to 0 # revert all migrations
 node migrate up --step 2 # run only two migrations
 
-node migrate --create my-migration.ts # create a new migration file
+node migrate create --name my-migration.ts # create a new migration file
 ```
