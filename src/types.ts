@@ -20,7 +20,7 @@ export interface UmzugOptions<Ctx extends {} = Record<string, unknown>> {
 	/** The storage implementation. By default, `JSONStorage` will be used */
 	storage?: UmzugStorage<Ctx>;
 	/** An optional context object, which will be passed to each migration function, if defined */
-	context?: Ctx | (() => Ctx);
+	context?: Ctx | (() => Promise<Ctx> | Ctx);
 	/** Options for file creation */
 	create?: {
 		/**

@@ -91,6 +91,49 @@ describe('custom context', () => {
 
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
+
+	describe(`resolve asynchronous context getter before the migrations run`, () => {
+		const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+		const getContext = async () => {
+			// It guarantees the initialization scripts or asynchronous stuff finished their work
+			// before the actual migrations workflow begins.
+			// Eg: const externalData = await retrieveExternalData();
+			await sleep(100);
+
+			return {
+				// Eg: externalData,
+				innerValue: 'text',
+			};
+		};
+
+		test(`context specified as a function`, async () => {
+			const spy = jest.fn();
+
+			const umzug = new Umzug({
+				migrations: [{ name: 'm2', up: spy }],
+				context: getContext,
+				logger: undefined,
+			});
+
+			await umzug.up();
+
+			expect(spy.mock.calls).toMatchObject([[{ context: { innerValue: 'text' } }]]);
+		});
+
+		test(`context specified as a function call`, async () => {
+			const spy = jest.fn();
+
+			const umzug = new Umzug({
+				migrations: [{ name: 'm3', up: spy }],
+				context: getContext(),
+				logger: undefined,
+			});
+
+			await umzug.up();
+
+			expect(spy.mock.calls).toMatchObject([[{ context: { innerValue: 'text' } }]]);
+		});
+	});
 });
 
 describe('alternate migration inputs', () => {

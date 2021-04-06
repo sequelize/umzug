@@ -228,10 +228,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	}
 
 	protected async runCommand<T>(command: string, cb: (commandParams: { context: Ctx }) => Promise<T>): Promise<T> {
-		const context: Ctx =
-			typeof this.options.context === 'function'
-				? (this.options.context as () => Ctx)()
-				: ((this.options.context ?? {}) as Ctx);
+		const context = await this.getContext();
 
 		await this.emit('beforeCommand', { command, context });
 		try {
@@ -481,6 +478,30 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 			return migration;
 		});
+	}
+
+	private async getContext(): Promise<Ctx> {
+		const isAsyncFunc = (_ctx: object | Function) => {
+			const _ctxProto = Object.prototype.toString.call(_ctx);
+			return _ctxProto === '[object AsyncFunction]';
+		};
+
+		const isPromise = (_ctx: object | Function) => {
+			const _ctxProto = Object.prototype.toString.call(_ctx);
+			return _ctxProto === '[object Promise]';
+		};
+
+		let { context = {} as Ctx }: UmzugOptions<Ctx> = this.options;
+
+		if (isAsyncFunc(context)) {
+			context = await (context as () => Promise<Ctx>)();
+		} else if (isPromise(context)) {
+			context = await Promise.resolve(context as Promise<Ctx>);
+		} else if (typeof context === 'function') {
+			context = (context as () => Ctx)();
+		}
+
+		return context;
 	}
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
