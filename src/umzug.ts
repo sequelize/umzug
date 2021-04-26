@@ -481,11 +481,6 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	}
 
 	private async getContext(): Promise<Ctx> {
-		const isAsyncFunc = (_ctx: object | Function) => {
-			const _ctxProto = Object.prototype.toString.call(_ctx);
-			return _ctxProto === '[object AsyncFunction]';
-		};
-
 		const isPromise = (_ctx: object | Function) => {
 			const _ctxProto = Object.prototype.toString.call(_ctx);
 			return _ctxProto === '[object Promise]';
@@ -493,12 +488,10 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 		let { context = {} as Ctx }: UmzugOptions<Ctx> = this.options;
 
-		if (isAsyncFunc(context)) {
-			context = await (context as () => Promise<Ctx>)();
-		} else if (isPromise(context)) {
+		if (isPromise(context)) {
 			context = await Promise.resolve(context as Promise<Ctx>);
 		} else if (typeof context === 'function') {
-			context = (context as () => Ctx)();
+			context = await (context as () => Promise<Ctx> | Ctx)();
 		}
 
 		return context;
