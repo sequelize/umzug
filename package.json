@@ -19,7 +19,7 @@
 		"emittery": "^0.8.1",
 		"fs-jetpack": "^4.1.0",
 		"glob": "^7.1.6",
-		"type-fest": "^0.20.0",
+		"type-fest": "^0.21.0",
 		"verror": "^1.10.0"
 	},
 	"devDependencies": {
