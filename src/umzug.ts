@@ -481,9 +481,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	}
 
 	private async getContext(): Promise<Ctx> {
-		const isPromise = (_ctx: object | Function) => {
-			const _ctxProto = Object.prototype.toString.call(_ctx);
-			return _ctxProto === '[object Promise]';
+		const isPromise = (_ctx: object | Function | PromiseLike<unknown>) => {
+			return 'then' in _ctx && typeof _ctx.then === 'function';
 		};
 
 		let { context = {} as Ctx }: UmzugOptions<Ctx> = this.options;
