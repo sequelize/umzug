@@ -94,6 +94,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	 */
 	declare readonly _types: {
 		migration: (params: MigrationParams<Ctx>) => Promise<unknown>;
+		context: Ctx;
 	};
 
 	/** creates a new Umzug instance */
