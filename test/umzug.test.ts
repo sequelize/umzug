@@ -99,11 +99,7 @@ describe('custom context', () => {
 			// before the actual migrations workflow begins.
 			// Eg: const externalData = await retrieveExternalData();
 			await sleep(100);
-
-			return {
-				// Eg: externalData,
-				innerValue: 'text',
-			};
+			return { innerValue: 'text' };
 		};
 
 		test(`context specified as a function`, async () => {

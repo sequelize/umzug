@@ -481,19 +481,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	}
 
 	private async getContext(): Promise<Ctx> {
-		const isPromise = (_ctx: object | Function | PromiseLike<unknown>) => {
-			return 'then' in _ctx && typeof _ctx.then === 'function';
-		};
-
-		let { context = {} as Ctx }: UmzugOptions<Ctx> = this.options;
-
-		if (isPromise(context)) {
-			context = await Promise.resolve(context as Promise<Ctx>);
-		} else if (typeof context === 'function') {
-			context = await (context as () => Promise<Ctx> | Ctx)();
-		}
-
-		return context;
+		const { context = {} } = this.options;
+		return typeof context === 'function' ? context() : context;
 	}
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
