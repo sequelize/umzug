@@ -19,7 +19,7 @@
 		"emittery": "^0.8.1",
 		"fs-jetpack": "^4.1.0",
 		"glob": "^7.1.6",
-		"type-fest": "^0.20.0",
+		"type-fest": "^0.21.0",
 		"verror": "^1.10.0"
 	},
 	"devDependencies": {
@@ -41,7 +41,7 @@
 		"expect-type": "0.11.0",
 		"fs-syncer": "0.3.4",
 		"jest": "26.6.3",
-		"lodash": "4.17.20",
+		"lodash": "4.17.21",
 		"np": "7.4.0",
 		"prettier": "2.2.1",
 		"sequelize": "5.22.3",
