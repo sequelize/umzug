@@ -6,6 +6,7 @@
 		"target": "es2018",
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"lib": ["ES2019"],
 		"resolveJsonModule": true,
 		"declaration": true,
 		"sourceMap": true,
