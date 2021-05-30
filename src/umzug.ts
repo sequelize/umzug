@@ -229,10 +229,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	}
 
 	protected async runCommand<T>(command: string, cb: (commandParams: { context: Ctx }) => Promise<T>): Promise<T> {
-		const context: Ctx =
-			typeof this.options.context === 'function'
-				? (this.options.context as () => Ctx)()
-				: ((this.options.context ?? {}) as Ctx);
+		const context = await this.getContext();
 
 		await this.emit('beforeCommand', { command, context });
 		try {
@@ -482,6 +479,11 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 			return migration;
 		});
+	}
+
+	private async getContext(): Promise<Ctx> {
+		const { context = {} } = this.options;
+		return typeof context === 'function' ? context() : context;
 	}
 
 	/** helper for parsing input migrations into a callback returning a list of ready-to-run migrations */
