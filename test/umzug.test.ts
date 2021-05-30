@@ -836,6 +836,18 @@ describe('types', () => {
 		expectTypeOf<Migration>().returns.toEqualTypeOf<Promise<unknown>>();
 	});
 
+	test('context type', () => {
+		const umzug = new Umzug({
+			migrations: { glob: '*/*.ts' },
+			context: { someCustomSqlClient: {} },
+			logger: undefined,
+		});
+
+		type Context = typeof umzug._types.context;
+
+		expectTypeOf<Context>().toMatchTypeOf<{ someCustomSqlClient: {} }>();
+	});
+
 	test('custom resolver type', () => {
 		// eslint-disable-next-line no-new
 		new Umzug({
