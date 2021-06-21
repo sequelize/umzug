@@ -489,6 +489,12 @@ Using `MongoDBStorage` will create a collection in your MongoDB database called 
 
 Detailed documentation for the options it can take are in the `MongoDBStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/mongodb.ts](./src/storage/mongodb.ts).
 
+#### TXT Storage
+
+Using `TXTStorage` will create a txt file which will contain the log of all executed migrations. You can specify the path of the file. The default for that is `umzug.txt` in the working directory of the process.
+
+Detailed documentation for the options it can take are in the `TXTStorageConstructorOptions` Typescript interface, which can be found in [src/storage/txt.ts](./src/storage/txt.ts).
+
 #### Custom
 
 In order to use a custom storage, you can pass your storage instance to Umzug constructor.
