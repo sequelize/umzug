@@ -562,7 +562,9 @@ Umzug instances provide a `.runAsCLI()` method. When called, this method will au
 // migrator.js
 const { Umzug } = require('umzug')
 
-exports.umzug = new Umzug({ ... })
+const umzug = new Umzug({ ... })
+
+exports.umzug = umzug
 
 if (require.main === module) {
   umzug.runAsCLI()
