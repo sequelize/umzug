@@ -4,7 +4,7 @@ import { expectTypeOf } from 'expect-type';
 describe('MongoDBStorage', () => {
 	const mockCollection = {
 		insertOne: jest.fn(),
-		removeOne: jest.fn(),
+		deleteOne: jest.fn(),
 		find: jest.fn().mockReturnValue({
 			sort: jest.fn().mockReturnValue({
 				toArray: jest.fn().mockResolvedValue([{ migrationName: 'fake' }]),
@@ -81,8 +81,8 @@ describe('MongoDBStorage', () => {
 		test('adds entry to storage', async () => {
 			const storage = new MongoDBStorage({ collection: mockCollection });
 			await storage.unlogMigration({ name: 'm1.txt' });
-			expect(mockCollection.removeOne).toHaveBeenCalledTimes(1);
-			expect(mockCollection.removeOne).toHaveBeenCalledWith({
+			expect(mockCollection.deleteOne).toHaveBeenCalledTimes(1);
+			expect(mockCollection.deleteOne).toHaveBeenCalledWith({
 				migrationName: 'm1.txt',
 			});
 		});
