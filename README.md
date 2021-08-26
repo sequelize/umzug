@@ -562,7 +562,9 @@ Umzug instances provide a `.runAsCLI()` method. When called, this method will au
 // migrator.js
 const { Umzug } = require('umzug')
 
-exports.umzug = new Umzug({ ... })
+const umzug = new Umzug({ ... })
+
+exports.umzug = umzug
 
 if (require.main === module) {
   umzug.runAsCLI()
@@ -717,9 +719,11 @@ You can specify a custom template for your project when constructing an umzug in
 ```js
 const umzug = new Umzug({
   migrations: ...,
-  template: filepath => [
-    [filepath, fs.readFileSync('path/to/your/template/file').toString()],
-  ]
+	create: {
+		template: filepath => [
+			[filepath, fs.readFileSync('path/to/your/template/file').toString()],
+		]
+	}
 })
 ```
 
