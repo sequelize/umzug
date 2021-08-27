@@ -291,6 +291,40 @@ const umzug = new Umzug({
 });
 ```
 
+#### Modifying the parameters passed to your migration methods
+
+Sometimes it's necessary to modify the parameters `umzug` will pass to your migration methods when the library calls the `up` and `down` methods for each migration. This is the case when using migrations currently generated using `sequilize-cli`. In this case you can use the `resolve` fuction during migration configuration to determine which parameters will be passed to the relevant method
+
+```js
+import { Sequelize } from 'sequelize'
+import { Umzug, SequelizeStorage } from 'umzug'
+
+const sequelize = new Sequelize(
+    ...
+)
+
+const umzug = new Umzug({
+    migrations: {
+        glob: 'migrations/*.js',
+        resolve: ({ name, path, context }) => {
+            const migration = require(path)
+            return {
+                // adjust the parameters Umzug will
+                // pass to migration methods when called
+                name,
+                up: async () => migration.up(context, Sequelize),
+                down: async () => migration.down(context, Sequelize),
+            }
+        },
+    },
+    context: sequelize.getQueryInterface(),
+    storage: new SequelizeStorage({ sequelize }),
+    logger: console,
+});
+```
+
+#### Additional migration configuration options
+
 To load migrations in another format, you can use the `resolve` function:
 
 ```js
