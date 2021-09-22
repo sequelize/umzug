@@ -13,7 +13,7 @@ const sequelize = new Sequelize({
 
 export const migrator = new Umzug({
 	migrations: {
-		glob: ['migrations/*.{js,cjs,mjs}', { cwd: path.dirname(import.meta.url.replace('file:///', '')) }],
+		glob: ['migrations/*.{js,cjs,mjs}', { cwd: path.dirname(import.meta.url.replace('file://', '')) }],
 		resolve: params => {
 			if (params.path.endsWith('.mjs') || params.path.endsWith('.js')) {
 				const getModule = () => import(`file:///${params.path.replace(/\\/g, '/')}`)
@@ -21,7 +21,7 @@ export const migrator = new Umzug({
 					name: params.name,
 					path: params.path,
 					up: async upParams => (await getModule()).up(upParams),
-					down: async downParams => (await getModule()).up(downParams),
+					down: async downParams => (await getModule()).down(downParams),
 				}
 			}
 			return {
