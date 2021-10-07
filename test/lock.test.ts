@@ -25,7 +25,7 @@ describe('locks', () => {
 		expect(syncer.read()).toEqual({});
 
 		const promise1 = umzug.up();
-		await pEvent(umzug, 'migrating');
+		await pEvent(umzug as pEvent.Emitter<string, any>, 'migrating');
 		const promise2 = umzug.up();
 
 		await expect(promise2).rejects.toThrowError(/Can't acquire lock. (.*)storage.json.lock exists/);
