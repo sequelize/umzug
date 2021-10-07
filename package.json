@@ -47,7 +47,7 @@
 		"sequelize": "5.22.4",
 		"sinon": "9.2.4",
 		"source-map-support": "0.5.19",
-		"sqlite3": "5.0.1",
+		"sqlite3": "^5.0.2",
 		"strip-ansi": "6.0.0",
 		"ts-jest": "26.5.1",
 		"ts-node": "9.1.1",
