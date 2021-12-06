@@ -616,7 +616,7 @@ describe('alternate migration inputs', () => {
 		});
 	});
 
-	test('allows customization via getMigrations', async () => {
+	test('allows customization via parent instance', async () => {
 		const spy = jest.fn();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/customOrdering'), {
@@ -639,7 +639,10 @@ describe('alternate migration inputs', () => {
 			logger: undefined,
 		});
 
-		const umzug = parent.extend(migrations => migrations.slice().reverse());
+		const umzug = new Umzug({
+			...parent.options,
+			migrations: async context => (await parent.migrations(context)).slice().reverse(),
+		});
 
 		await umzug.up();
 
@@ -683,8 +686,10 @@ describe('alternate migration inputs', () => {
 			logger: undefined,
 		});
 
-		const umzug = withDefaultOrdering.extend(standard => {
-			return standard.slice().sort((a, b) => a.name.localeCompare(b.name));
+		const umzug = new Umzug({
+			...withDefaultOrdering.options,
+			migrations: async ctx =>
+				(await withDefaultOrdering.migrations(ctx)).slice().sort((a, b) => a.name.localeCompare(b.name)),
 		});
 
 		await umzug.up();
@@ -860,14 +865,6 @@ describe('types', () => {
 			},
 			context: { someCustomSqlClient: {} },
 			logger: undefined,
-		});
-	});
-
-	test(`extend function doesn't allow modifying migrations array`, () => {
-		const parent = new Umzug({ migrations: [], logger: undefined });
-		parent.extend(migrations => {
-			expectTypeOf(migrations).not.toHaveProperty('reverse');
-			return migrations.slice();
 		});
 	});
 
