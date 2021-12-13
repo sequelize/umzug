@@ -21,5 +21,5 @@ jobs:
       if: matrix.sequelize-version == null
     - run: npm run test -- --coverage
     - name: Coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
       if: matrix.node-version == '14.x' && matrix.sequelize-version == null
