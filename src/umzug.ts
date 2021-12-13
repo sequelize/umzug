@@ -14,7 +14,6 @@ import {
 	MigrateUpOptions,
 	MigrationMeta,
 	MigrationParams,
-	Promisable,
 	RerunBehavior,
 	Resolver,
 	RunnableMigration,
@@ -65,7 +64,6 @@ export class MigrationError extends VError {
 
 export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx>> {
 	private readonly storage: UmzugStorage<Ctx>;
-	/** @internal */
 	readonly migrations: (ctx: Ctx) => Promise<ReadonlyArray<RunnableMigration<Ctx>>>;
 
 	/**
@@ -98,10 +96,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	};
 
 	/** creates a new Umzug instance */
-	constructor(
-		/** @internal */
-		readonly options: UmzugOptions<Ctx>
-	) {
+	constructor(readonly options: UmzugOptions<Ctx>) {
 		super();
 
 		this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage());
@@ -173,22 +168,6 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 	async runAsCLI(argv?: string[]): Promise<boolean> {
 		const cli = this.getCli();
 		return cli.execute(argv);
-	}
-
-	/**
-	 * create a clone of the current Umzug instance, allowing customising the list of migrations.
-	 * This could be used, for example, to sort the list of migrations in a specific order.
-	 */
-	extend(
-		transform: (migrations: ReadonlyArray<RunnableMigration<Ctx>>) => Promisable<Array<RunnableMigration<Ctx>>>
-	): Umzug<Ctx> {
-		return new Umzug({
-			...this.options,
-			migrations: async context => {
-				const migrations = await this.migrations(context);
-				return transform(migrations);
-			},
-		});
 	}
 
 	/** Get the list of migrations which have already been applied */

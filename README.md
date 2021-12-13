@@ -408,7 +408,7 @@ Note on migration file sorting:
   - so if your migrations are `one/m1.js`, `two/m2.js`, `three/m3.js`, the resultant order will be `one/m1.js`, `three/m3.js`, `two/m2.js`
   - similarly, if your migrations are called `m1.js`, `m2.js`, ... `m10.js`, `m11.js`, the resultant ordering will be `m1.js`, `m10.js`, `m11.js`, ... `m2.js`
 - The easiest way to deal with this is to ensure your migrations appear in a single folder, and their paths match lexicographically with the order they should run in
-- If this isn't possible, the ordering can be customised using `.extend(...)` (see below)
+- If this isn't possible, the ordering can be customised using a new instance (previously, in the beta release for v3, this could be done with `.extend(...)` - see below for example using a new instance)
 
 ### Upgrading from v2.x
 
@@ -472,17 +472,20 @@ const umzug = new Umzug({
 });
 ```
 
-Similarly, you no longer need `migrationSorting`, you can use `Umzug#extend` to manipulate migration lists directly:
+Similarly, you no longer need `migrationSorting`, you can instantiate a new `Umzug` instance to manipulate migration lists directly:
 
 ```js
 const { Umzug } = require('umzug');
 
-const umzug =
-  new Umzug({
-    migrations: { glob: 'migrations/**/*.js' },
-    context: sequelize.getQueryInterface(),
-  })
-  .extend(migrations => migrations.sort((a, b) => b.path.localeCompare(a.path)));
+const parent = new Umzug({
+  migrations: { glob: 'migrations/**/*.js' },
+  context: sequelize.getQueryInterface(),
+})
+
+const umzug = new Umzug({
+  ...parent.options,
+  migrations: ctx => (await parent.migrations()).sort((a, b) => b.path.localeCompare(a.path))
+})
 ```
 
 ### Storages
