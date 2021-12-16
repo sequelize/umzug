@@ -7,20 +7,6 @@
 
 Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
 
-_Note: master represents the next major version of umzug - v3 - which is currently in beta. For the stable version, please refer to the [v2.x branch](https://github.com/sequelize/umzug/tree/v2.x)._
-
-To install the v3-beta package:
-
-```
-npm install umzug@beta
-```
-
-To install the stable package (v2.x):
-
-```
-npm install umzug
-```
-
 ## Highlights
 
 * Written in TypeScript
@@ -36,9 +22,11 @@ npm install umzug
 
 ## Documentation
 
+_Note: these are the docs for the latest version of umzug, which has several breaking changes from v2.x. See [the upgrading section](#upgrading-from-v2x) for a migration guide. For the previous stable version, please refer to the [v2.x branch](https://github.com/sequelize/umzug/tree/v2.x)._
+
 ### Minimal Example
 
-The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage. There are several more involved examples covering a few different scenarios in the [examples folder](./examples).
+The following example uses a Sqlite database through sequelize and persists the migration data in the database itself through the sequelize storage. There are several more involved examples covering a few different scenarios in the [examples folder](./examples). Note that although this uses Sequelize, Umzug isn't coupled to Sequelize, it's just one of the (most commonly-used) supported storages.
 
 ```js
 // index.js
@@ -146,10 +134,10 @@ See [these tests](./test/umzug.test.ts) for more examples of Umzug usage, includ
 
 #### Installation
 
-The beta version of Umzug is available on npm by specifying the correct tag:
+Umzug is available on npm by specifying the correct tag:
 
 ```bash
-npm install umzug@beta
+npm install umzug
 ```
 
 #### Umzug instance
@@ -453,7 +441,11 @@ The options for `Umguz#up` and `Umzug#down` have changed:
 - `umzug.down({ migrations: ['m1', 'm2'], rerun: 'SKIP' })` will skip reverting migrations `m1` and `m2` if they haven't been run or are already reverted.
 - `umzug.up({ migrations: ['m1', 'does-not-exist', 'm2'] })` will throw an error if the migration name is not found. Note that the error will be thrown and no migrations run unless _all_ migration names are found - whether or not `rerun: 'ALLOW'` is added.
 
-The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`. The `resolve` function can also be used to upgrade your umzug version to v3 when you have existing v2-compatible migrations:
+The `context` parameter replaces `params`, and is passed in as a property to migration functions as an options object, alongs side `name` and `path`. This means the signature for migrations, which in v2 was `(context) => Promise<void>`, has changed slightly in v3, to `({ name, path, context }) => Promise<void>`.
+
+#### Handling existing v2-format migrations
+
+The `resolve` function can also be used to upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 
 ```js
 const { Umzug } = require('umzug');
@@ -593,7 +585,7 @@ Under the hood, [verror](https://npmjs.com/package/verror) is used to wrap error
 
 ### CLI
 
-🚧🚧🚧 The CLI is new to Umzug v3 beta and is not yet stable. Feedback on it is welcome in [discussions](https://github.com/sequelize/umzug/discussions) 🚧🚧🚧
+🚧🚧🚧 The CLI is new to Umzug v3. Feedback on it is welcome in [discussions](https://github.com/sequelize/umzug/discussions) 🚧🚧🚧
 
 Umzug instances provide a `.runAsCLI()` method. When called, this method will automatically cause your program to become a complete CLI, with help text and such:
 
