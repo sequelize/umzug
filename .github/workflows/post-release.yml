@@ -1,0 +1,15 @@
+name: Post-release
+on:
+  release:
+    types:
+      - published
+      - edited
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: apexskier/github-release-commenter@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          comment-template: Release {release_link} addresses this.
+          label-template: released
