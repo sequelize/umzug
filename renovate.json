@@ -21,7 +21,7 @@
         "strip-ansi"
       ],
       "excludePackagePatterns": [
-        "*eslint*"
+        "eslint"
       ],
       "automerge": true
     },
