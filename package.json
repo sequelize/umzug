@@ -44,7 +44,7 @@
 		"lodash": "4.17.21",
 		"np": "7.6.0",
 		"prettier": "2.5.1",
-		"sequelize": "5.22.4",
+		"sequelize": "6.6.5",
 		"sinon": "9.2.4",
 		"source-map-support": "0.5.21",
 		"sqlite3": "5.0.2",
