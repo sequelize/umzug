@@ -15,6 +15,13 @@
       "depTypeList": ["devDependencies"],
       "groupName": "devDependencies",
       "excludePackageNames": ["sequelize"],
+      "excludePackagePatterns": ["*eslint*"],
+      "automerge": true
+    },
+    {
+      "depTypeList": ["devDependencies"],
+      "groupName": "lint",
+      "matchPackagePatterns": ["eslint"],
       "automerge": true
     }
   ]
