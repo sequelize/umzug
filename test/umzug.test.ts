@@ -276,7 +276,7 @@ describe('alternate migration inputs', () => {
 	test('up and down options', async () => {
 		const spy = jest.fn();
 		const umzug = new Umzug({
-			migrations: [...new Array(7)]
+			migrations: [...Array.from({ length: 7 })]
 				.map((_, i) => `m${i + 1}`)
 				.map(name => ({
 					name,

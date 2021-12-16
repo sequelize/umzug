@@ -12,9 +12,14 @@
   "dependencyDashboardAutoclose": true,
   "packageRules": [
     {
-      "depTypeList": ["devDependencies"],
+      "depTypeList": [
+        "devDependencies"
+      ],
       "groupName": "devDependencies",
-      "excludePackageNames": ["sequelize"],
+      "excludePackageNames": [
+        "sequelize",
+        "strip-ansi"
+      ],
       "automerge": true
     }
   ]
