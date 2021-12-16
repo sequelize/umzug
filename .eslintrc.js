@@ -78,8 +78,10 @@ module.exports = {
 		// nice-to-haves, require some refactoring/tweaking of rules
 		'@typescript-eslint/naming-convention': 'off',
 		'@typescript-eslint/no-require-imports': 'off',
+		'unicorn/prefer-node-protocol': 'off',
+		'unicorn/prefer-module': 'off',
 
-		// xo defaults that overlap with prettier
+		// defaults from configs/plugins that overlap with prettier
 		'comma-dangle': 'off',
 		'object-curly-spacing': 'off',
 		'operator-linebreak': 'off',
@@ -97,6 +99,7 @@ module.exports = {
 		'capitalized-comments': 'off',
 		'no-promise-executor-return': 'off',
 
+		// unicorn over-reaching, IMHO
 		'unicorn/catch-error-name': 'off',
 		'unicorn/consistent-function-scoping': 'off',
 		'unicorn/expiring-todo-comments': 'warn',
@@ -104,6 +107,9 @@ module.exports = {
 		'unicorn/no-null': 'off',
 		'unicorn/prevent-abbreviations': 'off',
 		'unicorn/no-useless-undefined': 'off',
+		'unicorn/prefer-spread': 'off',
+		'unicorn/no-await-expression-member': 'off',
+		'unicorn/no-array-for-each': 'off',
 	},
 	overrides: [
 		{

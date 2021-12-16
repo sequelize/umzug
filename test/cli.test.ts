@@ -195,7 +195,7 @@ describe('create migration file', () => {
 
 	// prettier-ignore
 	beforeEach(() => {
-		const dates = [...new Array(100)].map((_, i) => new Date(new Date('2000').getTime() + (1000 * 60 * 60 * 24 * i)).toISOString());
+		const dates = [...Array.from({length: 100})].map((_, i) => new Date(new Date('2000').getTime() + (1000 * 60 * 60 * 24 * i)).toISOString());
 		jest.spyOn(Date.prototype, 'toISOString').mockImplementation(() => dates.shift()!);
 	});
 

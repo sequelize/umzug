@@ -12,16 +12,27 @@
   "dependencyDashboardAutoclose": true,
   "packageRules": [
     {
-      "depTypeList": ["devDependencies"],
+      "depTypeList": [
+        "devDependencies"
+      ],
       "groupName": "devDependencies",
-      "excludePackageNames": ["sequelize"],
-      "excludePackagePatterns": ["*eslint*"],
+      "excludePackageNames": [
+        "sequelize",
+        "strip-ansi"
+      ],
+      "excludePackagePatterns": [
+        "*eslint*"
+      ],
       "automerge": true
     },
     {
-      "depTypeList": ["devDependencies"],
+      "depTypeList": [
+        "devDependencies"
+      ],
       "groupName": "lint",
-      "matchPackagePatterns": ["eslint"],
+      "matchPackagePatterns": [
+        "eslint"
+      ],
       "automerge": true
     }
   ]
