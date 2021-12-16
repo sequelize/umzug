@@ -9,6 +9,6 @@ export const memoryStorage = (): UmzugStorage => {
 		unlogMigration: async ({ name }) => {
 			executed = executed.filter(n => n !== name);
 		},
-		executed: async () => executed.slice(),
+		executed: async () => [...executed],
 	};
 };

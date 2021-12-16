@@ -40,11 +40,9 @@ export class MongoDBStorage implements UmzugStorage {
 			throw new Error('MongoDB Connection or Collection required');
 		}
 
-		if (isMongoDBCollectionOptions(options)) {
-			this.collection = options.collection;
-		} else {
-			this.collection = options.connection.collection(options.collectionName ?? 'migrations');
-		}
+		this.collection = isMongoDBCollectionOptions(options)
+			? options.collection
+			: options.connection.collection(options.collectionName ?? 'migrations');
 
 		this.connection = (options as any).connection; // TODO remove this
 		this.collectionName = (options as any).collectionName ?? 'migrations'; // TODO remove this

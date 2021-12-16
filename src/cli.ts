@@ -216,9 +216,7 @@ export class CreateAction extends cli.CommandLineAction {
 	}
 
 	async onExecute(): Promise<void> {
-		const { umzug } = this;
-
-		await umzug
+		await this.umzug
 			.create({
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				name: this._params.name.value!,
