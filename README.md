@@ -520,6 +520,8 @@ Using `SequelizeStorage` will create a table in your SQL database called `Sequel
 
 Detailed documentation for the options it can take are in the `_SequelizeStorageConstructorOptions` TypeScript interface, which can be found in [src/storage/sequelize.ts](./src/storage/sequelize.ts).
 
+This library has been tested with sequelize v6. It may or may not work with lower versions - use at your own risk.
+
 #### MongoDB Storage
 
 Using `MongoDBStorage` will create a collection in your MongoDB database called `migrations` containing an entry for each executed migration. You will have either to pass a MongoDB Driver Collection as `collection` property. Alternatively you can pass a established MongoDB Driver connection and a collection name.

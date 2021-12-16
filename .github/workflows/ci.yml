@@ -7,7 +7,6 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x, 12.x]
-        sequelize-version: [null, latest]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -15,11 +14,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - run: npm install sequelize@${{ matrix.sequelize-version }}
-      if: matrix.sequelize-version != null
     - run: npm run lint
-      if: matrix.sequelize-version == null
     - run: npm run test -- --coverage
     - name: Coverage
       uses: codecov/codecov-action@v2
-      if: matrix.node-version == '14.x' && matrix.sequelize-version == null
+      if: matrix.node-version == '14.x'
