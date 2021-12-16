@@ -73,6 +73,11 @@ module.exports = {
 		'@typescript-eslint/no-unsafe-call': 'off',
 		'@typescript-eslint/unified-signatures': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
+		'@typescript-eslint/object-curly-spacing': 'off',
+
+		// nice-to-haves, require some refactoring/tweaking of rules
+		'@typescript-eslint/naming-convention': 'off',
+		'@typescript-eslint/no-require-imports': 'off',
 
 		// xo defaults that overlap with prettier
 		'comma-dangle': 'off',
@@ -106,6 +111,7 @@ module.exports = {
 			rules: {
 				'@typescript-eslint/no-unsafe-return': 'off',
 				'@typescript-eslint/no-non-null-assertion': 'off',
+				'@typescript-eslint/no-unsafe-assignment': 'off',
 			},
 		},
 		{
@@ -118,6 +124,7 @@ module.exports = {
 				'@typescript-eslint/no-var-requires': 'off',
 				'@typescript-eslint/no-unsafe-return': 'off',
 				'@typescript-eslint/no-non-null-assertion': 'off',
+				'@typescript-eslint/no-unsafe-assignment': 'off',
 			},
 		},
 		{

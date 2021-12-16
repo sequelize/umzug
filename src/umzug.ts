@@ -130,6 +130,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 		const getModule = () => {
 			try {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 				return require(filepath);
 			} catch (e: unknown) {
 				if (e instanceof SyntaxError && filepath.endsWith('.ts')) {
@@ -462,6 +463,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 	private async getContext(): Promise<Ctx> {
 		const { context = {} } = this.options;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return typeof context === 'function' ? context() : context;
 	}
 

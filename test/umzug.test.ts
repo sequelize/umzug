@@ -9,6 +9,7 @@ jest.mock('../src/storage', () => {
 	// to simplify test setup, override JSONStorage with memoryStorage to use the default storage but avoid hitting the disk
 	return {
 		...storage,
+		// eslint-disable-next-line object-shorthand
 		JSONStorage: function () {
 			Object.assign(this, memoryStorage());
 		},
@@ -950,7 +951,10 @@ describe('error cases', () => {
 describe('events', () => {
 	test('events', async () => {
 		const mock = jest.fn();
-		const spy = (label: string) => (...args: unknown[]) => mock(label, ...args);
+		const spy =
+			(label: string) =>
+			(...args: unknown[]) =>
+				mock(label, ...args);
 
 		const umzug = new Umzug({
 			migrations: [

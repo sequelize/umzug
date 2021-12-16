@@ -216,7 +216,7 @@ export class CreateAction extends cli.CommandLineAction {
 	}
 
 	async onExecute(): Promise<void> {
-		const umzug = this.umzug;
+		const { umzug } = this;
 
 		await umzug
 			.create({
@@ -229,7 +229,7 @@ export class CreateAction extends cli.CommandLineAction {
 				allowConfusingOrdering: this._params.allowConfusingOrdering.value,
 				skipVerify: this._params.skipVerify.value,
 			})
-			.catch(e => {
+			.catch((e: Error) => {
 				Object.entries(this._params)
 					.filter(entry => entry[0] !== 'name')
 					.forEach(([name, param]) => {
