@@ -1,8 +1,7 @@
 # Umzug
 
 [![Build Status](https://badgen.net/github/checks/sequelize/umzug/master)](https://github.com/sequelize/umzug/actions?query=workflow%3ACI)
-[![npm (stable)](https://badgen.net/npm/v/umzug)](https://www.npmjs.com/package/umzug)
-[![npm (beta)](https://badgen.net/npm/v/umzug/beta)](https://www.npmjs.com/package/umzug/v/beta)
+[![npm](https://badgen.net/npm/v/umzug)](https://www.npmjs.com/package/umzug)
 [![npm (downloads)](https://badgen.net/npm/dm/umzug)](https://npmjs.com/package/umzug)
 
 Umzug is a framework-agnostic migration tool for Node. It provides a clean API for running and rolling back tasks.
