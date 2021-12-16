@@ -97,6 +97,7 @@ export const RerunBehavior = {
 	ALLOW: 'ALLOW',
 } as const;
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type RerunBehavior = keyof typeof RerunBehavior;
 
 export type MigrateUpOptions = MergeExclusive<

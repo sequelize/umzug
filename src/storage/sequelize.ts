@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { UmzugStorage } from './contract';
 import { SetRequired } from 'type-fest';
 
@@ -122,6 +123,7 @@ export class SequelizeStorage implements UmzugStorage {
 
 	getModel(): ModelClassType {
 		if (this.sequelize.isDefined(this.modelName)) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return this.sequelize.model(this.modelName);
 		}
 
