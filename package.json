@@ -72,6 +72,10 @@
 	"author": "Sascha Depold <sascha@depold.com>",
 	"contributors": [
 		{
+			"name": "Misha Kaletsky",
+			"email": "mmkal@kaletsky.com"
+		},
+		{
 			"name": "Jukka Hyytiälä",
 			"email": "hyytiala.jukka@gmail.com"
 		},
