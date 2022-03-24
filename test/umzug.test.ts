@@ -504,7 +504,7 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Migration m2 (up) failed: Some cryptic failure"`
+			`"Migration m2 (up) failed: Original error: Some cryptic failure"`
 		);
 
 		// slightly weird format verror uses, not worth validating much more than that the `cause` is captured
@@ -575,10 +575,10 @@ describe('alternate migration inputs', () => {
 		expect([names(await umzug.pending()), names(await umzug.executed())]).toEqual([['m2.ts'], ['m1.ts']]);
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(`
-			"Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered
+								"Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered
 
-			TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
-		`);
+								TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
+						`);
 	});
 
 	test('with custom file globbing options', async () => {

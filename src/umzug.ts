@@ -6,7 +6,7 @@ import templates = require('./templates');
 import glob = require('glob');
 import { CommandLineParserOptions, UmzugCLI } from './cli';
 import emittery = require('emittery');
-import VError = require('verror');
+import errorCause = require('pony-cause');
 
 import {
 	InputMigrations,
@@ -27,38 +27,30 @@ interface MigrationErrorParams extends MigrationParams<unknown> {
 	direction: 'up' | 'down';
 }
 
-export class Rethrowable extends VError {
-	static wrap(throwable: unknown): VError {
-		if (throwable instanceof VError) {
-			return throwable;
-		}
+export class MigrationError extends errorCause.ErrorWithCause<unknown> {
+	name = 'MigrationError';
+	migration: MigrationErrorParams;
+	// TODO [>=4.0.0] Remove this backwards-compatibility with verror
+	jse_cause: unknown;
 
-		if (throwable instanceof Error) {
-			return new VError(throwable, 'Original error');
-		}
-
-		return new VError(
-			{
-				info: { original: throwable },
-			},
-			`Non-error value thrown. See info for full props: %s`,
-			throwable
-		);
+	// TODO [>=4.0.0] Take a `{ cause: ... }` options bag like the default `Error`, it looks like this because of verror backwards-compatibility.
+	constructor(migration: MigrationErrorParams, cause: unknown) {
+		super(`Migration ${migration.name} (${migration.direction}) failed: ${MigrationError.errorString(cause)}`, {
+			cause,
+		});
+		this.jse_cause = (cause as Record<string, unknown>)?.jse_cause;
+		this.migration = migration;
 	}
-}
 
-export class MigrationError extends VError {
-	constructor(migration: MigrationErrorParams, original: unknown) {
-		super(
-			{
-				cause: Rethrowable.wrap(original),
-				name: 'MigrationError',
-				info: migration,
-			},
-			'Migration %s (%s) failed',
-			migration.name,
-			migration.direction
-		);
+	// TODO [>=4.0.0] Remove this backwards-compatibility alias
+	get info() {
+		return this.migration;
+	}
+
+	private static errorString(cause: unknown) {
+		return cause instanceof Error
+			? `Original error: ${cause.message}`
+			: `Non-error value thrown. See info for full props: ${cause as string}`;
 	}
 }
 
