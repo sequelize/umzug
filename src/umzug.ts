@@ -34,11 +34,11 @@ export class MigrationError extends errorCause.ErrorWithCause<unknown> {
 	jse_cause: unknown;
 
 	// TODO [>=4.0.0] Take a `{ cause: ... }` options bag like the default `Error`, it looks like this because of verror backwards-compatibility.
-	constructor(migration: MigrationErrorParams, cause: unknown) {
-		super(`Migration ${migration.name} (${migration.direction}) failed: ${MigrationError.errorString(cause)}`, {
-			cause,
+	constructor(migration: MigrationErrorParams, original: unknown) {
+		super(`Migration ${migration.name} (${migration.direction}) failed: ${MigrationError.errorString(original)}`, {
+			cause: original,
 		});
-		this.jse_cause = (cause as Record<string, unknown>)?.jse_cause;
+		this.jse_cause = original;
 		this.migration = migration;
 	}
 

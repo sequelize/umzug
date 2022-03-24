@@ -515,7 +515,7 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Migration m1 (down) failed: Some cryptic failure"`
+			`"Migration m1 (down) failed: Original error: Some cryptic failure"`
 		);
 
 		await expect(umzug.down()).rejects.toMatchObject({
