@@ -15,18 +15,18 @@
 	],
 	"dependencies": {
 		"@rushstack/ts-command-line": "^4.7.7",
-		"@types/verror": "^1.10.4",
 		"emittery": "^0.10.0",
 		"fs-jetpack": "^4.1.0",
 		"glob": "^7.1.6",
-		"type-fest": "^2.0.0",
-		"verror": "^1.10.0"
+		"pony-cause": "^1.1.1",
+		"type-fest": "^2.0.0"
 	},
 	"devDependencies": {
 		"@types/glob": "7.2.0",
 		"@types/jest": "27.0.3",
 		"@types/lodash": "4.14.178",
 		"@types/uuid": "8.3.3",
+		"@types/verror": "^1.10.5",
 		"@typescript-eslint/eslint-plugin": "5.8.1",
 		"@typescript-eslint/parser": "5.8.1",
 		"del-cli": "4.0.1",
@@ -52,8 +52,9 @@
 		"strip-ansi": "6.0.1",
 		"ts-jest": "27.1.2",
 		"ts-node": "10.4.0",
-		"typescript": "4.5.4",
-		"uuid": "8.3.2"
+		"typescript": "4.6.2",
+		"uuid": "8.3.2",
+		"verror": "^1.10.0"
 	},
 	"scripts": {
 		"build": "del-cli lib && tsc -p tsconfig.lib.json",
