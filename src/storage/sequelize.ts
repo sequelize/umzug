@@ -148,15 +148,19 @@ export class SequelizeStorage implements UmzugStorage {
 		) as ModelClassType;
 	}
 
-	async logMigration({ name: migrationName }: { name: string }): Promise<void> {
+	protected async syncModel() {
 		await this.model.sync();
+	}
+
+	async logMigration({ name: migrationName }: { name: string }): Promise<void> {
+		await this.syncModel();
 		await this.model.create({
 			[this.columnName]: migrationName,
 		});
 	}
 
 	async unlogMigration({ name: migrationName }: { name: string }): Promise<void> {
-		await this.model.sync();
+		await this.syncModel();
 		await this.model.destroy({
 			where: {
 				[this.columnName]: migrationName,
@@ -165,7 +169,7 @@ export class SequelizeStorage implements UmzugStorage {
 	}
 
 	async executed(): Promise<string[]> {
-		await this.model.sync();
+		await this.syncModel();
 		const migrations: any[] = await this.model.findAll({ order: [[this.columnName, 'ASC']] });
 		return migrations.map(migration => {
 			const name = migration[this.columnName];
