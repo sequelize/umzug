@@ -27,7 +27,7 @@ interface MigrationErrorParams extends MigrationParams<unknown> {
 	direction: 'up' | 'down';
 }
 
-export class MigrationError extends errorCause.ErrorWithCause<unknown> {
+export class MigrationError extends errorCause.ErrorWithCause {
 	name = 'MigrationError';
 	migration: MigrationErrorParams;
 	// TODO [>=4.0.0] Remove this backwards-compatibility with verror
