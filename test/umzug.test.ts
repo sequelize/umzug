@@ -93,6 +93,27 @@ describe('custom context', () => {
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
+	test(`create with custom template extension doesn't cause bogus warning`, async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/create-custom-template'), {});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.js', { cwd: syncer.baseDir }],
+			},
+			logger: undefined,
+			create: {
+				folder: syncer.baseDir,
+				template: filepath => [[`${filepath}.x.js`, `/* custom template */`]],
+			},
+		});
+
+		await umzug.create({ name: 'test' });
+		const pending = names(await umzug.pending());
+		expect(pending).toHaveLength(1);
+		expect(pending[0]).toContain('test.x.js');
+	});
+
 	describe(`resolve asynchronous context getter before the migrations run`, () => {
 		const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 		const getContext = async () => {

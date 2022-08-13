@@ -278,7 +278,7 @@ describe('create migration file', () => {
 		);
 
 		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrowError(
-			/Expected .*2000.01.06T00.00.00.m4.txt to be a pending migration but it wasn't! You should investigate this./
+			/Expected .*2000.01.06T00.00.00.m4.txt to be a pending migration but it wasn't! Pending migration paths: (.*). You should investigate this./
 		);
 
 		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt', '--skip-verify'])).resolves

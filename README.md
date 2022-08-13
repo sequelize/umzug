@@ -757,7 +757,7 @@ const umzug = new Umzug({
 })
 ```
 
-The create command includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations.
+The create command includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations. The first pair is expected to be the "up" migration file, and to be picked up by the `pending` command.
 
 Use `node migrator create --help` for more options:
 
