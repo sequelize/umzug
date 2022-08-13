@@ -397,10 +397,12 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			});
 
 			if (!options.skipVerify) {
+				const [firstFilePath] = toWrite[0];
 				const pending = await this._pending(context);
-				if (!pending.some(p => p.path && path.resolve(p.path) === path.resolve(filepath))) {
+				if (!pending.some(p => p.path && path.resolve(p.path) === path.resolve(firstFilePath))) {
+					const paths = pending.map(p => p.path).join(', ');
 					throw new Error(
-						`Expected ${filepath} to be a pending migration but it wasn't! You should investigate this. Use skipVerify to bypass this error.`
+						`Expected ${firstFilePath} to be a pending migration but it wasn't! Pending migration paths: ${paths}. You should investigate this. Use skipVerify to bypass this error.`
 					);
 				}
 			}
