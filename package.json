@@ -1,6 +1,6 @@
 {
 	"name": "umzug",
-	"version": "3.2.0",
+	"version": "3.2.1",
 	"description": "Framework-agnostic migration tool for Node",
 	"keywords": [
 		"migrate",
