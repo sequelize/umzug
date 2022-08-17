@@ -239,10 +239,10 @@ export class CreateAction extends cli.CommandLineAction {
 	}
 }
 
-export interface CommandLineParserOptions {
+export type CommandLineParserOptions = {
 	toolFileName?: string;
 	toolDescription?: string;
-}
+};
 
 export class UmzugCLI extends cli.CommandLineParser {
 	constructor(readonly umzug: Umzug, commandLineParserOptions: CommandLineParserOptions = {}) {

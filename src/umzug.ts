@@ -23,9 +23,9 @@ import {
 
 const globAsync = promisify(glob);
 
-interface MigrationErrorParams extends MigrationParams<unknown> {
+type MigrationErrorParams = {
 	direction: 'up' | 'down';
-}
+} & MigrationParams<unknown>;
 
 export class MigrationError extends errorCause.ErrorWithCause {
 	name = 'MigrationError';
