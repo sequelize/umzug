@@ -3,10 +3,10 @@ import { UmzugStorage } from './contract';
 export const memoryStorage = (): UmzugStorage => {
 	let executed: string[] = [];
 	return {
-		logMigration: async ({ name }) => {
+		async logMigration({ name }) {
 			executed.push(name);
 		},
-		unlogMigration: async ({ name }) => {
+		async unlogMigration({ name }) {
 			executed = executed.filter(n => n !== name);
 		},
 		executed: async () => [...executed],

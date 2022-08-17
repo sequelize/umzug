@@ -275,10 +275,10 @@ describe('alternate migration inputs', () => {
 	test('up and down with step', async () => {
 		const umzug = new Umzug({
 			migrations: [
-				{ name: 'm1', up: async () => {} },
-				{ name: 'm2', up: async () => {} },
-				{ name: 'm3', up: async () => {} },
-				{ name: 'm4', up: async () => {} },
+				{ name: 'm1', async up() {} },
+				{ name: 'm2', async up() {} },
+				{ name: 'm3', async up() {} },
+				{ name: 'm4', async up() {} },
 			],
 			logger: undefined,
 		});
@@ -377,8 +377,8 @@ describe('alternate migration inputs', () => {
 	test('up and down return migration meta array', async () => {
 		const umzug = new Umzug({
 			migrations: [
-				{ name: 'm1', path: 'm1.sql', up: async () => {} },
-				{ name: 'm2', path: 'm2.sql', up: async () => {} },
+				{ name: 'm1', path: 'm1.sql', async up() {} },
+				{ name: 'm2', path: 'm2.sql', async up() {} },
 			],
 			logger: undefined,
 		});
@@ -400,7 +400,7 @@ describe('alternate migration inputs', () => {
 		const spy = jest.fn();
 
 		const umzug = new Umzug({
-			migrations: [{ name: 'm1', up: async () => {} }],
+			migrations: [{ name: 'm1', async up() {} }],
 			context: { someCustomSqlClient: {} },
 			storage: {
 				executed: async (...args) => spy('executed', ...args),
@@ -456,7 +456,7 @@ describe('alternate migration inputs', () => {
 		const spy = jest.fn();
 
 		const umzug = new Umzug({
-			migrations: context => {
+			migrations(context) {
 				expect(context).toEqual({ someCustomSqlClient: {} });
 				return [
 					{
@@ -486,13 +486,13 @@ describe('alternate migration inputs', () => {
 			migrations: [
 				{
 					name: 'm1',
-					up: async () => {},
+					async up() {},
 					down: async () => Promise.reject(new Error('Some cryptic failure')),
 				},
 				{
 					name: 'm2',
 					up: async () => Promise.reject(new Error('Some cryptic failure')),
-					down: async () => {},
+					async down() {},
 				},
 			],
 			logger: undefined,
@@ -512,13 +512,13 @@ describe('alternate migration inputs', () => {
 			migrations: [
 				{
 					name: 'm1',
-					up: async () => {},
+					async up() {},
 					down: async () => Promise.reject(new VError({ info: { extra: 'detail' } }, 'Some cryptic failure')),
 				},
 				{
 					name: 'm2',
 					up: async () => Promise.reject(new VError({ info: { extra: 'detail' } }, 'Some cryptic failure')),
-					down: async () => {},
+					async down() {},
 				},
 			],
 			logger: undefined,
@@ -552,7 +552,7 @@ describe('alternate migration inputs', () => {
 			migrations: [
 				{
 					name: 'm1',
-					up: async () => {},
+					async up() {},
 					// eslint-disable-next-line prefer-promise-reject-errors
 					down: async () => Promise.reject('Some cryptic failure'),
 				},
@@ -560,7 +560,7 @@ describe('alternate migration inputs', () => {
 					name: 'm2',
 					// eslint-disable-next-line prefer-promise-reject-errors
 					up: async () => Promise.reject('Some cryptic failure'),
-					down: async () => {},
+					async down() {},
 				},
 			],
 			logger: undefined,
@@ -750,8 +750,8 @@ describe('types', () => {
 		});
 		expectTypeOf(Umzug).toBeConstructibleWith({
 			migrations: [
-				{ name: 'm1', up: async () => {} },
-				{ name: 'm2', up: async () => {}, down: async () => {} },
+				{ name: 'm1', async up() {} },
+				{ name: 'm2', async up() {}, async down() {} },
 			],
 			logger: undefined,
 		});
@@ -880,9 +880,9 @@ describe('types', () => {
 		new Umzug({
 			migrations: {
 				glob: '*/*.ts',
-				resolve: params => {
+				resolve(params) {
 					expectTypeOf(params).toEqualTypeOf<{ name: string; path?: string; context: { someCustomSqlClient: {} } }>();
-					return { name: '', up: async () => {} };
+					return { name: '', async up() {} };
 				},
 			},
 			context: { someCustomSqlClient: {} },
@@ -1031,7 +1031,7 @@ describe('custom logger', () => {
 	test('uses custom logger', async () => {
 		const spy = jest.fn();
 		const umzug = new Umzug({
-			migrations: [{ name: 'm1', up: async () => {} }],
+			migrations: [{ name: 'm1', async up() {} }],
 			logger: {
 				info: spy,
 				warn: spy,

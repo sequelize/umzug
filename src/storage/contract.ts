@@ -1,6 +1,6 @@
 import { MigrationParams } from '../types';
 
-export interface UmzugStorage<Ctx = unknown> {
+export type UmzugStorage<Ctx = unknown> = {
 	/**
 	 * Logs migration to be considered as executed.
 	 */
@@ -15,7 +15,7 @@ export interface UmzugStorage<Ctx = unknown> {
 	 * Gets list of executed migrations.
 	 */
 	executed: (meta: Pick<MigrationParams<Ctx>, 'context'>) => Promise<string[]>;
-}
+};
 
 export function isUmzugStorage(arg: Partial<UmzugStorage>): arg is UmzugStorage {
 	return (

@@ -1,14 +1,14 @@
 import jetpack = require('fs-jetpack');
 import { UmzugStorage } from './contract';
 
-export interface JSONStorageConstructorOptions {
+export type JSONStorageConstructorOptions = {
 	/**
 	Path to JSON file where the log is stored.
 
 	@default './umzug.json'
 	*/
 	readonly path?: string;
-}
+};
 
 export class JSONStorage implements UmzugStorage {
 	public readonly path: string;
