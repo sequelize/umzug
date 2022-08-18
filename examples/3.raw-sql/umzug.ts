@@ -18,7 +18,7 @@ const getRawSqlClient = () => {
 export const migrator = new Umzug({
 	migrations: {
 		glob: ['migrations/*.sql', { cwd: __dirname }],
-		resolve: params => {
+		resolve(params) {
 			const downPath = path.join(path.dirname(params.path!), 'down', path.basename(params.path!));
 			return {
 				name: params.name,

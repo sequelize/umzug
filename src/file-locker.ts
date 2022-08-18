@@ -2,10 +2,10 @@ import fs = require('fs');
 import path = require('path');
 import { Umzug } from './umzug';
 
-export interface FileLockerOptions {
+export type FileLockerOptions = {
 	path: string;
 	fs?: typeof fs;
-}
+};
 
 /**
  * Simple locker using the filesystem. Only one lock can be held per file. An error will be thrown if the

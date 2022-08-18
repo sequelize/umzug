@@ -12,7 +12,7 @@ export type Promisable<T> = T | PromiseLike<T>;
 export type LogFn = (message: Record<string, unknown>) => void;
 
 /** Constructor options for the Umzug class */
-export interface UmzugOptions<Ctx extends {} = Record<string, unknown>> {
+export type UmzugOptions<Ctx extends {} = Record<string, unknown>> = {
 	/** The migrations that the Umzug instance should perform */
 	migrations: InputMigrations<Ctx>;
 	/** A logging function. Pass `console` to use stdout, or pass in your own logger. Pass `undefined` explicitly to disable logging. */
@@ -35,21 +35,21 @@ export interface UmzugOptions<Ctx extends {} = Record<string, unknown>> {
 		 */
 		folder?: string;
 	};
-}
+};
 
 /** Serializeable metadata for a migration. The structure returned by the external-facing `pending()` and `executed()` methods. */
-export interface MigrationMeta {
+export type MigrationMeta = {
 	/** Name - this is used as the migration unique identifier within storage */
 	name: string;
 	/** An optional filepath for the migration. Note: this may be undefined, since not all migrations correspond to files on the filesystem */
 	path?: string;
-}
+};
 
-export interface MigrationParams<T> {
+export type MigrationParams<T> = {
 	name: string;
 	path?: string;
 	context: T;
-}
+};
 
 /** A callable function for applying or reverting a migration  */
 export type MigrationFn<T = unknown> = (params: MigrationParams<T>) => Promise<unknown>;
@@ -57,12 +57,12 @@ export type MigrationFn<T = unknown> = (params: MigrationParams<T>) => Promise<u
 /**
  * A runnable migration. Represents a migration object with an `up` function which can be called directly, with no arguments, and an optional `down` function to revert it.
  */
-export interface RunnableMigration<T> extends MigrationMeta {
+export type RunnableMigration<T> = {
 	/** The effect of applying the migration */
 	up: MigrationFn<T>;
 	/** The effect of reverting the migration */
 	down?: MigrationFn<T>;
-}
+} & MigrationMeta;
 
 /** Glob instructions for migration files */
 export type GlobInputMigrations<T> = {
@@ -140,11 +140,11 @@ export type MigrateDownOptions = MergeExclusive<
 >;
 
 /** Map of eventName -> eventData type, where the keys are the string events that are emitted by an umzug instances, and the values are the payload emitted with the corresponding event. */
-export interface UmzugEvents<Ctx> {
+export type UmzugEvents<Ctx> = {
 	migrating: MigrationParams<Ctx>;
 	migrated: MigrationParams<Ctx>;
 	reverting: MigrationParams<Ctx>;
 	reverted: MigrationParams<Ctx>;
 	beforeCommand: { command: string; context: Ctx };
 	afterCommand: { command: string; context: Ctx };
-}
+};

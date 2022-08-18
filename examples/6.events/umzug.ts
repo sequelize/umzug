@@ -16,10 +16,10 @@ export const migrator = new Umzug({
 });
 
 const fakeApi = {
-	shutdownInternalService: async () => {
+	async shutdownInternalService() {
 		console.log('shutting down...');
 	},
-	restartInternalService: async () => {
+	async restartInternalService() {
 		console.log('restarting!');
 	},
 };

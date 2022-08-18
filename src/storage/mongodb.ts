@@ -3,7 +3,7 @@ import { UmzugStorage } from './contract';
 
 type AnyObject = Record<string, any>;
 
-export interface MongoDBConnectionOptions {
+export type MongoDBConnectionOptions = {
 	/**
 	A connection to target database established with MongoDB Driver
 	*/
@@ -15,14 +15,14 @@ export interface MongoDBConnectionOptions {
 	@default 'migrations'
 	*/
 	readonly collectionName?: string;
-}
+};
 
-export interface MongoDBCollectionOptions {
+export type MongoDBCollectionOptions = {
 	/**
 	A reference to a MongoDB Driver collection
 	*/
 	readonly collection: AnyObject;
-}
+};
 
 export type MongoDBStorageConstructorOptions = MongoDBConnectionOptions | MongoDBCollectionOptions;
 
