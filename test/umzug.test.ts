@@ -123,7 +123,7 @@ describe('custom context', () => {
 				glob: ['*/*.js', { cwd: syncer.baseDir }],
 				resolve(params) {
 					const name = path.basename(path.dirname(params.path!));
-					return { name, async up() {} };
+					return { name, path: params.path, async up() {} };
 				},
 			},
 			logger: undefined,
