@@ -355,13 +355,6 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			const existing = await this.migrations(context);
 			const last = existing[existing.length - 1];
 
-			const confusinglyOrdered = existing.find(e => e.path && path.basename(e.path) > fileBasename);
-			if (confusinglyOrdered && !options.allowConfusingOrdering) {
-				throw new Error(
-					`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
-				);
-			}
-
 			const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path));
 
 			if (!folder) {
@@ -375,6 +368,18 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			const toWrite = template(filepath);
 			if (toWrite.length === 0) {
 				toWrite.push([filepath, '']);
+			}
+
+			if (!options.allowConfusingOrdering) {
+				const confusinglyOrdered = existing.find(e => {
+					const existingPath = e.path;
+					return existingPath && toWrite.some(([newPath]) => existingPath > newPath);
+				});
+				if (confusinglyOrdered) {
+					throw new Error(
+						`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
+					);
+				}
 			}
 
 			toWrite.forEach(pair => {

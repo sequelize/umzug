@@ -114,6 +114,33 @@ describe('custom context', () => {
 		expect(pending[0]).toContain('test.x.js');
 	});
 
+	test(`create doesn't cause "confusing oredering" warning when migrations are nested in folders`, async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/create-nested-folders'), {});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*/*.js', { cwd: syncer.baseDir }],
+				resolve(params) {
+					const name = path.basename(path.dirname(params.path!));
+					return { name, async up() {} };
+				},
+			},
+			logger: undefined,
+			create: {
+				folder: syncer.baseDir,
+				template: filepath => [[`${filepath}/migration.js`, `/* custom template */`]],
+			},
+		});
+
+		await umzug.create({ name: 'test1' });
+		await umzug.create({ name: 'test2' });
+		const pending = names(await umzug.pending());
+		expect(pending).toHaveLength(2);
+		expect(pending[0]).toContain('test1');
+		expect(pending[1]).toContain('test2');
+	});
+
 	describe(`resolve asynchronous context getter before the migrations run`, () => {
 		const sleep = async (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 		const getContext = async () => {
