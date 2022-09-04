@@ -363,23 +363,20 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 			const filepath = path.join(folder, fileBasename);
 
-			const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
-
-			const toWrite = template(filepath);
-			if (toWrite.length === 0) {
-				toWrite.push([filepath, '']);
-			}
-
 			if (!options.allowConfusingOrdering) {
-				const confusinglyOrdered = existing.find(e => {
-					const existingPath = e.path;
-					return existingPath && toWrite.some(([newPath]) => existingPath >= newPath);
-				});
+				const confusinglyOrdered = existing.find(e => e.path && e.path >= filepath);
 				if (confusinglyOrdered) {
 					throw new Error(
 						`Can't create ${fileBasename}, since it's unclear if it should run before or after existing migration ${confusinglyOrdered.name}. Use allowConfusingOrdering to bypass this error.`
 					);
 				}
+			}
+
+			const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
+
+			const toWrite = template(filepath);
+			if (toWrite.length === 0) {
+				toWrite.push([filepath, '']);
 			}
 
 			toWrite.forEach(pair => {
