@@ -373,7 +373,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			if (!options.allowConfusingOrdering) {
 				const confusinglyOrdered = existing.find(e => {
 					const existingPath = e.path;
-					return existingPath && toWrite.some(([newPath]) => existingPath > newPath);
+					return existingPath && toWrite.some(([newPath]) => existingPath >= newPath);
 				});
 				if (confusinglyOrdered) {
 					throw new Error(
