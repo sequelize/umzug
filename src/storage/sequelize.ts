@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { UmzugStorage } from './contract';
-import { SetRequired } from 'type-fest';
+import type { UmzugStorage } from './contract';
+import type { SetRequired } from 'type-fest';
 
 type ModelTempInterface = {} & ModelClass & Record<string, any>;
 

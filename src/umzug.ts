@@ -1,25 +1,27 @@
 import path = require('path');
 import fs = require('fs');
 import { promisify } from 'util';
-import { UmzugStorage, JSONStorage, verifyUmzugStorage } from './storage';
+import type { UmzugStorage } from './storage';
+import { JSONStorage, verifyUmzugStorage } from './storage';
 import templates = require('./templates');
 import glob = require('glob');
-import { CommandLineParserOptions, UmzugCLI } from './cli';
+import type { CommandLineParserOptions } from './cli';
+import { UmzugCLI } from './cli';
 import emittery = require('emittery');
 import errorCause = require('pony-cause');
 
-import {
+import type {
 	InputMigrations,
 	MigrateDownOptions,
 	MigrateUpOptions,
 	MigrationMeta,
 	MigrationParams,
-	RerunBehavior,
 	Resolver,
 	RunnableMigration,
 	UmzugEvents,
 	UmzugOptions,
 } from './types';
+import { RerunBehavior } from './types';
 
 const globAsync = promisify(glob);
 
@@ -27,7 +29,7 @@ type MigrationErrorParams = {
 	direction: 'up' | 'down';
 } & MigrationParams<unknown>;
 
-export class MigrationError extends errorCause.ErrorWithCause {
+export class MigrationError extends errorCause.ErrorWithCause<unknown> {
 	name = 'MigrationError';
 	migration: MigrationErrorParams;
 	// TODO [>=4.0.0] Remove this backwards-compatibility with verror

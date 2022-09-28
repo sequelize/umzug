@@ -1,6 +1,6 @@
 import cli = require('@rushstack/ts-command-line');
 import type { MigrateDownOptions, MigrateUpOptions } from './types';
-import { Umzug } from './umzug';
+import type { Umzug } from './umzug';
 
 export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;

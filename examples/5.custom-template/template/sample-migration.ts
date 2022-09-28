@@ -1,4 +1,4 @@
-import { Migration } from '../umzug';
+import type { Migration } from '../umzug';
 import { DataTypes } from 'sequelize';
 
 // you can put some team-specific imports/code here to be included in every migration

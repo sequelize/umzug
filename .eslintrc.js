@@ -55,6 +55,10 @@ module.exports = {
 				args: 'after-used',
 			},
 		],
+		// not a good rule because nullish coalescing is a worse option for strings: https://github.com/typescript-eslint/typescript-eslint/issues/4906
+		'@typescript-eslint/prefer-nullish-coalescing': 'off',
+		// gets it wrong for subclasses of subclasses of `Error`
+		'@typescript-eslint/no-throw-literal': 'off',
 
 		'unicorn/import-style': [
 			'warn',
@@ -118,6 +122,7 @@ module.exports = {
 				'@typescript-eslint/no-unsafe-return': 'off',
 				'@typescript-eslint/no-non-null-assertion': 'off',
 				'@typescript-eslint/no-unsafe-assignment': 'off',
+				'@typescript-eslint/consistent-type-imports': 'off',
 			},
 		},
 		{

@@ -1,4 +1,4 @@
-import { UmzugStorage } from './contract';
+import type { UmzugStorage } from './contract';
 
 export const memoryStorage = (): UmzugStorage => {
 	let executed: string[] = [];
