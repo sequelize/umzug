@@ -4,14 +4,15 @@ import { SequelizeStorage as Storage } from '../../src';
 import sequelize = require('sequelize');
 import path = require('path');
 import { v4 as uuid } from 'uuid';
-import jetpack = require('fs-jetpack');
+import { fsSyncer } from 'fs-syncer';
 
 // TOMAYBEDO: Investigate whether we are mis-using `model.describe()` here, and get rid of `any`.
 // See https://github.com/sequelize/umzug/pull/226 and https://github.com/sequelize/sequelize/issues/12296 for details
 const describeModel = (model: any) => model.describe();
 
 describe('sequelize', () => {
-	jetpack.cwd(__dirname).dir('tmp', { empty: true });
+	const syncer = fsSyncer(path.join(process.cwd(), 'tmp'), {})
+	syncer.sync()
 
 	const helper = {} as any;
 	beforeEach(() => {
@@ -20,7 +21,7 @@ describe('sequelize', () => {
 				dialect: 'sqlite',
 				logging: false,
 			}),
-			storagePath: path.join(__dirname, `/../tmp/storage-${uuid()}.sqlite`),
+			storagePath: path.join(syncer.baseDir, `storage-${uuid()}.sqlite`),
 		});
 	});
 
