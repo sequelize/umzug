@@ -4,18 +4,28 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x, 12.x]
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Setup node 16
       uses: actions/setup-node@v2
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16.x
     - run: npm install
     - run: npm run lint
-    - run: npm run test -- --coverage
+    - run: npm test -- --coverage
     - name: Coverage
       uses: codecov/codecov-action@v2
-      if: matrix.node-version == '14.x'
+    - name: Setup node 14
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14.x
+    - run: npm test
+
+    # pretest depends on del-cli which doesn't support node 12, so run manually
+    # todo: drop node 12 in next major
+    - run: npm run pretest
+    - name: Setup node 12
+      uses: actions/setup-node@v2
+      with:
+        node-version: 12.x
+    - run: npm test --ignore-scripts
