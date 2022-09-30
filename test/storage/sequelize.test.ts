@@ -11,8 +11,8 @@ import { fsSyncer } from 'fs-syncer';
 const describeModel = (model: any) => model.describe();
 
 describe('sequelize', () => {
-	const syncer = fsSyncer(path.join(process.cwd(), 'tmp'), {})
-	syncer.sync()
+	const syncer = fsSyncer(path.join(process.cwd(), 'tmp'), {});
+	syncer.sync();
 
 	const helper = {} as any;
 	beforeEach(() => {

@@ -1,18 +1,21 @@
-import {promises as fs} from 'fs'
-import * as path from 'path'
+import { promises as fs } from 'fs';
+import * as path from 'path';
 import type { UmzugStorage } from './contract';
 
 const filesystem = {
 	/** reads a file as a string or returns null if file doesn't exist */
-	readAsync: async (filepath: string) => {
-		return fs.readFile(filepath).then(c => c.toString(), () => null)
+	async readAsync(filepath: string) {
+		return fs.readFile(filepath).then(
+			c => c.toString(),
+			() => null
+		);
 	},
 	/** writes a string as file contents, creating its parent directory if necessary */
-	writeAsync: async (filepath: string, content: string) => {
-		await fs.mkdir(path.dirname(filepath), {recursive: true})
-		await fs.writeFile(filepath, content)
-	}
-}
+	async writeAsync(filepath: string, content: string) {
+		await fs.mkdir(path.dirname(filepath), { recursive: true });
+		await fs.writeFile(filepath, content);
+	},
+};
 
 export type JSONStorageConstructorOptions = {
 	/**
