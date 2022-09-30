@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { UmzugStorage } from './contract';
+import type { UmzugStorage } from './contract';
 
 type AnyObject = Record<string, any>;
 

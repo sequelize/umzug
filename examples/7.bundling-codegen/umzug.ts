@@ -1,4 +1,5 @@
-import { Umzug, SequelizeStorage, MigrationFn } from 'umzug';
+import type { MigrationFn } from 'umzug';
+import { Umzug, SequelizeStorage } from 'umzug';
 import { Sequelize } from 'sequelize';
 import { migrations } from './barrel';
 

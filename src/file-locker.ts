@@ -1,6 +1,6 @@
 import fs = require('fs');
 import path = require('path');
-import { Umzug } from './umzug';
+import type { Umzug } from './umzug';
 
 export type FileLockerOptions = {
 	path: string;

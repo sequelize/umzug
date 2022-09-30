@@ -253,7 +253,7 @@ describe('create migration file', () => {
 		// for the second migration, the program should guess it's supposed to live next to the previous one.
 		await expect(runCLI(['create', '--name', 'm2.ts'])).resolves.toMatchInlineSnapshot(`
 					Object {
-					  "2000.01.03T00.00.00.m2.ts": "import { MigrationFn } from 'umzug';
+					  "2000.01.03T00.00.00.m2.ts": "import type { MigrationFn } from 'umzug';
 
 					export const up: MigrationFn = params => {};
 					export const down: MigrationFn = params => {};

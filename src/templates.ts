@@ -9,7 +9,7 @@ exports.down = async params => {};
 `.trimStart();
 
 export const ts = `
-import { MigrationFn } from 'umzug';
+import type { MigrationFn } from 'umzug';
 
 export const up: MigrationFn = params => {};
 export const down: MigrationFn = params => {};

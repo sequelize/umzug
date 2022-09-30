@@ -1,4 +1,4 @@
-import { UmzugStorage } from './storage';
+import type { UmzugStorage } from './storage';
 import typeFest = require('type-fest');
 
 /**

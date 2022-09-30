@@ -1,4 +1,4 @@
-import { MigrationParams } from '../types';
+import type { MigrationParams } from '../types';
 
 export type UmzugStorage<Ctx = unknown> = {
 	/**

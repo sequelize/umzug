@@ -1,5 +1,5 @@
 import jetpack = require('fs-jetpack');
-import { UmzugStorage } from './contract';
+import type { UmzugStorage } from './contract';
 
 export type JSONStorageConstructorOptions = {
 	/**
