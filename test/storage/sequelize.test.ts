@@ -65,16 +65,16 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-						Object {
-						  "name": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						    "unique": true,
-						  },
-						}
-					`);
+				{
+				  "name": {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": true,
+				    "type": "VARCHAR(255)",
+				    "unique": true,
+				  },
+				}
+			`);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					expect(description.name.defaultValue).toBeUndefined();
 
@@ -110,16 +110,16 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-						Object {
-						  "customColumn": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						    "unique": true,
-						  },
-						}
-					`);
+				{
+				  "customColumn": {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": true,
+				    "type": "VARCHAR(255)",
+				    "unique": true,
+				  },
+				}
+			`);
 				});
 		});
 
@@ -133,30 +133,30 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-						Object {
-						  "createdAt": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "DATETIME",
-						    "unique": false,
-						  },
-						  "name": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						    "unique": true,
-						  },
-						  "updatedAt": Object {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "DATETIME",
-						    "unique": false,
-						  },
-						}
-					`);
+				{
+				  "createdAt": {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "DATETIME",
+				    "unique": false,
+				  },
+				  "name": {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": true,
+				    "type": "VARCHAR(255)",
+				    "unique": true,
+				  },
+				  "updatedAt": {
+				    "allowNull": false,
+				    "defaultValue": undefined,
+				    "primaryKey": false,
+				    "type": "DATETIME",
+				    "unique": false,
+				  },
+				}
+			`);
 				});
 		});
 

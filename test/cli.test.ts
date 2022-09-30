@@ -172,21 +172,21 @@ describe('list migrations', () => {
 					m3.js"
 				`);
 		await expect(runCLI(['executed', '--json'])).resolves.toMatchInlineSnapshot(`
-					"[
-					  {
-					    \\"name\\": \\"m1.js\\",
-					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m1.js\\"
-					  },
-					  {
-					    \\"name\\": \\"m2.js\\",
-					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m2.js\\"
-					  },
-					  {
-					    \\"name\\": \\"m3.js\\",
-					    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m3.js\\"
-					  }
-					]"
-				`);
+		"[
+		  {
+		    "name": "m1.js",
+		    "path": "<cwd>/test/generated/cli/list/migrations/m1.js"
+		  },
+		  {
+		    "name": "m2.js",
+		    "path": "<cwd>/test/generated/cli/list/migrations/m2.js"
+		  },
+		  {
+		    "name": "m3.js",
+		    "path": "<cwd>/test/generated/cli/list/migrations/m3.js"
+		  }
+		]"
+	`);
 	});
 });
 
@@ -240,38 +240,38 @@ describe('create migration file', () => {
 		// a folder must be specified for the first migration
 		await expect(runCLI(['create', '--name', 'm1.js', '--folder', path.join(syncer.baseDir, 'migrations')])).resolves
 			.toMatchInlineSnapshot(`
-					Object {
-					  "2000.01.02T00.00.00.m1.js": "/** @type {import('umzug').MigrationFn<any>} */
-					exports.up = async params => {};
+		{
+		  "2000.01.02T00.00.00.m1.js": "/** @type {import('umzug').MigrationFn<any>} */
+		exports.up = async params => {};
 
-					/** @type {import('umzug').MigrationFn<any>} */
-					exports.down = async params => {};
-					",
-					}
-				`);
+		/** @type {import('umzug').MigrationFn<any>} */
+		exports.down = async params => {};
+		",
+		}
+	`);
 
 		// for the second migration, the program should guess it's supposed to live next to the previous one.
 		await expect(runCLI(['create', '--name', 'm2.ts'])).resolves.toMatchInlineSnapshot(`
-					Object {
-					  "2000.01.03T00.00.00.m2.ts": "import type { MigrationFn } from 'umzug';
+		{
+		  "2000.01.03T00.00.00.m2.ts": "import type { MigrationFn } from 'umzug';
 
-					export const up: MigrationFn = params => {};
-					export const down: MigrationFn = params => {};
-					",
-					}
-				`);
+		export const up: MigrationFn = params => {};
+		export const down: MigrationFn = params => {};
+		",
+		}
+	`);
 
 		expect(fs.existsSync(path.join(syncer.baseDir, 'migrations/down'))).toBe(false);
 		await expect(runCLI(['create', '--name', 'm3.sql'])).resolves.toMatchInlineSnapshot(`
-					Object {
-					  "2000.01.04T00.00.00.m3.sql": "-- up migration
-					",
-					  "down": Object {
-					    "2000.01.04T00.00.00.m3.sql": "-- down migration
-					",
-					  },
-					}
-				`);
+		{
+		  "2000.01.04T00.00.00.m3.sql": "-- up migration
+		",
+		  "down": {
+		    "2000.01.04T00.00.00.m3.sql": "-- down migration
+		",
+		  },
+		}
+	`);
 
 		await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
 			`"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .sql. See help for --allow-extension to avoid this error."`
@@ -283,21 +283,21 @@ describe('create migration file', () => {
 
 		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt', '--skip-verify'])).resolves
 			.toMatchInlineSnapshot(`
-					Object {
-					  "2000.01.07T00.00.00.m4.txt": "",
-					}
-				`);
+		{
+		  "2000.01.07T00.00.00.m4.txt": "",
+		}
+	`);
 
 		await expect(runCLI(['create', '--name', 'm5.cjs', '--prefix', 'DATE'])).resolves.toMatchInlineSnapshot(`
-					Object {
-					  "2000.01.08.m5.cjs": "/** @type {import('umzug').MigrationFn<any>} */
-					exports.up = async params => {};
+		{
+		  "2000.01.08.m5.cjs": "/** @type {import('umzug').MigrationFn<any>} */
+		exports.up = async params => {};
 
-					/** @type {import('umzug').MigrationFn<any>} */
-					exports.down = async params => {};
-					",
-					}
-				`);
+		/** @type {import('umzug').MigrationFn<any>} */
+		exports.down = async params => {};
+		",
+		}
+	`);
 
 		// this will fail because we're creating "000.m6.js" with no prefix. This results in an unexpected alphabetical order.
 		await expect(
@@ -309,15 +309,15 @@ describe('create migration file', () => {
 		// Explicitly allow the weird alphabetical ordering.
 		await expect(runCLI(['create', '--name', '000.m6.mjs', '--prefix', 'NONE', '--allow-confusing-ordering'])).resolves
 			.toMatchInlineSnapshot(`
-					Object {
-					  "000.m6.mjs": "/** @type {import('umzug').MigrationFn<any>} */
-					export const up = async params => {};
+		{
+		  "000.m6.mjs": "/** @type {import('umzug').MigrationFn<any>} */
+		export const up = async params => {};
 
-					/** @type {import('umzug').MigrationFn<any>} */
-					export const down = async params => {};
-					",
-					}
-				`);
+		/** @type {import('umzug').MigrationFn<any>} */
+		export const down = async params => {};
+		",
+		}
+	`);
 	});
 
 	test('create with custom template', async () => {
@@ -366,13 +366,13 @@ describe('create migration file', () => {
 
 		await expect(runCLI(['create', '--name', 'm1.sql', '--folder', path.join(syncer.baseDir, 'migrations')])).resolves
 			.toMatchInlineSnapshot(`
-					Object {
-					  "2000.01.11T00.00.00.m1.sql": "-- custom up template",
-					  "down": Object {
-					    "2000.01.11T00.00.00.m1.sql": "-- custom down template",
-					  },
-					}
-				`);
+		{
+		  "2000.01.11T00.00.00.m1.sql": "-- custom up template",
+		  "down": {
+		    "2000.01.11T00.00.00.m1.sql": "-- custom down template",
+		  },
+		}
+	`);
 	});
 
 	test('create with invalid custom template', async () => {
