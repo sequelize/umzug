@@ -20,8 +20,12 @@ jobs:
       with:
         node-version: 14.x
     - run: npm test
+
+    # pretest depends on del-cli which doesn't support node 12, so run manually
+    # todo: drop node 12 in next major
+    - run: npm run pretest
     - name: Setup node 12
       uses: actions/setup-node@v2
       with:
         node-version: 12.x
-    - run: npm test
+    - run: npm test --ignore-scripts
