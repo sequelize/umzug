@@ -757,6 +757,25 @@ const umzug = new Umzug({
 })
 ```
 
+You can also customize the format of the prefix added to migration file names:
+
+```js
+const umzug = new Umzug({
+	migrations: ...,
+	create: {
+		prefix: (prefix) => {
+			const base = new Date().toISOString().replace(/[-:]/g, "");
+			const prefixes = {
+				TIMESTAMP: base.split(".")[0],
+				DATE: base.split("T")[0],
+				NONE: '',
+			};
+			return prefixes[prefix];
+		}
+	}
+})
+```
+
 The create command includes some safety checks to make sure migrations aren't created with ambiguous ordering, and that they will be picked up by umzug when applying migrations. The first pair is expected to be the "up" migration file, and to be picked up by the `pending` command.
 
 Use `node migrator create --help` for more options:
