@@ -17,6 +17,7 @@ jest.mock('../src/storage', () => {
 });
 
 const names = (migrations: Array<{ name: string }>) => migrations.map(m => m.name);
+const paths = (migrations: Array<{ path?: string }>) => migrations.map(m => m.path);
 
 describe('basic usage', () => {
 	test('requires script files', async () => {
@@ -114,7 +115,7 @@ describe('custom context', () => {
 		expect(pending[0]).toContain('test.x.js');
 	});
 
-	test(`create doesn't cause "confusing oredering" warning when migrations are nested in folders`, async () => {
+	test(`create doesn't cause "confusing ordering" warning when migrations are nested in folders`, async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/create-nested-folders'), {});
 		syncer.sync();
 
@@ -139,6 +140,28 @@ describe('custom context', () => {
 		expect(pending).toHaveLength(2);
 		expect(pending[0]).toContain('test1');
 		expect(pending[1]).toContain('test2');
+	});
+
+	test(`create can override default migration prefix`, async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/create-custom-prefix'), {});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.js', { cwd: syncer.baseDir }],
+			},
+			logger: undefined,
+			create: {
+				folder: syncer.baseDir,
+				template: filepath => [[`${filepath}.js`, `/* custom template */`]],
+				prefix: () => 'a-custom-prefix',
+			},
+		});
+
+		await umzug.create({ name: 'test' });
+		const pending = paths(await umzug.pending());
+		expect(pending).toHaveLength(1);
+		expect(path.basename(pending[0] ?? '')).toContain('a-custom-prefix.test.js');
 	});
 
 	describe(`resolve asynchronous context getter before the migrations run`, () => {
