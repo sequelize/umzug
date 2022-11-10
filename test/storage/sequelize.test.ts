@@ -28,10 +28,10 @@ describe('sequelize', () => {
 	describe('constructor', () => {
 		it('requires a "sequelize" or "model" storage option', () => {
 			// @ts-expect-error (type error for no params)
-			expect(() => new Storage()).toThrowError('One of "sequelize" or "model" storage option is required');
+			expect(() => new Storage()).toThrow('One of "sequelize" or "model" storage option is required');
 
 			// @ts-expect-error (type error for params with missing properties)
-			expect(() => new Storage({})).toThrowError('One of "sequelize" or "model" storage option is required');
+			expect(() => new Storage({})).toThrow('One of "sequelize" or "model" storage option is required');
 		});
 
 		it('stores needed options', () => {
@@ -66,16 +66,16 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-				{
-				  "name": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": true,
-				    "type": "VARCHAR(255)",
-				    "unique": true,
-				  },
-				}
-			`);
+						{
+						  "name": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "VARCHAR(255)",
+						    "unique": true,
+						  },
+						}
+					`);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					expect(description.name.defaultValue).toBeUndefined();
 
@@ -111,16 +111,16 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-				{
-				  "customColumn": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": true,
-				    "type": "VARCHAR(255)",
-				    "unique": true,
-				  },
-				}
-			`);
+						{
+						  "customColumn": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "VARCHAR(255)",
+						    "unique": true,
+						  },
+						}
+					`);
 				});
 		});
 
@@ -134,30 +134,30 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-				{
-				  "createdAt": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "DATETIME",
-				    "unique": false,
-				  },
-				  "name": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": true,
-				    "type": "VARCHAR(255)",
-				    "unique": true,
-				  },
-				  "updatedAt": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "DATETIME",
-				    "unique": false,
-				  },
-				}
-			`);
+						{
+						  "createdAt": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "DATETIME",
+						    "unique": false,
+						  },
+						  "name": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "VARCHAR(255)",
+						    "unique": true,
+						  },
+						  "updatedAt": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "DATETIME",
+						    "unique": false,
+						  },
+						}
+					`);
 				});
 		});
 
