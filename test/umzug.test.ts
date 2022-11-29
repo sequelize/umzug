@@ -339,7 +339,7 @@ describe('alternate migration inputs', () => {
 		expect(names(await umzug.executed())).toEqual(['m2', 'm4']);
 		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4']]);
 
-		await expect(umzug.up({ migrations: ['m2', 'm4'] })).rejects.toThrowError(
+		await expect(umzug.up({ migrations: ['m2', 'm4'] })).rejects.toThrow(
 			/Couldn't find migration to apply with name "m2"/
 		);
 
@@ -361,7 +361,7 @@ describe('alternate migration inputs', () => {
 		expect(spy.mock.calls).toEqual([['up-m2'], ['up-m4'], ['up-m2'], ['up-m4'], ['up-m5'], ['up-m3']]);
 
 		// invalid migration names result in an error:
-		await expect(umzug.up({ migrations: ['m1', 'typo'], rerun: RerunBehavior.ALLOW })).rejects.toThrowError(
+		await expect(umzug.up({ migrations: ['m1', 'typo'], rerun: RerunBehavior.ALLOW })).rejects.toThrow(
 			/Couldn't find migration to apply with name "typo"/
 		);
 		// even though m1 _is_ a valid name, it shouldn't have been called - all listed migrations are verified before running any
@@ -383,7 +383,7 @@ describe('alternate migration inputs', () => {
 		expect(names(await umzug.executed())).toEqual(['m2', 'm4', 'm6']);
 		expect(spy.mock.calls).toEqual([['down-m1'], ['down-m3'], ['down-m5'], ['down-m7']]);
 
-		await expect(umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'] })).rejects.toThrowError(
+		await expect(umzug.down({ migrations: ['m1', 'm3', 'm5', 'm7'] })).rejects.toThrow(
 			/Couldn't find migration to apply with name "m1"/
 		);
 
@@ -514,11 +514,15 @@ describe('alternate migration inputs', () => {
 				{
 					name: 'm1',
 					async up() {},
-					down: async () => Promise.reject(new Error('Some cryptic failure')),
+					async down() {
+						throw new Error('Some cryptic failure');
+					},
 				},
 				{
 					name: 'm2',
-					up: async () => Promise.reject(new Error('Some cryptic failure')),
+					async up() {
+						throw new Error('Some cryptic failure');
+					},
 					async down() {},
 				},
 			],
@@ -540,11 +544,15 @@ describe('alternate migration inputs', () => {
 				{
 					name: 'm1',
 					async up() {},
-					down: async () => Promise.reject(new VError({ info: { extra: 'detail' } }, 'Some cryptic failure')),
+					async down() {
+						throw new VError({ info: { extra: 'detail' } }, 'Some cryptic failure');
+					},
 				},
 				{
 					name: 'm2',
-					up: async () => Promise.reject(new VError({ info: { extra: 'detail' } }, 'Some cryptic failure')),
+					async up() {
+						throw new VError({ info: { extra: 'detail' } }, 'Some cryptic failure');
+					},
 					async down() {},
 				},
 			],
@@ -580,13 +588,17 @@ describe('alternate migration inputs', () => {
 				{
 					name: 'm1',
 					async up() {},
-					// eslint-disable-next-line prefer-promise-reject-errors
-					down: async () => Promise.reject('Some cryptic failure'),
+
+					async down() {
+						throw 'Some cryptic failure';
+					},
 				},
 				{
 					name: 'm2',
-					// eslint-disable-next-line prefer-promise-reject-errors
-					up: async () => Promise.reject('Some cryptic failure'),
+
+					async up() {
+						throw 'Some cryptic failure';
+					},
 					async down() {},
 				},
 			],
@@ -959,7 +971,7 @@ describe('error cases', () => {
 					storage: {} as any,
 					logger: undefined,
 				})
-		).toThrowError(/Invalid umzug storage/);
+		).toThrow(/Invalid umzug storage/);
 	});
 	test('unresolvable file', async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/errors/unresolvable'), {
@@ -974,7 +986,7 @@ describe('error cases', () => {
 			logger: undefined,
 		});
 
-		await expect(umzug.up()).rejects.toThrowError(
+		await expect(umzug.up()).rejects.toThrow(
 			/No resolver specified for file .*migration1.txt. See docs for guidance on how to write a custom resolver./
 		);
 	});
@@ -992,7 +1004,7 @@ describe('error cases', () => {
 			logger: undefined,
 		});
 
-		await expect(umzug.up({ to: 'typo' })).rejects.toThrowError(/Couldn't find migration to apply with name "typo"/);
+		await expect(umzug.up({ to: 'typo' })).rejects.toThrow(/Couldn't find migration to apply with name "typo"/);
 	});
 });
 
