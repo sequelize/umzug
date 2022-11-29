@@ -11,6 +11,8 @@ export type Promisable<T> = T | PromiseLike<T>;
 
 export type LogFn = (message: Record<string, unknown>) => void;
 
+export type MigrationPrefix = 'TIMESTAMP' | 'DATE' | 'NONE';
+
 /** Constructor options for the Umzug class */
 export type UmzugOptions<Ctx extends {} = Record<string, unknown>> = {
 	/** The migrations that the Umzug instance should perform */
@@ -34,6 +36,11 @@ export type UmzugOptions<Ctx extends {} = Record<string, unknown>> = {
 		 * in the same folder as the last existing migration. The value here can be overriden by passing `folder` when calling `create`.
 		 */
 		folder?: string;
+		/**
+		 * A function for generating custom prefixes for migration files when using `create`. If this is not specified the default date formats will
+		 * be used ("1970.01.01T00.00.00" for TIMESTAMP, "1970.01.01" for DATE and "" for NONE)
+		 */
+		prefix?: (prefix: MigrationPrefix) => string;
 	};
 };
 

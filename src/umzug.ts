@@ -20,6 +20,7 @@ import type {
 	RunnableMigration,
 	UmzugEvents,
 	UmzugOptions,
+	MigrationPrefix,
 } from './types';
 import { RerunBehavior } from './types';
 
@@ -332,23 +333,28 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		});
 	}
 
+	private getDefaultPrefix(prefix: MigrationPrefix) {
+		const isoDate = new Date().toISOString();
+		const prefixes = {
+			TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+			DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
+			NONE: '',
+		};
+		return prefixes[prefix];
+	}
+
 	async create(options: {
 		name: string;
 		folder?: string;
-		prefix?: 'TIMESTAMP' | 'DATE' | 'NONE';
+		prefix?: MigrationPrefix;
 		allowExtension?: string;
 		allowConfusingOrdering?: boolean;
 		skipVerify?: boolean;
 	}): Promise<void> {
 		await this.runCommand('create', async ({ context }) => {
-			const isoDate = new Date().toISOString();
-			const prefixes = {
-				TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
-				DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
-				NONE: '',
-			};
-			const prefixType = options.prefix ?? 'TIMESTAMP';
-			const fileBasename = [prefixes[prefixType], options.name].filter(Boolean).join('.');
+			const getPrefix = this.options.create?.prefix ?? this.getDefaultPrefix;
+			const prefix = getPrefix(options.prefix ?? 'TIMESTAMP');
+			const fileBasename = [prefix, options.name].filter(Boolean).join('.');
 
 			const allowedExtensions = options.allowExtension
 				? [options.allowExtension]
