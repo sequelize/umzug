@@ -376,7 +376,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 			const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
 
-			const toWrite = template(filepath);
+			const toWrite = await template(filepath);
 			if (toWrite.length === 0) {
 				toWrite.push([filepath, '']);
 			}

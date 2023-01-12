@@ -28,7 +28,7 @@ export type UmzugOptions<Ctx extends {} = Record<string, unknown>> = {
 		 * Should return an array of [filepath, content] pairs. Usually, only one pair is needed, but to put `down` migrations in a separate
 		 * file, more than one can be returned.
 		 */
-		template?: (filepath: string) => Array<[string, string]>;
+		template?: (filepath: string) => Array<[string, string]> | Promise<Array<[string, string]>>;
 		/**
 		 * The default folder that new migration files should be generated in. If this is not specified, the new migration file will be created
 		 * in the same folder as the last existing migration. The value here can be overriden by passing `folder` when calling `create`.
