@@ -118,11 +118,8 @@ describe('custom context', () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/create-custom-template-async'), {});
 		syncer.sync();
 
-		const methodAsync:()=>Promise<string> = ()=> {
-			return new Promise((resolve)=>{
-				return resolve(`/* custom template async */`)
-			})
-		}
+		const template = async () => `/* custom template async */`;
+
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.js', { cwd: syncer.baseDir }],
@@ -130,9 +127,7 @@ describe('custom context', () => {
 			logger: undefined,
 			create: {
 				folder: syncer.baseDir,
-				template: async (filepath) => {
-					return [[`${filepath}.x.js`, await methodAsync()]]
-				}
+				template: async filepath => [[`${filepath}.x.js`, await template()]],
 			},
 		});
 
