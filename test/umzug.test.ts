@@ -114,6 +114,29 @@ describe('custom context', () => {
 		expect(pending[0]).toContain('test.x.js');
 	});
 
+	test(`create with custom template async method`, async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/create-custom-template-async'), {});
+		syncer.sync();
+
+		const template = async () => `/* custom template async */`;
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.js', { cwd: syncer.baseDir }],
+			},
+			logger: undefined,
+			create: {
+				folder: syncer.baseDir,
+				template: async filepath => [[`${filepath}.x.js`, await template()]],
+			},
+		});
+
+		await umzug.create({ name: 'testAsync' });
+		const pending = names(await umzug.pending());
+		expect(pending).toHaveLength(1);
+		expect(pending[0]).toContain('testAsync.x.js');
+	});
+
 	test(`create doesn't cause "confusing oredering" warning when migrations are nested in folders`, async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/create-nested-folders'), {});
 		syncer.sync();
