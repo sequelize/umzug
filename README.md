@@ -280,7 +280,7 @@ const umzug = new Umzug({
 
 #### Modifying the parameters passed to your migration methods
 
-Sometimes it's necessary to modify the parameters `umzug` will pass to your migration methods when the library calls the `up` and `down` methods for each migration. This is the case when using migrations currently generated using `sequilize-cli`. In this case you can use the `resolve` fuction during migration configuration to determine which parameters will be passed to the relevant method
+Sometimes it's necessary to modify the parameters `umzug` will pass to your migration methods when the library calls the `up` and `down` methods for each migration. This is the case when using migrations currently generated using `sequelize-cli`. In this case you can use the `resolve` fuction during migration configuration to determine which parameters will be passed to the relevant method
 
 ```js
 import { Sequelize } from 'sequelize'
