@@ -66,23 +66,23 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-				{
-				  "id": {
-				    "allowNull": true,
-				    "defaultValue": undefined,
-				    "primaryKey": true,
-				    "type": "INTEGER",
-				    "unique": false,
-				  },
-				  "name": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "VARCHAR(255)",
-				    "unique": false,
-				  },
-				}
-			`);
+						{
+						  "id": {
+						    "allowNull": true,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "INTEGER",
+						    "unique": false,
+						  },
+						  "name": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "VARCHAR(255)",
+						    "unique": false,
+						  },
+						}
+					`);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					expect(description.name.defaultValue).toBeUndefined();
 
@@ -118,23 +118,23 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-				{
-				  "customColumn": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "VARCHAR(255)",
-				    "unique": false,
-				  },
-				  "id": {
-				    "allowNull": true,
-				    "defaultValue": undefined,
-				    "primaryKey": true,
-				    "type": "INTEGER",
-				    "unique": false,
-				  },
-				}
-			`);
+						{
+						  "customColumn": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "VARCHAR(255)",
+						    "unique": false,
+						  },
+						  "id": {
+						    "allowNull": true,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "INTEGER",
+						    "unique": false,
+						  },
+						}
+					`);
 				});
 		});
 
@@ -148,37 +148,37 @@ describe('sequelize', () => {
 				.then(describeModel)
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
-				{
-				  "createdAt": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "DATETIME",
-				    "unique": false,
-				  },
-				  "id": {
-				    "allowNull": true,
-				    "defaultValue": undefined,
-				    "primaryKey": true,
-				    "type": "INTEGER",
-				    "unique": false,
-				  },
-				  "name": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "VARCHAR(255)",
-				    "unique": false,
-				  },
-				  "updatedAt": {
-				    "allowNull": false,
-				    "defaultValue": undefined,
-				    "primaryKey": false,
-				    "type": "DATETIME",
-				    "unique": false,
-				  },
-				}
-			`);
+						{
+						  "createdAt": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "DATETIME",
+						    "unique": false,
+						  },
+						  "id": {
+						    "allowNull": true,
+						    "defaultValue": undefined,
+						    "primaryKey": true,
+						    "type": "INTEGER",
+						    "unique": false,
+						  },
+						  "name": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "VARCHAR(255)",
+						    "unique": false,
+						  },
+						  "updatedAt": {
+						    "allowNull": false,
+						    "defaultValue": undefined,
+						    "primaryKey": false,
+						    "type": "DATETIME",
+						    "unique": false,
+						  },
+						}
+					`);
 				});
 		});
 
