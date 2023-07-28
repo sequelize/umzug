@@ -133,8 +133,6 @@ export class SequelizeStorage implements UmzugStorage {
 				[this.columnName]: {
 					type: this.columnType,
 					allowNull: false,
-					unique: true,
-					primaryKey: true,
 					autoIncrement: false,
 				},
 			},
