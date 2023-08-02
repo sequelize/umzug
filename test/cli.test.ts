@@ -274,7 +274,7 @@ describe('create migration file', () => {
 	`);
 
 		await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .sql. See help for --allow-extension to avoid this error."`
+			`"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .cts, .mts, .sql. See help for --allow-extension to avoid this error."`
 		);
 
 		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrow(
