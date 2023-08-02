@@ -367,7 +367,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 			const allowedExtensions = options.allowExtension
 				? [options.allowExtension]
-				: ['.js', '.cjs', '.mjs', '.ts', '.sql'];
+				: ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts', '.sql'];
 
 			const existing = await this.migrations(context);
 			const last = existing[existing.length - 1];
