@@ -2,7 +2,6 @@
 	"compilerOptions": {
 		"noEmit": true,
 		"allowJs": true,
-		"outDir": "lib",
 		"target": "es2018",
 		"module": "commonjs",
 		"moduleResolution": "node",
