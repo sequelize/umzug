@@ -2,8 +2,7 @@
   "name": "umzug-bundling-example",
   "version": "0.0.0",
   "scripts": {
-    "eslint": "eslint",
-    "lint": "eslint .",
+    "lint": "eslint . --ext ts",
     "build": "ncc build umzug.ts --transpile-only --out migrate"
   },
   "devDependencies": {

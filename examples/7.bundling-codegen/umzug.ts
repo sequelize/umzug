@@ -1,7 +1,7 @@
 import type { MigrationFn } from 'umzug';
 import { Umzug, SequelizeStorage } from 'umzug';
 import { Sequelize } from 'sequelize';
-import { migrations } from './barrel';
+import { migrations } from './migrations/barrel';
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',

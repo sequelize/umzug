@@ -389,10 +389,10 @@ up to date, audited ??? packages in ???ms
 
 found 0 vulnerabilities
 
-\`npm run eslint umzug.ts -- --fix\` output:
+\`npm run lint -- --fix\` output:
 
-> umzug-bundling-example@0.0.0 eslint
-> eslint umzug.ts --fix
+> umzug-bundling-example@0.0.0 lint
+> eslint . --ext ts --fix
 
 \`npm run build\` output:
 
@@ -428,8 +428,8 @@ ncc: Using typescript@4.8.4 (local user-provided)
   path: 'migrations/<<timestamp>>.new-migration.ts'
 }
 
-\`npm run eslint umzug.ts -- --fix\` output:
+\`npm run lint -- --fix\` output:
 
-> umzug-bundling-example@0.0.0 eslint
-> eslint umzug.ts --fix"
+> umzug-bundling-example@0.0.0 lint
+> eslint . --ext ts --fix"
 `;
