@@ -9,12 +9,16 @@ const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex));
 examples.forEach(ex => {
 	test(`example ${ex}`, async () => {
 		const dir = path.join(examplesDir, ex);
-		const readme = fs.readFileSync(path.join(dir, 'README.md')).toString();
+		const readmeFile = fs.readdirSync(dir).find(f => f.toLowerCase() === 'readme.md');
+		const readme = fs.readFileSync(path.join(dir, readmeFile!)).toString();
 		const bash = readme.split('```bash')[1].split('```')[0].trim();
 
 		/** get rid of any untracked files, including newly-created migrations and the sqlite db file, so that each run is from scratch and has the same output (give or take timings etc.) */
 		const cleanup = () => {
-			childProcess.execSync('git clean migrations seeders db.sqlite -fx', { cwd: dir, stdio: 'inherit' });
+			childProcess.execSync('git checkout migrations && git clean migrations seeders db.sqlite -fx', {
+				cwd: dir,
+				stdio: 'inherit',
+			});
 		};
 
 		cleanup();
