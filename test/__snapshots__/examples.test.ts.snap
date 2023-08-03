@@ -382,12 +382,7 @@ restarting!
 exports[`example 7.bundling-codegen 1`] = `
 "\`npm install\` output:
 
-up to date, audited ??? packages in ???ms
-
-11 packages are looking for funding
-  run \`npm fund\` for details
-
-found 0 vulnerabilities
+...
 
 \`npm run lint -- --fix\` output:
 

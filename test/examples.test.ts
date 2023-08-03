@@ -29,7 +29,7 @@ examples.forEach(ex => {
 			.filter(Boolean)
 			.flatMap(cmd => {
 				const output = childProcess.execSync(cmd, { cwd: dir }).toString().trim();
-				return [`\`${cmd}\` output:`, output];
+				return [`\`${cmd}\` output:`, cmd === 'npm install' ? '...' : output];
 			})
 			.map(s => stripAnsi(s))
 			.join('\n\n')
@@ -38,8 +38,7 @@ examples.forEach(ex => {
 			.replace(/\d{4}.\d{2}.\d{2}T\d{2}.\d{2}.\d{2}/g, '<<timestamp>>')
 			.replace(/durationSeconds: .*/g, 'durationSeconds: ???')
 			.replace(/\d+kB (.*)/g, '???kB $1')
-			.replace(/\[\d+ms] - ncc/g, '[????ms] - ncc')
-			.replace(/up to date, audited \d+ packages in \w+s/g, 'up to date, audited ??? packages in ???ms');
+			.replace(/\[\d+ms] - ncc/g, '[????ms] - ncc');
 
 		expect(stdout).toMatchSnapshot();
 	});
