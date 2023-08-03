@@ -142,10 +142,12 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 				name,
 				path: filepath,
 				async up({ context }) {
-					return import(filepath).then(mod => mod.up({ path: filepath, name, context }) as unknown);
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-return, no-eval
+					return eval('import(filepath)').then((mod: any) => mod.up({ path: filepath, name, context }) as unknown);
 				},
 				async down({ context }) {
-					return import(filepath).then(mod => mod.down({ path: filepath, name, context }) as unknown);
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-return, no-eval
+					return eval('import(filepath)').then((mod: any) => mod.down({ path: filepath, name, context }) as unknown);
 				},
 			};
 		}
