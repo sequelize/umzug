@@ -91,7 +91,7 @@ Executing (default): INSERT INTO \`SequelizeMeta\` (\`name\`) VALUES ($1);
 
 {
   event: 'created',
-  path: '/Users/mmkal/src/umzug/examples/1.sequelize-typescript/migrations/<<timestamp>>.new-migration.ts'
+  path: '<<cwd>>/examples/1.sequelize-typescript/migrations/<<timestamp>>.new-migration.ts'
 }
 Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
 Executing (default): PRAGMA INDEX_LIST(\`SequelizeMeta\`)
@@ -150,14 +150,14 @@ For detailed help about a specific command, use: <script> <command>
 
 {
   event: 'created',
-  path: '/Users/mmkal/src/umzug/examples/2.es-modules/migrations/<<timestamp>>.new-migration-1.cjs'
+  path: '<<cwd>>/examples/2.es-modules/migrations/<<timestamp>>.new-migration-1.cjs'
 }
 
 \`node umzug.mjs create --name new-migration-2.mjs\` output:
 
 {
   event: 'created',
-  path: '/Users/mmkal/src/umzug/examples/2.es-modules/migrations/<<timestamp>>.new-migration-2.mjs'
+  path: '<<cwd>>/examples/2.es-modules/migrations/<<timestamp>>.new-migration-2.mjs'
 }"
 `;
 
@@ -333,7 +333,7 @@ Executing (default): DELETE FROM \`seeder_meta\` WHERE \`name\` = '<<timestamp>>
 
 {
   event: 'created',
-  path: '/Users/mmkal/src/umzug/examples/4.sequelize-seeders/seeders/<<timestamp>>.new-seed-data.ts'
+  path: '<<cwd>>/examples/4.sequelize-seeders/seeders/<<timestamp>>.new-seed-data.ts'
 }
 Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
 Executing (default): PRAGMA INDEX_LIST(\`seeder_meta\`)
