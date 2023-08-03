@@ -1,4 +1,4 @@
 .cache
 package-lock.json
 yarn.lock
-migrate.js
+migrate/index.js

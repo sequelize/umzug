@@ -8,13 +8,13 @@ To try out this example, install parcel with `npm install --global parcel-bundle
 
 ```bash
 npm install
-npm run lint -- --fix # makes sure barrel is up to date
+npm run eslint umzug.ts -- --fix # makes sure barrel is up to date
 npm run build
 
 node migrate up # apply migrations
 
-node migrate create --name my-migration.ts --skip-verify # create a new migration file
-npm run lint -- --fix # makes sure barrel is up to date
+node migrate create --name new-migration.ts --skip-verify # create a new migration file
+npm run eslint umzug.ts -- --fix # makes sure barrel is up to date
 ```
 
 Since the codegen lint plugin just creates a simple JavaScript object using regular imports, the same technique can be used with any other bundling library (e.g. webpack, pkg etc.).

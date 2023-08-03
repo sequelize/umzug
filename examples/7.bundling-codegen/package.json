@@ -2,11 +2,12 @@
   "name": "umzug-bundling-example",
   "version": "0.0.0",
   "scripts": {
+    "eslint": "eslint",
     "lint": "eslint .",
-    "build": "parcel build ./umzug.ts --no-minify --target node --out-dir . --out-file migrate.js --no-source-maps"
+    "build": "ncc build umzug.ts --transpile-only --out migrate"
   },
   "devDependencies": {
-    "eslint": "7.15.0",
-    "parcel-bundler": "1.12.4"
+    "@vercel/ncc": "^0.36.1",
+    "eslint": "7.15.0"
   }
 }

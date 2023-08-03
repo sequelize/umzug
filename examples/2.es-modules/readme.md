@@ -12,6 +12,6 @@ node umzug.mjs --help
 node umzug.mjs up
 node umzug.mjs down
 
-node umzug.mjs create --name my-new-migration.mjs
-node umzug.mjs create --name my-new-migration.cjs
+node umzug.mjs create --name new-migration-1.cjs
+node umzug.mjs create --name new-migration-2.mjs
 ```
