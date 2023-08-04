@@ -27,6 +27,7 @@ examples.forEach(ex => {
 			.split('\n')
 			.map(line => line.split('#')[0].trim())
 			.filter(Boolean)
+			.map(cmd => cmd.replace('--fix', '"--fix"'))
 			.flatMap(cmd => {
 				const output = childProcess.execSync(cmd, { cwd: dir }).toString().trim();
 				return [`\`${cmd}\` output:`, cmd === 'npm install' || cmd.includes('--help') ? '...' : output];
