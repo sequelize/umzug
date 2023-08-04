@@ -320,7 +320,7 @@ exports[`example 7.bundling-codegen 1`] = `
 
 ...
 
-\`npm run lint -- "--fix"\` output:
+\`npm run lint -- --fix\` output:
 
 > umzug-bundling-example@0.0.0 lint
 > eslint . --ext ts --fix
@@ -356,7 +356,7 @@ ncc: Using typescript@4.8.4 (local user-provided)
 
 { event: 'created', path: '<<timestamp>>.new-migration.ts' }
 
-\`npm run lint -- "--fix"\` output:
+\`npm run lint -- --fix\` output:
 
 > umzug-bundling-example@0.0.0 lint
 > eslint . --ext ts --fix"

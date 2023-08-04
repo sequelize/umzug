@@ -27,7 +27,6 @@ examples.forEach(ex => {
 			.split('\n')
 			.map(line => line.split('#')[0].trim())
 			.filter(Boolean)
-			.map(cmd => cmd.replace('--fix', '"--fix"'))
 			.flatMap(cmd => {
 				const output = childProcess.execSync(cmd, { cwd: dir }).toString().trim();
 				return [`\`${cmd}\` output:`, cmd === 'npm install' || cmd.includes('--help') ? '...' : output];
@@ -39,7 +38,9 @@ examples.forEach(ex => {
 			.replace(/\d{4}.\d{2}.\d{2}T\d{2}.\d{2}.\d{2}/g, '<<timestamp>>')
 			.replace(/durationSeconds: .*/g, 'durationSeconds: ???')
 			.replace(/\d+kB (.*)/g, '???kB $1')
-			.replace(/\[\d+ms] - ncc/g, '[????ms] - ncc');
+			.replace(/\[\d+ms] - ncc/g, '[????ms] - ncc')
+			.replace(/"--fix"/g, '--fix')
+			.replace(/(umzug-bundling-example@0.0.0 lint)( <<cwd>>\/examples\/7.bundling-codegen)?/g, '$1');
 
 		expect(stdout).toMatchSnapshot();
 	});
