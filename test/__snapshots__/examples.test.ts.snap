@@ -3,23 +3,7 @@
 exports[`example 1.sequelize-typescript 1`] = `
 "\`node migrate --help\` output:
 
-usage: <script> [-h] <command> ...
-
-Umzug migrator
-
-Positional arguments:
-  <command>
-    up        Applies pending migrations
-    down      Revert migrations
-    pending   Lists pending migrations
-    executed  Lists executed migrations
-    create    Create a migration file
-
-Optional arguments:
-  -h, --help  Show this help message and exit.
-
-For detailed help about a specific command, use: <script> <command> 
--h
+...
 
 \`node migrate up\` output:
 
@@ -102,23 +86,7 @@ Executing (default): SELECT \`name\` FROM \`SequelizeMeta\` AS \`SequelizeMeta\`
 exports[`example 2.es-modules 1`] = `
 "\`node umzug.mjs --help\` output:
 
-usage: <script> [-h] <command> ...
-
-Umzug migrator
-
-Positional arguments:
-  <command>
-    up        Applies pending migrations
-    down      Revert migrations
-    pending   Lists pending migrations
-    executed  Lists executed migrations
-    create    Create a migration file
-
-Optional arguments:
-  -h, --help  Show this help message and exit.
-
-For detailed help about a specific command, use: <script> <command> 
--h
+...
 
 \`node umzug.mjs up\` output:
 
@@ -180,43 +148,11 @@ Executing (default): insert into my_migrations_table(name) values ($1)
 exports[`example 4.sequelize-seeders 1`] = `
 "\`node migrate --help\` output:
 
-usage: <script> [-h] <command> ...
-
-Umzug migrator
-
-Positional arguments:
-  <command>
-    up        Applies pending migrations
-    down      Revert migrations
-    pending   Lists pending migrations
-    executed  Lists executed migrations
-    create    Create a migration file
-
-Optional arguments:
-  -h, --help  Show this help message and exit.
-
-For detailed help about a specific command, use: <script> <command> 
--h
+...
 
 \`node seed --help\` output:
 
-usage: <script> [-h] <command> ...
-
-Umzug migrator
-
-Positional arguments:
-  <command>
-    up        Applies pending migrations
-    down      Revert migrations
-    pending   Lists pending migrations
-    executed  Lists executed migrations
-    create    Create a migration file
-
-Optional arguments:
-  -h, --help  Show this help message and exit.
-
-For detailed help about a specific command, use: <script> <command> 
--h
+...
 
 \`node seed up || echo failed\` output:
 
