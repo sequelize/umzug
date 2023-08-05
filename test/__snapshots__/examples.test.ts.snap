@@ -322,19 +322,11 @@ exports[`example 7.bundling-codegen 1`] = `
 
 \`npm run lint -- --fix\` output:
 
-> umzug-bundling-example@0.0.0 lint
-> eslint . --ext ts --fix
+...
 
 \`npm run build\` output:
 
-> umzug-bundling-example@0.0.0 build
-> ncc build umzug.ts --transpile-only --out migrate
-
-ncc: Version 0.36.1
-ncc: Compiling file index.js into CJS
-ncc: Using typescript@4.8.4 (local user-provided)
-???kB  migrate/index.js
-???kB  [????ms] - ncc 0.36.1
+...
 
 \`node migrate up\` output:
 
@@ -358,6 +350,5 @@ ncc: Using typescript@4.8.4 (local user-provided)
 
 \`npm run lint -- --fix\` output:
 
-> umzug-bundling-example@0.0.0 lint
-> eslint . --ext ts --fix"
+..."
 `;

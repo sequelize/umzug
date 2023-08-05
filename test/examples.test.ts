@@ -29,7 +29,7 @@ examples.forEach(ex => {
 			.filter(Boolean)
 			.flatMap(cmd => {
 				const output = childProcess.execSync(cmd, { cwd: dir }).toString().trim();
-				return [`\`${cmd}\` output:`, cmd === 'npm install' || cmd.includes('--help') ? '...' : output];
+				return [`\`${cmd}\` output:`, cmd.startsWith('npm') || cmd.endsWith('--help') ? '...' : output];
 			})
 			.map(s => stripAnsi(s))
 			.join('\n\n')
