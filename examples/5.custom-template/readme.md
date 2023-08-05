@@ -5,5 +5,5 @@ The implementation simply reads the template file from a predefined folder, but 
 Usage:
 
 ```bash
-node migrate --create my-migration.ts
+node migrate create --name new-migration.ts
 ```

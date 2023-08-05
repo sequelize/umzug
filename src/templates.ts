@@ -11,8 +11,8 @@ exports.down = async params => {};
 export const ts = `
 import type { MigrationFn } from 'umzug';
 
-export const up: MigrationFn = params => {};
-export const down: MigrationFn = params => {};
+export const up: MigrationFn = async params => {};
+export const down: MigrationFn = async params => {};
 `.trimStart();
 
 export const mjs = `

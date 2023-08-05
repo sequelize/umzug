@@ -255,8 +255,8 @@ describe('create migration file', () => {
 		{
 		  "2000.01.03T00.00.00.m2.ts": "import type { MigrationFn } from 'umzug';
 
-		export const up: MigrationFn = params => {};
-		export const down: MigrationFn = params => {};
+		export const up: MigrationFn = async params => {};
+		export const down: MigrationFn = async params => {};
 		",
 		}
 	`);

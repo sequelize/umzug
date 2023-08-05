@@ -9,12 +9,12 @@ Usage example:
 node migrate --help
 node seed --help
 
-node seed up # will fail, since tables haven't been created yet
+node seed up || echo failed # will fail, since tables haven't been created yet
 
 node migrate up # creates tables
 node seed up # inserts seed data
 
 node seed down --to 0 # removes all seed data
 
-node seed create --name more-seed-data.ts # create a placeholder migration file for inserting more seed data.
+node seed create --name new-seed-data.ts # create a placeholder migration file for inserting more seed data.
 ```
