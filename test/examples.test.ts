@@ -28,19 +28,14 @@ examples.forEach(ex => {
 			.map(line => line.split('#')[0].trim())
 			.filter(Boolean)
 			.flatMap(cmd => {
-				const output = childProcess.execSync(cmd, { cwd: dir }).toString().trim();
-				return [`\`${cmd}\` output:`, cmd.startsWith('npm') || cmd.endsWith('--help') ? '...' : output];
+				let output = childProcess.execSync(`sh -c "${cmd} 2>&1"`, { cwd: dir }).toString().trim();
+				output = cmd.startsWith('npm') || cmd.endsWith('--help') ? '...' : output; // npm commands and `--help` are formatted inconsistently and aren't v relevant
+				output = output.split(process.cwd()).join('<<cwd>>'); // cwd varies by machine
+				output = output.replace(/durationSeconds: .*/g, 'durationSeconds: ???'); // migrations durations vary by a few milliseconds
+				output = output.replace(/\d{4}.\d{2}.\d{2}T\d{2}.\d{2}.\d{2}/g, '<<timestamp>>'); // the river of time flows only in one direction
+				return [`\`${cmd}\` output:`, output];
 			})
-			.map(s => stripAnsi(s))
-			.join('\n\n')
-			.split(process.cwd())
-			.join('<<cwd>>')
-			.replace(/\d{4}.\d{2}.\d{2}T\d{2}.\d{2}.\d{2}/g, '<<timestamp>>')
-			.replace(/durationSeconds: .*/g, 'durationSeconds: ???')
-			.replace(/\d+kB (.*)/g, '???kB $1')
-			.replace(/\[\d+ms] - ncc/g, '[????ms] - ncc')
-			.replace(/"--fix"/g, '--fix')
-			.replace(/(umzug-bundling-example@0.0.0 lint)( <<cwd>>\/examples\/7.bundling-codegen)?/g, '$1');
+			.join('\n\n');
 
 		expect(stdout).toMatchSnapshot();
 	});
