@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup node 16
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: 16.x
     - run: npm install
@@ -16,7 +16,7 @@ jobs:
     - name: Coverage
       uses: codecov/codecov-action@v3
     - name: Setup node 14
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: 14.x
     - run: npm test
@@ -25,7 +25,7 @@ jobs:
     # todo: drop node 12 in next major
     - run: npm run pretest
     - name: Setup node 12
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: 12.x
     - run: npm test --ignore-scripts
