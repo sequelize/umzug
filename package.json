@@ -15,7 +15,7 @@
 	],
 	"dependencies": {
 		"@rushstack/ts-command-line": "^4.12.2",
-		"emittery": "^0.13.0",
+		"emittery": "^1.0.0",
 		"glob": "^8.0.3",
 		"pony-cause": "^2.1.4",
 		"type-fest": "^3.0.0"
