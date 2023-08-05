@@ -31,7 +31,8 @@
       ],
       "groupName": "lint",
       "matchPackagePatterns": [
-        "eslint"
+        "eslint",
+        "prettier"
       ],
       "automerge": true
     }
