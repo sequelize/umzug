@@ -27,7 +27,12 @@ export type SequelizeType = {
 	isDefined(modelName: string): boolean;
 	model(modelName: string): any;
 	define(modelName: string, columns: {}, options: {}): {};
+	dialect?: {
+		name?: string;
+	};
 };
+
+const DIALECTS_WITH_CHARSET_AND_COLLATE = new Set(['mysql', 'mariadb', 'snowflake']);
 
 type ModelClassType = ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
 
@@ -127,6 +132,9 @@ export class SequelizeStorage implements UmzugStorage {
 			return this.sequelize.model(this.modelName);
 		}
 
+		const dialectName = this.sequelize.dialect?.name;
+		const hasCharsetAndCollate = dialectName && DIALECTS_WITH_CHARSET_AND_COLLATE.has(dialectName);
+
 		return this.sequelize.define(
 			this.modelName,
 			{
@@ -142,8 +150,8 @@ export class SequelizeStorage implements UmzugStorage {
 				tableName: this.tableName,
 				schema: this.schema,
 				timestamps: this.timestamps,
-				charset: 'utf8',
-				collate: 'utf8_unicode_ci',
+				charset: hasCharsetAndCollate ? 'utf8' : null,
+				collate: hasCharsetAndCollate ? 'utf8_unicode_ci' : null,
 			}
 		) as ModelClassType;
 	}
