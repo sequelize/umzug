@@ -29,33 +29,42 @@ jobs:
       with:
         node-version: 12.x
     - run: npm test --ignore-scripts
-  test_pkg:
+  create_tgz:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup node 20
-      uses: actions/setup-node@v2
-      with:
-        node-version: 20.x
-    - run: npm install
-    - name: shim test to use packed package
-      run: |
-        sed -i "s|new JSONStorage|memoryStorage|g" src/umzug.ts
-        sed -i "s|JSONStorage|memoryStorage|g" src/umzug.ts
-
-        npm run build
-
-        npm pack
-        mv $(ls | grep .tgz) umzug.tgz
-        cd test
-        npm init -y
-        npm install ../umzug.tgz
-
-        sed -i "s|from '../src'|from 'umzug'|g" umzug.test.ts
-        echo 'beforeAll(() => console.log("resolved umzug:", require.resolve("umzug")))' >> umzug.test.ts
-
-        echo '<details>' >> $GITHUB_STEP_SUMMARY
-        echo '<summary>umzug.test.ts</summary>' >> $GITHUB_STEP_SUMMARY
-        cat umzug.test.ts >> $GITHUB_STEP_SUMMARY
-        echo '</details>' >> $GITHUB_STEP_SUMMARY
-    - run: npm test umzug.test.ts
+      - uses: actions/checkout@v3
+      - name: Setup node 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20.x
+      - run: npm install
+      - run: npm run build
+      - run: npm pack
+      - run: mv $(ls | grep .tgz) umzug.tgz
+      - uses: actions/upload-artifact@v3
+        with:
+          name: tarball
+          path: umzug.tgz
+  test_tgz:
+    runs-on: ubuntu-latest
+    needs: [create_tgz]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball
+      - run: ls -R
+      - name: install tarball in examples directory
+        working-directory: examples
+        run: |
+          rm -rf ../node_modules
+          npm init -y
+          npm install ../../umzug.tgz
+      - name: run example
+        run: |
+          cd examples/0.vanilla
+          node migrate up
+          node migrate down
+          node migrate create --name new-migration.js
+          node migrate up
+      - run: ls -R
