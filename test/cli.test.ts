@@ -6,14 +6,16 @@ import * as childProcess from 'child_process';
 import { Umzug } from '../src';
 import del from 'del';
 import { expectTypeOf } from 'expect-type';
-import {vi as jest, describe, test, expect, beforeEach} from 'vitest'
+import {vi as jest, describe, test, expect, beforeEach, beforeAll} from 'vitest'
+
+beforeAll(() => {childProcess.execSync('npm run build', { cwd: path.resolve(__dirname, '..') })});
 
 describe('cli from instance', () => {
 	jest.spyOn(console, 'log').mockImplementation(() => {});
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/from-instance'), {
 		'umzug.js': `
-      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+      const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
 
       exports.default = new Umzug({
 				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
@@ -86,7 +88,7 @@ describe('run as cli', () => {
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/run-as-cli'), {
 		'umzug.js': `
-      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('..'))})
+      const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '..'))})
 
       const umzug = new Umzug({
 				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
@@ -119,13 +121,13 @@ describe('run as cli', () => {
 });
 
 describe('list migrations', () => {
-	const mockLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+	const mockLog = jest.spyOn(console, 'log');
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/list'), {
 		'umzug.js': `
-      const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+			const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
 
-      exports.default = new Umzug({
+			exports.default = new Umzug({
 				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
 				storage: new JSONStorage({path: __dirname + '/storage.json'}),
 			})
@@ -150,8 +152,9 @@ describe('list migrations', () => {
 			mockLog.mockClear();
 			await umzug.runAsCLI(argv);
 			// json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
-			return mockLog.mock.calls[0][0]
-				.split(JSON.stringify(process.cwd()).slice(1, -1))
+			console.warn(mockLog.mock.calls)
+			return mockLog.mock.calls[0]?.[0]
+				?.split(JSON.stringify(process.cwd()).slice(1, -1))
 				.join('<cwd>')
 				.split(JSON.stringify('\\').slice(1, -1))
 				.join('/');
@@ -203,7 +206,7 @@ describe('create migration file', () => {
 	test('create', async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create'), {
 			'umzug.js': `
-				const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+				const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
 	
 				exports.default = new Umzug({
 					migrations: {
@@ -324,7 +327,7 @@ describe('create migration file', () => {
 	test('create with custom template', async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create-custom-template'), {
 			'umzug.js': `
-				const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+				const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
 				const path = require('path')
 	
 				exports.default = new Umzug({
@@ -379,7 +382,7 @@ describe('create migration file', () => {
 	test('create with invalid custom template', async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/create-invalid-template'), {
 			'umzug.js': `
-				const { Umzug, JSONStorage } = require(${JSON.stringify(require.resolve('../src'))})
+				const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
 				const path = require('path')
 	
 				exports.default = new Umzug({
