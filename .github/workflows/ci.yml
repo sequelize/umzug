@@ -38,8 +38,11 @@ jobs:
       with:
         node-version: 20.x
     - run: npm install
-    - run: npm pack
     - run: |
+        sed -i "s|new JSONStorage|memoryStorage|g" src/umzug.ts
+        sed -i "s|JSONStorage|memoryStorage|g" src/umzug.ts
+        npm run build
+        npm pack
         mv $(ls | grep .tgz) umzug.tgz
         cd test
         npm init -y
