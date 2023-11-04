@@ -53,9 +53,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: tarball
-      - run: ls -R
+      - run: ls
       - name: install tarball in examples directory
-        working-directory: examples
+        working-directory: examples/0.vanilla
         run: |
           rm -rf ../node_modules
           npm init -y
