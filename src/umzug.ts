@@ -1,14 +1,14 @@
-import path = require('path');
-import fs = require('fs');
+import * as path from 'path';
+import * as fs from 'fs';
 import { promisify } from 'util';
 import type { UmzugStorage } from './storage';
 import { JSONStorage, verifyUmzugStorage } from './storage';
-import templates = require('./templates');
-import glob = require('glob');
+import * as templates from './templates';
+import * as glob from 'glob';
 import type { CommandLineParserOptions } from './cli';
 import { UmzugCLI } from './cli';
-import emittery = require('emittery');
-import errorCause = require('pony-cause');
+import emittery from 'emittery';
+import * as errorCause from 'pony-cause';
 
 import type {
 	InputMigrations,
