@@ -1,6 +1,5 @@
 import fs = require('fs');
 import path = require('path');
-import childProcess = require('child_process');
 import stripAnsi = require('strip-ansi');
 import execa = require('execa');
 
@@ -9,7 +8,7 @@ const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex));
 
 /** get rid of any untracked files, including newly-created migrations and the sqlite db file, so that each run is from scratch and has the same output (give or take timings etc.) */
 const cleanup = (cwd: string) => {
-	execa.sync('git', ['diff', '--exit-code', '.'], {cwd})
+	execa.sync('git', ['diff', '--exit-code', '.'], { cwd });
 	execa.sync('sh', ['-c', 'git checkout migrations && git clean migrations seeders db.sqlite ignoreme -fx'], {
 		cwd,
 	});
@@ -30,15 +29,15 @@ examples.forEach(ex => {
 			.filter(Boolean)
 			.flatMap(cmd => {
 				try {
-					let output = execa.sync('sh', ['-c', `${cmd} 2>&1`], {cwd: dir}).stdout;
+					let output = execa.sync('sh', ['-c', `${cmd} 2>&1`], { cwd: dir }).stdout;
 					output = stripAnsi(output);
 					output = cmd.startsWith('npm') || cmd.endsWith('--help') ? '...' : output; // npm commands and `--help` are formatted inconsistently and aren't v relevant
 					output = output.split(process.cwd()).join('<<cwd>>'); // cwd varies by machine
 					output = output.replace(/durationSeconds: .*/g, 'durationSeconds: ???'); // migrations durations vary by a few milliseconds
 					output = output.replace(/\d{4}.\d{2}.\d{2}T\d{2}.\d{2}.\d{2}/g, '<<timestamp>>'); // the river of time flows only in one direction
 					return [`\`${cmd}\` output:`, output];
-				} catch (err) {
-					throw new Error(`Processing command "${cmd}" in ${dir} failed:\n${err?.stack || err}`)
+				} catch (err: unknown) {
+					throw new Error(`Processing command "${cmd}" in ${dir} failed:\n${String(err)}`);
 				}
 			})
 			.join('\n\n');
