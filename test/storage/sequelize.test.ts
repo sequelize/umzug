@@ -67,26 +67,19 @@ describe('sequelize', () => {
 				.then((description: any) => {
 					expect(description).toMatchInlineSnapshot(`
 						{
-						  "id": {
-						    "allowNull": true,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "INTEGER",
-						    "unique": false,
-						  },
 						  "name": {
 						    "allowNull": false,
 						    "defaultValue": undefined,
-						    "primaryKey": false,
+						    "primaryKey": true,
 						    "type": "VARCHAR(255)",
-						    "unique": false,
+						    "unique": true,
 						  },
 						}
 					`);
 					expect(description.name.type).toBe('VARCHAR(255)');
 					expect(description.name.defaultValue).toBeUndefined();
 
-					expect(description.name.primaryKey).toBeFalsy();
+					expect(description.name.primaryKey).toBeTruthy();
 				});
 		});
 
@@ -122,16 +115,9 @@ describe('sequelize', () => {
 						  "customColumn": {
 						    "allowNull": false,
 						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "VARCHAR(255)",
-						    "unique": false,
-						  },
-						  "id": {
-						    "allowNull": true,
-						    "defaultValue": undefined,
 						    "primaryKey": true,
-						    "type": "INTEGER",
-						    "unique": false,
+						    "type": "VARCHAR(255)",
+						    "unique": true,
 						  },
 						}
 					`);
@@ -156,19 +142,12 @@ describe('sequelize', () => {
 						    "type": "DATETIME",
 						    "unique": false,
 						  },
-						  "id": {
-						    "allowNull": true,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "INTEGER",
-						    "unique": false,
-						  },
 						  "name": {
 						    "allowNull": false,
 						    "defaultValue": undefined,
-						    "primaryKey": false,
+						    "primaryKey": true,
 						    "type": "VARCHAR(255)",
-						    "unique": false,
+						    "unique": true,
 						  },
 						  "updatedAt": {
 						    "allowNull": false,
@@ -194,7 +173,7 @@ describe('sequelize', () => {
 					expect(description.name.type).toBe('VARCHAR(190)');
 					expect(description.name.defaultValue).toBeUndefined();
 
-					expect(description.name.primaryKey).toBe(false);
+					expect(description.name.primaryKey).toBe(true);
 				});
 		});
 
@@ -286,19 +265,6 @@ describe('sequelize', () => {
 					expect(migrations[0].createdAt.getTime()).toBeGreaterThanOrEqual(startTime.getTime());
 					expect(migrations[0].createdAt.getTime()).toBeLessThanOrEqual(Date.now());
 				});
-		});
-
-		it('logMigration and re-logMigration', async () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-			});
-
-			await storage.logMigration({ name: 'm1' });
-			expect(await storage.executed()).toEqual(['m1']);
-
-			await storage.logMigration({ name: 'm1' });
-			await storage.logMigration({ name: 'm2' });
-			expect(await storage.executed()).toEqual(['m1', 'm1', 'm2']);
 		});
 	});
 
