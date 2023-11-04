@@ -34,7 +34,6 @@
 		"eslint-config-xo-typescript": "0.54.1",
 		"eslint-plugin-codegen": "0.16.1",
 		"eslint-plugin-import": "2.26.0",
-		"eslint-plugin-jest": "27.1.5",
 		"eslint-plugin-mocha": "10.1.0",
 		"eslint-plugin-prettier": "4.2.1",
 		"eslint-plugin-unicorn": "44.0.2",
