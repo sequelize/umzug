@@ -1,7 +1,7 @@
-import fs = require('fs');
-import path = require('path');
-import childProcess = require('child_process');
-import stripAnsi = require('strip-ansi');
+import * as fs from 'fs'
+import * as path from 'path'
+import * as childProcess from 'child_process'
+import stripAnsi from 'strip-ansi'
 
 const examplesDir = path.join(__dirname, '../examples');
 const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex));
