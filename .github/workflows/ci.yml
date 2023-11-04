@@ -38,15 +38,24 @@ jobs:
       with:
         node-version: 20.x
     - run: npm install
-    - run: |
+    - name: shim test to use packed package
+      run: |
         sed -i "s|new JSONStorage|memoryStorage|g" src/umzug.ts
         sed -i "s|JSONStorage|memoryStorage|g" src/umzug.ts
+
         npm run build
+
         npm pack
         mv $(ls | grep .tgz) umzug.tgz
         cd test
         npm init -y
         npm install ../umzug.tgz
+
         sed -i "s|from '../src'|from 'umzug'|g" umzug.test.ts
-        cat umzug.test.ts
+        echo 'beforeAll(() => console.log("resolved umzug:", require.resolve("umzug")))' >> umzug.test.ts
+
+        echo '<details>' >> $GITHUB_STEP_SUMMARY
+        echo '<summary>umzug.test.ts</summary>' >> $GITHUB_STEP_SUMMARY
+        cat umzug.test.ts >> $GITHUB_STEP_SUMMARY
+        echo '</details>' >> $GITHUB_STEP_SUMMARY
     - run: npm test umzug.test.ts
