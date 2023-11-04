@@ -9,7 +9,7 @@ node migrate --help # show CLI help
 
 node migrate up # apply migrations
 node migrate down # revert the last migration
-node migrate create --name new-migration.ts # create a new migration file
+node migrate create --name new-migration.js # create a new migration file
 
 node migrate up # apply migrations again
 node migrate down --to 0 # revert all migrations
