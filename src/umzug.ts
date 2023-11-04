@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import type { UmzugStorage } from './storage';
 import { JSONStorage, verifyUmzugStorage } from './storage';
 import * as templates from './templates';
-import * as glob from 'glob';
+import glob from 'glob';
 import type { CommandLineParserOptions } from './cli';
 import { UmzugCLI } from './cli';
 import emittery from 'emittery';
