@@ -1,7 +1,7 @@
-import fs = require('fs');
-import path = require('path');
-import stripAnsi = require('strip-ansi');
-import execa = require('execa');
+import * as fs from 'fs';
+import * as path from 'path';
+import stripAnsi from 'strip-ansi';
+import execa from 'execa';
 
 const examplesDir = path.join(__dirname, '../examples');
 const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex));

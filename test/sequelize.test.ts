@@ -2,7 +2,7 @@ import { Sequelize, QueryInterface } from 'sequelize';
 import { SequelizeStorage } from '../src';
 import { Umzug } from '../src/umzug';
 import { fsSyncer } from 'fs-syncer';
-import _path = require('path');
+import * as _path from 'path';
 
 describe('recommended usage', () => {
 	const baseDir = _path.join(__dirname, 'generated/sequelize/integration/recommended-usage');
