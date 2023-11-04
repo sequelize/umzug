@@ -1,21 +1,17 @@
-import { memoryStorage, RerunBehavior, Umzug } from '../src';
+import { memoryStorage, RerunBehavior, Umzug as Base, UmzugOptions } from '../src';
 import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
 import VError from 'verror';
 import {vi as jest, describe, test, expect} from 'vitest'
 
-jest.mock('../src/storage', async () => {
-	const storage: any = await jest.importActual('../src/storage');
-	// to simplify test setup, override JSONStorage with memoryStorage to use the default storage but avoid hitting the disk
-	return {
-		...storage,
-		// eslint-disable-next-line object-shorthand
-		JSONStorage: function () {
-			Object.assign(this, memoryStorage());
-		},
-	};
-});
+//To avoid having to manaully pass memoryStorage() to every instance, subclass umzug and override the default of JSONStorage.
+// Otherwise we'd have to clean up the generated json file for every test
+class Umzug<Ctx extends object = object> extends Base<Ctx> {
+	constructor(options: UmzugOptions<Ctx>) {
+		super({storage: memoryStorage(), ...options})
+	}
+}
 
 const names = (migrations: Array<{ name: string }>) => migrations.map(m => m.name);
 
@@ -554,11 +550,15 @@ describe('alternate migration inputs', () => {
 		});
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Migration m2 (up) failed: Original error: Some cryptic failure"`
+			'"Migration m2 (up) failed: Original error: Some cryptic failure"'
 		);
 
 		await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Migration m1 (down) failed: Original error: Some cryptic failure"`
+			`
+				"Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered
+
+				TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
+			`
 		);
 	});
 
@@ -639,6 +639,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('typescript migration files', async () => {
+		require('ts-node/register')
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/typescript'), {
 			'm1.ts': `export const up = () => {}; export const down = () => {}`,
 			'm2.ts': `throw SyntaxError('Fake syntax error to simulate typescript modules not being registered')`,
@@ -659,10 +660,10 @@ describe('alternate migration inputs', () => {
 		expect([names(await umzug.pending()), names(await umzug.executed())]).toEqual([['m2.ts'], ['m1.ts']]);
 
 		await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(`
-								"Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered
+				"Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered
 
-								TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
-						`);
+				TypeScript files can be required by adding \`ts-node\` as a dependency and calling \`require('ts-node/register')\` at the program entrypoint before running migrations."
+		`);
 	});
 
 	test('with custom file globbing options', async () => {
