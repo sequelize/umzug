@@ -27,6 +27,7 @@
 		"@types/verror": "1.10.6",
 		"@typescript-eslint/eslint-plugin": "5.42.1",
 		"@typescript-eslint/parser": "5.42.1",
+		"@vitest/coverage-v8": "^0.34.6",
 		"del": "^5.0.0",
 		"del-cli": "5.0.0",
 		"eslint": "8.27.0",
