@@ -6,9 +6,11 @@ import * as childProcess from 'child_process';
 import { Umzug } from '../src';
 import del from 'del';
 import { expectTypeOf } from 'expect-type';
-import {vi as jest, describe, test, expect, beforeEach, beforeAll} from 'vitest'
+import { vi as jest, describe, test, expect, beforeEach, beforeAll } from 'vitest';
 
-beforeAll(() => {childProcess.execSync('npm run build', { cwd: path.resolve(__dirname, '..') })});
+beforeAll(() => {
+	childProcess.execSync('npm run build', { cwd: path.resolve(__dirname, '..') });
+});
 
 describe('cli from instance', () => {
 	jest.spyOn(console, 'log').mockImplementation(() => {});

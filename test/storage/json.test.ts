@@ -2,7 +2,7 @@ import { expectTypeOf } from 'expect-type';
 import { JSONStorage, UmzugStorage } from '../../src';
 import { fsSyncer } from 'fs-syncer';
 import * as path from 'path';
-import {describe, test, expect, beforeEach} from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest';
 
 describe('JSONStorage', () => {
 	describe('constructor', () => {

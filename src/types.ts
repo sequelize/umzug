@@ -1,5 +1,5 @@
 import type { UmzugStorage } from './storage';
-import * as typeFest from 'type-fest'
+import type * as typeFest from 'type-fest';
 
 /**
  * Create a type that has mutually exclusive keys.

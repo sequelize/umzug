@@ -3,13 +3,13 @@ import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
 import VError from 'verror';
-import {vi as jest, describe, test, expect} from 'vitest'
+import { vi as jest, describe, test, expect } from 'vitest';
 
-//To avoid having to manaully pass memoryStorage() to every instance, subclass umzug and override the default of JSONStorage.
+// To avoid having to manaully pass memoryStorage() to every instance, subclass umzug and override the default of JSONStorage.
 // Otherwise we'd have to clean up the generated json file for every test
 class Umzug<Ctx extends object = object> extends Base<Ctx> {
 	constructor(options: UmzugOptions<Ctx>) {
-		super({storage: memoryStorage(), ...options})
+		super({ storage: memoryStorage(), ...options });
 	}
 }
 
@@ -639,7 +639,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('typescript migration files', async () => {
-		require('ts-node/register')
+		require('ts-node/register');
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/typescript'), {
 			'm1.ts': `export const up = () => {}; export const down = () => {}`,
 			'm2.ts': `throw SyntaxError('Fake syntax error to simulate typescript modules not being registered')`,
