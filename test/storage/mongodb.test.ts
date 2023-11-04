@@ -1,5 +1,6 @@
 import { MongoDBStorage, UmzugStorage } from '../../src';
 import { expectTypeOf } from 'expect-type';
+import {describe, test, expect, beforeEach, vi as jest} from 'vitest'
 
 describe('MongoDBStorage', () => {
 	const mockCollection = {
@@ -12,7 +13,7 @@ describe('MongoDBStorage', () => {
 		}),
 	};
 
-	beforeEach(jest.clearAllMocks);
+	beforeEach(() => void jest.clearAllMocks());
 
 	describe('constructor', () => {
 		test('should fail when collection is not set', () => {
