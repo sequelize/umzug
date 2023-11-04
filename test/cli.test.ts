@@ -6,9 +6,10 @@ import childProcess = require('child_process');
 import { Umzug } from '../src';
 import del = require('del');
 import { expectTypeOf } from 'expect-type';
+import {vi, describe, test, expect, beforeEach} from 'vitest'
 
 describe('cli from instance', () => {
-	jest.spyOn(console, 'log').mockImplementation(() => {});
+	vi.spyOn(console, 'log').mockImplementation(() => {});
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/from-instance'), {
 		'umzug.js': `
@@ -81,7 +82,7 @@ describe('cli from instance', () => {
 });
 
 describe('run as cli', () => {
-	jest.spyOn(console, 'log').mockImplementation(() => {});
+	vi.spyOn(console, 'log').mockImplementation(() => {});
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/run-as-cli'), {
 		'umzug.js': `
@@ -118,7 +119,7 @@ describe('run as cli', () => {
 });
 
 describe('list migrations', () => {
-	const mockLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+	const mockLog = vi.spyOn(console, 'log').mockImplementation(() => {});
 
 	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/list'), {
 		'umzug.js': `
@@ -191,12 +192,12 @@ describe('list migrations', () => {
 });
 
 describe('create migration file', () => {
-	jest.spyOn(console, 'log').mockImplementation(() => {});
+	vi.spyOn(console, 'log').mockImplementation(() => {});
 
 	// prettier-ignore
 	beforeEach(() => {
 		const dates = [...Array.from({length: 100})].map((_, i) => new Date(new Date('2000').getTime() + (1000 * 60 * 60 * 24 * i)).toISOString());
-		jest.spyOn(Date.prototype, 'toISOString').mockImplementation(() => dates.shift()!);
+		vi.spyOn(Date.prototype, 'toISOString').mockImplementation(() => dates.shift()!);
 	});
 
 	test('create', async () => {

@@ -1,5 +1,5 @@
 import type { UmzugStorage } from './storage';
-import typeFest = require('type-fest');
+import * as typeFest from 'type-fest'
 
 /**
  * Create a type that has mutually exclusive keys.

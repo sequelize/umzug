@@ -3,9 +3,10 @@ import path = require('path');
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
 import VError = require('verror');
+import {vi, describe, test, expect} from 'vitest'
 
-jest.mock('../src/storage', () => {
-	const storage = jest.requireActual('../src/storage');
+vi.mock('../src/storage', async () => {
+	const storage: any = await vi.importActual('../src/storage');
 	// to simplify test setup, override JSONStorage with memoryStorage to use the default storage but avoid hitting the disk
 	return {
 		...storage,
@@ -20,7 +21,7 @@ const names = (migrations: Array<{ name: string }>) => migrations.map(m => m.nam
 
 describe('basic usage', () => {
 	test('requires script files', async () => {
-		const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/globjs'), {
 			'm1.js': `exports.up = async params => console.log('up1', params)`,
@@ -49,7 +50,7 @@ describe('basic usage', () => {
 
 describe('custom context', () => {
 	test(`mutating context doesn't affect separate invocations`, async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 		const umzug = new Umzug({
 			migrations: [{ name: 'm1', up: spy }],
 			context: () => ({ counter: 0 }),
@@ -76,7 +77,7 @@ describe('custom context', () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/create-context'), {});
 		syncer.sync();
 
-		const spy = jest.fn();
+		const spy = vi.fn();
 		const umzug = new Umzug({
 			migrations: {
 				glob: ['*.js', { cwd: syncer.baseDir }],
@@ -175,7 +176,7 @@ describe('custom context', () => {
 		};
 
 		test(`context specified as a function`, async () => {
-			const spy = jest.fn();
+			const spy = vi.fn();
 
 			const umzug = new Umzug({
 				migrations: [{ name: 'm2', up: spy }],
@@ -189,7 +190,7 @@ describe('custom context', () => {
 		});
 
 		test(`context specified as a function call`, async () => {
-			const spy = jest.fn();
+			const spy = vi.fn();
 
 			const umzug = new Umzug({
 				migrations: [{ name: 'm3', up: spy }],
@@ -206,7 +207,7 @@ describe('custom context', () => {
 
 describe('alternate migration inputs', () => {
 	test('with file globbing', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/glob'), {
 			'migration1.sql': 'select true',
@@ -240,7 +241,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('up and down functions using `resolve` should receive parameters', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/parameterless-fns'), {
 			'migration1.sql': 'select true',
@@ -345,7 +346,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('up and down options', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 		const umzug = new Umzug({
 			migrations: [...Array.from({ length: 7 })]
 				.map((_, i) => `m${i + 1}`)
@@ -447,7 +448,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('custom storage', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const umzug = new Umzug({
 			migrations: [{ name: 'm1', async up() {} }],
@@ -479,7 +480,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('with migrations array', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const umzug = new Umzug({
 			migrations: [
@@ -503,7 +504,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('with function returning migrations array', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const umzug = new Umzug({
 			migrations(context) {
@@ -665,7 +666,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('with custom file globbing options', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/glob'), {
 			'migration1.sql': 'select true',
@@ -701,7 +702,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('allows customization via parent instance', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/customOrdering'), {
 			'migration1.sql': 'select true',
@@ -739,7 +740,7 @@ describe('alternate migration inputs', () => {
 	});
 
 	test('supports nested directories via getMigrations', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 
 		// folder structure splitting migrations into separate directories, with the filename determining the order:
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/customOrdering'), {
@@ -1033,7 +1034,7 @@ describe('error cases', () => {
 
 describe('events', () => {
 	test('events', async () => {
-		const mock = jest.fn();
+		const mock = vi.fn();
 		const spy =
 			(label: string) =>
 			(...args: unknown[]) =>
@@ -1091,7 +1092,7 @@ describe('events', () => {
 
 describe('custom logger', () => {
 	test('uses custom logger', async () => {
-		const spy = jest.fn();
+		const spy = vi.fn();
 		const umzug = new Umzug({
 			migrations: [{ name: 'm1', async up() {} }],
 			logger: {
