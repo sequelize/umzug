@@ -45,5 +45,5 @@ jobs:
         npm init -y
         npm install ../umzug.tgz
         sed -i "s|from '../src'|from 'umzug'|g" umzug.test.ts
-    - run: cat umzug.test.ts
+        cat umzug.test.ts
     - run: npm test umzug.test.ts
