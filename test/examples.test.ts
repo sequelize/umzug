@@ -1,6 +1,7 @@
 import fs = require('fs');
 import path = require('path');
 import childProcess = require('child_process');
+import stripAnsi = require('strip-ansi');
 
 const examplesDir = path.join(__dirname, '../examples');
 const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex));
@@ -28,6 +29,7 @@ examples.forEach(ex => {
 			.filter(Boolean)
 			.flatMap(cmd => {
 				let output = childProcess.execSync(`sh -c "${cmd} 2>&1"`, { cwd: dir }).toString().trim();
+				output = stripAnsi(output);
 				output = cmd.startsWith('npm') || cmd.endsWith('--help') ? '...' : output; // npm commands and `--help` are formatted inconsistently and aren't v relevant
 				output = output.split(process.cwd()).join('<<cwd>>'); // cwd varies by machine
 				output = output.replace(/durationSeconds: .*/g, 'durationSeconds: ???'); // migrations durations vary by a few milliseconds
