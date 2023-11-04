@@ -122,7 +122,7 @@ describe('run as cli', () => {
 
 describe('list migrations', () => {
 	test('pending and executed', async () => {
-		const mockLog = jest.spyOn(console, 'log');
+		const mockLog = jest.spyOn(console, 'log').mockImplementation(() => {});
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/list'), {
 			'umzug.js': `
@@ -151,7 +151,6 @@ describe('list migrations', () => {
 			mockLog.mockClear();
 			await umzug.runAsCLI(argv);
 			// json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
-			console.warn(mockLog.mock.calls)
 			return mockLog.mock.calls[0]?.[0]
 				?.split(JSON.stringify(process.cwd()).slice(1, -1))
 				.join('<cwd>')

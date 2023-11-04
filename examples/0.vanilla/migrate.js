@@ -5,7 +5,7 @@ exports.migrator = new Umzug({
 		glob: 'migrations/*.js',
 	},
 	context: { directory: __dirname + '/ignoreme' },
-	storage: new JSONStorage({ path: 'ignoreme/uzmug.json' }),
+	storage: new JSONStorage({ path: 'ignoreme/storage.json' }),
 	logger: console,
 });
 
