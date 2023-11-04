@@ -121,32 +121,31 @@ describe('run as cli', () => {
 });
 
 describe('list migrations', () => {
-	const mockLog = jest.spyOn(console, 'log');
-
-	const syncer = fsSyncer(path.join(__dirname, 'generated/cli/list'), {
-		'umzug.js': `
-			const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
-
-			exports.default = new Umzug({
-				migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
-				storage: new JSONStorage({path: __dirname + '/storage.json'}),
-			})
-    `,
-		'notumzug.js': `exports.default = 1234`,
-		'storage.json': '[]',
-		migrations: {
-			'm1.js': `exports.up = exports.down = async () => {}`,
-			'm2.js': `exports.up = exports.down = async () => {}`,
-			'm3.js': `exports.up = exports.down = async () => {}`,
-		},
-	});
-	syncer.sync();
-
-	const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const umzug: Umzug<{}> = require(uzmugPath).default;
-
 	test('pending and executed', async () => {
+		const mockLog = jest.spyOn(console, 'log');
+
+		const syncer = fsSyncer(path.join(__dirname, 'generated/cli/list'), {
+			'umzug.js': `
+				const { Umzug, JSONStorage } = require(${JSON.stringify(path.resolve(__dirname, '../lib'))})
+
+				exports.default = new Umzug({
+					migrations: { glob: ['migrations/*.js', { cwd: __dirname }] },
+					storage: new JSONStorage({path: __dirname + '/storage.json'}),
+				})
+		`,
+			'notumzug.js': `exports.default = 1234`,
+			'storage.json': '[]',
+			migrations: {
+				'm1.js': `exports.up = exports.down = async () => {}`,
+				'm2.js': `exports.up = exports.down = async () => {}`,
+				'm3.js': `exports.up = exports.down = async () => {}`,
+			},
+		});
+		syncer.sync();
+
+		const uzmugPath = path.join(syncer.baseDir, 'umzug.js');
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const umzug: Umzug<{}> = require(uzmugPath).default;
 		/** clear console log calls, run the cli, then return new console log calls */
 		const runCLI = async (argv: string[]) => {
 			mockLog.mockClear();
@@ -176,21 +175,21 @@ describe('list migrations', () => {
 					m3.js"
 				`);
 		await expect(runCLI(['executed', '--json'])).resolves.toMatchInlineSnapshot(`
-		"[
-		  {
-		    "name": "m1.js",
-		    "path": "<cwd>/test/generated/cli/list/migrations/m1.js"
-		  },
-		  {
-		    "name": "m2.js",
-		    "path": "<cwd>/test/generated/cli/list/migrations/m2.js"
-		  },
-		  {
-		    "name": "m3.js",
-		    "path": "<cwd>/test/generated/cli/list/migrations/m3.js"
-		  }
-		]"
-	`);
+			"[
+			  {
+			    \\"name\\": \\"m1.js\\",
+			    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m1.js\\"
+			  },
+			  {
+			    \\"name\\": \\"m2.js\\",
+			    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m2.js\\"
+			  },
+			  {
+			    \\"name\\": \\"m3.js\\",
+			    \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m3.js\\"
+			  }
+			]"
+		`);
 	});
 });
 
