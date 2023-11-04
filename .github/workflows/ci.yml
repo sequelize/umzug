@@ -2,7 +2,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -29,3 +29,42 @@ jobs:
       with:
         node-version: 12.x
     - run: npm test --ignore-scripts
+  create_tgz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20.x
+      - run: npm install
+      - run: npm run build
+      - run: npm pack
+      - run: mv $(ls | grep .tgz) umzug.tgz
+      - uses: actions/upload-artifact@v3
+        with:
+          name: tarball
+          path: umzug.tgz
+  test_tgz:
+    runs-on: ubuntu-latest
+    needs: [create_tgz]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball
+      - run: ls
+      - name: install tarball in examples directory
+        working-directory: examples/0.vanilla
+        run: |
+          rm -rf ../node_modules
+          npm init -y
+          npm install ../../umzug.tgz
+      - name: run example
+        run: |
+          cd examples/0.vanilla
+          node migrate up
+          node migrate down
+          node migrate create --name new-migration.js
+          node migrate up
+      - run: ls -R

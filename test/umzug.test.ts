@@ -1,8 +1,8 @@
 import { memoryStorage, RerunBehavior, Umzug } from '../src';
-import path = require('path');
+import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
-import VError = require('verror');
+import VError from 'verror';
 import {vi, describe, test, expect} from 'vitest'
 
 vi.mock('../src/storage', async () => {

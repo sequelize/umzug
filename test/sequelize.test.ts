@@ -2,7 +2,7 @@ import { Sequelize, QueryInterface } from 'sequelize';
 import { SequelizeStorage } from '../src';
 import { Umzug } from '../src/umzug';
 import { fsSyncer } from 'fs-syncer';
-import _path = require('path');
+import * as _path from 'path';
 import {describe, test, expect, beforeAll} from 'vitest'
 
 describe('recommended usage', () => {
