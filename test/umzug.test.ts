@@ -1,8 +1,8 @@
 import { memoryStorage, RerunBehavior, Umzug } from '../src';
-import * as path from 'path'
+import * as path from 'path';
 import { fsSyncer } from 'fs-syncer';
 import { expectTypeOf } from 'expect-type';
-import VError from 'verror'
+import VError from 'verror';
 
 jest.mock('../src/storage', () => {
 	const storage = jest.requireActual('../src/storage');

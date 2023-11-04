@@ -1,5 +1,5 @@
-import * as path from 'path'
-import * as fs from 'fs'
+import * as path from 'path';
+import * as fs from 'fs';
 import type { Umzug } from './umzug';
 
 export type FileLockerOptions = {
