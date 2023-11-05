@@ -58,7 +58,9 @@
 		"vitest": "^0.34.6"
 	},
 	"scripts": {
-		"build": "del-cli lib && tsc -p tsconfig.lib.json",
+		"clean": "del-cli lib",
+		"compile": "tsc -p tsconfig.lib.json",
+		"build": "npm run clean && npm run compile",
 		"eslint": "eslint --ext .js,.ts,.md . --max-warnings 0",
 		"lint": "npm run type-check && npm run eslint",
 		"prepare": "npm run build",

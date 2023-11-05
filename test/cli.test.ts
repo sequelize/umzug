@@ -9,7 +9,7 @@ import { expectTypeOf } from 'expect-type';
 import { vi as jest, describe, test, expect, beforeEach, beforeAll } from 'vitest';
 
 beforeAll(() => {
-	childProcess.execSync('npm run build', { cwd: path.resolve(__dirname, '..') });
+	childProcess.execSync('npm run compile', { cwd: path.resolve(__dirname, '..') });
 });
 
 describe('cli from instance', () => {
