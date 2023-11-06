@@ -9,7 +9,7 @@ node migrate.mjs --help # show CLI help
 
 node migrate.mjs up # apply migrations
 node migrate.mjs down # revert the last migration
-node migrate.mjs create --name new-migration.js # create a new migration file
+node migrate.mjs create --name new-migration.mjs # create a new migration file
 
 node migrate.mjs up # apply migrations again
 node migrate.mjs down --to 0 # revert all migrations
