@@ -78,6 +78,6 @@ jobs:
           cat migrate.mjs
           node migrate.mjs up
           node migrate.mjs down
-          node migrate.mjs create --name new-migration.js
+          node migrate.mjs create --name new-migration.mjs
           node migrate.mjs up
       - run: ls -R
