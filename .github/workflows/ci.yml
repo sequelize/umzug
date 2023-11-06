@@ -60,11 +60,21 @@ jobs:
           rm -rf ../node_modules
           npm init -y
           npm install ../../umzug.tgz
-      - name: run example
+      - name: run vanilla example
         run: |
           cd examples/0.vanilla
           node migrate up
           node migrate down
           node migrate create --name new-migration.js
           node migrate up
+      - name: run vanilla example as ES module
+        run: |
+          cd examples/0.vanilla
+          sed -i "s/const { Umzug, JSONStorage } = require('umzug')/import { Umzug, JSONStorage } from 'umzug'/g" migrate.js
+          mv migrate.js migrate.mjs
+          cat migrate.mjs
+          node migrate.mjs up
+          node migrate.mjs down
+          node migrate.mjs create --name new-migration.js
+          node migrate.mjs up
       - run: ls -R
