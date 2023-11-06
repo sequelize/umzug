@@ -422,15 +422,15 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
 		const ext = path.extname(filepath);
-		if (ext === '.js' || ext === '.cjs') {
+		if ((ext === '.js' && typeof module === 'object') || ext === '.cjs') {
 			return [[filepath, templates.js]];
 		}
 
-		if (ext === '.ts') {
+		if (ext === '.ts' || ext === '.mts' || ext === '.cts') {
 			return [[filepath, templates.ts]];
 		}
 
-		if (ext === '.mjs') {
+		if ((ext === '.js' && typeof module === 'undefined') || ext === '.mjs') {
 			return [[filepath, templates.mjs]];
 		}
 

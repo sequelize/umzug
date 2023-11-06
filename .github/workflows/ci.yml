@@ -75,6 +75,11 @@ jobs:
 
           node migrate.mjs up
           node migrate.mjs down
-          node migrate.mjs create --name new-migration.mjs
+          node migrate.mjs create --name new-migration-1.mjs
+          node migrate.mjs create --name new-migration-2.js
           node migrate.mjs up
+
+          cd migrations
+          cat $(ls . | grep new-migration-1)
+          cat $(ls . | grep new-migration-2)
       - run: ls -R
