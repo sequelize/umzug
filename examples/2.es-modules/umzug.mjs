@@ -1,9 +1,6 @@
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-const { Umzug, SequelizeStorage } = require('umzug');
-const { Sequelize, DataTypes } = require('sequelize');
-const path = require('path');
+import { Umzug, SequelizeStorage } from 'umzug';
+import { Sequelize, DataTypes } from 'sequelize';
+import * as path from 'path';
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
@@ -22,4 +19,4 @@ export const migrator = new Umzug({
 	logger: console,
 });
 
-migrator.runAsCLI()
+migrator.runAsCLI();
