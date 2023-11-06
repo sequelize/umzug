@@ -46,7 +46,7 @@
 		"np": "8.0.4",
 		"p-event": "^4.0.0",
 		"prettier": "2.7.1",
-		"sequelize": "6.29.0",
+		"sequelize": "6.34.0",
 		"sinon": "14.0.0",
 		"source-map-support": "0.5.21",
 		"sqlite3": "npm:@vscode/sqlite3@5.0.8",
