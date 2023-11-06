@@ -1,6 +1,6 @@
 {
 	"name": "umzug",
-	"version": "3.3.1",
+	"version": "3.4.0",
 	"description": "Framework-agnostic migration tool for Node",
 	"keywords": [
 		"migrate",
@@ -39,6 +39,7 @@
 		"eslint-plugin-mocha": "10.1.0",
 		"eslint-plugin-prettier": "4.2.1",
 		"eslint-plugin-unicorn": "44.0.2",
+		"execa": "^5.1.1",
 		"expect-type": "0.14.2",
 		"fs-syncer": "0.4.0",
 		"jest": "29.1.2",
@@ -46,7 +47,7 @@
 		"np": "8.0.4",
 		"p-event": "^4.0.0",
 		"prettier": "2.7.1",
-		"sequelize": "6.29.0",
+		"sequelize": "6.34.0",
 		"sinon": "14.0.0",
 		"source-map-support": "0.5.21",
 		"sqlite3": "npm:@vscode/sqlite3@5.0.8",
