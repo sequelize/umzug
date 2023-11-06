@@ -82,4 +82,7 @@ jobs:
           cd migrations
           cat $(ls . | grep new-migration-1)
           cat $(ls . | grep new-migration-2)
+
+          # hard to test this with vitest transpiling stuff for us, so make sure .mjs and .js have same content
+          cmp $(ls . | grep new-migration-1) $(ls . | grep new-migration-2)
       - run: ls -R
