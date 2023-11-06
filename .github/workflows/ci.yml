@@ -74,6 +74,7 @@ jobs:
           sed -i "s|exports.migrator = |export const migrator = |g" migrate.js
           sed -i "s|require.main === module|true|g" migrate.js
           sed -i "s|__dirname|'$(pwd)'|g" migrate.js
+          sed -i "s|exports.migrator|migrator|g" migrate.js
           mv migrate.js migrate.mjs
           cat migrate.mjs
           node migrate.mjs up
