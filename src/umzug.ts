@@ -115,40 +115,40 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		languageSpecificHelp['.cts'] = languageSpecificHelp['.ts'];
 		languageSpecificHelp['.mts'] = languageSpecificHelp['.ts'];
 
-		let getModule: () => Promise<{ up: Function; down: Function }>;
+		let loadModule: () => Promise<RunnableMigration<unknown>>;
 
 		const jsExt = ext.replace(/\.([cm]?)ts$/, '.$1js');
 
-		if ((jsExt === '.js' && typeof module === 'object') || jsExt === '.cjs') {
-			getModule = async () => {
-				try {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-					return require(filepath);
-				} catch (e: unknown) {
-					if (e instanceof SyntaxError && ext in languageSpecificHelp) {
-						e.message += '\n\n' + languageSpecificHelp[ext];
-					}
-
-					throw e;
+		const getModule = async () => {
+			try {
+				return await loadModule();
+			} catch (e: unknown) {
+				if (e instanceof SyntaxError && ext in languageSpecificHelp) {
+					e.message += '\n\n' + languageSpecificHelp[ext];
 				}
-			};
+
+				throw e;
+			}
+		};
+
+		if ((jsExt === '.js' && typeof module === 'object') || jsExt === '.cjs') {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			loadModule = async () => require(filepath) as RunnableMigration<unknown>;
 		} else if (jsExt === '.js' || jsExt === '.mjs') {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			getModule = async () => import(filepath);
+			loadModule = async () => import(filepath) as Promise<RunnableMigration<unknown>>;
 		} else {
-			const errorParts = [
-				`No resolver specified for file ${filepath}.`,
-				languageSpecificHelp[ext],
-				`See docs for guidance on how to write a custom resolver.`,
-			];
-			throw new Error(errorParts.filter(Boolean).join(' '));
+			loadModule = async () => {
+				throw new Error(
+					`No resolver specified for file ${filepath}. See docs for guidance on how to write a custom resolver.`
+				);
+			};
 		}
 
 		return {
 			name,
 			path: filepath,
-			up: async ({ context }) => (await getModule()).up({ path: filepath, name, context }) as unknown,
-			down: async ({ context }) => (await getModule()).down({ path: filepath, name, context }) as unknown,
+			up: async ({ context }) => (await getModule()).up({ path: filepath, name, context }),
+			down: async ({ context }) => (await getModule()).down?.({ path: filepath, name, context }),
 		};
 	};
 
