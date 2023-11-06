@@ -70,6 +70,10 @@ jobs:
       - name: run vanilla example as ES module
         run: |
           cd examples/0.vanilla
+
+          sed -i 's|"name"|"type": "module",\n  "name"|g' package.json
+          cat package.json
+
           sed -i "s|const { Umzug, JSONStorage } = require('umzug')|import { Umzug, JSONStorage } from 'umzug'|g" migrate.js
           sed -i "s|exports.migrator = |export const migrator = |g" migrate.js
           sed -i "s|require.main === module|true|g" migrate.js
@@ -77,6 +81,7 @@ jobs:
           sed -i "s|exports.migrator|migrator|g" migrate.js
           mv migrate.js migrate.mjs
           cat migrate.mjs
+
           node migrate.mjs up
           node migrate.mjs down
           node migrate.mjs create --name other-new-migration.mjs
