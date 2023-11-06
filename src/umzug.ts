@@ -123,7 +123,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			try {
 				return await loadModule();
 			} catch (e: unknown) {
-				if (e instanceof SyntaxError && ext in languageSpecificHelp) {
+				if ((e instanceof SyntaxError || e instanceof MissingResolverError) && ext in languageSpecificHelp) {
 					e.message += '\n\n' + languageSpecificHelp[ext];
 				}
 
@@ -138,9 +138,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			loadModule = async () => import(filepath) as Promise<RunnableMigration<unknown>>;
 		} else {
 			loadModule = async () => {
-				throw new Error(
-					`No resolver specified for file ${filepath}. See docs for guidance on how to write a custom resolver.`
-				);
+				throw new MissingResolverError(filepath);
 			};
 		}
 
@@ -506,5 +504,11 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 				};
 			});
 		};
+	}
+}
+
+class MissingResolverError extends Error {
+	constructor(filepath: string) {
+		super(`No resolver specified for file ${filepath}. See docs for guidance on how to write a custom resolver.`);
 	}
 }
