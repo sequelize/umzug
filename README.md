@@ -601,6 +601,8 @@ if (require.main === module) {
 }
 ```
 
+Note that this uses the [@rushstack/ts-command-line](https://www.npmjs.com/package/@rushstack/ts-command-line) package, which shows only the top-level message of any errors throw by default. See [here](https://github.com/sequelize/umzug/issues/619#issuecomment-1793297576) for how you can see a full stack trace.
+
 #### CLI Usage
 
 A script like the one above is now a runnable CLI program. You can run `node migrator.js --help` to see how to use it. It will print something like:
