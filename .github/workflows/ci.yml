@@ -54,28 +54,27 @@ jobs:
         with:
           name: tarball
       - run: ls
-      - name: install tarball in examples directory
+      - run: rm -rf examples/node_modules
+      - name: run vanilla example
         working-directory: examples/0-vanilla
         run: |
-          rm -rf ../node_modules
           npm init -y
           npm install ../../umzug.tgz
-      - name: run vanilla example
-        run: |
-          cd examples/0-vanilla
+
           node migrate up
           node migrate down
           node migrate create --name new-migration.js
           node migrate up
-      - name: run vanilla example as ES module
+      - name: run vanilla esm example
+        working-directory: examples/0.5-vanilla-esm
         run: |
-          cd examples/0.5-vanilla-esm
-
+          npm init -y
           sed -i 's|"name"|"type": "module",\n  "name"|g' package.json
+          npm install ../../umzug.tgz
           cat package.json
 
           node migrate.mjs up
           node migrate.mjs down
-          node migrate.mjs create --name other-new-migration.mjs
+          node migrate.mjs create --name new-migration.mjs
           node migrate.mjs up
       - run: ls -R
