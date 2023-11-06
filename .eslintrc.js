@@ -6,15 +6,13 @@ module.exports = {
 		project: ['./tsconfig.json'],
 		extraFileExtensions: ['.md', '.mjs'],
 	},
-	plugins: ['@typescript-eslint/eslint-plugin', 'prettier', 'unicorn', 'jest', 'import', 'codegen'],
-	env: { 'jest/globals': true },
+	plugins: ['@typescript-eslint/eslint-plugin', 'prettier', 'unicorn', 'import', 'codegen'],
 	extends: [
 		'eslint:recommended',
 		'plugin:@typescript-eslint/eslint-recommended',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:unicorn/recommended',
 		'plugin:import/typescript',
-		'plugin:jest/recommended',
 		'xo',
 		'xo-typescript',
 	],
@@ -31,8 +29,6 @@ module.exports = {
 		strict: ['error', 'never'],
 
 		'no-await-in-loop': 'off',
-
-		'jest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expectTypeOf', 'verify'] }],
 
 		'@typescript-eslint/ban-types': 'off',
 		'@typescript-eslint/ban-ts-comment': [

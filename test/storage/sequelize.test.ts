@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/promise-function-async */
 import { SequelizeStorage as Storage } from '../../src';
+import { describe, test as it, expect, beforeEach, vi as jest } from 'vitest';
 
 import sequelize = require('sequelize');
 import path = require('path');
