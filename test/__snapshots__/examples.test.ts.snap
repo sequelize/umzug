@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`example 0.vanilla 1`] = `
+exports[`example 0-vanilla 1`] = `
 "\`node migrate --help\` output:
 
 ...
@@ -29,7 +29,7 @@ exports[`example 0.vanilla 1`] = `
 
 {
   event: 'created',
-  path: '<<cwd>>/examples/0.vanilla/migrations/<<timestamp>>.new-migration.js'
+  path: '<<cwd>>/examples/0-vanilla/migrations/<<timestamp>>.new-migration.js'
 }
 
 \`node migrate up\` output:
@@ -65,7 +65,7 @@ exports[`example 0.vanilla 1`] = `
 { event: 'down', message: 'reverted 2 migrations.' }"
 `;
 
-exports[`example 1.sequelize-typescript 1`] = `
+exports[`example 1-sequelize-typescript 1`] = `
 "\`node migrate --help\` output:
 
 ...
@@ -140,7 +140,7 @@ Executing (default): INSERT INTO \`SequelizeMeta\` (\`name\`) VALUES ($1);
 
 {
   event: 'created',
-  path: '<<cwd>>/examples/1.sequelize-typescript/migrations/<<timestamp>>.new-migration.ts'
+  path: '<<cwd>>/examples/1-sequelize-typescript/migrations/<<timestamp>>.new-migration.ts'
 }
 Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
 Executing (default): PRAGMA INDEX_LIST(\`SequelizeMeta\`)
@@ -148,7 +148,7 @@ Executing (default): PRAGMA INDEX_INFO(\`sqlite_autoindex_SequelizeMeta_1\`)
 Executing (default): SELECT \`name\` FROM \`SequelizeMeta\` AS \`SequelizeMeta\` ORDER BY \`SequelizeMeta\`.\`name\` ASC;"
 `;
 
-exports[`example 2.es-modules 1`] = `
+exports[`example 2-es-modules 1`] = `
 "\`node umzug.mjs --help\` output:
 
 ...
@@ -183,18 +183,18 @@ exports[`example 2.es-modules 1`] = `
 
 {
   event: 'created',
-  path: '<<cwd>>/examples/2.es-modules/migrations/<<timestamp>>.new-migration-1.cjs'
+  path: '<<cwd>>/examples/2-es-modules/migrations/<<timestamp>>.new-migration-1.cjs'
 }
 
 \`node umzug.mjs create --name new-migration-2.mjs\` output:
 
 {
   event: 'created',
-  path: '<<cwd>>/examples/2.es-modules/migrations/<<timestamp>>.new-migration-2.mjs'
+  path: '<<cwd>>/examples/2-es-modules/migrations/<<timestamp>>.new-migration-2.mjs'
 }"
 `;
 
-exports[`example 3.raw-sql 1`] = `
+exports[`example 3-raw-sql 1`] = `
 "\`node migrate up\` output:
 
 Executing (default): create table if not exists my_migrations_table(name text)
@@ -210,7 +210,7 @@ Executing (default): insert into my_migrations_table(name) values ($1)
 { event: 'up', message: 'applied 1 migrations.' }"
 `;
 
-exports[`example 4.sequelize-seeders 1`] = `
+exports[`example 4-sequelize-seeders 1`] = `
 "\`node migrate --help\` output:
 
 ...
@@ -334,7 +334,7 @@ Executing (default): DELETE FROM \`seeder_meta\` WHERE \`name\` = '<<timestamp>>
 
 {
   event: 'created',
-  path: '<<cwd>>/examples/4.sequelize-seeders/seeders/<<timestamp>>.new-seed-data.ts'
+  path: '<<cwd>>/examples/4-sequelize-seeders/seeders/<<timestamp>>.new-seed-data.ts'
 }
 Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
 Executing (default): PRAGMA INDEX_LIST(\`seeder_meta\`)
@@ -342,7 +342,7 @@ Executing (default): PRAGMA INDEX_INFO(\`sqlite_autoindex_seeder_meta_1\`)
 Executing (default): SELECT \`name\` FROM \`seeder_meta\` AS \`seeder_meta\` ORDER BY \`seeder_meta\`.\`name\` ASC;"
 `;
 
-exports[`example 5.custom-template 1`] = `
+exports[`example 5-custom-template 1`] = `
 "\`node migrate create --name new-migration.ts\` output:
 
 {
@@ -356,7 +356,7 @@ Executing (default): PRAGMA INDEX_INFO(\`sqlite_autoindex_SequelizeMeta_1\`)
 Executing (default): SELECT \`name\` FROM \`SequelizeMeta\` AS \`SequelizeMeta\` ORDER BY \`SequelizeMeta\`.\`name\` ASC;"
 `;
 
-exports[`example 6.events 1`] = `
+exports[`example 6-events 1`] = `
 "\`node migrate up\` output:
 
 shutting down...
@@ -380,7 +380,7 @@ restarting!
 { event: 'up', message: 'applied 1 migrations.' }"
 `;
 
-exports[`example 7.bundling-codegen 1`] = `
+exports[`example 7-bundling-codegen 1`] = `
 "\`npm install\` output:
 
 ...
