@@ -75,10 +75,11 @@ jobs:
           cat package.json
 
           sed -i "s|const { Umzug, JSONStorage } = require('umzug')|import { Umzug, JSONStorage } from 'umzug'|g" migrate.js
+          sed -i "s|__dirname|'$(pwd)'|g" migrate.js
           sed -i "s|exports.migrator = |export const migrator = |g" migrate.js
           sed -i "s|require.main === module|true|g" migrate.js
-          sed -i "s|__dirname|'$(pwd)'|g" migrate.js
           sed -i "s|exports.migrator|migrator|g" migrate.js
+          sed -i "s|migrator.runAsCLI()|await migrator.runAsCLI()|g" migrate.js
           mv migrate.js migrate.mjs
           cat migrate.mjs
 
