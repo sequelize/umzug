@@ -55,14 +55,14 @@ jobs:
           name: tarball
       - run: ls
       - name: install tarball in examples directory
-        working-directory: examples/0.vanilla
+        working-directory: examples/0-vanilla
         run: |
           rm -rf ../node_modules
           npm init -y
           npm install ../../umzug.tgz
       - name: run vanilla example
         run: |
-          cd examples/0.vanilla
+          cd examples/0-vanilla
           node migrate up
           node migrate down
           node migrate create --name new-migration.js
