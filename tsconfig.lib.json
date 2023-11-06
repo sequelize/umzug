@@ -5,6 +5,7 @@
 	],
 	"compilerOptions": {
 		"outDir": "lib",
-		"noEmit": false
+		"noEmit": false,
+		"moduleResolution": "Node16"
 	}
 }
