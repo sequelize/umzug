@@ -47,7 +47,10 @@ describe('basic usage', () => {
 		const spy = jest.spyOn(console, 'log').mockReset();
 
 		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/esm'), {
-			'm1.mjs': `export const up = async params => console.log('up1', params)`,
+			'm1.mjs': `
+				export const up = async params => console.log('up1', params)
+				export const down = async params => console.log('down1', params)
+			`,
 		});
 		syncer.sync();
 
@@ -68,6 +71,10 @@ describe('basic usage', () => {
 			name: 'm1.mjs',
 			path: path.join(syncer.baseDir, 'm1.mjs'),
 		});
+
+		await umzug.down();
+
+		expect(names(await umzug.executed())).toEqual([]);
 	});
 
 	test('imports typescript esm files', async () => {
