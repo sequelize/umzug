@@ -115,47 +115,41 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		languageSpecificHelp['.cts'] = languageSpecificHelp['.ts'];
 		languageSpecificHelp['.mts'] = languageSpecificHelp['.ts'];
 
-		if (ext === '.js' || ext === '.cjs' || ext === '.ts' || ext === '.cts') {
-			const getModule = () => {
+		let getModule: () => Promise<{ up: Function; down: Function }>;
+
+		const jsExt = ext.replace(/\.([cm]?)ts$/, '.$1js');
+
+		if ((jsExt === '.js' && typeof module === 'object') || jsExt === '.cjs') {
+			getModule = async () => {
 				try {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 					return require(filepath);
 				} catch (e: unknown) {
-					if (e instanceof SyntaxError && filepath.endsWith('.ts')) {
-						e.message += '\n\n' + languageSpecificHelp['.ts'];
+					if (e instanceof SyntaxError && ext in languageSpecificHelp) {
+						e.message += '\n\n' + languageSpecificHelp[ext];
 					}
 
 					throw e;
 				}
 			};
-
-			return {
-				name,
-				path: filepath,
-				up: async ({ context }) => getModule().up({ path: filepath, name, context }) as unknown,
-				down: async ({ context }) => getModule().down({ path: filepath, name, context }) as unknown,
-			};
+		} else if (jsExt === '.js' || jsExt === '.mjs') {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+			getModule = async () => import(filepath);
+		} else {
+			const errorParts = [
+				`No resolver specified for file ${filepath}.`,
+				languageSpecificHelp[ext],
+				`See docs for guidance on how to write a custom resolver.`,
+			];
+			throw new Error(errorParts.filter(Boolean).join(' '));
 		}
 
-		if (ext === '.mjs' || ext === '.mts') {
-			return {
-				name,
-				path: filepath,
-				async up({ context }) {
-					return import(filepath).then((mod: any) => mod.up({ path: filepath, name, context }) as unknown);
-				},
-				async down({ context }) {
-					return import(filepath).then((mod: any) => mod.down({ path: filepath, name, context }) as unknown);
-				},
-			};
-		}
-
-		const errorParts = [
-			`No resolver specified for file ${filepath}.`,
-			languageSpecificHelp[ext],
-			`See docs for guidance on how to write a custom resolver.`,
-		];
-		throw new Error(errorParts.filter(Boolean).join(' '));
+		return {
+			name,
+			path: filepath,
+			up: async ({ context }) => (await getModule()).up({ path: filepath, name, context }) as unknown,
+			down: async ({ context }) => (await getModule()).down({ path: filepath, name, context }) as unknown,
+		};
 	};
 
 	/**
