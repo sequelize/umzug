@@ -9,3 +9,4 @@ examples/*/db.sqlite
 # to make the examples realistic, they `import {} from 'umzug'`. So there's a passthrough script to the compiled library in examples/node_modules/umzug/index.js
 !examples/node_modules/umzug/*
 examples/*/node_modules/*
+ignoreme

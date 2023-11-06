@@ -3,6 +3,7 @@ import { SequelizeStorage } from '../src';
 import { Umzug } from '../src/umzug';
 import { fsSyncer } from 'fs-syncer';
 import * as _path from 'path';
+import { describe, test, expect, beforeAll } from 'vitest';
 
 describe('recommended usage', () => {
 	const baseDir = _path.join(__dirname, 'generated/sequelize/integration/recommended-usage');

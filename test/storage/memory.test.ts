@@ -1,5 +1,6 @@
 import { expectTypeOf } from 'expect-type';
 import { UmzugStorage, memoryStorage } from '../../src';
+import { describe, test, expect } from 'vitest';
 
 describe('memoryStorage', () => {
 	test('type', () => {
