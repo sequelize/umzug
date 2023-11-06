@@ -131,7 +131,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			}
 		};
 
-		if ((jsExt === '.js' && typeof module === 'object') || jsExt === '.cjs') {
+		if ((jsExt === '.js' && typeof require.main === 'object') || jsExt === '.cjs') {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			loadModule = async () => require(filepath) as RunnableMigration<unknown>;
 		} else if (jsExt === '.js' || jsExt === '.mjs') {
@@ -422,7 +422,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
 		const ext = path.extname(filepath);
-		if ((ext === '.js' && typeof module === 'object') || ext === '.cjs') {
+		if ((ext === '.js' && typeof require.main === 'object') || ext === '.cjs') {
 			return [[filepath, templates.js]];
 		}
 
@@ -430,7 +430,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 			return [[filepath, templates.ts]];
 		}
 
-		if ((ext === '.js' && typeof module === 'undefined') || ext === '.mjs') {
+		if ((ext === '.js' && typeof require.main === 'undefined') || ext === '.mjs') {
 			return [[filepath, templates.mjs]];
 		}
 
