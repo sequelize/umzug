@@ -54,17 +54,35 @@ jobs:
         with:
           name: tarball
       - run: ls
-      - name: install tarball in examples directory
+      - run: rm -rf examples/node_modules
+      - name: run vanilla example
         working-directory: examples/0-vanilla
         run: |
-          rm -rf ../node_modules
           npm init -y
           npm install ../../umzug.tgz
-      - name: run example
-        run: |
-          cd examples/0-vanilla
+
           node migrate up
           node migrate down
           node migrate create --name new-migration.js
           node migrate up
+      - name: run vanilla esm example
+        working-directory: examples/0.5-vanilla-esm
+        run: |
+          npm init -y
+          sed -i 's|"name"|"type": "module",\n  "name"|g' package.json
+          npm install ../../umzug.tgz
+          cat package.json
+
+          node migrate.mjs up
+          node migrate.mjs down
+          node migrate.mjs create --name new-migration-1.mjs
+          node migrate.mjs create --name new-migration-2.js
+          node migrate.mjs up
+
+          cd migrations
+          cat $(ls . | grep new-migration-1)
+          cat $(ls . | grep new-migration-2)
+
+          # hard to test this with vitest transpiling stuff for us, so make sure .mjs and .js have same content
+          cmp $(ls . | grep new-migration-1) $(ls . | grep new-migration-2)
       - run: ls -R

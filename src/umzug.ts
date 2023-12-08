@@ -107,39 +107,46 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		}
 
 		const ext = path.extname(filepath);
-		const canRequire = ext === '.js' || ext === '.cjs' || ext === '.ts';
 		const languageSpecificHelp: Record<string, string> = {
 			'.ts':
 				"TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
 			'.sql': 'Try writing a resolver which reads file content and executes it as a sql query.',
 		};
-		if (!canRequire) {
-			const errorParts = [
-				`No resolver specified for file ${filepath}.`,
-				languageSpecificHelp[ext],
-				`See docs for guidance on how to write a custom resolver.`,
-			];
-			throw new Error(errorParts.filter(Boolean).join(' '));
-		}
+		languageSpecificHelp['.cts'] = languageSpecificHelp['.ts'];
+		languageSpecificHelp['.mts'] = languageSpecificHelp['.ts'];
 
-		const getModule = () => {
+		let loadModule: () => Promise<RunnableMigration<unknown>>;
+
+		const jsExt = ext.replace(/\.([cm]?)ts$/, '.$1js');
+
+		const getModule = async () => {
 			try {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-				return require(filepath);
+				return await loadModule();
 			} catch (e: unknown) {
-				if (e instanceof SyntaxError && filepath.endsWith('.ts')) {
-					e.message += '\n\n' + languageSpecificHelp['.ts'];
+				if ((e instanceof SyntaxError || e instanceof MissingResolverError) && ext in languageSpecificHelp) {
+					e.message += '\n\n' + languageSpecificHelp[ext];
 				}
 
 				throw e;
 			}
 		};
 
+		if ((jsExt === '.js' && typeof require.main === 'object') || jsExt === '.cjs') {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			loadModule = async () => require(filepath) as RunnableMigration<unknown>;
+		} else if (jsExt === '.js' || jsExt === '.mjs') {
+			loadModule = async () => import(filepath) as Promise<RunnableMigration<unknown>>;
+		} else {
+			loadModule = async () => {
+				throw new MissingResolverError(filepath);
+			};
+		}
+
 		return {
 			name,
 			path: filepath,
-			up: async ({ context }) => getModule().up({ path: filepath, name, context }) as unknown,
-			down: async ({ context }) => getModule().down({ path: filepath, name, context }) as unknown,
+			up: async ({ context }) => (await getModule()).up({ path: filepath, name, context }),
+			down: async ({ context }) => (await getModule()).down?.({ path: filepath, name, context }),
 		};
 	};
 
@@ -352,7 +359,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 			const allowedExtensions = options.allowExtension
 				? [options.allowExtension]
-				: ['.js', '.cjs', '.mjs', '.ts', '.sql'];
+				: ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts', '.sql'];
 
 			const existing = await this.migrations(context);
 			const last = existing[existing.length - 1];
@@ -415,15 +422,15 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
 	private static defaultCreationTemplate(filepath: string): Array<[string, string]> {
 		const ext = path.extname(filepath);
-		if (ext === '.js' || ext === '.cjs') {
+		if ((ext === '.js' && typeof require.main === 'object') || ext === '.cjs') {
 			return [[filepath, templates.js]];
 		}
 
-		if (ext === '.ts') {
+		if (ext === '.ts' || ext === '.mts' || ext === '.cts') {
 			return [[filepath, templates.ts]];
 		}
 
-		if (ext === '.mjs') {
+		if ((ext === '.js' && typeof require.main === 'undefined') || ext === '.mjs') {
 			return [[filepath, templates.mjs]];
 		}
 
@@ -497,5 +504,11 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 				};
 			});
 		};
+	}
+}
+
+class MissingResolverError extends Error {
+	constructor(filepath: string) {
+		super(`No resolver specified for file ${filepath}. See docs for guidance on how to write a custom resolver.`);
 	}
 }

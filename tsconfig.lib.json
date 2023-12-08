@@ -4,6 +4,8 @@
 		"src"
 	],
 	"compilerOptions": {
-		"noEmit": false
+		"outDir": "lib",
+		"noEmit": false,
+		"moduleResolution": "Node16"
 	}
 }

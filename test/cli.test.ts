@@ -244,15 +244,15 @@ describe('create migration file', () => {
 		// a folder must be specified for the first migration
 		await expect(runCLI(['create', '--name', 'm1.js', '--folder', path.join(syncer.baseDir, 'migrations')])).resolves
 			.toMatchInlineSnapshot(`
-		{
-		  "2000.01.02T00.00.00.m1.js": "/** @type {import('umzug').MigrationFn<any>} */
-		exports.up = async params => {};
+			{
+			  "2000.01.02T00.00.00.m1.js": "/** @type {import('umzug').MigrationFn<any>} */
+			export const up = async params => {};
 
-		/** @type {import('umzug').MigrationFn<any>} */
-		exports.down = async params => {};
-		",
-		}
-	`);
+			/** @type {import('umzug').MigrationFn<any>} */
+			export const down = async params => {};
+			",
+			}
+		`);
 
 		// for the second migration, the program should guess it's supposed to live next to the previous one.
 		await expect(runCLI(['create', '--name', 'm2.ts'])).resolves.toMatchInlineSnapshot(`
@@ -278,7 +278,7 @@ describe('create migration file', () => {
 	`);
 
 		await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
-			`"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .sql. See help for --allow-extension to avoid this error."`
+			'"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .cts, .mts, .sql. See help for --allow-extension to avoid this error."'
 		);
 
 		await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrow(

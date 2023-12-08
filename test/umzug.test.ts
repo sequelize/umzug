@@ -42,6 +42,67 @@ describe('basic usage', () => {
 			path: path.join(syncer.baseDir, 'm1.js'),
 		});
 	});
+
+	test('imports esm files', async () => {
+		const spy = jest.spyOn(console, 'log').mockReset();
+
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/esm'), {
+			'm1.mjs': `
+				export const up = async params => console.log('up1', params)
+				export const down = async params => console.log('down1', params)
+			`,
+		});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.mjs', { cwd: syncer.baseDir }],
+			},
+			context: { someCustomSqlClient: {} },
+			logger: undefined,
+		});
+
+		await umzug.up();
+
+		expect(names(await umzug.executed())).toEqual(['m1.mjs']);
+		expect(spy).toHaveBeenCalledTimes(1);
+		expect(spy).toHaveBeenNthCalledWith(1, 'up1', {
+			context: { someCustomSqlClient: {} },
+			name: 'm1.mjs',
+			path: path.join(syncer.baseDir, 'm1.mjs'),
+		});
+
+		await umzug.down();
+
+		expect(names(await umzug.executed())).toEqual([]);
+	});
+
+	test('imports typescript esm files', async () => {
+		const spy = jest.spyOn(console, 'log').mockReset();
+
+		const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/esm'), {
+			'm1.mts': `export const up = async (params: {}) => console.log('up1', params)`,
+		});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			migrations: {
+				glob: ['*.mts', { cwd: syncer.baseDir }],
+			},
+			context: { someCustomSqlClient: {} },
+			logger: undefined,
+		});
+
+		await umzug.up();
+
+		expect(names(await umzug.executed())).toEqual(['m1.mts']);
+		expect(spy).toHaveBeenCalledTimes(1);
+		expect(spy).toHaveBeenNthCalledWith(1, 'up1', {
+			context: { someCustomSqlClient: {} },
+			name: 'm1.mts',
+			path: path.join(syncer.baseDir, 'm1.mts'),
+		});
+	});
 });
 
 describe('custom context', () => {

@@ -1,5 +1,70 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`example 0.5-vanilla-esm 1`] = `
+"\`node migrate.mjs --help\` output:
+
+...
+
+\`node migrate.mjs up\` output:
+
+{ event: 'migrating', name: '<<timestamp>>.users-table.mjs' }
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users-table.mjs',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 1 migrations.' }
+
+\`node migrate.mjs down\` output:
+
+{ event: 'reverting', name: '<<timestamp>>.users-table.mjs' }
+{
+  event: 'reverted',
+  name: '<<timestamp>>.users-table.mjs',
+  durationSeconds: ???
+}
+{ event: 'down', message: 'reverted 1 migrations.' }
+
+\`node migrate.mjs create --name new-migration.mjs\` output:
+
+{
+  event: 'created',
+  path: '<<cwd>>/examples/0.5-vanilla-esm/migrations/<<timestamp>>.new-migration.mjs'
+}
+
+\`node migrate.mjs up\` output:
+
+{ event: 'migrating', name: '<<timestamp>>.users-table.mjs' }
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users-table.mjs',
+  durationSeconds: ???
+}
+{ event: 'migrating', name: '<<timestamp>>.new-migration.mjs' }
+{
+  event: 'migrated',
+  name: '<<timestamp>>.new-migration.mjs',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 2 migrations.' }
+
+\`node migrate.mjs down --to 0\` output:
+
+{ event: 'reverting', name: '<<timestamp>>.new-migration.mjs' }
+{
+  event: 'reverted',
+  name: '<<timestamp>>.new-migration.mjs',
+  durationSeconds: ???
+}
+{ event: 'reverting', name: '<<timestamp>>.users-table.mjs' }
+{
+  event: 'reverted',
+  name: '<<timestamp>>.users-table.mjs',
+  durationSeconds: ???
+}
+{ event: 'down', message: 'reverted 2 migrations.' }"
+`;
+
 exports[`example 0-vanilla 1`] = `
 "\`node migrate --help\` output:
 

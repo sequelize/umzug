@@ -2,7 +2,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import stripAnsi from 'strip-ansi';
 import execa from 'execa';
-import { test, expect } from 'vitest';
+import { test, expect, beforeAll } from 'vitest';
+
+beforeAll(async () => {
+	await execa('npm', ['run', 'compile']);
+});
 
 const examplesDir = path.join(__dirname, '../examples');
 const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex));
