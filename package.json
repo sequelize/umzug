@@ -16,12 +16,11 @@
 	"dependencies": {
 		"@rushstack/ts-command-line": "^4.12.2",
 		"emittery": "^0.13.0",
-		"glob": "^8.0.3",
+		"glob": "^10.3.10",
 		"pony-cause": "^2.1.4",
 		"type-fest": "^3.0.0"
 	},
 	"devDependencies": {
-		"@types/glob": "8.0.0",
 		"@types/lodash": "4.14.186",
 		"@types/uuid": "8.3.4",
 		"@types/verror": "1.10.6",

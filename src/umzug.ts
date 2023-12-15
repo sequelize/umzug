@@ -1,10 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { promisify } from 'util';
 import type { UmzugStorage } from './storage';
 import { JSONStorage, verifyUmzugStorage } from './storage';
 import * as templates from './templates';
-import glob from 'glob';
+import { glob } from 'glob';
 import type { CommandLineParserOptions } from './cli';
 import { UmzugCLI } from './cli';
 import emittery from 'emittery';
@@ -22,8 +21,6 @@ import type {
 	UmzugOptions,
 } from './types';
 import { RerunBehavior } from './types';
-
-const globAsync = promisify(glob);
 
 type MigrationErrorParams = {
 	direction: 'up' | 'down';
@@ -489,12 +486,13 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		}
 
 		const fileGlob = inputMigrations.glob;
-		const [globString, globOptions]: Parameters<typeof glob.sync> = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
+		const [globString, globOptions] = Array.isArray(fileGlob) ? fileGlob : [fileGlob];
 
 		const resolver: Resolver<Ctx> = inputMigrations.resolve ?? Umzug.defaultResolver;
 
 		return async context => {
-			const paths = await globAsync(globString, { ...globOptions, absolute: true });
+			const paths = await glob(globString, { ...globOptions, absolute: true });
+			paths.sort();
 			return paths.map(unresolvedPath => {
 				const filepath = path.resolve(unresolvedPath);
 				const name = path.basename(filepath);
