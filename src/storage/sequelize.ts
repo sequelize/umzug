@@ -32,7 +32,7 @@ export type SequelizeType = {
 	};
 };
 
-const DIALECTS_WITH_CHARSET_AND_COLLATE = new Set(['mysql', 'mariadb', 'snowflake']);
+const DIALECTS_WITH_CHARSET_AND_COLLATE = new Set(['mysql', 'mariadb']);
 
 type ModelClassType = ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
 
