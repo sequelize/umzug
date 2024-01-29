@@ -32,7 +32,7 @@ export type SequelizeType = {
 	};
 };
 
-const DIALECTS_WITH_CHARSET_AND_COLLATE = new Set(['mysql', 'mariadb', 'snowflake']);
+const DIALECTS_WITH_CHARSET_AND_COLLATE = new Set(['mysql', 'mariadb']);
 
 type ModelClassType = ModelClass & (new (values?: object, options?: any) => ModelTempInterface);
 
@@ -117,7 +117,7 @@ export class SequelizeStorage implements UmzugStorage {
 		}
 
 		this.sequelize = options.sequelize ?? options.model.sequelize;
-		this.columnType = options.columnType ?? (this.sequelize.constructor as any).STRING;
+		this.columnType = options.columnType ?? (this.sequelize.constructor as any).DataTypes.STRING;
 		this.columnName = options.columnName ?? 'name';
 		this.timestamps = options.timestamps ?? false;
 		this.modelName = options.modelName ?? 'SequelizeMeta';
