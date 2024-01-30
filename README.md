@@ -646,10 +646,11 @@ Performs all migrations. See --help for more options
 Optional arguments:
   -h, --help            Show this help message and exit.
   --to NAME             All migrations up to and including this one should be 
-                        applied.
-  --step COUNT          Run this many migrations. If not specified, all will 
-                        be applied.
-  --name MIGRATION      Explicity declare migration name(s) to be applied.
+                        applied
+  --step COUNT          Apply this many migrations. If not specified, all 
+                        will be applied.
+  --name MIGRATION      Explicity declare migration name(s) to be applied. 
+                        Only these migrations will be applied.
   --rerun {THROW,SKIP,ALLOW}
                         Specify what action should be taken when a migration 
                         that has already been applied is passed to --name. 
@@ -671,13 +672,14 @@ from a clean slate. Use with care in production!
 Optional arguments:
   -h, --help            Show this help message and exit.
   --to NAME             All migrations up to and including this one should be 
-                        reverted. Pass "0" to revert all.
-  --step COUNT          Run this many migrations. If not specified, one will 
-                        be reverted.
-  --name MIGRATION      Explicity declare migration name(s) to be reverted.
+                        reverted. Pass '0' to revert all.
+  --step COUNT          Revert this many migrations. If not specified, only 
+                        the most recent migration will be reverted.
+  --name MIGRATION      Explicity declare migration name(s) to be reverted. 
+                        Only these migrations will be reverted.
   --rerun {THROW,SKIP,ALLOW}
                         Specify what action should be taken when a migration 
-                        that has already been reverted is passed to --name. 
+                        that has already been applied is passed to --name. 
                         The default value is "THROW".
 ```
 <!-- codegen:end -->
