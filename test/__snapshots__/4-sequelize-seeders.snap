@@ -1,0 +1,129 @@
+`node migrate --help` output:
+
+...
+
+`node seed --help` output:
+
+...
+
+`node seed up || echo failed` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): CREATE TABLE IF NOT EXISTS `seeder_meta` (`name` VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY);
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): SELECT `name` FROM `seeder_meta` AS `seeder_meta` ORDER BY `seeder_meta`.`name` ASC;
+{ event: 'migrating', name: '<<timestamp>>.sample-users.ts' }
+Executing (default): INSERT INTO `users` (`id`,`name`) VALUES (1,'Alice'),(2,'Bob');
+failed
+
+`node migrate up` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='migration_meta';
+Executing (default): CREATE TABLE IF NOT EXISTS `migration_meta` (`name` VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY);
+Executing (default): PRAGMA INDEX_LIST(`migration_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_migration_meta_1`)
+Executing (default): SELECT `name` FROM `migration_meta` AS `migration_meta` ORDER BY `migration_meta`.`name` ASC;
+{ event: 'migrating', name: '<<timestamp>>.users-table.ts' }
+Executing (default): CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL);
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='migration_meta';
+Executing (default): PRAGMA INDEX_LIST(`migration_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_migration_meta_1`)
+Executing (default): INSERT INTO `migration_meta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users-table.ts',
+  durationSeconds: ???
+}
+{ event: 'migrating', name: '<<timestamp>>.roles.ts' }
+Executing (default): CREATE TABLE IF NOT EXISTS `roles` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL);
+Executing (default): CREATE TABLE IF NOT EXISTS `user_roles` (`user_id` INTEGER NOT NULL REFERENCES `users` (`id`), `role_id` INTEGER NOT NULL REFERENCES `roles` (`id`), PRIMARY KEY (`user_id`, `role_id`));
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='migration_meta';
+Executing (default): PRAGMA INDEX_LIST(`migration_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_migration_meta_1`)
+Executing (default): INSERT INTO `migration_meta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.roles.ts',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 2 migrations.' }
+
+`node seed up` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): SELECT `name` FROM `seeder_meta` AS `seeder_meta` ORDER BY `seeder_meta`.`name` ASC;
+{ event: 'migrating', name: '<<timestamp>>.sample-users.ts' }
+Executing (default): INSERT INTO `users` (`id`,`name`) VALUES (1,'Alice'),(2,'Bob');
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): INSERT INTO `seeder_meta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.sample-users.ts',
+  durationSeconds: ???
+}
+{
+  event: 'migrating',
+  name: '<<timestamp>>.sample-user-roles.ts'
+}
+Executing (default): INSERT INTO `roles` (`id`,`name`) VALUES (1,'admin');
+Executing (default): INSERT INTO `user_roles` (`user_id`,`role_id`) VALUES (1,1);
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): INSERT INTO `seeder_meta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.sample-user-roles.ts',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 2 migrations.' }
+
+`node seed down --to 0` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): SELECT `name` FROM `seeder_meta` AS `seeder_meta` ORDER BY `seeder_meta`.`name` ASC;
+{
+  event: 'reverting',
+  name: '<<timestamp>>.sample-user-roles.ts'
+}
+Executing (default): DELETE FROM `user_roles` WHERE `user_id` IN (1)
+Executing (default): DELETE FROM `roles` WHERE `id` IN (1)
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): DELETE FROM `seeder_meta` WHERE `name` = '<<timestamp>>.sample-user-roles.ts'
+{
+  event: 'reverted',
+  name: '<<timestamp>>.sample-user-roles.ts',
+  durationSeconds: ???
+}
+{ event: 'reverting', name: '<<timestamp>>.sample-users.ts' }
+Executing (default): DELETE FROM `users` WHERE `id` IN (1, 2)
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): DELETE FROM `seeder_meta` WHERE `name` = '<<timestamp>>.sample-users.ts'
+{
+  event: 'reverted',
+  name: '<<timestamp>>.sample-users.ts',
+  durationSeconds: ???
+}
+{ event: 'down', message: 'reverted 2 migrations.' }
+
+`node seed create --name new-seed-data.ts` output:
+
+{
+  event: 'created',
+  path: '<<cwd>>/examples/4-sequelize-seeders/seeders/<<timestamp>>.new-seed-data.ts'
+}
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='seeder_meta';
+Executing (default): PRAGMA INDEX_LIST(`seeder_meta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_seeder_meta_1`)
+Executing (default): SELECT `name` FROM `seeder_meta` AS `seeder_meta` ORDER BY `seeder_meta`.`name` ASC;

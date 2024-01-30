@@ -1,0 +1,21 @@
+`node migrate up` output:
+
+shutting down...
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): CREATE TABLE IF NOT EXISTS `SequelizeMeta` (`name` VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY);
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;
+{ event: 'migrating', name: '<<timestamp>>.users-table.ts' }
+Executing (default): CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL);
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): INSERT INTO `SequelizeMeta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users-table.ts',
+  durationSeconds: ???
+}
+restarting!
+{ event: 'up', message: 'applied 1 migrations.' }

@@ -1,0 +1,35 @@
+`npm install` output:
+
+...
+
+`npm run lint -- --fix` output:
+
+...
+
+`npm run build` output:
+
+...
+
+`node migrate up` output:
+
+{ event: 'migrating', name: './<<timestamp>>.users-table.ts' }
+{
+  event: 'migrated',
+  name: './<<timestamp>>.users-table.ts',
+  durationSeconds: ???
+}
+{ event: 'migrating', name: './<<timestamp>>.roles-table.ts' }
+{
+  event: 'migrated',
+  name: './<<timestamp>>.roles-table.ts',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 2 migrations.' }
+
+`node migrate create --name new-migration.ts --skip-verify` output:
+
+{ event: 'created', path: '<<timestamp>>.new-migration.ts' }
+
+`npm run lint -- --fix` output:
+
+...

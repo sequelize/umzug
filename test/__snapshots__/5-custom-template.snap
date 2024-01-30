@@ -1,0 +1,11 @@
+`node migrate create --name new-migration.ts` output:
+
+{
+  event: 'created',
+  path: 'migrations/<<timestamp>>.new-migration.ts'
+}
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): CREATE TABLE IF NOT EXISTS `SequelizeMeta` (`name` VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY);
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;

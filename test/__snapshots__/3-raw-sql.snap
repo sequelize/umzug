@@ -1,0 +1,13 @@
+`node migrate up` output:
+
+Executing (default): create table if not exists my_migrations_table(name text)
+Executing (default): select name from my_migrations_table
+{ event: 'migrating', name: '<<timestamp>>.users.sql' }
+Executing (default): create table users(id int, name text);
+Executing (default): insert into my_migrations_table(name) values ($1)
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users.sql',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 1 migrations.' }

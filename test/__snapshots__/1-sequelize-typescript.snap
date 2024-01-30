@@ -1,0 +1,80 @@
+`node migrate --help` output:
+
+...
+
+`node migrate up` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): CREATE TABLE IF NOT EXISTS `SequelizeMeta` (`name` VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY);
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;
+{ event: 'migrating', name: '<<timestamp>>.users-table.ts' }
+Executing (default): CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL);
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): INSERT INTO `SequelizeMeta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users-table.ts',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 1 migrations.' }
+
+`node migrate down` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;
+{ event: 'reverting', name: '<<timestamp>>.users-table.ts' }
+Executing (default): DROP TABLE IF EXISTS `users`;
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): DELETE FROM `SequelizeMeta` WHERE `name` = '<<timestamp>>.users-table.ts'
+{
+  event: 'reverted',
+  name: '<<timestamp>>.users-table.ts',
+  durationSeconds: ???
+}
+{ event: 'down', message: 'reverted 1 migrations.' }
+
+`node migrate down --to 0` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;
+{ event: 'down', message: 'reverted 0 migrations.' }
+
+`node migrate up --step 2` output:
+
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;
+{ event: 'migrating', name: '<<timestamp>>.users-table.ts' }
+Executing (default): CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL);
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): INSERT INTO `SequelizeMeta` (`name`) VALUES ($1);
+{
+  event: 'migrated',
+  name: '<<timestamp>>.users-table.ts',
+  durationSeconds: ???
+}
+{ event: 'up', message: 'applied 1 migrations.' }
+
+`node migrate create --name new-migration.ts` output:
+
+{
+  event: 'created',
+  path: '<<cwd>>/examples/1-sequelize-typescript/migrations/<<timestamp>>.new-migration.ts'
+}
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='SequelizeMeta';
+Executing (default): PRAGMA INDEX_LIST(`SequelizeMeta`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_SequelizeMeta_1`)
+Executing (default): SELECT `name` FROM `SequelizeMeta` AS `SequelizeMeta` ORDER BY `SequelizeMeta`.`name` ASC;
