@@ -9,14 +9,18 @@ beforeAll(async () => {
 });
 
 const examplesDir = path.join(__dirname, '../examples');
-const examples = fs.readdirSync(examplesDir).filter(ex => /^\d/.exec(ex) && fs.existsSync(path.join(examplesDir, ex, 'readme.md')));
+const examples = fs
+	.readdirSync(examplesDir)
+	.filter(ex => /^\d/.exec(ex) && fs.existsSync(path.join(examplesDir, ex, 'readme.md')));
 
 /** get rid of any untracked files, including newly-created migrations and the sqlite db file, so that each run is from scratch and has the same output (give or take timings etc.) */
 const cleanup = (cwd: string) => {
 	execa.sync('git', ['diff', '--exit-code', '.'], { cwd });
-	execa.sync('sh', ['-c', 'git checkout migrations && git clean migrations seeders db.sqlite ignoreme -fx'], {
-		cwd,
-	});
+	execa.sync(
+		'sh',
+		['-c', 'git checkout migrations && git clean migrations seeders db.sqlite ignoreme *.new-migration.* -fx'],
+		{ cwd }
+	);
 };
 
 examples.forEach(ex => {
@@ -47,6 +51,8 @@ examples.forEach(ex => {
 			})
 			.join('\n\n');
 
-		expect(stdout).toMatchFileSnapshot(`__snapshots__/${ex}.snap`);
+		await expect(stdout).toMatchFileSnapshot(`__snapshots__/${ex}.snap`);
+
+		cleanup(dir);
 	});
 });
