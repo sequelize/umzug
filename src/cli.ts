@@ -2,41 +2,37 @@ import * as cli from '@rushstack/ts-command-line';
 import type { MigrateDownOptions, MigrateUpOptions } from './types';
 import type { Umzug } from './umzug';
 
-export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
-	private _params: ReturnType<typeof ApplyMigrationsAction._defineParameters>;
-	declare actionName: 'up' | 'down';
+export class UpAction extends cli.CommandLineAction {
+	private _params: ReturnType<typeof UpAction._defineParameters>;
 
-	protected constructor(
-		protected readonly umzug: Umzug,
-		cliOptions: cli.ICommandLineActionOptions & { actionName: 'up' | 'down' }
-	) {
-		super(cliOptions);
+	constructor(protected umzug: Umzug) {
+		super({
+			actionName: 'up',
+			summary: 'Applies pending migrations',
+			documentation: 'Performs all migrations. See --help for more options',
+		});
 	}
 
-	private static _defineParameters(action: ApplyMigrationsAction) {
-		const verb = ApplyMigrationsAction.getVerb(action.actionName);
-
+	private static _defineParameters(action: UpAction) {
 		return {
 			to: action.defineStringParameter({
 				parameterLongName: '--to',
 				argumentName: 'NAME',
-				// prettier-ignore
-				description: `All migrations up to and including this one should be ${verb}. ${verb === 'reverted' ? 'Pass "0" to revert all.' : ''}`.trim(),
+				description: `All migrations up to and including this one should be applied`,
 			}),
 			step: action.defineIntegerParameter({
 				parameterLongName: '--step',
 				argumentName: 'COUNT',
-				// prettier-ignore
-				description: `Run this many migrations. If not specified, ${verb === 'reverted' ? 'one' : 'all'} will be ${verb}.`,
+				description: `Apply this many migrations. If not specified, all will be applied.`,
 			}),
 			name: action.defineStringListParameter({
 				parameterLongName: '--name',
 				argumentName: 'MIGRATION',
-				description: `Explicity declare migration name(s) to be ${verb}.`,
+				description: `Explicity declare migration name(s) to be applied. Only these migrations will be applied.`,
 			}),
 			rerun: action.defineChoiceParameter({
 				parameterLongName: '--rerun',
-				description: `Specify what action should be taken when a migration that has already been ${verb} is passed to --name.`,
+				description: `Specify what action should be taken when a migration that has already been applied is passed to --name.`,
 				alternatives: ['THROW', 'SKIP', 'ALLOW'],
 				defaultValue: 'THROW',
 			}),
@@ -44,14 +40,7 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 	}
 
 	onDefineParameters(): void {
-		this._params = ApplyMigrationsAction._defineParameters(this);
-	}
-
-	private static getVerb(direction: 'up' | 'down') {
-		return {
-			up: 'applied',
-			down: 'reverted',
-		}[direction];
+		this._params = UpAction._defineParameters(this);
 	}
 
 	async onExecute(): Promise<void> {
@@ -63,9 +52,9 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 		} = this._params;
 
 		// string list parameters are always defined. When they're empty it means nothing was passed.
-		const maybeNameArray = nameArray.length > 0 ? nameArray : undefined;
+		const migrations = nameArray.length > 0 ? nameArray : undefined;
 
-		if (to && maybeNameArray) {
+		if (to && migrations) {
 			throw new Error(`Can't specify 'to' and 'name' together`);
 		}
 
@@ -73,50 +62,98 @@ export abstract class ApplyMigrationsAction extends cli.CommandLineAction {
 			throw new Error(`Can't specify 'to' and 'step' together`);
 		}
 
-		if (typeof step === 'number' && maybeNameArray) {
+		if (typeof step === 'number' && migrations) {
 			throw new Error(`Can't specify 'step' and 'name' together`);
 		}
 
-		if (rerun !== 'THROW' && !maybeNameArray) {
+		if (rerun !== 'THROW' && !migrations) {
 			throw new Error(`Can't specify 'rerun' without 'name'`);
 		}
 
-		const params = {
-			to: to === '0' ? 0 : to,
-			step,
-			migrations: maybeNameArray,
-			rerun,
-		};
-		const actions = {
-			up: async () => this.umzug.up(params as MigrateUpOptions),
-			down: async () => this.umzug.down(params as MigrateDownOptions),
-		};
-		const result = await actions[this.actionName]();
+		const result = await this.umzug.up({ to, step, migrations, rerun } as MigrateUpOptions);
 
-		const verb = ApplyMigrationsAction.getVerb(this.actionName);
-
-		this.umzug.options.logger?.info({ event: this.actionName, message: `${verb} ${result.length} migrations.` });
+		this.umzug.options.logger?.info({ event: this.actionName, message: `applied ${result.length} migrations.` });
 	}
 }
 
-export class UpAction extends ApplyMigrationsAction {
-	constructor(umzug: Umzug) {
-		super(umzug, {
-			actionName: 'up',
-			summary: 'Applies pending migrations',
-			documentation: 'Performs all migrations. See --help for more options',
-		});
-	}
-}
+export class DownAction extends cli.CommandLineAction {
+	private _params: ReturnType<typeof DownAction._defineParameters>;
 
-export class DownAction extends ApplyMigrationsAction {
-	constructor(umzug: Umzug) {
-		super(umzug, {
+	constructor(protected umzug: Umzug) {
+		super({
 			actionName: 'down',
 			summary: 'Revert migrations',
 			documentation:
 				'Undoes previously-applied migrations. By default, undoes the most recent migration only. Use --help for more options. Useful in development to start from a clean slate. Use with care in production!',
 		});
+	}
+
+	private static _defineParameters(action: DownAction) {
+		return {
+			to: action.defineStringParameter({
+				parameterLongName: '--to',
+				argumentName: 'NAME',
+				description: `All migrations up to and including this one should be reverted. Pass '0' to revert all.`,
+			}),
+			step: action.defineIntegerParameter({
+				parameterLongName: '--step',
+				argumentName: 'COUNT',
+				description: `Revert this many migrations. If not specified, only the most recent migration will be reverted.`,
+			}),
+			name: action.defineStringListParameter({
+				parameterLongName: '--name',
+				argumentName: 'MIGRATION',
+				description: `Explicity declare migration name(s) to be reverted. Only these migrations will be reverted.`,
+			}),
+			// todo: come up with a better word for this
+			rerun: action.defineChoiceParameter({
+				parameterLongName: '--rerun',
+				description: `Specify what action should be taken when a migration that has already been applied is passed to --name.`,
+				alternatives: ['THROW', 'SKIP', 'ALLOW'],
+				defaultValue: 'THROW',
+			}),
+		};
+	}
+
+	onDefineParameters(): void {
+		this._params = DownAction._defineParameters(this);
+	}
+
+	async onExecute(): Promise<void> {
+		const {
+			to: { value: to },
+			step: { value: step },
+			name: { values: nameArray },
+			rerun: { value: rerun },
+		} = this._params;
+
+		// string list parameters are always defined. When they're empty it means nothing was passed.
+		const migrations = nameArray.length > 0 ? nameArray : undefined;
+
+		if (to && migrations) {
+			throw new Error(`Can't specify 'to' and 'name' together`);
+		}
+
+		if (to && typeof step === 'number') {
+			throw new Error(`Can't specify 'to' and 'step' together`);
+		}
+
+		if (typeof step === 'number' && migrations) {
+			throw new Error(`Can't specify 'step' and 'name' together`);
+		}
+
+		if (rerun !== 'THROW' && !migrations) {
+			throw new Error(`Can't specify 'rerun' without 'name'`);
+		}
+
+		const result = await this.umzug.down({
+			to: to === '0' ? 0 : to,
+			step,
+			migrations,
+			rerun,
+		} as MigrateDownOptions);
+
+		this.umzug.options.logger?.info({ event: this.actionName, message: `reverted ${result.length} migrations.` });
 	}
 }
 
