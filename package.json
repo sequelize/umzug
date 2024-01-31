@@ -66,7 +66,7 @@
 		"prepare": "npm run build",
 		"release": "np --no-yarn --no-2fa",
 		"pretest": "del-cli test/generated",
-		"test": "vitest",
+		"test": "vitest run",
 		"type-check": "tsc -p ."
 	},
 	"repository": {
