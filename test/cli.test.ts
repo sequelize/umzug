@@ -67,6 +67,22 @@ describe('cli from instance', () => {
 			/Can't specify 'step' and 'name' together/
 		);
 
+		await expect(runCli(['down', '--name', 'm1.js', '--to', '0'])).rejects.toThrow(
+			/Can't specify 'to' and 'name' together/
+		);
+
+		await expect(runCli(['down', '--to', 'm1.js', '--step', '2'])).rejects.toThrow(
+			/Can't specify 'to' and 'step' together/
+		);
+
+		await expect(runCli(['down', '--step', '2', '--name', 'm2.js'])).rejects.toThrow(
+			/Can't specify 'step' and 'name' together/
+		);
+
+		await expect(runCli(['down', '--rerun', 'ALLOW'])).rejects.toThrow(
+			/Can't specify 'rerun' without 'name'/ // prettier-break
+		);
+
 		await expect(runCli(['up', '--name', 'm1.js', '--name', 'm3.js'])).resolves.toEqual(['m1.js', 'm3.js']);
 
 		await expect(runCli(['down', '--name', 'm1.js'])).resolves.toEqual(['m3.js']);
