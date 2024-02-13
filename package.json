@@ -43,7 +43,7 @@
 		"expect-type": "0.14.2",
 		"fs-syncer": "0.4.0",
 		"lodash": "4.17.21",
-		"np": "github:mmkal/np#6a58244afa28fd7d3f8c4dc4b6457c22d74e82de",
+		"np": "github:mmkal/np#pnpm",
 		"p-event": "^4.0.0",
 		"prettier": "2.7.1",
 		"sequelize": "6.34.0",
