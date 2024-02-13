@@ -172,6 +172,26 @@ describe('custom context', () => {
 		expect(pending[0]).toContain('test.x.js');
 	});
 
+	test(`create with custom content`, async () => {
+		const syncer = fsSyncer(path.join(__dirname, 'generated/create-custom-content'), {});
+		syncer.sync();
+
+		const umzug = new Umzug({
+			logger: undefined,
+			migrations: {
+				glob: ['*.js', { cwd: syncer.baseDir }],
+			},
+			create: {
+				folder: syncer.baseDir,
+			},
+		});
+
+		await umzug.create({ name: 'abc.js', content: 'exports.up = () => 123' });
+		const pending = names(await umzug.pending());
+		expect(pending).toHaveLength(1);
+		expect(syncer.read()[pending[0]]).toEqual('exports.up = () => 123');
+	});
+
 	test(`create with custom template async method`, async () => {
 		const syncer = fsSyncer(path.join(__dirname, 'generated/create-custom-template-async'), {});
 		syncer.sync();

@@ -346,6 +346,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 		allowExtension?: string;
 		allowConfusingOrdering?: boolean;
 		skipVerify?: boolean;
+		/** Optionally define the content for the new file. If not set, the configured template will be used. */
+		content?: string;
 	}): Promise<void> {
 		await this.runCommand('create', async ({ context }) => {
 			const isoDate = new Date().toISOString();
@@ -381,7 +383,10 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 				}
 			}
 
-			const template = this.options.create?.template ?? Umzug.defaultCreationTemplate;
+			const template =
+				typeof options.content === 'string'
+					? async () => [[filepath, options.content] as [string, string]]
+					: this.options.create?.template ?? Umzug.defaultCreationTemplate;
 
 			const toWrite = await template(filepath);
 			if (toWrite.length === 0) {
