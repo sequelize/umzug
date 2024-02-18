@@ -46,7 +46,7 @@
 		"np": "github:mmkal/np#pnpm",
 		"p-event": "^4.0.0",
 		"prettier": "2.7.1",
-		"sequelize": "6.34.0",
+		"sequelize": "6.37.1",
 		"sinon": "14.0.0",
 		"source-map-support": "0.5.21",
 		"sqlite3": "npm:@vscode/sqlite3@5.0.8",
