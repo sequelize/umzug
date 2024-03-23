@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/template-indent */
 // templates for migration file creation
 
 export const js = `
@@ -6,14 +7,14 @@ exports.up = async params => {};
 
 /** @type {import('umzug').MigrationFn<any>} */
 exports.down = async params => {};
-`.trimStart();
+`.trimStart()
 
 export const ts = `
 import type { MigrationFn } from 'umzug';
 
 export const up: MigrationFn = async params => {};
 export const down: MigrationFn = async params => {};
-`.trimStart();
+`.trimStart()
 
 export const mjs = `
 /** @type {import('umzug').MigrationFn<any>} */
@@ -21,12 +22,12 @@ export const up = async params => {};
 
 /** @type {import('umzug').MigrationFn<any>} */
 export const down = async params => {};
-`.trimStart();
+`.trimStart()
 
 export const sqlUp = `
 -- up migration
-`.trimStart();
+`.trimStart()
 
 export const sqlDown = `
 -- down migration
-`.trimStart();
+`.trimStart()

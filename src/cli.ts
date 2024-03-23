@@ -1,16 +1,16 @@
-import * as cli from '@rushstack/ts-command-line';
-import type { MigrateDownOptions, MigrateUpOptions } from './types';
-import type { Umzug } from './umzug';
+import * as cli from '@rushstack/ts-command-line'
+import type {MigrateDownOptions, MigrateUpOptions} from './types'
+import type {Umzug} from './umzug'
 
 export class UpAction extends cli.CommandLineAction {
-	private _params: ReturnType<typeof UpAction._defineParameters>;
+	private _params: ReturnType<typeof UpAction._defineParameters>
 
 	constructor(protected umzug: Umzug) {
 		super({
 			actionName: 'up',
 			summary: 'Applies pending migrations',
 			documentation: 'Performs all migrations. See --help for more options',
-		});
+		})
 	}
 
 	private static _defineParameters(action: UpAction) {
@@ -36,48 +36,48 @@ export class UpAction extends cli.CommandLineAction {
 				alternatives: ['THROW', 'SKIP', 'ALLOW'],
 				defaultValue: 'THROW',
 			}),
-		};
+		}
 	}
 
 	onDefineParameters(): void {
-		this._params = UpAction._defineParameters(this);
+		this._params = UpAction._defineParameters(this)
 	}
 
 	async onExecute(): Promise<void> {
 		const {
-			to: { value: to },
-			step: { value: step },
-			name: { values: nameArray },
-			rerun: { value: rerun },
-		} = this._params;
+			to: {value: to},
+			step: {value: step},
+			name: {values: nameArray},
+			rerun: {value: rerun},
+		} = this._params
 
 		// string list parameters are always defined. When they're empty it means nothing was passed.
-		const migrations = nameArray.length > 0 ? nameArray : undefined;
+		const migrations = nameArray.length > 0 ? nameArray : undefined
 
 		if (to && migrations) {
-			throw new Error(`Can't specify 'to' and 'name' together`);
+			throw new Error(`Can't specify 'to' and 'name' together`)
 		}
 
 		if (to && typeof step === 'number') {
-			throw new Error(`Can't specify 'to' and 'step' together`);
+			throw new Error(`Can't specify 'to' and 'step' together`)
 		}
 
 		if (typeof step === 'number' && migrations) {
-			throw new Error(`Can't specify 'step' and 'name' together`);
+			throw new Error(`Can't specify 'step' and 'name' together`)
 		}
 
 		if (rerun !== 'THROW' && !migrations) {
-			throw new Error(`Can't specify 'rerun' without 'name'`);
+			throw new Error(`Can't specify 'rerun' without 'name'`)
 		}
 
-		const result = await this.umzug.up({ to, step, migrations, rerun } as MigrateUpOptions);
+		const result = await this.umzug.up({to, step, migrations, rerun} as MigrateUpOptions)
 
-		this.umzug.options.logger?.info({ event: this.actionName, message: `applied ${result.length} migrations.` });
+		this.umzug.options.logger?.info({event: this.actionName, message: `applied ${result.length} migrations.`})
 	}
 }
 
 export class DownAction extends cli.CommandLineAction {
-	private _params: ReturnType<typeof DownAction._defineParameters>;
+	private _params: ReturnType<typeof DownAction._defineParameters>
 
 	constructor(protected umzug: Umzug) {
 		super({
@@ -85,7 +85,7 @@ export class DownAction extends cli.CommandLineAction {
 			summary: 'Revert migrations',
 			documentation:
 				'Undoes previously-applied migrations. By default, undoes the most recent migration only. Use --help for more options. Useful in development to start from a clean slate. Use with care in production!',
-		});
+		})
 	}
 
 	private static _defineParameters(action: DownAction) {
@@ -112,38 +112,38 @@ export class DownAction extends cli.CommandLineAction {
 				alternatives: ['THROW', 'SKIP', 'ALLOW'],
 				defaultValue: 'THROW',
 			}),
-		};
+		}
 	}
 
 	onDefineParameters(): void {
-		this._params = DownAction._defineParameters(this);
+		this._params = DownAction._defineParameters(this)
 	}
 
 	async onExecute(): Promise<void> {
 		const {
-			to: { value: to },
-			step: { value: step },
-			name: { values: nameArray },
-			rerun: { value: rerun },
-		} = this._params;
+			to: {value: to},
+			step: {value: step},
+			name: {values: nameArray},
+			rerun: {value: rerun},
+		} = this._params
 
 		// string list parameters are always defined. When they're empty it means nothing was passed.
-		const migrations = nameArray.length > 0 ? nameArray : undefined;
+		const migrations = nameArray.length > 0 ? nameArray : undefined
 
 		if (to && migrations) {
-			throw new Error(`Can't specify 'to' and 'name' together`);
+			throw new Error(`Can't specify 'to' and 'name' together`)
 		}
 
 		if (to && typeof step === 'number') {
-			throw new Error(`Can't specify 'to' and 'step' together`);
+			throw new Error(`Can't specify 'to' and 'step' together`)
 		}
 
 		if (typeof step === 'number' && migrations) {
-			throw new Error(`Can't specify 'step' and 'name' together`);
+			throw new Error(`Can't specify 'step' and 'name' together`)
 		}
 
 		if (rerun !== 'THROW' && !migrations) {
-			throw new Error(`Can't specify 'rerun' without 'name'`);
+			throw new Error(`Can't specify 'rerun' without 'name'`)
 		}
 
 		const result = await this.umzug.down({
@@ -151,21 +151,24 @@ export class DownAction extends cli.CommandLineAction {
 			step,
 			migrations,
 			rerun,
-		} as MigrateDownOptions);
+		} as MigrateDownOptions)
 
-		this.umzug.options.logger?.info({ event: this.actionName, message: `reverted ${result.length} migrations.` });
+		this.umzug.options.logger?.info({event: this.actionName, message: `reverted ${result.length} migrations.`})
 	}
 }
 
 export class ListAction extends cli.CommandLineAction {
-	private _params: ReturnType<typeof ListAction._defineParameters>;
+	private _params: ReturnType<typeof ListAction._defineParameters>
 
-	constructor(private readonly action: 'pending' | 'executed', private readonly umzug: Umzug) {
+	constructor(
+		private readonly action: 'pending' | 'executed',
+		private readonly umzug: Umzug,
+	) {
 		super({
 			actionName: action,
 			summary: `Lists ${action} migrations`,
 			documentation: `Prints migrations returned by \`umzug.${action}()\`. By default, prints migration names one per line.`,
-		});
+		})
 	}
 
 	private static _defineParameters(action: cli.CommandLineAction) {
@@ -176,25 +179,25 @@ export class ListAction extends cli.CommandLineAction {
 					`Print ${action.actionName} migrations in a json format including names and paths. This allows piping output to tools like jq. ` +
 					`Without this flag, the migration names will be printed one per line.`,
 			}),
-		};
+		}
 	}
 
 	onDefineParameters(): void {
-		this._params = ListAction._defineParameters(this);
+		this._params = ListAction._defineParameters(this)
 	}
 
 	async onExecute(): Promise<void> {
-		const migrations = await this.umzug[this.action]();
+		const migrations = await this.umzug[this.action]()
 		const formatted = this._params.json.value
 			? JSON.stringify(migrations, null, 2)
-			: migrations.map(m => m.name).join('\n');
+			: migrations.map(m => m.name).join('\n')
 		// eslint-disable-next-line no-console
-		console.log(formatted);
+		console.log(formatted)
 	}
 }
 
 export class CreateAction extends cli.CommandLineAction {
-	private _params: ReturnType<typeof CreateAction._defineParameters>;
+	private _params: ReturnType<typeof CreateAction._defineParameters>
 
 	constructor(readonly umzug: Umzug) {
 		super({
@@ -202,7 +205,7 @@ export class CreateAction extends cli.CommandLineAction {
 			summary: 'Create a migration file',
 			documentation:
 				'Generates a placeholder migration file using a timestamp as a prefix. By default, mimics the last existing migration, or guesses where to generate the file if no migration exists yet.',
-		});
+		})
 	}
 
 	private static _defineParameters(action: cli.CommandLineAction) {
@@ -245,17 +248,16 @@ export class CreateAction extends cli.CommandLineAction {
 					`If you use a custom ordering system, you can disable this behavior, but it's strongly recommended that you don't! ` +
 					`If you're unsure, just ignore this option.`,
 			}),
-		};
+		}
 	}
 
 	onDefineParameters(): void {
-		this._params = CreateAction._defineParameters(this);
+		this._params = CreateAction._defineParameters(this)
 	}
 
 	async onExecute(): Promise<void> {
 		await this.umzug
 			.create({
-				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				name: this._params.name.value!,
 				prefix: this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE',
 				folder: this._params.folder.value,
@@ -269,30 +271,33 @@ export class CreateAction extends cli.CommandLineAction {
 					.filter(entry => entry[0] !== 'name')
 					.forEach(([name, param]) => {
 						// replace `skipVerify` in error messages with `--skip-verify`, etc.
-						e.message = e.message?.split(name).join(param.longName);
-					});
-				throw e;
-			});
+						e.message = e.message?.split(name).join(param.longName)
+					})
+				throw e
+			})
 	}
 }
 
 export type CommandLineParserOptions = {
-	toolFileName?: string;
-	toolDescription?: string;
-};
+	toolFileName?: string
+	toolDescription?: string
+}
 
 export class UmzugCLI extends cli.CommandLineParser {
-	constructor(readonly umzug: Umzug, commandLineParserOptions: CommandLineParserOptions = {}) {
+	constructor(
+		readonly umzug: Umzug,
+		commandLineParserOptions: CommandLineParserOptions = {},
+	) {
 		super({
 			toolFilename: commandLineParserOptions.toolFileName ?? '<script>',
 			toolDescription: commandLineParserOptions.toolDescription ?? 'Umzug migrator',
-		});
+		})
 
-		this.addAction(new UpAction(umzug));
-		this.addAction(new DownAction(umzug));
-		this.addAction(new ListAction('pending', umzug));
-		this.addAction(new ListAction('executed', umzug));
-		this.addAction(new CreateAction(umzug));
+		this.addAction(new UpAction(umzug))
+		this.addAction(new DownAction(umzug))
+		this.addAction(new ListAction('pending', umzug))
+		this.addAction(new ListAction('executed', umzug))
+		this.addAction(new CreateAction(umzug))
 	}
 
 	onDefineParameters(): void {}

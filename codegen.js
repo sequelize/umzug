@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { Umzug } = require('.');
-const { UmzugCLI } = require('./lib/cli');
-const stripAnsi = require('strip-ansi');
+const {Umzug} = require('.')
+const stripAnsi = require('strip-ansi')
+const {UmzugCLI} = require('./lib/cli')
 
 /** @type import('eslint-plugin-codegen').Preset<{ action?: string }> */
-exports.cliHelp = ({ options: { action } }) => {
-	const cli = new UmzugCLI(new Umzug({ migrations: [], logger: undefined }));
-	const helpable = action ? cli.tryGetAction(action) : cli;
+exports.cliHelp = ({options: {action}}) => {
+	const cli = new UmzugCLI(new Umzug({migrations: [], logger: undefined}))
+	const helpable = action ? cli.tryGetAction(action) : cli
 
 	return [
 		'```',
@@ -15,5 +14,5 @@ exports.cliHelp = ({ options: { action } }) => {
 			// for some reason the last `-h` is on its own line
 			.replace(/\n-h$/, '-h'),
 		'```',
-	].join('\n');
-};
+	].join('\n')
+}
