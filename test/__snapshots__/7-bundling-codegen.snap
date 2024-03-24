@@ -10,7 +10,7 @@
 
 ...
 
-`node migrate up` output:
+`node dist/umzug up` output:
 
 { event: 'migrating', name: './<<timestamp>>.users-table.ts' }
 {
@@ -26,7 +26,7 @@
 }
 { event: 'up', message: 'applied 2 migrations.' }
 
-`node migrate create --name new-migration.ts --skip-verify` output:
+`node dist/umzug create --name new-migration.ts --skip-verify` output:
 
 { event: 'created', path: '<<timestamp>>.new-migration.ts' }
 

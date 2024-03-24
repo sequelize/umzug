@@ -6,5 +6,5 @@ module.exports = [
   {plugins: {codegen}},
   {rules: {'codegen/codegen': 'error'}},
   {files: ['migrations/*.ts']},
-  {ignores: ['migrate/index.js']},
+  {ignores: ['dist/**']},
 ]
