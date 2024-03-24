@@ -4,6 +4,7 @@ const codegen = require('eslint-plugin-codegen')
 module.exports = [
   tseslint.configs.base,
   {plugins: {codegen}},
-  {files: ['migrations/*.ts']},
   {rules: {'codegen/codegen': 'error'}},
+  {files: ['migrations/*.ts']},
+  {ignores: ['migrate/index.js']},
 ]
