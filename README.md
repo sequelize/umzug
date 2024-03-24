@@ -29,58 +29,56 @@ The following example uses a Sqlite database through sequelize and persists the 
 
 ```js
 // index.js
-const { Sequelize } = require('sequelize');
-const { Umzug, SequelizeStorage } = require('umzug');
+const {Sequelize} = require('sequelize')
+const {Umzug, SequelizeStorage} = require('umzug')
 
-const sequelize = new Sequelize({ dialect: 'sqlite', storage: './db.sqlite' });
+const sequelize = new Sequelize({dialect: 'sqlite', storage: './db.sqlite'})
 
 const umzug = new Umzug({
-  migrations: { glob: 'migrations/*.js' },
-  context: sequelize.getQueryInterface(),
-  storage: new SequelizeStorage({ sequelize }),
-  logger: console,
-});
+	migrations: {glob: 'migrations/*.js'},
+	context: sequelize.getQueryInterface(),
+	storage: new SequelizeStorage({sequelize}),
+	logger: console,
+})
 
-(async () => {
-  // Checks migrations and run them if they are not already applied. To keep
-  // track of the executed migrations, a table (and sequelize model) called SequelizeMeta
-  // will be automatically created (if it doesn't exist already) and parsed.
-  await umzug.up();
-})();
+// Checks migrations and run them if they are not already applied. To keep
+// track of the executed migrations, a table (and sequelize model) called SequelizeMeta
+// will be automatically created (if it doesn't exist already) and parsed.
+await umzug.up()
 ```
 
 ```js
 // migrations/00_initial.js
 
-const { Sequelize } = require('sequelize');
+const {Sequelize} = require('sequelize')
 
-async function up({ context: queryInterface }) {
+async function up({context: queryInterface}) {
 	await queryInterface.createTable('users', {
 		id: {
 			type: Sequelize.INTEGER,
 			allowNull: false,
-			primaryKey: true
+			primaryKey: true,
 		},
 		name: {
 			type: Sequelize.STRING,
-			allowNull: false
+			allowNull: false,
 		},
 		createdAt: {
 			type: Sequelize.DATE,
-			allowNull: false
+			allowNull: false,
 		},
 		updatedAt: {
 			type: Sequelize.DATE,
-			allowNull: false
-		}
-	});
+			allowNull: false,
+		},
+	})
 }
 
-async function down({ context: queryInterface }) {
-	await queryInterface.dropTable('users');
+async function down({context: queryInterface}) {
+	await queryInterface.dropTable('users')
 }
 
-module.exports = { up, down };
+module.exports = {up, down}
 ```
 
 Note that we renamed the `context` argument to `queryInterface` for clarity. The `context` is whatever we specified when creating the Umzug instance in `index.js`.
@@ -144,8 +142,11 @@ npm install umzug
 It is possible to configure an Umzug instance by passing an object to the constructor.
 
 ```js
-const { Umzug } = require('umzug');
-const umzug = new Umzug({ /* ... options ... */ });
+const {Umzug} = require('umzug')
+
+const umzug = new Umzug({
+	/* ... options ... */
+})
 ```
 
 Detailed documentation for these options are in the `UmzugOptions` TypeScript interface, which can be found in [src/types.ts](./src/types.ts).
@@ -155,7 +156,7 @@ Detailed documentation for these options are in the `UmzugOptions` TypeScript in
 You can get a list of pending (i.e. not yet executed) migrations with the `pending()` method:
 
 ```js
-const migrations = await umzug.pending();
+const migrations = await umzug.pending()
 // returns an array of all pending migrations.
 ```
 
@@ -164,7 +165,7 @@ const migrations = await umzug.pending();
 You can get a list of already executed migrations with the `executed()` method:
 
 ```js
-const migrations = await umzug.executed();
+const migrations = await umzug.executed()
 // returns an array of all already executed migrations
 ```
 
@@ -173,27 +174,27 @@ const migrations = await umzug.executed();
 The `up` method can be used to execute all pending migrations.
 
 ```js
-const migrations = await umzug.up();
+const migrations = await umzug.up()
 // returns an array of all executed migrations
 ```
 
 It is also possible to pass the name of a migration in order to just run the migrations from the current state to the passed migration name (inclusive).
 
 ```js
-await umzug.up({ to: '20141101203500-task' });
+await umzug.up({to: '20141101203500-task'})
 ```
 
 To limit the number of migrations that are run, `step` can be used:
 
 ```js
 // This will run the next two migrations
-await umzug.up({ step: 2 })
+await umzug.up({step: 2})
 ```
 
 Running specific migrations while ignoring the right order, can be done like this:
 
 ```js
-await umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+await umzug.up({migrations: ['20141101203500-task', '20141101203501-task-2']})
 ```
 
 #### Reverting executed migration
@@ -201,7 +202,7 @@ await umzug.up({ migrations: ['20141101203500-task', '20141101203501-task-2'] })
 The `down` method can be used to revert the last executed migration.
 
 ```js
-const migration = await umzug.down();
+const migration = await umzug.down()
 // reverts the last migration and returns it.
 ```
 
@@ -209,26 +210,26 @@ To revert more than one migration, you can use `step`:
 
 ```js
 // This will revert the last two migrations
-await umzug.down({ step: 2 });
+await umzug.down({step: 2})
 ```
 
 It is possible to pass the name of a migration until which (inclusive) the migrations should be reverted. This allows the reverting of multiple migrations at once.
 
 ```js
-const migrations = await umzug.down({ to: '20141031080000-task' });
+const migrations = await umzug.down({to: '20141031080000-task'})
 // returns an array of all reverted migrations.
 ```
 
 To revert all migrations, you can pass 0 as the `to` parameter:
 
 ```js
-await umzug.down({ to: 0 });
+await umzug.down({to: 0})
 ```
 
 Reverting specific migrations while ignoring the right order, can be done like this:
 
 ```js
-await umzug.down({ migrations: ['20141101203500-task', '20141101203501-task-2'] });
+await umzug.down({migrations: ['20141101203500-task', '20141101203501-task-2']})
 ```
 
 ### Migrations
@@ -241,13 +242,13 @@ A migration file ideally exposes an `up` and a `down` async functions. They will
 
 ```js
 module.exports = {
-  async up() {
-    /* ... */
-  },
-  async down() {
-    /* ... */
-  }
-};
+	async up() {
+		/* ... */
+	},
+	async down() {
+		/* ... */
+	},
+}
 ```
 
 Migration files can be located anywhere - they will typically be loaded according to a glob pattern provided to the `Umzug` constructor.
@@ -257,25 +258,33 @@ Migration files can be located anywhere - they will typically be loaded accordin
 You can also specify directly a list of migrations to the `Umzug` constructor:
 
 ```js
-const { Umzug } = require('umzug');
+const {Umzug} = require('umzug')
 
 const umzug = new Umzug({
-  migrations: [
-    {
-      // the name of the migration is mandatory
-      name: '00-first-migration',
-      async up({ context }) { /* ... */ },
-      async down({ context }) { /* ... */ }
-    },
-    {
-      name: '01-foo-bar-migration',
-      async up({ context }) { /* ... */ },
-      async down({ context }) { /* ... */ }
-    }
-  ],
-  context: sequelize.getQueryInterface(),
-  logger: console,
-});
+	migrations: [
+		{
+			// the name of the migration is mandatory
+			name: '00-first-migration',
+			async up({context}) {
+				/* ... */
+			},
+			async down({context}) {
+				/* ... */
+			},
+		},
+		{
+			name: '01-foo-bar-migration',
+			async up({context}) {
+				/* ... */
+			},
+			async down({context}) {
+				/* ... */
+			},
+		},
+	],
+	context: sequelize.getQueryInterface(),
+	logger: console,
+})
 ```
 
 #### Modifying the parameters passed to your migration methods
@@ -283,31 +292,29 @@ const umzug = new Umzug({
 Sometimes it's necessary to modify the parameters `umzug` will pass to your migration methods when the library calls the `up` and `down` methods for each migration. This is the case when using migrations currently generated using `sequelize-cli`. In this case you can use the `resolve` fuction during migration configuration to determine which parameters will be passed to the relevant method
 
 ```js
-import { Sequelize } from 'sequelize'
-import { Umzug, SequelizeStorage } from 'umzug'
+import {Sequelize} from 'sequelize'
+import {Umzug, SequelizeStorage} from 'umzug'
 
-const sequelize = new Sequelize(
-    ...
-)
+const sequelize = new Sequelize(/* ... */)
 
 const umzug = new Umzug({
-    migrations: {
-        glob: 'migrations/*.js',
-        resolve: ({ name, path, context }) => {
-            const migration = require(path)
-            return {
-                // adjust the parameters Umzug will
-                // pass to migration methods when called
-                name,
-                up: async () => migration.up(context, Sequelize),
-                down: async () => migration.down(context, Sequelize),
-            }
-        },
-    },
-    context: sequelize.getQueryInterface(),
-    storage: new SequelizeStorage({ sequelize }),
-    logger: console,
-});
+	migrations: {
+		glob: 'migrations/*.js',
+		resolve: ({name, path, context}) => {
+			const migration = require(path)
+			return {
+				// adjust the parameters Umzug will
+				// pass to migration methods when called
+				name,
+				up: async () => migration.up(context, Sequelize),
+				down: async () => migration.down(context, Sequelize),
+			}
+		},
+	},
+	context: sequelize.getQueryInterface(),
+	storage: new SequelizeStorage({sequelize}),
+	logger: console,
+})
 ```
 
 #### Additional migration configuration options
@@ -315,78 +322,82 @@ const umzug = new Umzug({
 To load migrations in another format, you can use the `resolve` function:
 
 ```js
-const { Umzug } = require('umzug')
-const { Sequelize } = require('sequelize')
 const fs = require('fs')
+const {Sequelize} = require('sequelize')
+const {Umzug} = require('umzug')
 
 const umzug = new Umzug({
-  migrations: {
-    glob: 'migrations/*.up.sql',
-    resolve: ({ name, path, context: sequelize }) => ({
-      name,
-      up: async () => {
-        const sql = fs.readFileSync(path).toString()
-        return sequelize.query(sql)
-      },
-      down: async () => {
-        // Get the corresponding `.down.sql` file to undo this migration
-        const sql = fs.readFileSync(path.replace('.up.sql', '.down.sql')).toString()
-        return sequelize.query(sql)
-      }
-    })
-  },
-  context: new Sequelize(...),
-  logger: console,
-});
+	migrations: {
+		glob: 'migrations/*.up.sql',
+		resolve: ({name, path, context: sequelize}) => ({
+			name,
+			up: async () => {
+				const sql = fs.readFileSync(path).toString()
+				return sequelize.query(sql)
+			},
+			down: async () => {
+				// Get the corresponding `.down.sql` file to undo this migration
+				const sql = fs
+					.readFileSync(path.replace('.up.sql', '.down.sql'))
+					.toString()
+				return sequelize.query(sql)
+			},
+		}),
+	},
+	context: new Sequelize(/* ... */),
+	logger: console,
+})
 ```
 
 You can support mixed migration file types, and use umzug's default resolver for javascript/typescript:
 
 ```js
-const { Umzug } = require('umzug')
-const { Sequelize } = require('sequelize')
 const fs = require('fs')
+const {Sequelize} = require('sequelize')
+const {Umzug} = require('umzug')
 
 const umzug = new Umzug({
-  migrations: {
-    glob: 'migrations/*.{js,ts,up.sql}',
-    resolve: (params) => {
-      if (!params.path.endsWith('.sql')) {
-        return Umzug.defaultResolver(params)
-      }
-      const { context: sequelize } = params
-      return {
-        name: params.name,
-        up: async () => {
-          const sql = fs.readFileSync(params.path).toString()
-          return sequelize.query(sql)
-        },
-        down: async () => {
-          // Get the corresponding `.down.sql` file to undo this migration
-          const sql = fs.readFileSync(params.path.replace('.up.sql', '.down.sql')).toString()
-          return sequelize.query(sql)
-        }
-      }
-    },
-  },
-  logger: console,
-  context: new Sequelize(...),
-});
+	migrations: {
+		glob: 'migrations/*.{js,ts,up.sql}',
+		resolve: params => {
+			if (!params.path.endsWith('.sql')) {
+				return Umzug.defaultResolver(params)
+			}
+			const {context: sequelize} = params
+			return {
+				name: params.name,
+				up: async () => {
+					const sql = fs.readFileSync(params.path).toString()
+					return sequelize.query(sql)
+				},
+				down: async () => {
+					// Get the corresponding `.down.sql` file to undo this migration
+					const sql = fs
+						.readFileSync(params.path.replace('.up.sql', '.down.sql'))
+						.toString()
+					return sequelize.query(sql)
+				},
+			}
+		},
+	},
+	logger: console,
+	context: new Sequelize(/* ... */),
+})
 ```
 
 The glob syntax allows loading migrations from multiple locations:
 
 ```js
-const { Umzug } = require('umzug')
-const { Sequelize } = require('sequelize')
+const {Sequelize} = require('sequelize')
+const {Umzug} = require('umzug')
 
 const umzug = new Umzug({
-  migrations: {
-    glob: '{first-folder/*.js,second-folder-with-different-naming-convention/*.js}',
-  },
-  context: new Sequelize(...),
-  logger: console,
-});
+	migrations: {
+		glob: '{first-folder/*.js,second-folder-with-different-naming-convention/*.js}',
+	},
+	context: new Sequelize(/* ... */),
+	logger: console,
+})
 ```
 
 Note on migration file sorting:
@@ -414,13 +425,13 @@ Events have moved from the default nodejs `EventEmitter` to [emittery](https://w
 Before:
 
 ```js
-umzug.on('migrating', (name, m) => console.log({ name, path: m.path }))
+umzug.on('migrating', (name, m) => console.log({name, path: m.path}))
 ```
 
 After:
 
 ```js
-umzug.on('migrating', ev => console.log({ name: ev.name, path: ev.path }))
+umzug.on('migrating', ev => console.log({name: ev.name, path: ev.path}))
 ```
 
 The `Umzug#execute` method is removed. Use `Umzug#up` or `Umzug#down`.
@@ -447,35 +458,40 @@ The `context` parameter replaces `params`, and is passed in as a property to mig
 The `resolve` function can also be used to upgrade your umzug version to v3 when you have existing v2-compatible migrations:
 
 ```js
-const { Umzug } = require('umzug');
+const {Umzug} = require('umzug')
 
 const umzug = new Umzug({
-  migrations: {
-    glob: 'migrations/umzug-v2-format/*.js',
-    resolve: ({name, path, context}) => {
-      // Adjust the migration from the new signature to the v2 signature, making easier to upgrade to v3
-      const migration = require(path)
-      return { name, up: async () => migration.up(context), down: async () => migration.down(context) }
-    }
-  },
-  context: sequelize.getQueryInterface(),
-  logger: console,
-});
+	migrations: {
+		glob: 'migrations/umzug-v2-format/*.js',
+		resolve: ({name, path, context}) => {
+			// Adjust the migration from the new signature to the v2 signature, making easier to upgrade to v3
+			const migration = require(path)
+			return {
+				name,
+				up: async () => migration.up(context),
+				down: async () => migration.down(context),
+			}
+		},
+	},
+	context: sequelize.getQueryInterface(),
+	logger: console,
+})
 ```
 
 Similarly, you no longer need `migrationSorting`, you can instantiate a new `Umzug` instance to manipulate migration lists directly:
 
 ```js
-const { Umzug } = require('umzug');
+const {Umzug} = require('umzug')
 
 const parent = new Umzug({
-  migrations: { glob: 'migrations/**/*.js' },
-  context: sequelize.getQueryInterface(),
+	migrations: {glob: 'migrations/**/*.js'},
+	context: sequelize.getQueryInterface(),
 })
 
 const umzug = new Umzug({
-  ...parent.options,
-  migrations: ctx => (await parent.migrations()).sort((a, b) => b.path.localeCompare(a.path))
+	...parent.options,
+	migrations: async ctx =>
+		(await parent.migrations()).sort((a, b) => b.path.localeCompare(a.path)),
 })
 ```
 
@@ -525,13 +541,16 @@ In order to use a custom storage, you can pass your storage instance to Umzug co
 
 ```js
 class CustomStorage {
-  constructor(...) {...}
-  logMigration(...) {...}
-  unlogMigration(...) {...}
-  executed(...) {...}
+	constructor() {}
+	logMigration() {}
+	unlogMigration() {}
+	executed() {}
 }
 
-const umzug = new Umzug({ storage: new CustomStorage(...), logger: console })
+const umzug = new Umzug({
+	storage: new CustomStorage(/* ... */),
+	logger: console,
+})
 ```
 
 Your instance must adhere to the [UmzugStorage](./src/storage/contract.ts) interface. If you're using TypeScript you can ensure this at compile time, and get IDE type hints by importing it:
@@ -570,13 +589,13 @@ If you expect failures and want to try to recover from them, you will need to tr
 
 ```js
 try {
-  await umzug.up();
+	await umzug.up()
 } catch (e) {
-  if (e instanceof MigrationError) {
-    const original = e.cause;
-    // do something with the original error here
-  }
-  throw e;
+	if (e instanceof MigrationError) {
+		const original = e.cause
+		// do something with the original error here
+	}
+	throw e
 }
 ```
 
@@ -590,14 +609,16 @@ Umzug instances provide a `.runAsCLI()` method. When called, this method will au
 
 ```js
 // migrator.js
-const { Umzug } = require('umzug')
+const {Umzug} = require('umzug')
 
-const umzug = new Umzug({ ... })
+const umzug = new Umzug({
+	/* ... */
+})
 
 exports.umzug = umzug
 
 if (require.main === module) {
-  umzug.runAsCLI()
+	umzug.runAsCLI()
 }
 ```
 
@@ -752,12 +773,14 @@ You can specify a custom template for your project when constructing an umzug in
 
 ```js
 const umzug = new Umzug({
-  migrations: ...,
+	migrations: {
+		/*...*/
+	},
 	create: {
 		template: filepath => [
 			[filepath, fs.readFileSync('path/to/your/template/file').toString()],
-		]
-	}
+		],
+	},
 })
 ```
 
@@ -818,7 +841,7 @@ Optional arguments:
 Umzug includes an optional helper for generating migration files. It's often most convenient to create files using the [CLI helper](#creating-migrations---cli), but the equivalent API also exists on an umzug instance:
 
 ```js
-await umzug.create({ name: 'my-new-migration.js' })
+await umzug.create({name: 'my-new-migration.js'})
 ```
 
 ## License

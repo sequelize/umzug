@@ -2,10 +2,10 @@
 	"compilerOptions": {
 		"noEmit": true,
 		"allowJs": true,
-		"target": "es2018",
+		"target": "ESNext",
 		"module": "commonjs",
 		"moduleResolution": "node",
-		"lib": ["ES2019"],
+		"lib": ["ES2021"],
 		"resolveJsonModule": true,
 		"declaration": true,
 		"sourceMap": true,
