@@ -258,8 +258,8 @@ export class CreateAction extends cli.CommandLineAction {
 	async onExecute(): Promise<void> {
 		await this.umzug
 			.create({
-				name: this._params.name.value!,
-				prefix: this._params.prefix.value as 'TIMESTAMP' | 'DATE' | 'NONE',
+				name: this._params.name.value,
+				prefix: this._params.prefix.value,
 				folder: this._params.folder.value,
 				allowExtension:
 					this._params.allowExtension.values.length > 0 ? this._params.allowExtension.values[0] : undefined,
