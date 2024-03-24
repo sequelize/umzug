@@ -2,8 +2,8 @@
   "name": "umzug-bundling-example",
   "version": "0.0.0",
   "scripts": {
-    "lint": "eslint .",
-    "build": "tsup umzug.ts --external pg-hstore"
+    "build": "tsup umzug.ts --external pg-hstore",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "eslint": "8.57.0",

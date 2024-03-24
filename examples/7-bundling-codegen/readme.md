@@ -13,7 +13,7 @@ npm run build
 
 node dist/umzug up # apply migrations
 
-node migrate create --name new-migration.ts --skip-verify # create a new migration file
+node dist/umzug create --name new-migration.ts --skip-verify # create a new migration file
 npm run lint -- --fix # makes sure barrel is up to date
 ```
 
