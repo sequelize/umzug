@@ -2,11 +2,13 @@
   "name": "umzug-bundling-example",
   "version": "0.0.0",
   "scripts": {
-    "lint": "eslint . --ext ts",
+    "lint": "eslint .",
     "build": "ncc build umzug.ts --transpile-only --out migrate"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.36.1",
-    "eslint": "7.15.0"
+    "eslint": "8.57.0",
+    "eslint-plugin-codegen": "0.28.0",
+    "typescript-eslint": "7.3.1"
   }
 }
