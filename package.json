@@ -37,7 +37,7 @@
 		"lodash": "4.17.21",
 		"np": "github:mmkal/np#pnpm",
 		"p-event": "^4.0.0",
-		"prettier": "2.8.8",
+		"prettier": "3.2.5",
 		"sequelize": "6.37.1",
 		"sinon": "14.0.0",
 		"source-map-support": "0.5.21",
