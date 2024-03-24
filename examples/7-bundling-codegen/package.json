@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "lint": "eslint .",
-    "build": "ncc build umzug.ts --transpile-only --out migrate"
+    "build": "tsup umzug.ts --external pg-hstore"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.36.1",
     "eslint": "8.57.0",
     "eslint-plugin-codegen": "0.28.0",
+    "tsup": "8.0.2",
     "typescript-eslint": "7.3.1"
   }
 }

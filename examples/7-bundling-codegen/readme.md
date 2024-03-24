@@ -11,7 +11,7 @@ npm install
 npm run lint -- --fix # makes sure barrel is up to date
 npm run build
 
-node migrate up # apply migrations
+node dist/umzug up # apply migrations
 
 node migrate create --name new-migration.ts --skip-verify # create a new migration file
 npm run lint -- --fix # makes sure barrel is up to date
