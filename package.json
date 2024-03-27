@@ -51,11 +51,10 @@
 	"scripts": {
 		"clean": "del-cli lib",
 		"compile": "tsc -p tsconfig.lib.json",
-		"build": "npm run clean && npm run compile",
+		"build": "pnpm clean && pnpm compile",
 		"eslint": "eslint . --max-warnings 0",
-		"lint": "npm run type-check && npm run eslint",
-		"prepare": "npm run build",
-		"release": "np --no-yarn --no-2fa",
+		"lint": "pnpm type-check && pnpm eslint",
+		"prepare": "pnpm build",
 		"pretest": "del-cli test/generated",
 		"test": "vitest run",
 		"type-check": "tsc -p ."

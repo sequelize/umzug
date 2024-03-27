@@ -11,427 +11,427 @@ import {SequelizeStorage as Storage} from '../../src'
 const describeModel = (model: any) => model.describe()
 
 describe('sequelize', () => {
-	const syncer = fsSyncer(path.join(process.cwd(), 'tmp'), {})
-	syncer.sync()
+  const syncer = fsSyncer(path.join(process.cwd(), 'tmp'), {})
+  syncer.sync()
 
-	const helper = {} as any
-	beforeEach(() => {
-		Object.assign(helper, {
-			sequelize: new sequelize.Sequelize('database', 'username', 'password', {
-				dialect: 'sqlite',
-				logging: false,
-			}),
-			storagePath: path.join(syncer.baseDir, `storage-${uuid()}.sqlite`),
-		})
-	})
+  const helper = {} as any
+  beforeEach(() => {
+    Object.assign(helper, {
+      sequelize: new sequelize.Sequelize('database', 'username', 'password', {
+        dialect: 'sqlite',
+        logging: false,
+      }),
+      storagePath: path.join(syncer.baseDir, `storage-${uuid()}.sqlite`),
+    })
+  })
 
-	describe('constructor', () => {
-		it('requires a "sequelize" or "model" storage option', () => {
-			// @ts-expect-error (type error for no params)
-			expect(() => new Storage()).toThrow('One of "sequelize" or "model" storage option is required')
+  describe('constructor', () => {
+    it('requires a "sequelize" or "model" storage option', () => {
+      // @ts-expect-error (type error for no params)
+      expect(() => new Storage()).toThrow('One of "sequelize" or "model" storage option is required')
 
-			// @ts-expect-error (type error for params with missing properties)
-			expect(() => new Storage({})).toThrow('One of "sequelize" or "model" storage option is required')
-		})
+      // @ts-expect-error (type error for params with missing properties)
+      expect(() => new Storage({})).toThrow('One of "sequelize" or "model" storage option is required')
+    })
 
-		it('stores needed options', () => {
-			const storage = new Storage({sequelize: helper.sequelize})
-			expect(storage).toHaveProperty('sequelize')
-			expect(storage).toHaveProperty('model')
-			expect(storage).toHaveProperty('columnName')
-		})
+    it('stores needed options', () => {
+      const storage = new Storage({sequelize: helper.sequelize})
+      expect(storage).toHaveProperty('sequelize')
+      expect(storage).toHaveProperty('model')
+      expect(storage).toHaveProperty('columnName')
+    })
 
-		it('lazy-initializes model', () => {
-			const defineModelSpy = jest.spyOn(helper.sequelize, 'define')
-			const getModelSpy = jest.spyOn(helper.sequelize, 'model')
-			const storage1 = new Storage({sequelize: helper.sequelize})
+    it('lazy-initializes model', () => {
+      const defineModelSpy = jest.spyOn(helper.sequelize, 'define')
+      const getModelSpy = jest.spyOn(helper.sequelize, 'model')
+      const storage1 = new Storage({sequelize: helper.sequelize})
 
-			expect(defineModelSpy).toHaveBeenCalledTimes(1)
-			expect(getModelSpy).toHaveBeenCalledTimes(0)
+      expect(defineModelSpy).toHaveBeenCalledTimes(1)
+      expect(getModelSpy).toHaveBeenCalledTimes(0)
 
-			const storage2 = new Storage({sequelize: helper.sequelize})
+      const storage2 = new Storage({sequelize: helper.sequelize})
 
-			expect(defineModelSpy).toHaveBeenCalledTimes(1)
-			expect(getModelSpy).toHaveBeenCalledTimes(1)
+      expect(defineModelSpy).toHaveBeenCalledTimes(1)
+      expect(getModelSpy).toHaveBeenCalledTimes(1)
 
-			expect(storage2).toEqual(storage1)
-		})
+      expect(storage2).toEqual(storage1)
+    })
 
-		it('accepts a "sequelize" option and creates a model', () => {
-			const storage = new Storage({sequelize: helper.sequelize})
-			expect(storage.model).toBe(helper.sequelize.model('SequelizeMeta'))
-			expect(storage.model.getTableName()).toBe('SequelizeMeta')
-			return storage.model
-				.sync()
-				.then(describeModel)
-				.then((description: any) => {
-					expect(description).toMatchInlineSnapshot(`
-						{
-						  "name": {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						    "unique": true,
-						  },
-						}
-					`)
-					expect(description.name.type).toBe('VARCHAR(255)')
-					expect(description.name.defaultValue).toBeUndefined()
+    it('accepts a "sequelize" option and creates a model', () => {
+      const storage = new Storage({sequelize: helper.sequelize})
+      expect(storage.model).toBe(helper.sequelize.model('SequelizeMeta'))
+      expect(storage.model.getTableName()).toBe('SequelizeMeta')
+      return storage.model
+        .sync()
+        .then(describeModel)
+        .then((description: any) => {
+          expect(description).toMatchInlineSnapshot(`
+            {
+              "name": {
+                "allowNull": false,
+                "defaultValue": undefined,
+                "primaryKey": true,
+                "type": "VARCHAR(255)",
+                "unique": true,
+              },
+            }
+          `)
+          expect(description.name.type).toBe('VARCHAR(255)')
+          expect(description.name.defaultValue).toBeUndefined()
 
-					expect(description.name.primaryKey).toBeTruthy()
-				})
-		})
+          expect(description.name.primaryKey).toBeTruthy()
+        })
+    })
 
-		it('accepts a "modelName" option', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				modelName: 'CustomModel',
-			})
-			expect(storage.model).toBe(helper.sequelize.model('CustomModel'))
-			expect(storage.model.getTableName()).toBe('CustomModels')
-		})
+    it('accepts a "modelName" option', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        modelName: 'CustomModel',
+      })
+      expect(storage.model).toBe(helper.sequelize.model('CustomModel'))
+      expect(storage.model.getTableName()).toBe('CustomModels')
+    })
 
-		it('accepts a "tableName" option', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				tableName: 'CustomTable',
-			})
-			expect(storage.model).toBe(helper.sequelize.model('SequelizeMeta'))
-			expect(storage.model.getTableName()).toBe('CustomTable')
-		})
+    it('accepts a "tableName" option', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        tableName: 'CustomTable',
+      })
+      expect(storage.model).toBe(helper.sequelize.model('SequelizeMeta'))
+      expect(storage.model.getTableName()).toBe('CustomTable')
+    })
 
-		it('accepts a "columnName" option', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				columnName: 'customColumn',
-			})
-			return storage.model
-				.sync()
-				.then(describeModel)
-				.then((description: any) => {
-					expect(description).toMatchInlineSnapshot(`
-						{
-						  "customColumn": {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						    "unique": true,
-						  },
-						}
-					`)
-				})
-		})
+    it('accepts a "columnName" option', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        columnName: 'customColumn',
+      })
+      return storage.model
+        .sync()
+        .then(describeModel)
+        .then((description: any) => {
+          expect(description).toMatchInlineSnapshot(`
+            {
+              "customColumn": {
+                "allowNull": false,
+                "defaultValue": undefined,
+                "primaryKey": true,
+                "type": "VARCHAR(255)",
+                "unique": true,
+              },
+            }
+          `)
+        })
+    })
 
-		it('accepts a "timestamps" option', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				timestamps: true,
-			})
-			return storage.model
-				.sync()
-				.then(describeModel)
-				.then((description: any) => {
-					expect(description).toMatchInlineSnapshot(`
-						{
-						  "createdAt": {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "DATETIME",
-						    "unique": false,
-						  },
-						  "name": {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": true,
-						    "type": "VARCHAR(255)",
-						    "unique": true,
-						  },
-						  "updatedAt": {
-						    "allowNull": false,
-						    "defaultValue": undefined,
-						    "primaryKey": false,
-						    "type": "DATETIME",
-						    "unique": false,
-						  },
-						}
-					`)
-				})
-		})
+    it('accepts a "timestamps" option', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        timestamps: true,
+      })
+      return storage.model
+        .sync()
+        .then(describeModel)
+        .then((description: any) => {
+          expect(description).toMatchInlineSnapshot(`
+            {
+              "createdAt": {
+                "allowNull": false,
+                "defaultValue": undefined,
+                "primaryKey": false,
+                "type": "DATETIME",
+                "unique": false,
+              },
+              "name": {
+                "allowNull": false,
+                "defaultValue": undefined,
+                "primaryKey": true,
+                "type": "VARCHAR(255)",
+                "unique": true,
+              },
+              "updatedAt": {
+                "allowNull": false,
+                "defaultValue": undefined,
+                "primaryKey": false,
+                "type": "DATETIME",
+                "unique": false,
+              },
+            }
+          `)
+        })
+    })
 
-		it('accepts a "columnType" option', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				columnType: new sequelize.STRING(190),
-			})
-			return storage.model
-				.sync()
-				.then(describeModel)
-				.then((description: any) => {
-					expect(description.name.type).toBe('VARCHAR(190)')
-					expect(description.name.defaultValue).toBeUndefined()
+    it('accepts a "columnType" option', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        columnType: new sequelize.STRING(190),
+      })
+      return storage.model
+        .sync()
+        .then(describeModel)
+        .then((description: any) => {
+          expect(description.name.type).toBe('VARCHAR(190)')
+          expect(description.name.defaultValue).toBeUndefined()
 
-					expect(description.name.primaryKey).toBe(true)
-				})
-		})
+          expect(description.name.primaryKey).toBe(true)
+        })
+    })
 
-		it('accepts a "model" option', () => {
-			const Model = helper.sequelize.define('CustomModel', {
-				columnName: {
-					type: sequelize.STRING,
-				},
-				someOtherColumn: {
-					type: sequelize.INTEGER,
-				},
-			})
+    it('accepts a "model" option', () => {
+      const Model = helper.sequelize.define('CustomModel', {
+        columnName: {
+          type: sequelize.STRING,
+        },
+        someOtherColumn: {
+          type: sequelize.INTEGER,
+        },
+      })
 
-			const storage = new Storage({
-				model: Model,
-			})
-			expect(storage.model).toBe(Model)
-		})
-	})
+      const storage = new Storage({
+        model: Model,
+      })
+      expect(storage.model).toBe(Model)
+    })
+  })
 
-	describe('logMigration', () => {
-		it("creates the table if it doesn't exist yet", () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-			})
+  describe('logMigration', () => {
+    it("creates the table if it doesn't exist yet", () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+      })
 
-			return storage.model
-				.sequelize!.getQueryInterface()
-				.showAllTables()
-				.then((allTables: any) => {
-					expect(Object.keys(allTables)).toHaveLength(0)
-				})
-				.then(() => storage.logMigration({name: 'asd.js'}))
-				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
-				.then((allTables: any) => {
-					expect(allTables).toEqual(['SequelizeMeta'])
-				})
-		})
+      return storage.model
+        .sequelize!.getQueryInterface()
+        .showAllTables()
+        .then((allTables: any) => {
+          expect(Object.keys(allTables)).toHaveLength(0)
+        })
+        .then(() => storage.logMigration({name: 'asd.js'}))
+        .then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
+        .then((allTables: any) => {
+          expect(allTables).toEqual(['SequelizeMeta'])
+        })
+    })
 
-		it('writes the migration to the database', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-			})
+    it('writes the migration to the database', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-					expect(migrations[0].name).toBe('asd.js')
-				})
-		})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+          expect(migrations[0].name).toBe('asd.js')
+        })
+    })
 
-		it('writes the migration to the database with a custom column name', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				columnName: 'customColumnName',
-			})
+    it('writes the migration to the database with a custom column name', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        columnName: 'customColumnName',
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-					expect(migrations[0].customColumnName).toBe('asd.js')
-				})
-		})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+          expect(migrations[0].customColumnName).toBe('asd.js')
+        })
+    })
 
-		it('writes the migration to the database with timestamps', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				timestamps: true,
-			})
+    it('writes the migration to the database with timestamps', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        timestamps: true,
+      })
 
-			// Sequelize | startTime | createdAt | endTime
-			// <= v2     | .123      | .000      | .456
-			// >= v3     | .123      | .345      | .456
-			// Sequelize <= v2 doesn't store milliseconds in timestamps so comparing
-			// it to startTime with milliseconds fails. That's why we ignore
-			// milliseconds in startTime too.
-			const startTime = new Date(Math.floor(Date.now() / 1000) * 1000)
+      // Sequelize | startTime | createdAt | endTime
+      // <= v2     | .123      | .000      | .456
+      // >= v3     | .123      | .345      | .456
+      // Sequelize <= v2 doesn't store milliseconds in timestamps so comparing
+      // it to startTime with milliseconds fails. That's why we ignore
+      // milliseconds in startTime too.
+      const startTime = new Date(Math.floor(Date.now() / 1000) * 1000)
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-					expect(migrations[0].name).toBe('asd.js')
-					expect(migrations[0].createdAt.getTime()).toBeGreaterThanOrEqual(startTime.getTime())
-					expect(migrations[0].createdAt.getTime()).toBeLessThanOrEqual(Date.now())
-				})
-		})
-	})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+          expect(migrations[0].name).toBe('asd.js')
+          expect(migrations[0].createdAt.getTime()).toBeGreaterThanOrEqual(startTime.getTime())
+          expect(migrations[0].createdAt.getTime()).toBeLessThanOrEqual(Date.now())
+        })
+    })
+  })
 
-	describe('unlogMigration', () => {
-		it("creates the table if it doesn't exist yet", () => {
-			const storage = new Storage({sequelize: helper.sequelize})
+  describe('unlogMigration', () => {
+    it("creates the table if it doesn't exist yet", () => {
+      const storage = new Storage({sequelize: helper.sequelize})
 
-			return storage.model
-				.sequelize!.getQueryInterface()
-				.showAllTables()
-				.then((allTables: any) => {
-					expect(Object.keys(allTables)).toHaveLength(0)
-				})
-				.then(() => storage.unlogMigration({name: 'asd.js'}))
-				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
-				.then((allTables: any) => {
-					expect(allTables).toEqual(['SequelizeMeta'])
-				})
-		})
+      return storage.model
+        .sequelize!.getQueryInterface()
+        .showAllTables()
+        .then((allTables: any) => {
+          expect(Object.keys(allTables)).toHaveLength(0)
+        })
+        .then(() => storage.unlogMigration({name: 'asd.js'}))
+        .then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
+        .then((allTables: any) => {
+          expect(allTables).toEqual(['SequelizeMeta'])
+        })
+    })
 
-		it('deletes the migration from the database', () => {
-			const storage = new Storage({sequelize: helper.sequelize})
+    it('deletes the migration from the database', () => {
+      const storage = new Storage({sequelize: helper.sequelize})
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-				})
-				.then(() => storage.unlogMigration({name: 'asd.js'}))
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(Object.keys(migrations)).toHaveLength(0)
-				})
-		})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+        })
+        .then(() => storage.unlogMigration({name: 'asd.js'}))
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(Object.keys(migrations)).toHaveLength(0)
+        })
+    })
 
-		it('deletes only the passed migration', () => {
-			const storage = new Storage({sequelize: helper.sequelize})
+    it('deletes only the passed migration', () => {
+      const storage = new Storage({sequelize: helper.sequelize})
 
-			return storage
-				.logMigration({name: 'migration1.js'})
-				.then(() => storage.logMigration({name: 'migration2.js'}))
-				.then(() => storage.unlogMigration({name: 'migration2.js'}))
-				.then(() => storage._model().findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-					expect(migrations[0].name).toBe('migration1.js')
-				})
-		})
+      return storage
+        .logMigration({name: 'migration1.js'})
+        .then(() => storage.logMigration({name: 'migration2.js'}))
+        .then(() => storage.unlogMigration({name: 'migration2.js'}))
+        .then(() => storage._model().findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+          expect(migrations[0].name).toBe('migration1.js')
+        })
+    })
 
-		it('deletes the migration from the database with a custom column name', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				columnName: 'customColumnName',
-			})
+    it('deletes the migration from the database with a custom column name', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        columnName: 'customColumnName',
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-				})
-				.then(() => storage.unlogMigration({name: 'asd.js'}))
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(Object.keys(migrations)).toHaveLength(0)
-				})
-		})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+        })
+        .then(() => storage.unlogMigration({name: 'asd.js'}))
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(Object.keys(migrations)).toHaveLength(0)
+        })
+    })
 
-		it('deletes the migration from the database with timestamps', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				timestamps: true,
-			})
+    it('deletes the migration from the database with timestamps', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        timestamps: true,
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(migrations.length).toBe(1)
-				})
-				.then(() => storage.unlogMigration({name: 'asd.js'}))
-				.then(() => storage.model.findAll())
-				.then(migrations => {
-					expect(Object.keys(migrations)).toHaveLength(0)
-				})
-		})
-	})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(migrations.length).toBe(1)
+        })
+        .then(() => storage.unlogMigration({name: 'asd.js'}))
+        .then(() => storage.model.findAll())
+        .then(migrations => {
+          expect(Object.keys(migrations)).toHaveLength(0)
+        })
+    })
+  })
 
-	describe('executed', () => {
-		it('validates migration types', async () => {
-			const storage = new Storage({sequelize: helper.sequelize})
+  describe('executed', () => {
+    it('validates migration types', async () => {
+      const storage = new Storage({sequelize: helper.sequelize})
 
-			jest.spyOn(storage.model, 'findAll').mockResolvedValueOnce([{name: 123} as any])
+      jest.spyOn(storage.model, 'findAll').mockResolvedValueOnce([{name: 123} as any])
 
-			await expect(storage.executed()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"Unexpected migration name type: expected string, got number"`,
-			)
-		})
+      await expect(storage.executed()).rejects.toThrowErrorMatchingInlineSnapshot(
+        `"Unexpected migration name type: expected string, got number"`,
+      )
+    })
 
-		it("creates the table if it doesn't exist yet", () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-			})
+    it("creates the table if it doesn't exist yet", () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+      })
 
-			return storage.model
-				.sequelize!.getQueryInterface()
-				.showAllTables()
-				.then((allTables: any) => {
-					expect(Object.keys(allTables)).toHaveLength(0)
-				})
-				.then(() => storage.executed())
-				.then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
-				.then((allTables: any) => {
-					expect(allTables).toEqual(['SequelizeMeta'])
-				})
-		})
+      return storage.model
+        .sequelize!.getQueryInterface()
+        .showAllTables()
+        .then((allTables: any) => {
+          expect(Object.keys(allTables)).toHaveLength(0)
+        })
+        .then(() => storage.executed())
+        .then(() => storage.model.sequelize!.getQueryInterface().showAllTables())
+        .then((allTables: any) => {
+          expect(allTables).toEqual(['SequelizeMeta'])
+        })
+    })
 
-		it('returns an empty array if no migrations were logged yet', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-			})
+    it('returns an empty array if no migrations were logged yet', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+      })
 
-			return storage.executed().then(migrations => {
-				expect(Object.keys(migrations)).toHaveLength(0)
-			})
-		})
+      return storage.executed().then(migrations => {
+        expect(Object.keys(migrations)).toHaveLength(0)
+      })
+    })
 
-		it('returns executed migrations', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-			})
+    it('returns executed migrations', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.executed())
-				.then(migrations => {
-					expect(migrations).toEqual(['asd.js'])
-				})
-		})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.executed())
+        .then(migrations => {
+          expect(migrations).toEqual(['asd.js'])
+        })
+    })
 
-		it('returns executed migrations with a custom column name', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				columnName: 'customColumnName',
-			})
+    it('returns executed migrations with a custom column name', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        columnName: 'customColumnName',
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.executed())
-				.then(migrations => {
-					expect(migrations).toEqual(['asd.js'])
-				})
-		})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.executed())
+        .then(migrations => {
+          expect(migrations).toEqual(['asd.js'])
+        })
+    })
 
-		it('returns executed migrations with timestamps', () => {
-			const storage = new Storage({
-				sequelize: helper.sequelize,
-				timestamps: true,
-			})
+    it('returns executed migrations with timestamps', () => {
+      const storage = new Storage({
+        sequelize: helper.sequelize,
+        timestamps: true,
+      })
 
-			return storage
-				.logMigration({name: 'asd.js'})
-				.then(() => storage.executed())
-				.then(migrations => {
-					expect(migrations).toEqual(['asd.js'])
-				})
-		})
-	})
+      return storage
+        .logMigration({name: 'asd.js'})
+        .then(() => storage.executed())
+        .then(migrations => {
+          expect(migrations).toEqual(['asd.js'])
+        })
+    })
+  })
 })
