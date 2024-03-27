@@ -1,6 +1,6 @@
 # Umzug
 
-[![Build Status](https://badgen.net/github/checks/sequelize/umzug/main)](https://github.com/sequelize/umzug/actions?query=workflow%3ACI)
+[![Build Status](https://github.com/sequelize/umzug/actions/workflows/ci.yml/badge.svg)](https://github.com/sequelize/umzug/actions/workflows/ci.yml/badge.svg)
 [![npm](https://badgen.net/npm/v/umzug)](https://www.npmjs.com/package/umzug)
 [![npm (downloads)](https://badgen.net/npm/dm/umzug)](https://npmjs.com/package/umzug)
 
