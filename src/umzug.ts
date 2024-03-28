@@ -343,8 +343,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
     await this.runCommand('create', async ({context}) => {
       const isoDate = new Date().toISOString()
       const prefixes = {
-        TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replaceAll(/\W/g, '.'),
-        DATE: isoDate.split('T')[0].replaceAll(/\W/g, '.'),
+        TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+        DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
         NONE: '',
       }
       const prefixType = options.prefix ?? 'TIMESTAMP'
