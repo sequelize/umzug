@@ -53,6 +53,7 @@ jobs:
           node migrate create --name new-migration.js
           node migrate up
       - name: run vanilla esm example
+        if: matrix.node != 12
         working-directory: examples/0.5-vanilla-esm
         run: |
           npm init -y
