@@ -17,14 +17,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 14.x
-    - run: pnpm test
+    # pnpm 8 doesn't support lower node versions so use `npm test`
+    - run: npm test
 
     # todo: drop node 12 in next major
     - name: Setup node 12
       uses: actions/setup-node@v4
       with:
         node-version: 12.x
-    - run: pnpm test
+    - run: npm test
   create_tgz:
     runs-on: ubuntu-latest
     steps:
