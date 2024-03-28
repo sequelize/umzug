@@ -1,9 +1,8 @@
 import emittery from 'emittery'
 import * as fs from 'fs'
-import glob from 'glob'
+import {glob, type GlobOptionsWithFileTypesUnset as GlobOptions} from 'glob'
 import * as path from 'path'
 import * as errorCause from 'pony-cause'
-import {promisify} from 'util'
 import type {CommandLineParserOptions} from './cli'
 import {UmzugCLI} from './cli'
 import type {UmzugStorage} from './storage'
@@ -22,8 +21,6 @@ import type {
   UmzugOptions,
 } from './types'
 import {RerunBehavior} from './types'
-
-const globAsync = promisify(glob)
 
 type MigrationErrorParams = {
   direction: 'up' | 'down'
@@ -489,12 +486,13 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
     }
 
     const fileGlob = inputMigrations.glob
-    const [globString, globOptions]: Parameters<typeof glob.sync> = Array.isArray(fileGlob) ? fileGlob : [fileGlob]
+    const [globString, globOptions]: [string, GlobOptions] = Array.isArray(fileGlob) ? fileGlob : [fileGlob, {}]
 
     const resolver: Resolver<Ctx> = inputMigrations.resolve ?? Umzug.defaultResolver
 
     return async context => {
-      const paths = await globAsync(globString, {...globOptions, absolute: true})
+      const paths = await glob(globString, {...globOptions, absolute: true})
+      paths.sort() // glob returns results in reverse alphabetical order these days, but it has never guaranteed not to do that https://github.com/isaacs/node-glob/issues/570
       return paths.map(unresolvedPath => {
         const filepath = path.resolve(unresolvedPath)
         const name = path.basename(filepath)
