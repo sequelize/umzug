@@ -7,26 +7,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: corepack enable
-    # rather than use strategy.matrix, install once and run multiple times. Some of the devDependencies refuse to install on lower node versions, but we still want to test on them
     - run: pnpm install
     - run: pnpm lint
     - run: pnpm test -- --coverage
     - name: Coverage
       uses: codecov/codecov-action@v3
-    - name: Setup node 14
-      uses: actions/setup-node@v4
-      with:
-        node-version: 14.x
-    - run: npm test
-
-    # pretest depends on del-cli which doesn't support node 12, so run manually
-    # todo: drop node 12 in next major
-    - run: npm run pretest
-    - name: Setup node 12
-      uses: actions/setup-node@v4
-      with:
-        node-version: 12.x
-    - run: npm test --ignore-scripts
   create_tgz:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +29,13 @@ jobs:
   test_tgz:
     runs-on: ubuntu-latest
     needs: [create_tgz]
+    strategy:
+      matrix:
+        node: [20, 18, 16, 14, 12]
     steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:

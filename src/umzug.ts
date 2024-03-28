@@ -343,8 +343,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
     await this.runCommand('create', async ({context}) => {
       const isoDate = new Date().toISOString()
       const prefixes = {
-        TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replaceAll(/\W/g, '.'),
-        DATE: isoDate.split('T')[0].replaceAll(/\W/g, '.'),
+        TIMESTAMP: isoDate.replace(/\.\d{3}Z$/, '').replace(/\W/g, '.'),
+        DATE: isoDate.split('T')[0].replace(/\W/g, '.'),
         NONE: '',
       }
       const prefixType = options.prefix ?? 'TIMESTAMP'
@@ -355,7 +355,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
         : ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts', '.sql']
 
       const existing = await this.migrations(context)
-      const last = existing.at(-1)
+      const last = existing.slice(-1)[0]
 
       const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path))
 
