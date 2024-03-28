@@ -355,7 +355,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
         : ['.js', '.cjs', '.mjs', '.ts', '.cts', '.mts', '.sql']
 
       const existing = await this.migrations(context)
-      const last = existing.at(-1)
+      const last = existing.slice(-1)[0]
 
       const folder = options.folder || this.options.create?.folder || (last?.path && path.dirname(last.path))
 

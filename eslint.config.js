@@ -3,8 +3,9 @@ module.exports = [
   {ignores: ['lib/**', 'examples/**', 'test/generated/**']}, //
   {
     rules: {
-      // todo[>=4.0.0] drop lower node versions support and remove this
-      'unicorn/prefer-string-replace-all': 'off', // still supporting node 12 :(
+      // todo[>=4.0.0] drop lower node version support and remove these
+      'unicorn/prefer-string-replace-all': 'off',
+      'unicorn/prefer-at': 'off',
     },
   },
 ]
