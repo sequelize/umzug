@@ -23,6 +23,7 @@
 	},
 	"devDependencies": {
 		"@types/lodash": "4.17.0",
+		"@types/node": "20.12.4",
 		"@types/uuid": "8.3.4",
 		"@types/verror": "1.10.10",
 		"@vitest/coverage-v8": "^0.34.6",
