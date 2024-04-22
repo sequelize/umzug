@@ -62,8 +62,8 @@ devDependencies:
     specifier: 4.17.21
     version: 4.17.21
   np:
-    specifier: 10.0.3
-    version: 10.0.3(typescript@4.9.5)
+    specifier: 10.0.5
+    version: 10.0.5(typescript@4.9.5)
   p-event:
     specifier: ^4.0.0
     version: 4.2.0
@@ -4666,6 +4666,7 @@ packages:
 
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+    requiresBuild: true
     dev: true
 
   /issue-regex@4.1.0:
@@ -5449,8 +5450,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /np@10.0.3(typescript@4.9.5):
-    resolution: {integrity: sha512-JioZkOd7DtT1nkGnVOUrPfD7P3SlNbjsT2dHxMDsxpZcpd44iP4J4Nn9OTjCAhf9LK4EezTcIfU7QadyupEvxg==}
+  /np@10.0.5(typescript@4.9.5):
+    resolution: {integrity: sha512-Tu270vVvsh92uh6XDXrGS6D94PhzxQYqM8uUxftYVp0B8qXl78dJRYwQ9wfYMOBB9ynlF79eWlUtPUxPzKGddQ==}
     engines: {git: '>=2.11.0', node: '>=18', npm: '>=9', pnpm: '>=8', yarn: '>=1.7.0'}
     hasBin: true
     dependencies:
