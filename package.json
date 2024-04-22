@@ -35,7 +35,7 @@
 		"expect-type": "0.19.0",
 		"fs-syncer": "0.5.3",
 		"lodash": "4.17.21",
-		"np": "10.0.3",
+		"np": "10.0.5",
 		"p-event": "^4.0.0",
 		"sequelize": "6.37.2",
 		"source-map-support": "0.5.21",
