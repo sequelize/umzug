@@ -151,8 +151,8 @@ export class SequelizeStorage implements UmzugStorage {
         tableName: this.tableName,
         schema: this.schema,
         timestamps: this.timestamps,
-        charset: hasCharsetAndCollate ? 'utf8' : null,
-        collate: hasCharsetAndCollate ? 'utf8_unicode_ci' : null,
+        charset: hasCharsetAndCollate ? 'utf8' : undefined,
+        collate: hasCharsetAndCollate ? 'utf8_unicode_ci' : undefined,
       },
     ) as ModelClassType
   }
