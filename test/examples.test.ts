@@ -23,6 +23,11 @@ const cleanup = (cwd: string) => {
   )
 }
 
+// Convert path to use forward slashes and normalize it
+const normalizePath = (str: string) => {
+  return str.replace(/\\+/g, '/') // Convert backslashes to forward slashes
+}
+
 examples.forEach(ex => {
   test(`example ${ex}`, async () => {
     const dir = path.join(examplesDir, ex)
@@ -31,6 +36,9 @@ examples.forEach(ex => {
     const bash = readme.split('```bash')[1].split('```')[0].trim()
 
     cleanup(dir)
+
+    const cwd = path.resolve(process.cwd()) // Get absolute path
+    const normalizedCwd = normalizePath(cwd) // Normalize cwd path
 
     const stdout = bash
       .split('\n')
@@ -41,7 +49,8 @@ examples.forEach(ex => {
           let output = execa.sync('sh', ['-c', `${cmd} 2>&1`], {cwd: dir}).stdout
           output = stripAnsi(output)
           output = cmd.startsWith('npm') || cmd.endsWith('--help') ? '...' : output // npm commands and `--help` are formatted inconsistently and aren't v relevant
-          output = output.split(process.cwd()).join('<<cwd>>') // cwd varies by machine
+          output = normalizePath(output)
+          output = output.split(normalizedCwd).join('<<cwd>>') // cwd varies by machine
           output = output.replaceAll(/durationSeconds: .*/g, 'durationSeconds: ???') // migrations durations vary by a few milliseconds
           output = output.replaceAll(/\d{4}.\d{2}.\d{2}T\d{2}.\d{2}.\d{2}/g, '<<timestamp>>') // the river of time flows only in one direction
           return [`\`${cmd}\` output:`, output]
