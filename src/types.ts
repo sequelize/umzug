@@ -1,11 +1,5 @@
-import type * as typeFest from 'type-fest'
+import {z} from 'trpc-cli'
 import type {UmzugStorage} from './storage'
-
-/**
- * Create a type that has mutually exclusive keys.
- * Wrapper for @see `import('type-fest').MergeExclusive` that works for three types
- */
-export type MergeExclusive<A, B, C> = typeFest.MergeExclusive<A, typeFest.MergeExclusive<B, C>>
 
 export type Promisable<T> = T | PromiseLike<T>
 
@@ -100,44 +94,54 @@ export const RerunBehavior = {
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export type RerunBehavior = keyof typeof RerunBehavior
 
-export type MigrateUpOptions = MergeExclusive<
-  {
-    /** If specified, migrations up to and including this name will be run. Otherwise, all pending migrations will be run */
-    to?: string
-  },
-  {
-    /** Only run this many migrations. If not specified, all pending migrations will be run */
-    step: number
-  },
-  {
-    /** If specified, only the migrations with these names migrations will be run. An error will be thrown if any of the names are not found in the list of available migrations */
-    migrations: string[]
+export const MigrateUpOptions = z
+  .union([
+    z.object({}).strict(),
+    z.object({to: z.string().describe('Only apply migrations up to this one')}),
+    z.object({step: z.number().int().positive().describe('Apply this many migrations')}),
+    z.object({
+      migrations: z
+        .array(z.string())
+        .describe(
+          'Only migrations with these names will be run. An error will be thrown if any of the names are not found in the list of available migrations',
+        ),
+      rerun: z
+        .enum(['THROW', 'SKIP', 'ALLOW'])
+        .optional()
+        .describe('What to do if a migration that has already been run is explicitly specified'),
+    }),
+  ])
+  .optional()
+export type MigrateUpOptions = z.infer<typeof MigrateUpOptions>
 
-    /** What to do if a migration that has already been run is explicitly specified. Default is `THROW`. */
-    rerun?: RerunBehavior
-  }
->
-
-export type MigrateDownOptions = MergeExclusive<
-  {
-    /** If specified, migrations down to and including this name will be revert. Otherwise, only the last executed will be reverted */
-    to?: string | 0
-  },
-  {
-    /** Revert this many migrations. If not specified, only the most recent migration will be reverted */
-    step: number
-  },
-  {
-    /**
-     * If specified, only the migrations with these names migrations will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations.
-     * Note, migrations will be run in the order specified.
-     */
-    migrations: string[]
-
-    /** What to do if a migration that has not been run is explicitly specified. Default is `THROW`. */
-    rerun?: RerunBehavior
-  }
->
+export const MigrateDownOptions = z
+  .union([
+    z.object({}).strict(),
+    z.object({to: z.string().or(z.literal(0)).optional().describe('Only apply migrations down to this one')}),
+    z.object({step: z.number().int().positive().describe('Revert this many migrations')}),
+    z
+      .object({
+        migrations: z
+          .array(z.string())
+          .describe(
+            'Only migrations with these names will be reverted. An error will be thrown if any of the names are not found in the list of executed migrations',
+          ),
+        onUnexpected: z
+          .enum(['THROW', 'SKIP', 'ALLOW'])
+          .optional()
+          .describe('What to do if a migration that has not been run is explicitly specified'),
+        /** @deprecated */
+        rerun: z
+          .enum(['THROW', 'SKIP', 'ALLOW'])
+          .optional()
+          .describe(
+            'Deprecated - use `onUnexpected` instead. What to do if a migration that has not been run is explicitly specified',
+          ),
+      })
+      .transform(({rerun, onUnexpected, ...rest}) => ({...rest, rerun: onUnexpected ?? rerun})),
+  ])
+  .optional()
+export type MigrateDownOptions = z.infer<typeof MigrateDownOptions>
 
 /** Map of eventName -> eventData type, where the keys are the string events that are emitted by an umzug instances, and the values are the payload emitted with the corresponding event. */
 export type UmzugEvents<Ctx> = {

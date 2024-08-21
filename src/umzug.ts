@@ -3,8 +3,10 @@ import {glob} from 'fast-glob'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as errorCause from 'pony-cause'
+import {createCli} from 'trpc-cli'
 import type {CommandLineParserOptions} from './cli'
 import {UmzugCLI} from './cli'
+import {createMigratorRouter, migratorTrpc} from './router'
 import type {UmzugStorage} from './storage'
 import {JSONStorage, verifyUmzugStorage} from './storage'
 import * as templates from './templates'
@@ -151,8 +153,16 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
    * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
    */
-  protected getCli(options?: CommandLineParserOptions): UmzugCLI {
-    return new UmzugCLI(this, options)
+  protected getCli(options?: CommandLineParserOptions) {
+    const cli = createCli({
+      router: createMigratorRouter(
+        migratorTrpc.procedure.use(async ({ctx, next}) => {
+          return next({ctx: {migrator: this}})
+        }),
+      ),
+    })
+    return cli
+    // return new UmzugCLI(this, options)
   }
 
   /**
@@ -166,7 +176,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    */
   async runAsCLI(argv?: string[]): Promise<boolean> {
     const cli = this.getCli()
-    return cli.execute(argv)
+    await cli.run({argv})
+    return true
   }
 
   /** Get the list of migrations which have already been applied */
@@ -217,26 +228,26 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    */
   async up(options: MigrateUpOptions = {}): Promise<MigrationMeta[]> {
     const eligibleMigrations = async (context: Ctx) => {
-      if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
+      if ('migrations' in options && options.rerun === RerunBehavior.ALLOW) {
         // Allow rerun means the specified migrations should be run even if they've run before - so get all migrations, not just pending
         const list = await this.migrations(context)
         return this.findMigrations(list, options.migrations)
       }
 
-      if (options.migrations && options.rerun === RerunBehavior.SKIP) {
+      if ('migrations' in options && options.rerun === RerunBehavior.SKIP) {
         const executedNames = new Set((await this._executed(context)).map(m => m.name))
         const filteredMigrations = options.migrations.filter(m => !executedNames.has(m))
         return this.findMigrations(await this.migrations(context), filteredMigrations)
       }
 
-      if (options.migrations) {
+      if ('migrations' in options) {
         return this.findMigrations(await this._pending(context), options.migrations)
       }
 
       const allPending = await this._pending(context)
 
-      let sliceIndex = options.step ?? allPending.length
-      if (options.to) {
+      let sliceIndex = 'step' in options ? options.step : allPending.length
+      if ('to' in options) {
         sliceIndex = this.findNameIndex(allPending, options.to) + 1
       }
 
@@ -276,27 +287,27 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    */
   async down(options: MigrateDownOptions = {}): Promise<MigrationMeta[]> {
     const eligibleMigrations = async (context: Ctx) => {
-      if (options.migrations && options.rerun === RerunBehavior.ALLOW) {
+      if ('migrations' in options && options.rerun === RerunBehavior.ALLOW) {
         const list = await this.migrations(context)
         return this.findMigrations(list, options.migrations)
       }
 
-      if (options.migrations && options.rerun === RerunBehavior.SKIP) {
+      if ('migrations' in options && options.rerun === RerunBehavior.SKIP) {
         const pendingNames = new Set((await this._pending(context)).map(m => m.name))
         const filteredMigrations = options.migrations.filter(m => !pendingNames.has(m))
         return this.findMigrations(await this.migrations(context), filteredMigrations)
       }
 
-      if (options.migrations) {
+      if ('migrations' in options) {
         return this.findMigrations(await this._executed(context), options.migrations)
       }
 
       const executedReversed = (await this._executed(context)).slice().reverse()
 
-      let sliceIndex = options.step ?? 1
-      if (options.to === 0 || options.migrations) {
+      let sliceIndex = 'step' in options ? options.step : 1
+      if (('to' in options && options.to === 0) || 'migrations' in options) {
         sliceIndex = executedReversed.length
-      } else if (options.to) {
+      } else if ('to' in options && typeof options.to === 'string') {
         sliceIndex = this.findNameIndex(executedReversed, options.to) + 1
       }
 

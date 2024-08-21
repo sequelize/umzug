@@ -16,9 +16,11 @@
 	"packageManager": "pnpm@8.10.2",
 	"dependencies": {
 		"@rushstack/ts-command-line": "^4.12.2",
+		"@trpc/server": "^10.45.2",
 		"emittery": "^0.13.0",
 		"fast-glob": "^3.3.2",
 		"pony-cause": "^2.1.4",
+		"trpc-cli": "https://pkg.pr.new/mmkal/trpc-cli@8fa6f59",
 		"type-fest": "^4.0.0"
 	},
 	"devDependencies": {
