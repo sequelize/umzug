@@ -117,7 +117,7 @@ export type MigrateUpOptions = z.infer<typeof MigrateUpOptions>
 export const MigrateDownOptions = z
   .union([
     z.object({}).strict(),
-    z.object({to: z.string().or(z.literal(0)).optional().describe('Only apply migrations down to this one')}),
+    z.object({to: z.string().or(z.literal(0)).describe('Only apply migrations down to this one')}),
     z.object({step: z.number().int().positive().describe('Revert this many migrations')}),
     z
       .object({

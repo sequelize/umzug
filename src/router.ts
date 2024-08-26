@@ -66,7 +66,11 @@ export const createMigratorRouter = (procedure: TRPCProcedureLike<MigratorRouter
       }),
     down: trpc.procedure
       .meta({description: 'Revert one or more migrations'})
-      .input(MigrateDownOptions)
+      .input(
+        MigrateDownOptions.transform(options =>
+          options && 'to' in options && options.to === '0' ? {...options, to: 0} : options,
+        ),
+      )
       .mutation(async ({input, ctx}) => ctx.migrator.down(input)),
     create: trpc.procedure
       .meta({description: 'Create a new migration file'})

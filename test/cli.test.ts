@@ -6,7 +6,21 @@ import {fsSyncer} from 'fs-syncer'
 import * as path from 'path'
 import {vi as jest, describe, test, expect, beforeEach, beforeAll} from 'vitest'
 import {Umzug} from '../src'
-import {UmzugCLI} from '../src/cli'
+import {UmzugCLI as Base} from '../src/cli'
+
+class UmzugCLI extends Base {
+  executeWithoutErrorHandling(argv: string[]) {
+    return this.run({
+      argv,
+      process: {
+        exit: code => {
+          if (code !== 0) throw new Error(`process.exit(${code})`)
+          return {} as never
+        },
+      },
+    })
+  }
+}
 
 beforeAll(() => {
   childProcess.execSync('npm run compile', {cwd: path.resolve(__dirname, '..')})
@@ -167,7 +181,7 @@ describe('list migrations', () => {
     /** clear console log calls, run the cli, then return new console log calls */
     const runCLI = async (argv: string[]) => {
       mockLog.mockClear()
-      await umzug.runAsCLI(argv)
+      await new UmzugCLI(umzug).executeWithoutErrorHandling(argv)
       // json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
       return mockLog.mock.calls[0]?.[0]
         ?.split(JSON.stringify(process.cwd()).slice(1, -1))
@@ -438,6 +452,6 @@ describe('create migration file', () => {
 
 describe('exported from package', () => {
   test('cli exported as namespace', () => {
-    expectTypeOf<import('../src').UmzugCLI>().toEqualTypeOf<UmzugCLI>()
+    expectTypeOf<import('../src').UmzugCLI>().toEqualTypeOf<Omit<UmzugCLI, 'executeWithoutErrorHandling'>>()
   })
 })

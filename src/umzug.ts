@@ -3,10 +3,7 @@ import {glob} from 'fast-glob'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as errorCause from 'pony-cause'
-import {createCli} from 'trpc-cli'
-import type {CommandLineParserOptions} from './cli'
 import {UmzugCLI} from './cli'
-import {createMigratorRouter, migratorTrpc} from './router'
 import type {UmzugStorage} from './storage'
 import {JSONStorage, verifyUmzugStorage} from './storage'
 import * as templates from './templates'
@@ -153,16 +150,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
    * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
    */
-  protected getCli(options?: CommandLineParserOptions) {
-    const cli = createCli({
-      router: createMigratorRouter(
-        migratorTrpc.procedure.use(async ({ctx, next}) => {
-          return next({ctx: {migrator: this}})
-        }),
-      ),
-    })
-    return cli
-    // return new UmzugCLI(this, options)
+  protected getCli(): UmzugCLI {
+    return new UmzugCLI(this)
   }
 
   /**
@@ -286,6 +275,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    * @see MigrateDownOptions for other use cases using `to`, `migrations` and `rerun`.
    */
   async down(options: MigrateDownOptions = {}): Promise<MigrationMeta[]> {
+    console.warn({options})
     const eligibleMigrations = async (context: Ctx) => {
       if ('migrations' in options && options.rerun === RerunBehavior.ALLOW) {
         const list = await this.migrations(context)
