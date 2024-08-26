@@ -1,0 +1,15 @@
+name: pkg.pr.new
+on:
+  pull_request: {}
+  push:
+    branches: [main, deps]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - run: pnpm install
+      - run: pnpm build
+      - run: pnpm pkg-pr-new publish
