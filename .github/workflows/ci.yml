@@ -11,7 +11,7 @@ jobs:
     - run: pnpm lint
     - run: pnpm test -- --coverage
     - name: Coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
   create_tgz:
     runs-on: ubuntu-latest
     steps:
