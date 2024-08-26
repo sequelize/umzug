@@ -38,7 +38,7 @@
 		"np": "10.0.5",
 		"p-event": "^4.0.0",
 		"pkg-pr-new": "0.0.20",
-		"sequelize": "6.37.2",
+		"sequelize": "6.37.3",
 		"source-map-support": "0.5.21",
 		"sqlite3": "5.1.7",
 		"strip-ansi": "6.0.1",
