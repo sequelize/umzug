@@ -2,7 +2,7 @@ name: pkg.pr.new
 on:
   pull_request: {}
   push:
-    branches: [main, deps]
+    branches: [main, deps, pkg.pr.new]
 
 jobs:
   build:
