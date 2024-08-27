@@ -11,7 +11,7 @@ const sequelize = new Sequelize({
 
 export const migrator = new Umzug({
 	migrations: {
-		glob: ['migrations/*.{js,cjs,mjs}', { cwd: path.dirname(import.meta.url.replace( os.platform() === 'win32' ? 'file:///' : 'file://', '')) }],
+		glob: ['migrations/*.{js,cjs,mjs}', { cwd: path.dirname(import.meta.url.replace(os.platform() === 'win32' ? 'file:///' : 'file://', '')) }],
 	},
 	context: { sequelize, DataTypes },
 	storage: new SequelizeStorage({
