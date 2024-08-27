@@ -3,6 +3,7 @@ import {glob} from 'fast-glob'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as errorCause from 'pony-cause'
+import {pathToFileURL} from 'url'
 import type {CommandLineParserOptions} from './cli'
 import {UmzugCLI} from './cli'
 import type {UmzugStorage} from './storage'
@@ -132,7 +133,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       loadModule = async () => require(filepath) as RunnableMigration<unknown>
     } else if (jsExt === '.js' || jsExt === '.mjs') {
-      loadModule = async () => import(filepath) as Promise<RunnableMigration<unknown>>
+      const fileUrl = pathToFileURL(filepath).href
+      loadModule = async () => import(fileUrl) as Promise<RunnableMigration<unknown>>
     } else {
       loadModule = async () => {
         throw new MissingResolverError(filepath)

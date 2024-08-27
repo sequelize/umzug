@@ -12,6 +12,13 @@ jobs:
     - run: pnpm test -- --coverage
     - name: Coverage
       uses: codecov/codecov-action@v3
+  run_windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: corepack enable
+    - run: pnpm install
+    - run: pnpm test
   create_tgz:
     runs-on: ubuntu-latest
     steps:
