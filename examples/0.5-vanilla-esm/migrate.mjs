@@ -1,8 +1,7 @@
 import { Umzug, JSONStorage } from 'umzug';
+import { fileURLToPath } from 'url'
 
-const __dirname = new URL('.', import.meta.url).pathname.replace(/\/$/, '');
-
-if (Math.random()) throw new Error(`__dirname: ${__dirname}`)
+const __dirname = fileURLToPath(new URL('.', import.meta.url)).replace(/\/$/, '')
 
 export const migrator = new Umzug({
 	migrations: {
