@@ -16,7 +16,7 @@ dependencies:
     version: 3.3.2
   pony-cause:
     specifier: ^2.1.4
-    version: 2.1.10
+    version: 2.1.11
   type-fest:
     specifier: ^4.0.0
     version: 4.14.0
@@ -6137,8 +6137,8 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /pony-cause@2.1.10:
-    resolution: {integrity: sha512-3IKLNXclQgkU++2fSi93sQ6BznFuxSLB11HdvZQ6JW/spahf/P1pAHBQEahr20rs0htZW0UDkM1HmA+nZkXKsw==}
+  /pony-cause@2.1.11:
+    resolution: {integrity: sha512-M7LhCsdNbNgiLYiP4WjsfLUuFmCfnjdF6jKe2R9NKl4WFN+HZPGHJZ9lnLP7f9ZnKe3U9nuWD0szirmj+migUg==}
     engines: {node: '>=12.0.0'}
     dev: false
 
