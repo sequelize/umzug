@@ -13,7 +13,7 @@
 	"files": [
 		"lib"
 	],
-	"packageManager": "pnpm@8.10.2",
+	"packageManager": "pnpm@8.15.9",
 	"dependencies": {
 		"@rushstack/ts-command-line": "^4.12.2",
 		"emittery": "^0.13.0",
