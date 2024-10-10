@@ -1,3 +1,3 @@
-require('ts-node/register/transpile-only');
+require('tsx/cjs');
 
 require('./umzug').migrator.runAsCLI();

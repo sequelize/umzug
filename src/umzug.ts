@@ -107,7 +107,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
     const ext = path.extname(filepath)
     const languageSpecificHelp: Record<string, string> = {
       '.ts':
-        "TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
+        "TypeScript files can be required by adding `tsx` as a dependency and calling `require('tsx/cjs')` at the program entrypoint before running migrations.",
       '.sql': 'Try writing a resolver which reads file content and executes it as a sql query.',
     }
     languageSpecificHelp['.cts'] = languageSpecificHelp['.ts']

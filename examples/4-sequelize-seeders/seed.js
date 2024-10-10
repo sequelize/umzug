@@ -1,3 +1,3 @@
-require('ts-node/register');
+require('tsx/cjs');
 
 require('./umzug').seeder.runAsCLI();

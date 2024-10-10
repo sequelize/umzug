@@ -1,5 +1,5 @@
 {
-  "name": "0-vanilla",
+  "name": "6-events",
   "stackblitz": {
     "startCommand": "npm install umzug sequelize tsx -D && node migrate --help"
   }

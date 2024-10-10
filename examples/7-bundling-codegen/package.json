@@ -5,6 +5,9 @@
     "build": "tsup umzug.ts --external pg-hstore",
     "lint": "eslint ."
   },
+  "stackblitz": {
+    "startCommand": "npm install umzug sequelize tsx -D && node migrate --help"
+  },
   "devDependencies": {
     "eslint": "8.57.0",
     "eslint-plugin-codegen": "0.28.0",

@@ -84,11 +84,11 @@ module.exports = {up, down}
 Note that we renamed the `context` argument to `queryInterface` for clarity. The `context` is whatever we specified when creating the Umzug instance in `index.js`.
 
 <details>
-<summary>You can also write your migrations in typescript by using `ts-node` in the entrypoint:</summary>
+<summary>You can also write your migrations in typescript by using `tsx` in the entrypoint:</summary>
 
 ```typescript
 // index.ts
-require('ts-node/register')
+require('tsx/cjs')
 
 import { Sequelize } from 'sequelize';
 import { Umzug, SequelizeStorage } from 'umzug';

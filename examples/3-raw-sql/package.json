@@ -1,5 +1,5 @@
 {
-  "name": "0-vanilla",
+  "name": "3-raw-sql",
   "stackblitz": {
     "startCommand": "npm install umzug sequelize tsx -D && node migrate --help"
   }

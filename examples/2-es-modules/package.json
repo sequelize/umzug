@@ -1,0 +1,6 @@
+{
+  "name": "2-es-modules",
+  "stackblitz": {
+    "startCommand": "npm install umzug sequelize tsx -D && node migrate.mjs --help"
+  }
+}

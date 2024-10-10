@@ -710,7 +710,7 @@ describe('alternate migration inputs', () => {
   })
 
   test('typescript migration files', async () => {
-    require('ts-node/register')
+    require('tsx/cjs')
     const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/typescript'), {
       'm1.ts': `export const up = () => {}; export const down = () => {}`,
       'm2.ts': `throw SyntaxError('Fake syntax error to simulate typescript modules not being registered')`,
@@ -735,7 +735,7 @@ describe('alternate migration inputs', () => {
       'Migration m2.ts (up) failed: Original error: Fake syntax error to simulate typescript modules not being registered',
     )
     expect(err).toContain(
-      "TypeScript files can be required by adding `ts-node` as a dependency and calling `require('ts-node/register')` at the program entrypoint before running migrations.",
+      "TypeScript files can be required by adding `ts-node` as a dependency and calling `require('tsx/cjs')` at the program entrypoint before running migrations.",
     )
   })
 
