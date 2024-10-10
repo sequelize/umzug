@@ -1,0 +1,6 @@
+{
+    "name": "0-vanilla",
+    "stackblitz": {
+        "startCommand": "npm install umzug && node migrate --help"
+    }
+}
