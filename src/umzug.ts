@@ -261,7 +261,9 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
           throw new MigrationError({direction: 'up', ...params}, e)
         }
 
-        await this.storage.logMigration(params)
+        if (options.rerun !== RerunBehavior.ALLOW) {
+            await this.storage.logMigration(params);
+        }
 
         const duration = (Date.now() - start) / 1000
         this.logging({event: 'migrated', name: m.name, durationSeconds: duration})
