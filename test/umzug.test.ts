@@ -685,7 +685,10 @@ describe('alternate migration inputs', () => {
           async up() {},
 
           async down() {
-            throw 'Some cryptic failure'
+            // This kind of error is thrown in MikroOrm migrations
+            const reallyCrypticFailure: any = Object.create(null)
+            reallyCrypticFailure.customText = 'Some cryptic failure'
+            throw reallyCrypticFailure
           },
         },
         {
@@ -705,7 +708,7 @@ describe('alternate migration inputs', () => {
     )
 
     await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Migration m1 (down) failed: Non-error value thrown. See info for full props: Some cryptic failure"`,
+      `"Migration m1 (down) failed: Non-error value thrown. See info for full props"`,
     )
   })
 
