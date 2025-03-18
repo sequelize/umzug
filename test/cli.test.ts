@@ -254,7 +254,7 @@ describe('create migration file', () => {
     }
 
     await expect(runCLI(['create', '--name', 'm1.js'])).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Couldn't infer a directory to generate migration file in. Pass folder explicitly]`,
+      '"Couldn\'t infer a directory to generate migration file in. Pass folder explicitly"',
     )
 
     // a folder must be specified for the first migration
@@ -294,7 +294,7 @@ describe('create migration file', () => {
     `)
 
     await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .cts, .mts, .sql. See help for allowExtension to avoid this error.]`,
+      '"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .cts, .mts, .sql. See help for allowExtension to avoid this error."',
     )
 
     await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrow(
@@ -323,7 +323,7 @@ describe('create migration file', () => {
     await expect(
       runCLI(['create', '--name', '000.m6.js', '--prefix', 'NONE']),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Can't create 000.m6.js, since it's unclear if it should run before or after existing migration 2000.01.02T00.00.00.m1.js. Use allowConfusingOrdering to bypass this error.]`,
+      '"Can\'t create 000.m6.js, since it\'s unclear if it should run before or after existing migration 2000.01.02T00.00.00.m1.js. Use allowConfusingOrdering to bypass this error."',
     )
 
     // Explicitly allow the weird alphabetical ordering.

@@ -20,7 +20,7 @@ describe('MongoDBStorage', () => {
   describe('constructor', () => {
     test('should fail when collection is not set', () => {
       expect(() => new MongoDBStorage({} as any)).toThrowErrorMatchingInlineSnapshot(
-        `[Error: MongoDB Connection or Collection required]`,
+        '"MongoDB Connection or Collection required"',
       )
     })
 

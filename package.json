@@ -15,7 +15,6 @@
 	],
 	"packageManager": "pnpm@8.10.2",
 	"dependencies": {
-		"@rushstack/ts-command-line": "^4.12.2",
 		"emittery": "^0.13.0",
 		"fast-glob": "^3.3.2",
 		"pony-cause": "^2.1.4",

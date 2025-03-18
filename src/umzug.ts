@@ -150,7 +150,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
   /**
    * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
-   * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
+   * and are OK to learn about/interact with the API of trpc-cli.
    */
   protected getCli(): UmzugCLI {
     return new UmzugCLI(this)
