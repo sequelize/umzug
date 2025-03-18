@@ -361,7 +361,7 @@ describe('sequelize', () => {
       jest.spyOn(storage.model, 'findAll').mockResolvedValueOnce([{name: 123} as any])
 
       await expect(storage.executed()).rejects.toThrowErrorMatchingInlineSnapshot(
-        `"Unexpected migration name type: expected string, got number"`,
+        '"Unexpected migration name type: expected string, got number"',
       )
     })
 
