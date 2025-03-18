@@ -13,7 +13,7 @@ dependencies:
     version: 0.13.1
   fast-glob:
     specifier: ^3.3.2
-    version: 3.3.2
+    version: 3.3.3
   pony-cause:
     specifier: ^2.1.4
     version: 2.1.11
@@ -1824,7 +1824,7 @@ packages:
       vitest: '>=0.30.1 <1'
     dependencies:
       '@vitest/utils': 0.34.7
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       fflate: 0.8.2
       flatted: 3.3.1
       pathe: 1.1.2
@@ -3733,8 +3733,8 @@ packages:
     resolution: {integrity: sha512-VxPP4NqbUjj6MaAOafWeUn2cXWLcCtljklUtZf0Ind4XQ+QPtmA0b18zZy0jIQx+ExRVCR/ZQpBmik5lXshNsw==}
     dev: true
 
-  /fast-glob@3.3.2:
-    resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
+  /fast-glob@3.3.3:
+    resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -4058,7 +4058,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob: 7.2.3
       ignore: 5.3.1
       merge2: 1.4.1
@@ -4071,7 +4071,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 3.0.0
@@ -4082,7 +4082,7 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 4.0.0
@@ -6109,7 +6109,7 @@ packages:
       '@jsdevtools/ez-spawn': 3.0.4
       '@octokit/action': 6.1.0
       detect-package-manager: 3.0.2
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       isbinaryfile: 5.0.2
       pkg-types: 1.2.0
