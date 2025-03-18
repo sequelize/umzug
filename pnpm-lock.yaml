@@ -17,6 +17,9 @@ dependencies:
   pony-cause:
     specifier: ^2.1.4
     version: 2.1.11
+  trpc-cli:
+    specifier: https://pkg.pr.new/mmkal/trpc-cli@59
+    version: '@pkg.pr.new/mmkal/trpc-cli@59'
   type-fest:
     specifier: ^4.0.0
     version: 4.14.0
@@ -1328,6 +1331,10 @@ packages:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
     dev: true
 
+  /@types/omelette@0.4.4:
+    resolution: {integrity: sha512-aEZ+4w3lvomNt6hX+H+VZey8a3fXa/jL6zZdu0vHrc7aGIe2yIybHQgIl7eXcMPchVaPekebQQ2Con7wGgB3mQ==}
+    dev: false
+
   /@types/semver@7.5.8:
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
     dev: true
@@ -2551,6 +2558,11 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /commander@13.1.0:
+    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
+    engines: {node: '>=18'}
+    dev: false
 
   /commander@9.5.0:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
@@ -6084,6 +6096,10 @@ packages:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
     dev: true
 
+  /picocolors@1.1.1:
+    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
+    dev: false
+
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -7897,6 +7913,51 @@ packages:
       zod: 3.23.8
     dev: true
 
+  /zod-to-json-schema@3.24.4(zod@3.24.2):
+    resolution: {integrity: sha512-0uNlcvgabyrni9Ag8Vghj21drk7+7tp7VTwwR7KxxXXc/3pbXz2PHlDgj3cICahgF1kHm4dExBFj7BXrZJXzig==}
+    peerDependencies:
+      zod: ^3.24.1
+    dependencies:
+      zod: 3.24.2
+    dev: false
+
+  /zod-validation-error@3.4.0(zod@3.24.2):
+    resolution: {integrity: sha512-ZOPR9SVY6Pb2qqO5XHt+MkkTRxGXb4EVtnjc9JpXUOtUB1T9Ru7mZOT361AN3MsetVe7R0a1KZshJDZdgp9miQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      zod: ^3.18.0
+    dependencies:
+      zod: 3.24.2
+    dev: false
+
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
     dev: true
+
+  /zod@3.24.2:
+    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
+    dev: false
+
+  '@pkg.pr.new/mmkal/trpc-cli@59':
+    resolution: {tarball: https://pkg.pr.new/mmkal/trpc-cli@59}
+    name: trpc-cli
+    version: 0.6.0-0
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@trpc/server': '>=10'
+      omelette: '>=0.4.17'
+    peerDependenciesMeta:
+      '@trpc/server':
+        optional: true
+      omelette:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      '@types/omelette': 0.4.4
+      commander: 13.1.0
+      picocolors: 1.1.1
+      zod: 3.24.2
+      zod-to-json-schema: 3.24.4(zod@3.24.2)
+      zod-validation-error: 3.4.0(zod@3.24.2)
+    dev: false

@@ -165,7 +165,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    *   myUmzugInstance.runAsCLI()
    * }
    */
-  async runAsCLI(argv?: string[], options?: any): Promise<boolean> {
+  async runAsCLI(argv?: string[], options?: Record<string, unknown>): Promise<boolean> {
     const cli = this.getCli()
     await cli.run({argv, ...options})
     return true
