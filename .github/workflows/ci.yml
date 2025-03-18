@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - run: npm install -g corepack@0.31.0 # todo: delete if https://github.com/nodejs/corepack/issues/612 is resolved
+    - run: npm install -g corepack@0.31.0 --force # todo: delete if https://github.com/nodejs/corepack/issues/612 is resolved
     - run: corepack enable
     - run: pnpm install
     - run: pnpm test
@@ -32,7 +32,7 @@ jobs:
       - run: npm pack
       - name: rename tgz
         run: mv $(ls | grep .tgz) umzug.tgz
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: tarball
           path: umzug.tgz
@@ -47,17 +47,20 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: tarball
       - run: ls
-      - run: rm -rf examples/node_modules
-      - name: run vanilla example
+      - name: remove local node_modules
+        run: rm -rf examples/node_modules
+      - name: install tgz
         working-directory: examples/0-vanilla
         run: |
           npm init -y
           npm install ../../umzug.tgz
-
+      - name: run vanilla example
+        working-directory: examples/0-vanilla
+        run: |
           node migrate up
           node migrate down
           node migrate create --name new-migration.js
