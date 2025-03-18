@@ -4,7 +4,6 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as errorCause from 'pony-cause'
 import {pathToFileURL} from 'url'
-import type {CommandLineParserOptions} from './cli'
 import {UmzugCLI} from './cli'
 import type {UmzugStorage} from './storage'
 import {JSONStorage, verifyUmzugStorage} from './storage'
@@ -153,8 +152,8 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    * Get an UmzugCLI instance. This can be overriden in a subclass to add/remove commands - only use if you really know you need this,
    * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
    */
-  protected getCli(options?: CommandLineParserOptions): UmzugCLI {
-    return new UmzugCLI(this, options)
+  protected getCli(): UmzugCLI {
+    return new UmzugCLI(this)
   }
 
   /**
@@ -166,9 +165,10 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    *   myUmzugInstance.runAsCLI()
    * }
    */
-  async runAsCLI(argv?: string[]): Promise<boolean> {
+  async runAsCLI(argv?: string[], options?: any): Promise<boolean> {
     const cli = this.getCli()
-    return cli.execute(argv)
+    await cli.run({argv, ...options})
+    return true
   }
 
   /** Get the list of migrations which have already been applied */

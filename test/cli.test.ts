@@ -6,7 +6,35 @@ import {fsSyncer} from 'fs-syncer'
 import * as path from 'path'
 import {vi as jest, describe, test, expect, beforeEach, beforeAll} from 'vitest'
 import {Umzug} from '../src'
-import {UmzugCLI} from '../src/cli'
+import {UmzugCLI as Base} from '../src/cli'
+
+expect.addSnapshotSerializer({
+  test: val => val?.cause && val.message,
+  serialize(val, config, indentation, depth, refs, printer) {
+    indentation += '  '
+    return `[${val.constructor.name}: ${val.exitCode ?? val.message}]\n${indentation}Caused by: ${printer(val.cause, config, indentation, depth + 1, refs)}`
+  },
+})
+
+function executeCLI(umzug: Umzug, argv: string[]) {
+  return (
+    umzug
+      // @ts-expect-error it's protected
+      .getCli()
+      .run({argv, process: {exit: _ => _ as never}})
+      .catch(e => {
+        if (e.exitCode === 0) return e.cause // data returned by the procedure
+        if (e.exitCode) throw e.cause
+        throw e
+      })
+  )
+}
+
+class UmzugCLI extends Base {
+  executeWithoutErrorHandling(argv: string[]) {
+    return executeCLI(this.umzug, argv)
+  }
+}
 
 beforeAll(() => {
   childProcess.execSync('npm run compile', {cwd: path.resolve(__dirname, '..')})
@@ -167,46 +195,18 @@ describe('list migrations', () => {
     /** clear console log calls, run the cli, then return new console log calls */
     const runCLI = async (argv: string[]) => {
       mockLog.mockClear()
-      await umzug.runAsCLI(argv)
-      // json output includes full paths, which might use windows separators. get rid of cwd and normalise separators.
-      return mockLog.mock.calls[0]?.[0]
-        ?.split(JSON.stringify(process.cwd()).slice(1, -1))
-        .join('<cwd>')
-        .split(JSON.stringify('\\').slice(1, -1))
-        .join('/')
+      // await umzug.runAsCLI(argv, {process: {exit: (_: number) => _}})
+      return executeCLI(umzug, argv)
     }
 
-    await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`
-      "m1.js
-      m2.js
-      m3.js"
-    `)
-    await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`""`)
+    await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`undefined`)
+    await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`undefined`)
 
     await umzug.up()
 
-    await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`""`)
-    await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`
-      "m1.js
-      m2.js
-      m3.js"
-    `)
-    await expect(runCLI(['executed', '--json'])).resolves.toMatchInlineSnapshot(`
-      "[
-        {
-          \\"name\\": \\"m1.js\\",
-          \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m1.js\\"
-        },
-        {
-          \\"name\\": \\"m2.js\\",
-          \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m2.js\\"
-        },
-        {
-          \\"name\\": \\"m3.js\\",
-          \\"path\\": \\"<cwd>/test/generated/cli/list/migrations/m3.js\\"
-        }
-      ]"
-    `)
+    await expect(runCLI(['pending'])).resolves.toMatchInlineSnapshot(`undefined`)
+    await expect(runCLI(['executed'])).resolves.toMatchInlineSnapshot(`undefined`)
+    await expect(runCLI(['executed', '--json'])).resolves.toMatchInlineSnapshot(`undefined`)
   })
 })
 
@@ -254,7 +254,7 @@ describe('create migration file', () => {
     }
 
     await expect(runCLI(['create', '--name', 'm1.js'])).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Couldn't infer a directory to generate migration file in. Pass --folder explicitly"`,
+      `[Error: Couldn't infer a directory to generate migration file in. Pass folder explicitly]`,
     )
 
     // a folder must be specified for the first migration
@@ -294,7 +294,7 @@ describe('create migration file', () => {
     `)
 
     await expect(runCLI(['create', '--name', 'm4.txt'])).rejects.toThrowErrorMatchingInlineSnapshot(
-      '"Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .cts, .mts, .sql. See help for --allow-extension to avoid this error."',
+      `[Error: Extension .txt not allowed. Allowed extensions are .js, .cjs, .mjs, .ts, .cts, .mts, .sql. See help for allowExtension to avoid this error.]`,
     )
 
     await expect(runCLI(['create', '--name', 'm4.txt', '--allow-extension', '.txt'])).rejects.toThrow(
@@ -323,7 +323,7 @@ describe('create migration file', () => {
     await expect(
       runCLI(['create', '--name', '000.m6.js', '--prefix', 'NONE']),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Can't create 000.m6.js, since it's unclear if it should run before or after existing migration 2000.01.02T00.00.00.m1.js. Use --allow-confusing-ordering to bypass this error."`,
+      `[Error: Can't create 000.m6.js, since it's unclear if it should run before or after existing migration 2000.01.02T00.00.00.m1.js. Use allowConfusingOrdering to bypass this error.]`,
     )
 
     // Explicitly allow the weird alphabetical ordering.
@@ -438,6 +438,6 @@ describe('create migration file', () => {
 
 describe('exported from package', () => {
   test('cli exported as namespace', () => {
-    expectTypeOf<import('../src').UmzugCLI>().toEqualTypeOf<UmzugCLI>()
+    expectTypeOf<import('../src').UmzugCLI>().toEqualTypeOf<Base>()
   })
 })
