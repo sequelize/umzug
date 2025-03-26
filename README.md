@@ -657,14 +657,10 @@ Usage:  up [options]
 Apply pending migrations
 
 Options:
-  --to [string]       All migrations up to and including this one should be
-                      applied
-  --step [number]     Apply this many migrations. If not specified, all will be
-                      applied.; Exclusive minimum: 0
-  --name [values...]  Type: string Explicitly declare migration name(s) to be
-                      applied. Only these migrations will be applied. array
-  --rerun [string]    What to do if a migration that has already been applied is
-                      passed to --name; Enum: ["THROW","SKIP","ALLOW"]
+  --to [string]       All migrations up to and including this one should be applied
+  --step [number]     Apply this many migrations. If not specified, all will be applied.; Exclusive minimum: 0
+  --name [values...]  Type: string Explicitly declare migration name(s) to be applied. Only these migrations will be applied. array
+  --rerun [string]    What to do if a migration that has already been applied is passed to --name; Enum: ["THROW","SKIP","ALLOW"] (default: "THROW")
   -h, --help          display help for command
 ```
 <!-- codegen:end -->
@@ -677,15 +673,10 @@ Usage:  down [options]
 Revert one or more migrations
 
 Options:
-  --to [string]       All migrations up to and including this one should be
-                      reverted. Pass '0' to revert all.
-  --step [number]     Revert this many migrations. If not specified, only the
-                      most recent migration will be reverted.; Exclusive
-                      minimum: 0
-  --name [values...]  Type: string Explicitly declare migration name(s) to be
-                      reverted. Only these migrations will be reverted. array
-  --rerun [string]    What to do if a migration that has not been applied is
-                      passed to --name; Enum: ["THROW","SKIP","ALLOW"]
+  --to [string]       All migrations up to and including this one should be reverted. Pass '0' to revert all.
+  --step [number]     Revert this many migrations. If not specified, only the most recent migration will be reverted.; Exclusive minimum: 0
+  --name [values...]  Type: string Explicitly declare migration name(s) to be reverted. Only these migrations will be reverted. array
+  --rerun [string]    What to do if a migration that has not been applied is passed to --name; Enum: ["THROW","SKIP","ALLOW"] (default: "THROW")
   -h, --help          display help for command
 ```
 <!-- codegen:end -->
@@ -711,10 +702,7 @@ Usage:  pending [options]
 List migrations due to be applied
 
 Options:
-  --json      Print pending migrations in a json format including names and
-              paths. This allows piping output to tools like jq. Without this
-              flag, the migration names will be printed one per line. (default:
-              false)
+  --json      Print pending migrations in a json format including names and paths. This allows piping output to tools like jq. Without this flag, the migration names will be printed one per line. (default: false)
   -h, --help  display help for command
 ```
 <!-- codegen:end -->
@@ -726,10 +714,7 @@ Usage:  executed [options]
 List migrations that have been applie
 
 Options:
-  --json      Print pending migrations in a json format including names and
-              paths. This allows piping output to tools like jq. Without this
-              flag, the migration names will be printed one per line. (default:
-              false)
+  --json      Print pending migrations in a json format including names and paths. This allows piping output to tools like jq. Without this flag, the migration names will be printed one per line. (default: false)
   -h, --help  display help for command
 ```
 <!-- codegen:end -->
@@ -782,39 +767,15 @@ Create a new migration file
 Options:
   --content [string]                    Content of the migration.
   --name <string>                       Name of the migration file.
-  --prefix [string]                     The prefix format for generated files.
-                                        TIMESTAMP uses a second-resolution
-                                        timestamp, DATE uses a day-resolution
-                                        timestamp, and NONE removes the prefix
-                                        completely; Enum:
+  --prefix [string]                     The prefix format for generated files. TIMESTAMP uses a second-resolution timestamp, DATE uses a day-resolution timestamp, and NONE removes the prefix completely; Enum:
                                         ["TIMESTAMP","DATE","NONE"]
-  --folder [string]                     Path on the filesystem where the file
-                                        should be created. The new migration
-                                        will be created as a sibling of the last
-                                        existing one if this is omitted.
-  --allow-extension [string]            Allowable extension for created files.
-                                        By default .js, .ts and .sql files can
-                                        be created. To create txt file
-                                        migrations, for example, you could use
-                                        '--name my-migration.txt
+  --folder [string]                     Path on the filesystem where the file should be created. The new migration will be created as a sibling of the last existing one if this is omitted.
+  --allow-extension [string]            Allowable extension for created files. By default .js, .ts and .sql files can be created. To create txt file migrations, for example, you could use '--name my-migration.txt
                                         --allow-extension .txt'
-  --skip-verify [boolean]               By default, the generated file will be
-                                        checked after creation to make sure it
-                                        is detected as a pending migration. This
-                                        catches problems like creation in the
-                                        wrong folder, or invalid naming
-                                        conventions. This flag bypasses that
-                                        verification step.
-  --allow-confusing-ordering [boolean]  By default, an error will be thrown if
-                                        you try to create a migration that will
-                                        run before a migration that already
-                                        exists. This catches errors which can
-                                        cause problems if you change file naming
-                                        conventions. If you use a custom
-                                        ordering system, you can disable this
-                                        behavior, but it's strongly recommended
-                                        that you don't! If you're unsure, just
-                                        ignore this option.
+  --skip-verify [boolean]               By default, the generated file will be checked after creation to make sure it is detected as a pending migration. This catches problems like creation in the wrong folder, or invalid
+                                        naming conventions. This flag bypasses that verification step.
+  --allow-confusing-ordering [boolean]  By default, an error will be thrown if you try to create a migration that will run before a migration that already exists. This catches errors which can cause problems if you change
+                                        file naming conventions. If you use a custom ordering system, you can disable this behavior, but it's strongly recommended that you don't! If you're unsure, just ignore this option.
   -h, --help                            display help for command
 ```
 <!-- codegen:end -->
