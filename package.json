@@ -21,7 +21,7 @@
 		"type-fest": "^4.0.0"
 	},
 	"tsup": {
-		"entry": ["src/index.ts"],
+		"entry": ["src/index.ts", "src/cli.ts", "src/umzug.ts"],
   		"outDir": "lib"
 	},
 	"devDependencies": {
@@ -55,7 +55,7 @@
 	},
 	"scripts": {
 		"clean": "rm -rf lib",
-		"compile": "tsc -p tsconfig.lib.json",
+		"compile": "tsup",
 		"build": "pnpm clean && pnpm compile",
 		"eslint": "eslint . --max-warnings 0",
 		"lint": "pnpm type-check && pnpm eslint",
