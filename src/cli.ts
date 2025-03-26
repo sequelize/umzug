@@ -1,4 +1,4 @@
-import {createCli} from 'trpc-cli'
+import {createCli, type TrpcCliRunParams} from 'trpc-cli'
 import {createMigratorRouter, migratorTrpc} from './router'
 import type {Umzug} from './umzug'
 
@@ -15,7 +15,7 @@ export class UmzugCLI {
     })
   }
 
-  async run(params: Parameters<import('trpc-cli').TrpcCli['run']>[0]) {
+  async run(params: TrpcCliRunParams) {
     return this.cli.run(params)
   }
 }

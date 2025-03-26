@@ -15,8 +15,8 @@ dependencies:
     specifier: ^2.1.4
     version: 2.1.11
   trpc-cli:
-    specifier: 0.6.0-6
-    version: 0.6.0-6(typescript@4.9.5)
+    specifier: 0.6.0-7
+    version: 0.6.0-7(typescript@4.9.5)
   type-fest:
     specifier: ^4.0.0
     version: 4.14.0
@@ -7170,8 +7170,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /trpc-cli@0.6.0-6(typescript@4.9.5):
-    resolution: {integrity: sha512-iX/Ag3rgjztjywsSV9eAFxiZzTKScaLDDzmefXrhTwrKsjiH7yAp6bB9M0Wxsr6jT99e7+Y7PSW0XNLt5kUozQ==}
+  /trpc-cli@0.6.0-7(typescript@4.9.5):
+    resolution: {integrity: sha512-ScG4OQ4Cdj20lTWyV73W5PXRldV4VussBaUyVZP8Nv9hQ3G05pC/OLuoUWa6vOl5x4w+Jpiz+BNQrD6xxGB5og==}
     engines: {node: '>=18'}
     peerDependencies:
       omelette: '>=0.4.17'
