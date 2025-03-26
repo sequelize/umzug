@@ -55,7 +55,7 @@
 	},
 	"scripts": {
 		"clean": "rm -rf lib",
-		"compile": "tsup",
+		"compile": "tsc -p tsconfig.lib.json && tsup",
 		"build": "pnpm clean && pnpm compile",
 		"eslint": "eslint . --max-warnings 0",
 		"lint": "pnpm type-check && pnpm eslint",
