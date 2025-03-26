@@ -21,9 +21,13 @@ function executeCLI(umzug: Umzug, argv: string[]) {
     umzug
       // @ts-expect-error it's protected
       .getCli()
-      .run({argv, process: {exit: _ => _ as never}})
+      .run({
+        argv,
+        logger: {info: () => {}, error: () => {}},
+        process: {exit: (c: never) => c},
+      })
       .catch(e => {
-        if (e.exitCode === 0) return e.cause // data returned by the procedure
+        if (e.exitCode === 0) return e.cause // CLI "exit" successfully - cause is data returned by the procedure
         if (e.exitCode) throw e.cause
         throw e
       })

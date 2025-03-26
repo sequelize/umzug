@@ -15,7 +15,7 @@ export class UmzugCLI {
     })
   }
 
-  async run(params: {argv?: string[]; logger?: typeof console; process?: Pick<typeof process, 'exit'>}) {
+  async run(params: Parameters<import('trpc-cli').TrpcCli['run']>[0]) {
     return this.cli.run(params)
   }
 }

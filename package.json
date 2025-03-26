@@ -18,7 +18,7 @@
 		"emittery": "^0.13.0",
 		"fast-glob": "^3.3.2",
 		"pony-cause": "^2.1.4",
-		"trpc-cli": "https://pkg.pr.new/mmkal/trpc-cli@59",
+		"trpc-cli": "0.6.0-6",
 		"type-fest": "^4.0.0"
 	},
 	"devDependencies": {
