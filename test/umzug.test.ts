@@ -709,6 +709,44 @@ describe('alternate migration inputs', () => {
     )
   })
 
+  test('null-prototype throwables are wrapped helpfully', async () => {
+    // Errors derived from null prototype can not be printed with toString(), make sure we do not fail printing them
+    // This kind of error is thrown in MikroOrm migrations
+    const umzug = new Umzug({
+      migrations: [
+        {
+          name: 'm1',
+          async up() {},
+
+          async down() {
+            const reallyCrypticFailure: any = Object.create(null)
+            reallyCrypticFailure.customText = 'Some cryptic failure'
+            throw reallyCrypticFailure
+          },
+        },
+        {
+          name: 'm2',
+
+          async up() {
+            const reallyCrypticFailure: any = Object.create(null)
+            reallyCrypticFailure.customText = 'Some cryptic failure'
+            throw reallyCrypticFailure
+          },
+          async down() {},
+        },
+      ],
+      logger: undefined,
+    })
+
+    await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
+        `"Migration m2 (up) failed: Non-error value thrown. See info for full props"`,
+    )
+
+    await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
+        `"Migration m1 (down) failed: Non-error value thrown. See info for full props"`,
+    )
+  })
+
   test('typescript migration files', async () => {
     require('ts-node/register')
     const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/typescript'), {
