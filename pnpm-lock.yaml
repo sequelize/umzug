@@ -80,8 +80,8 @@ devDependencies:
     specifier: 6.0.1
     version: 6.0.1
   trpc-cli:
-    specifier: 0.6.0-8
-    version: 0.6.0-8(typescript@4.9.5)
+    specifier: 0.6.0-9
+    version: 0.6.0-9(typescript@4.9.5)
   ts-node:
     specifier: 10.9.2
     version: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
@@ -7799,8 +7799,8 @@ packages:
     hasBin: true
     dev: true
 
-  /trpc-cli@0.6.0-8(typescript@4.9.5):
-    resolution: {integrity: sha512-gzmgCvWVM6cNGmOTdKwV6HfkzyoappkN7LrJzosz5WiHLCseQsqF6/79uVu/Jq3g4PXWnXcaYAzATH2hufDocA==}
+  /trpc-cli@0.6.0-9(typescript@4.9.5):
+    resolution: {integrity: sha512-0ht76PMxx+JnuVbfkuAhcBVGizpHHRrufgjdP+qEPRI31JOm/nXNqzdH8qFoHde4LB5mvSU4PaJRSQo9Z4Fawg==}
     engines: {node: '>=18'}
     peerDependencies:
       omelette: '>=0.4.17'
