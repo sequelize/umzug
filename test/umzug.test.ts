@@ -666,7 +666,7 @@ describe('alternate migration inputs', () => {
     })
 
     await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Migration m1 (down) failed: Original error: Some cryptic failure"`,
+      '"Migration m1 (down) failed: Original error: Some cryptic failure"',
     )
 
     await expect(umzug.down()).rejects.toMatchObject({
@@ -701,11 +701,11 @@ describe('alternate migration inputs', () => {
     })
 
     await expect(umzug.up()).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Migration m2 (up) failed: Non-error value thrown. See info for full props: Some cryptic failure"`,
+      '"Migration m2 (up) failed: Non-error value thrown. See info for full props: Some cryptic failure"',
     )
 
     await expect(umzug.down()).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Migration m1 (down) failed: Non-error value thrown. See info for full props: Some cryptic failure"`,
+      '"Migration m1 (down) failed: Non-error value thrown. See info for full props: Some cryptic failure"',
     )
   })
 
