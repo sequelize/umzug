@@ -80,8 +80,8 @@ devDependencies:
     specifier: 6.0.1
     version: 6.0.1
   trpc-cli:
-    specifier: 0.6.0-7
-    version: 0.6.0-7(typescript@4.9.5)
+    specifier: 0.6.0-8
+    version: 0.6.0-8(typescript@4.9.5)
   ts-node:
     specifier: 10.9.2
     version: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
@@ -269,7 +269,7 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       chalk: 2.4.2
       js-tokens: 4.0.0
-      picocolors: 1.0.0
+      picocolors: 1.1.1
     dev: true
 
   /@babel/parser@7.24.1:
@@ -1551,8 +1551,8 @@ packages:
     dev: true
     optional: true
 
-  /@trpc/server@11.0.0(typescript@4.9.5):
-    resolution: {integrity: sha512-xY9q/b/wR/tWGYTm5xmRjivkYD2EZZXmOKmHuNJRYZuLbieeNUsdfQRjJC409WB1pjKWInomhHwuA8bahZJ4lQ==}
+  /@trpc/server@11.0.1(typescript@4.9.5):
+    resolution: {integrity: sha512-DZS3+bONLno4oJjHBMrS3xRPtoZsnmBImDH/Mmo1QhaFt3Xp/S0Riu7WU/oofsLTVj2m1UO5LlgLJFumvlSNoQ==}
     peerDependencies:
       typescript: '>=5.7.2'
     dependencies:
@@ -7799,8 +7799,8 @@ packages:
     hasBin: true
     dev: true
 
-  /trpc-cli@0.6.0-7(typescript@4.9.5):
-    resolution: {integrity: sha512-ScG4OQ4Cdj20lTWyV73W5PXRldV4VussBaUyVZP8Nv9hQ3G05pC/OLuoUWa6vOl5x4w+Jpiz+BNQrD6xxGB5og==}
+  /trpc-cli@0.6.0-8(typescript@4.9.5):
+    resolution: {integrity: sha512-gzmgCvWVM6cNGmOTdKwV6HfkzyoappkN7LrJzosz5WiHLCseQsqF6/79uVu/Jq3g4PXWnXcaYAzATH2hufDocA==}
     engines: {node: '>=18'}
     peerDependencies:
       omelette: '>=0.4.17'
@@ -7812,7 +7812,7 @@ packages:
       zod:
         optional: true
     dependencies:
-      '@trpc/server': 11.0.0(typescript@4.9.5)
+      '@trpc/server': 11.0.1(typescript@4.9.5)
       '@types/omelette': 0.4.4
       commander: 13.1.0
       picocolors: 1.1.1
@@ -8136,7 +8136,7 @@ packages:
     dependencies:
       browserslist: 4.23.0
       escalade: 3.1.2
-      picocolors: 1.0.0
+      picocolors: 1.1.1
     dev: true
 
   /update-notifier@7.0.0:

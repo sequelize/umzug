@@ -22,7 +22,8 @@
 	},
 	"tsup": {
 		"entry": ["src/index.ts", "src/cli.ts", "src/umzug.ts"],
-  		"outDir": "lib"
+  		"outDir": "lib",
+		"external": ["effect"]
 	},
 	"devDependencies": {
 		"@types/lodash": "4.17.0",
@@ -45,7 +46,7 @@
 		"source-map-support": "0.5.21",
 		"sqlite3": "5.1.7",
 		"strip-ansi": "6.0.1",
-		"trpc-cli": "0.6.0-7",
+		"trpc-cli": "0.6.0-8",
 		"ts-node": "10.9.2",
 		"tsup": "8.4.0",
 		"typescript": "4.9.5",
