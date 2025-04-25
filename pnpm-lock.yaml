@@ -80,8 +80,8 @@ devDependencies:
     specifier: 6.0.1
     version: 6.0.1
   trpc-cli:
-    specifier: 0.6.0-9
-    version: 0.6.0-9(typescript@4.9.5)
+    specifier: 0.6.0-12
+    version: 0.6.0-12(typescript@4.9.5)
   ts-node:
     specifier: 10.9.2
     version: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
@@ -1551,8 +1551,8 @@ packages:
     dev: true
     optional: true
 
-  /@trpc/server@11.0.1(typescript@4.9.5):
-    resolution: {integrity: sha512-DZS3+bONLno4oJjHBMrS3xRPtoZsnmBImDH/Mmo1QhaFt3Xp/S0Riu7WU/oofsLTVj2m1UO5LlgLJFumvlSNoQ==}
+  /@trpc/server@11.1.1(typescript@4.9.5):
+    resolution: {integrity: sha512-ZjPN3ypBHvGMAlMgeZPrxlRcH/3dn4AK0s5Ph1z+E6uiAvIQVCj7ZoMlXeeBsIy4THGDAk953jHVW2kMnlbb4g==}
     peerDependencies:
       typescript: '>=5.7.2'
     dependencies:
@@ -7799,20 +7799,17 @@ packages:
     hasBin: true
     dev: true
 
-  /trpc-cli@0.6.0-9(typescript@4.9.5):
-    resolution: {integrity: sha512-0ht76PMxx+JnuVbfkuAhcBVGizpHHRrufgjdP+qEPRI31JOm/nXNqzdH8qFoHde4LB5mvSU4PaJRSQo9Z4Fawg==}
+  /trpc-cli@0.6.0-12(typescript@4.9.5):
+    resolution: {integrity: sha512-21FF5XuF+zgL8khVUJiBfDOfxbyd7aEa0clSbvQkisSaUft5Xf65if3t2lLg19xlxRQmCcakK6WNtEmDjKqL5g==}
     engines: {node: '>=18'}
+    hasBin: true
     peerDependencies:
       omelette: '>=0.4.17'
     peerDependenciesMeta:
-      '@trpc/server':
-        optional: true
       omelette:
         optional: true
-      zod:
-        optional: true
     dependencies:
-      '@trpc/server': 11.0.1(typescript@4.9.5)
+      '@trpc/server': 11.1.1(typescript@4.9.5)
       '@types/omelette': 0.4.4
       commander: 13.1.0
       picocolors: 1.1.1
