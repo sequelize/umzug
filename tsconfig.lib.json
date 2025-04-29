@@ -7,7 +7,6 @@
 		"lib": ["es2021"],
 		"outDir": "lib",
 		"noEmit": false,
-		"emitDeclarationOnly": true,
 		"moduleResolution": "Node16"
 	}
 }

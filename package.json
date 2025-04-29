@@ -54,11 +54,10 @@
 		"compile": "tsc -p tsconfig.lib.json",
 		"build": "pnpm clean && pnpm compile",
 		"eslint": "eslint . --max-warnings 0",
-		"lint": "pnpm type-check && pnpm eslint",
+		"lint": "pnpm build && pnpm eslint",
 		"prepare": "pnpm build",
 		"pretest": "rm -rf test/generated",
-		"test": "vitest run",
-		"type-check": "tsc -p ."
+		"test": "vitest run"
 	},
 	"repository": {
 		"type": "git",
