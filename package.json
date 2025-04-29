@@ -20,10 +20,6 @@
 		"pony-cause": "^2.1.4",
 		"type-fest": "^4.0.0"
 	},
-	"tsup": {
-		"entry": ["src/index.ts", "src/cli.ts", "src/umzug.ts"],
-  		"outDir": "lib"
-	},
 	"devDependencies": {
 		"@types/lodash": "4.17.0",
 		"@types/node": "20.12.7",
@@ -55,7 +51,7 @@
 	},
 	"scripts": {
 		"clean": "rm -rf lib",
-		"compile": "tsc -p tsconfig.lib.json && tsup",
+		"compile": "tsc -p tsconfig.lib.json",
 		"build": "pnpm clean && pnpm compile",
 		"eslint": "eslint . --max-warnings 0",
 		"lint": "pnpm type-check && pnpm eslint",
@@ -93,6 +89,6 @@
 	},
 	"homepage": "https://github.com/sequelize/umzug",
 	"engines": {
-		"node": ">=12"
+		"node": ">=22"
 	}
 }

@@ -41,7 +41,7 @@ jobs:
     needs: [create_tgz]
     strategy:
       matrix:
-        node: [20, 18, 16, 14, 12]
+        node: [23, 22, 20, 18, 16]
     steps:
       - uses: actions/setup-node@v4
         with:
