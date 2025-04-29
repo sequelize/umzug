@@ -15,7 +15,6 @@
 	],
 	"packageManager": "pnpm@8.10.2",
 	"dependencies": {
-		"@rushstack/ts-command-line": "^4.12.2",
 		"emittery": "^0.13.0",
 		"fast-glob": "^3.3.2",
 		"pony-cause": "^2.1.4",
@@ -42,7 +41,9 @@
 		"source-map-support": "0.5.21",
 		"sqlite3": "5.1.7",
 		"strip-ansi": "6.0.1",
+		"trpc-cli": "0.6.0-12",
 		"ts-node": "10.9.2",
+		"tsup": "8.4.0",
 		"typescript": "4.9.5",
 		"uuid": "9.0.1",
 		"verror": "1.10.1",
@@ -53,11 +54,10 @@
 		"compile": "tsc -p tsconfig.lib.json",
 		"build": "pnpm clean && pnpm compile",
 		"eslint": "eslint . --max-warnings 0",
-		"lint": "pnpm type-check && pnpm eslint",
+		"lint": "pnpm build && pnpm eslint",
 		"prepare": "pnpm build",
 		"pretest": "rm -rf test/generated",
-		"test": "vitest run",
-		"type-check": "tsc -p ."
+		"test": "vitest run"
 	},
 	"repository": {
 		"type": "git",
@@ -88,6 +88,6 @@
 	},
 	"homepage": "https://github.com/sequelize/umzug",
 	"engines": {
-		"node": ">=12"
+		"node": ">=22"
 	}
 }
