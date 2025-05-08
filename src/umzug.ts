@@ -1,5 +1,5 @@
 import emittery from 'emittery'
-import {glob} from 'fast-glob'
+import {glob} from 'tinyglobby'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as errorCause from 'pony-cause'
@@ -494,7 +494,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
     const resolver: Resolver<Ctx> = inputMigrations.resolve ?? Umzug.defaultResolver
 
     return async context => {
-      const paths = await glob(globString, {...globOptions, ignore, absolute: true})
+      const paths = await glob(globString, {...globOptions, ignore, expandDirectories: false, absolute: true})
       paths.sort() // glob returns results in reverse alphabetical order these days, but it has never guaranteed not to do that https://github.com/isaacs/node-glob/issues/570
       return paths.map(unresolvedPath => {
         const filepath = path.resolve(unresolvedPath)
