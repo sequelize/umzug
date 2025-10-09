@@ -27,6 +27,7 @@
 		"test",
 		"examples",
 		"*.md",
+		"*.ts",
 		"*.js",
 		".*.js"
 	],
