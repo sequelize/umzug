@@ -5,5 +5,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 10_000,
+    coverage: {
+      include: ['src/**'],
+    },
   },
 })
