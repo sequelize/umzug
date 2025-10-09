@@ -44,7 +44,7 @@ describe('basic usage', () => {
   })
 
   test('imports esm files', async () => {
-    const spy = jest.spyOn(console, 'log').mockReset()
+    const spy = jest.spyOn(console, 'log').mockImplementation(() => {})
 
     const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/esm'), {
       'm1.mjs': `
@@ -78,9 +78,9 @@ describe('basic usage', () => {
   })
 
   test('imports typescript esm files', async () => {
-    const spy = jest.spyOn(console, 'log').mockReset()
+    const spy = jest.spyOn(console, 'log').mockImplementation(() => {})
 
-    const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/esm'), {
+    const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/esm-ts'), {
       'm1.mts': `export const up = async (params: {}) => console.log('up1', params)`,
     })
     syncer.sync()
