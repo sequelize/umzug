@@ -25,9 +25,11 @@ export type ModelClass = {
  */
 export type SequelizeType = {
   getQueryInterface(): any
-  isDefined(modelName: string): boolean
   model(modelName: string): any
   define(modelName: string, columns: {}, options: {}): {}
+  models?: {
+    hasByName(modelName: string): boolean
+  }
   dialect?: {
     name?: string
   }
@@ -128,7 +130,7 @@ export class SequelizeStorage implements UmzugStorage {
   }
 
   getModel(): ModelClassType {
-    if (this.sequelize.isDefined(this.modelName)) {
+    if (this.sequelize.models?.hasByName(this.modelName)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return this.sequelize.model(this.modelName)
     }
