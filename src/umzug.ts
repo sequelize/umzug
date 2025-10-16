@@ -48,9 +48,11 @@ export class MigrationError extends errorCause.ErrorWithCause<unknown> {
   }
 
   private static errorString(cause: unknown) {
-    return cause instanceof Error
-      ? `Original error: ${cause.message}`
-      : `Non-error value thrown. See info for full props: ${cause as string}`
+    if (cause instanceof Error) return `Original error: ${cause.message}`
+    const msg = 'Non-error value thrown. See info for full props'
+    if (typeof cause !== 'object' || (cause as {}).toString !== undefined) return `${msg}: ${String(cause)}`
+    //Null prototype object 'cause' would end up here
+    return msg
   }
 }
 
