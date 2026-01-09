@@ -89,7 +89,9 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
 
   /** creates a new Umzug instance */
   constructor(readonly options: UmzugOptions<Ctx>) {
-    super()
+    super({
+      debug: {name: 'umzug'},
+    })
 
     this.storage = verifyUmzugStorage(options.storage ?? new JSONStorage())
     this.migrations = this.getMigrationsResolver(this.options.migrations)
