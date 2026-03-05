@@ -168,7 +168,7 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
    */
   async runAsCLI(argv?: string[]): Promise<boolean> {
     const cli = this.getCli()
-    return cli.execute(argv)
+    return cli.executeAsync(argv)
   }
 
   /** Get the list of migrations which have already been applied */
