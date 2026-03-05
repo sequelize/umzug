@@ -11,6 +11,7 @@ export class UpAction extends cli.CommandLineAction {
       summary: 'Applies pending migrations',
       documentation: 'Performs all migrations. See --help for more options',
     })
+    this._params = UpAction._defineParameters(this)
   }
 
   private static _defineParameters(action: UpAction) {
@@ -39,11 +40,7 @@ export class UpAction extends cli.CommandLineAction {
     }
   }
 
-  onDefineParameters(): void {
-    this._params = UpAction._defineParameters(this)
-  }
-
-  async onExecute(): Promise<void> {
+  async onExecuteAsync(): Promise<void> {
     const {
       to: {value: to},
       step: {value: step},
@@ -86,6 +83,7 @@ export class DownAction extends cli.CommandLineAction {
       documentation:
         'Undoes previously-applied migrations. By default, undoes the most recent migration only. Use --help for more options. Useful in development to start from a clean slate. Use with care in production!',
     })
+    this._params = DownAction._defineParameters(this)
   }
 
   private static _defineParameters(action: DownAction) {
@@ -115,11 +113,7 @@ export class DownAction extends cli.CommandLineAction {
     }
   }
 
-  onDefineParameters(): void {
-    this._params = DownAction._defineParameters(this)
-  }
-
-  async onExecute(): Promise<void> {
+  async onExecuteAsync(): Promise<void> {
     const {
       to: {value: to},
       step: {value: step},
@@ -169,6 +163,7 @@ export class ListAction extends cli.CommandLineAction {
       summary: `Lists ${action} migrations`,
       documentation: `Prints migrations returned by \`umzug.${action}()\`. By default, prints migration names one per line.`,
     })
+    this._params = ListAction._defineParameters(this)
   }
 
   private static _defineParameters(action: cli.CommandLineAction) {
@@ -182,11 +177,7 @@ export class ListAction extends cli.CommandLineAction {
     }
   }
 
-  onDefineParameters(): void {
-    this._params = ListAction._defineParameters(this)
-  }
-
-  async onExecute(): Promise<void> {
+  async onExecuteAsync(): Promise<void> {
     const migrations = await this.umzug[this.action]()
     const formatted = this._params.json.value
       ? JSON.stringify(migrations, null, 2)
@@ -206,6 +197,7 @@ export class CreateAction extends cli.CommandLineAction {
       documentation:
         'Generates a placeholder migration file using a timestamp as a prefix. By default, mimics the last existing migration, or guesses where to generate the file if no migration exists yet.',
     })
+    this._params = CreateAction._defineParameters(this)
   }
 
   private static _defineParameters(action: cli.CommandLineAction) {
@@ -251,11 +243,7 @@ export class CreateAction extends cli.CommandLineAction {
     }
   }
 
-  onDefineParameters(): void {
-    this._params = CreateAction._defineParameters(this)
-  }
-
-  async onExecute(): Promise<void> {
+  async onExecuteAsync(): Promise<void> {
     await this.umzug
       .create({
         name: this._params.name.value,
@@ -299,6 +287,4 @@ export class UmzugCLI extends cli.CommandLineParser {
     this.addAction(new ListAction('executed', umzug))
     this.addAction(new CreateAction(umzug))
   }
-
-  onDefineParameters(): void {}
 }
