@@ -2,7 +2,7 @@
 
 ...
 
-`npm run lint -- --fix` output:
+`npm run codegen` output:
 
 ...
 
@@ -30,6 +30,6 @@
 
 { event: 'created', path: '<<timestamp>>.new-migration.ts' }
 
-`npm run lint -- --fix` output:
+`npm run codegen` output:
 
 ...

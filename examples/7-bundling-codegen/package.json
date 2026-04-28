@@ -2,13 +2,10 @@
   "name": "umzug-bundling-example",
   "version": "0.0.0",
   "scripts": {
-    "build": "tsup umzug.ts --external pg-hstore",
-    "lint": "eslint ."
+    "build": "npm run codegen && esbuild umzug.ts --bundle --platform=node --outfile=dist/umzug.js --external:pg-hstore",
+    "codegen": "node codegen.mjs"
   },
   "devDependencies": {
-    "eslint": "8.57.0",
-    "eslint-plugin-codegen": "0.28.0",
-    "tsup": "8.0.2",
-    "typescript-eslint": "7.3.1"
+    "esbuild": "0.28.0"
   }
 }
