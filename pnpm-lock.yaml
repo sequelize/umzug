@@ -56,8 +56,8 @@ devDependencies:
     specifier: 0.5.3
     version: 0.5.3
   lodash:
-    specifier: 4.17.21
-    version: 4.17.21
+    specifier: 4.18.1
+    version: 4.18.1
   np:
     specifier: 10.0.5
     version: 10.0.5(typescript@4.9.5)
@@ -3292,7 +3292,7 @@ packages:
       io-ts: 2.2.21(fp-ts@2.16.4)
       io-ts-extra: 0.11.6
       js-yaml: 3.14.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       read-pkg-up: 7.0.1
     transitivePeerDependencies:
       - babel-plugin-macros
@@ -3445,7 +3445,7 @@ packages:
       eslint-plugin-vitest: 0.3.26(@typescript-eslint/eslint-plugin@7.3.1)(eslint@8.57.0)(typescript@4.9.5)(vitest@3.2.4)
       eslint-plugin-wrapper: 0.1.0-1
       globals: 14.0.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       prettier: 3.2.5
       typescript-eslint: 7.3.1(eslint@8.57.0)(typescript@4.9.5)
     transitivePeerDependencies:
@@ -4486,7 +4486,7 @@ packages:
       cli-width: 2.2.1
       external-editor: 3.1.0
       figures: 2.0.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       mute-stream: 0.0.7
       run-async: 2.4.1
       rxjs: 6.6.7
@@ -4505,7 +4505,7 @@ packages:
       cli-width: 3.0.0
       external-editor: 3.1.0
       figures: 3.2.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       mute-stream: 0.0.8
       run-async: 2.4.1
       rxjs: 6.6.7
@@ -4525,7 +4525,7 @@ packages:
       cli-width: 4.1.0
       external-editor: 3.1.0
       figures: 3.2.0
-      lodash: 4.17.21
+      lodash: 4.18.1
       mute-stream: 1.0.0
       ora: 5.4.1
       run-async: 3.0.0
@@ -5279,8 +5279,8 @@ packages:
     resolution: {integrity: sha512-C7IOaBBK/0gMORRBd8OETNx3kmOkgIWIPvyDpZSCTwUrpYmgZwJkjZeOD8ww4xbOUOs4/attY+pciKvadNfFbg==}
     dev: true
 
-  /lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+  /lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
     dev: true
 
   /log-symbols@1.0.2:
@@ -6785,7 +6785,7 @@ packages:
       debug: 4.3.4
       dottie: 2.0.6
       inflection: 1.13.4
-      lodash: 4.17.21
+      lodash: 4.18.1
       moment: 2.30.1
       moment-timezone: 0.5.45
       pg-connection-string: 2.6.2
