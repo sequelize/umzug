@@ -22,7 +22,7 @@ dependencies:
     version: 0.2.16
   type-fest:
     specifier: ^4.0.0
-    version: 4.14.0
+    version: 4.41.0
 
 devDependencies:
   '@types/lodash':
@@ -6121,7 +6121,7 @@ packages:
     dependencies:
       '@babel/code-frame': 7.24.2
       index-to-position: 0.1.2
-      type-fest: 4.14.0
+      type-fest: 4.41.0
     dev: true
 
   /path-exists@4.0.0:
@@ -6430,7 +6430,7 @@ packages:
     dependencies:
       find-up-simple: 1.0.0
       read-pkg: 9.0.1
-      type-fest: 4.14.0
+      type-fest: 4.41.0
     dev: true
 
   /read-pkg-up@7.0.1:
@@ -6459,7 +6459,7 @@ packages:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 6.0.0
       parse-json: 8.1.0
-      type-fest: 4.14.0
+      type-fest: 4.41.0
       unicorn-magic: 0.1.0
     dev: true
 
@@ -7461,8 +7461,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /type-fest@4.14.0:
-    resolution: {integrity: sha512-on5/Cw89wwqGZQu+yWO0gGMGu8VNxsaW9SB2HE8yJjllEk7IDTwnSN1dUVldYILhYPN5HzD7WAaw2cc/jBfn0Q==}
+  /type-fest@4.41.0:
+    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
   /typed-array-buffer@1.0.2:
