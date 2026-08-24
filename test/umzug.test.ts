@@ -1071,6 +1071,14 @@ describe('error cases', () => {
         }),
     ).toThrow(/Invalid umzug storage/)
   })
+  test('missing migrations input', () => {
+    expect(
+      () =>
+        new Umzug({
+          logger: undefined,
+        } as any),
+    ).toThrow(/Invalid migrations input/)
+  })
   test('unresolvable file', async () => {
     const syncer = fsSyncer(path.join(__dirname, 'generated/umzug/errors/unresolvable'), {
       'migration1.txt': 'create table somehow',

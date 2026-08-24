@@ -487,6 +487,12 @@ export class Umzug<Ctx extends object = object> extends emittery<UmzugEvents<Ctx
       }
     }
 
+    if (typeof inputMigrations !== 'object' || inputMigrations === null) {
+      throw new Error(
+        `Invalid migrations input. Expected an array of migrations, a migrations function, or an object with a "glob" property.`,
+      )
+    }
+
     const fileGlob = inputMigrations.glob
     const [globString, globOptions] = Array.isArray(fileGlob) ? fileGlob : [fileGlob]
     const ignore = typeof globOptions?.ignore === 'string' ? [globOptions.ignore] : globOptions?.ignore
