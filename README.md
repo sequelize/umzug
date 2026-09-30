@@ -408,6 +408,20 @@ Note on migration file sorting:
 - The easiest way to deal with this is to ensure your migrations appear in a single folder, and their paths match lexicographically with the order they should run in
 - If this isn't possible, the ordering can be customised using a new instance (previously, in the beta release for v3, this could be done with `.extend(...)` - see below for example using a new instance)
 
+#### Checking PostgreSQL SQL migrations before execution
+
+When a custom resolver reads PostgreSQL SQL files, you can check those files separately before running `umzug.up()`. For example, [pgfence](https://pgfence.com) reports migration lock risks and suggested rewrites without executing the SQL or connecting to a database. It requires Node.js 20 or newer, independently of Umzug's supported Node.js versions.
+
+Run the check in CI against the forward migration files being introduced or changed. For the `.up.sql` naming convention above:
+
+```sh
+npx --yes @flvmnt/pgfence@0.8.1 analyze --format sql --ci --max-risk medium migrations/2024.01.01T00.00.00.add-status.up.sql
+```
+
+Replace the filename with the files you want to review; multiple paths can be passed. `--max-risk medium` fails the check for high or critical risks, and policy errors such as a missing `SET lock_timeout` also produce a nonzero exit code. Review `.down.sql` files separately, since rollback migrations may intentionally drop data or schema objects.
+
+This checks the SQL files supplied to the command. It does not inspect JavaScript migration callbacks or SQL constructed at runtime, discover which migrations are pending, or verify the current database schema and workload. Keep database-backed migration tests and review the findings before executing the migrations.
+
 ### Upgrading from v2.x
 
 The Umzug class should be imported as a named import, i.e. `import { Umzug } from 'umzug'`.
