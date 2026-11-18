@@ -174,6 +174,8 @@ export class SequelizeStorage implements UmzugStorage {
       where: {
         [this.columnName]: migrationName,
       },
+      // hard delete even if the model is paranoid, so that the migration can be logged again
+      force: true,
     })
   }
 
