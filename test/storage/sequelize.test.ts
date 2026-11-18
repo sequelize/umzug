@@ -352,6 +352,26 @@ describe('sequelize', () => {
           expect(Object.keys(migrations)).toHaveLength(0)
         })
     })
+
+    it('deletes the migration from the database when models are paranoid by default', async () => {
+      const paranoidSequelize = new sequelize.Sequelize('database', 'username', 'password', {
+        dialect: 'sqlite',
+        logging: false,
+        define: {paranoid: true},
+      })
+      const storage = new Storage({
+        sequelize: paranoidSequelize,
+        timestamps: true,
+      })
+
+      await storage.logMigration({name: 'asd.js'})
+      await storage.unlogMigration({name: 'asd.js'})
+      expect(await storage.model.findAll({paranoid: false})).toHaveLength(0)
+
+      // the migration can be run again after it was reverted
+      await storage.logMigration({name: 'asd.js'})
+      expect(await storage.executed()).toEqual(['asd.js'])
+    })
   })
 
   describe('executed', () => {
